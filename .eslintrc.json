@@ -1,0 +1,44 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "plugins": [ ],
+    "extends": [ "eslint:recommended" ],
+    "parser": "babel-eslint",
+    "rules": {
+        "prefer-const": [ 
+            "error",
+            {
+              "destructuring": "any",
+              "ignoreReadBeforeAssign": false
+            }
+        ],
+        "no-var": ["error"],
+        "no-unused-vars": ["warn"],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "indent": [
+            "error",
+            2
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "brace-style": [
+            "error",
+            "allman"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "no-console": ["warn"],
+        "array-bracket-spacing": ["error", "always"],
+        "arrow-body-style": ["error", "always"]
+    }
+}

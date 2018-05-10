@@ -1,0 +1,26 @@
+{
+  "name": "untitled-keyboard-launcher",
+  "version": "0.1.0",
+  "description": "The most useless and ugly keyboard launcher in the planet",
+  "main": "app.js",
+  "scripts": {
+    "test": ".",
+    "dev": "webpack --config ./webpack.config.js && electron .",
+    "build": "webpack --config ./webpack.config.js",
+    "update": "ncu",
+    "commit-update": "ncu -u"
+  },
+  "author": "Kerolos Zaki",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "electron": "^2.0.0",
+    "eslint": "^4.19.1",
+    "npm-check-updates": "^2.14.2",
+    "webpack": "^4.8.1",
+    "webpack-cli": "^2.1.3"
+  }
+}
