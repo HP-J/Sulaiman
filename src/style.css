@@ -3,3 +3,9 @@ html
   background-color: red;
   overflow: hidden
 }
+
+input
+{
+  background-color: blue;
+  border: 0px;
+}

@@ -24,13 +24,31 @@ const location =
   y: Math.floor((screenSize.height - size.yOpened) / 2),
 };
 
-currentWindow.setSize(size.x, size.yClosed);
-currentWindow.setPosition(location.x, location.y);
+let input;
 
-// TODO if the app lost focus, hide it
+function init()
+{
+  currentWindow.setSize(size.x, size.yClosed);
+  currentWindow.setPosition(location.x, location.y);
 
-// window.onkeyup = (event) =>
-// {
-//   if (event.keyCode === 27)
-//     currentWindow.close();
-// };
+  input = document.getElementById('input');
+
+  input.style.position = 'absolute';
+  input.style.bottom = '10px';
+  input.style.left = '10px';
+
+  input.style.width = (size.x - 20) + 'px';
+  input.style.height = (size.yClosed - 20) + 'px';
+
+  // currentWindow.openDevTools();
+
+  // TODO if the app lost focus, hide it
+
+  // window.onkeyup = (event) =>
+  // {
+  //   if (event.keyCode === 27)
+  //     currentWindow.close();
+  // };
+}
+
+init();
