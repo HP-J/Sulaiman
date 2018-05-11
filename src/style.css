@@ -4,8 +4,38 @@ html
   overflow: hidden
 }
 
+@font-face {
+  font-family: Oxygen;
+  src: url(./Oxygen-Light.ttf);
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Oxygen;
+  src: url(./Oxygen-Regular.ttf);
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Oxygen;
+  src: url(./Oxygen-Bold.ttf);
+  font-weight: 300;
+}
+
 input
 {
-  background-color: blue;
+  background-color: #3E4143;
+  color: #FFFFFF;
   border: 0px;
+  font-family: Oxygen;
+  font-weight: 200;
+  overflow: hidden;
+  position: absolute;
+  left: 10px;
+  top: 0px;
+}
+
+input:focus
+{
+  outline: none;
 }

@@ -13,9 +13,9 @@ function mp(number, p)
 
 const size =
 {
-  x: mp(screenSize.width, 60),
+  x: mp(screenSize.width, 50),
   yOpened: mp(screenSize.height, 70),
-  yClosed: mp(screenSize.height, 8),
+  yClosed: mp(screenSize.height, 7),
 };
 
 const location =
@@ -26,6 +26,24 @@ const location =
 
 let input;
 
+function getStyle(oElm, strCssRule)
+{
+  let strValue = '';
+  if(document.defaultView && document.defaultView.getComputedStyle)
+  {
+    strValue = document.defaultView.getComputedStyle(oElm, '').getPropertyValue(strCssRule);
+  }
+  else if(oElm.currentStyle)
+  {
+    strCssRule = strCssRule.replace(/-(\w)/g, function (strMatch, p1)
+    {
+      return p1.toUpperCase();
+    });
+    strValue = oElm.currentStyle[strCssRule];
+  }
+  return strValue;
+}
+
 function init()
 {
   currentWindow.setSize(size.x, size.yClosed);
@@ -33,12 +51,13 @@ function init()
 
   input = document.getElementById('input');
 
-  input.style.position = 'absolute';
-  input.style.bottom = '10px';
-  input.style.left = '10px';
+  const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
-  input.style.width = (size.x - 20) + 'px';
-  input.style.height = (size.yClosed - 20) + 'px';
+  input.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
+  input.style.height = size.yClosed + 'px';
+  input.style.fontSize = (size.yClosed / 2) + 'px';
+
+  input.focus();
 
   // currentWindow.openDevTools();
 
