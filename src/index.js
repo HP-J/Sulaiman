@@ -1,3 +1,6 @@
 import { remote } from 'electron';
 
-// remote.getCurrentWindow().setSize(50, 50);
+const currentWindow = remote.getCurrentWindow();
+
+currentWindow.setSize(50, 50);
+// currentWindow.setSkipTaskbar(true);

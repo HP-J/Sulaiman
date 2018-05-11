@@ -1,19 +1,14 @@
 const path = require('path');
 
-function f(t)
-{
-  return path.join(__dirname, t);
-}
-
 module.exports =
 {
   devtool: 'cheap-eval-source-map',
   mode: 'none',
-  entry: f('./src/index.js'),
+  entry: './src/index.js',
   target: 'electron-main',
   output:
     {
-      path: f('/src'),
+      path: path.join(__dirname, '/src'),
       publicPath: '/',
       filename: 'bundle.js'
     },
