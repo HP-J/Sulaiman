@@ -17,9 +17,10 @@ function createWindow ()
   mainWindow = new BrowserWindow(
     {
       frame: false,
-      resizable: false,
-      focusable: false
-      // skipTaskbar: true
+      // resizable: false,
+      skipTaskbar: true,
+      width: 0,
+      height: 0
     }
   );
 
