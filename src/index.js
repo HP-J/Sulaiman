@@ -24,7 +24,6 @@ const location =
   y: Math.floor((screenSize.height - size.yOpened) / 2),
 };
 
-let input;
 
 function getStyle(oElm, strCssRule)
 {
@@ -44,18 +43,23 @@ function getStyle(oElm, strCssRule)
   return strValue;
 }
 
+let input, placeholder;
+
 function init()
 {
   currentWindow.setSize(size.x, size.yClosed);
   currentWindow.setPosition(location.x, location.y);
 
   input = document.getElementById('input');
+  placeholder = document.getElementById('placeholder');
+
+  placeholder.value = 'Search';
 
   const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
-  input.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
-  input.style.height = size.yClosed + 'px';
-  input.style.fontSize = (size.yClosed / 2) + 'px';
+  input.style.width = placeholder.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
+  input.style.height = placeholder.style.height = size.yClosed + 'px';
+  input.style.fontSize = placeholder.style.fontSize  = (size.yClosed / 2) + 'px';
 
   input.focus();
 

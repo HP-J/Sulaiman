@@ -22,9 +22,16 @@ html
   font-weight: 300;
 }
 
+.placeholder
+{
+  background-color: rgba(253, 27, 27, 0);
+  z-index: 1;
+}
+
 input
 {
   background-color: #3E4143;
+  z-index: 0;
   color: #FFFFFF;
   border: 0px;
   font-family: Oxygen;
