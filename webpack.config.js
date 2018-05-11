@@ -2,8 +2,9 @@ const path = require('path');
 
 module.exports =
 {
-  devtool: 'cheap-eval-source-map',
-  mode: 'none',
+  devtool: 'none',
+  // devtool: 'cheap-eval-source-map',
+  mode: 'production',
   entry: './src/index.js',
   target: 'electron-main',
   output:
@@ -22,8 +23,5 @@ module.exports =
           exclude: /node_modules/
         }
       ]
-    },
-  plugins:
-    [
-    ]
+    }
 };
