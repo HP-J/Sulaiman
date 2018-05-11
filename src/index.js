@@ -3,29 +3,43 @@ import { remote, screen } from 'electron';
 const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-/** @param { number } number 
-* @param { number } p 
+/** the box the user will use to write
+* @type { HTMLElement }
 */
-function mp(number, p)
-{
-  return Math.floor(number * (p / 100));
-}
+let input;
 
+/** the placeholder that will show auto-complete
+* @type { HTMLElement }
+*/
+let placeholder;
+
+// the size of the windows (based on screen-size)
 const size =
 {
-  x: mp(screenSize.width, 50),
-  yOpened: mp(screenSize.height, 70),
-  yClosed: mp(screenSize.height, 7),
+  x: multiPercent(screenSize.width, 50),
+  yOpened: multiPercent(screenSize.height, 70),
+  yClosed: multiPercent(screenSize.height, 7),
 };
 
+// the size of the windows (based on screen-size and window-size)
 const location =
 {
   x: Math.floor((screenSize.width - size.x) / 2),
   y: Math.floor((screenSize.height - size.yOpened) / 2),
 };
 
-/** @param { HTMLElement } oElm 
-* @param { string } strCssRule 
+/** Multiple a number by a percentage
+* @param { number } number 
+* @param { number } percentage
+*/
+function multiPercent(number, percentage)
+{
+  return Math.floor(number * (percentage / 100));
+}
+
+/** get a css value from an element
+* @param { HTMLElement } oElm the html element
+* @param { string } strCssRule the rule you need to extract the value from
 */
 function getStyle(oElm, strCssRule)
 {
@@ -45,7 +59,8 @@ function getStyle(oElm, strCssRule)
   return strValue;
 }
 
-/** @param { string } s 
+/** remove a piece of a string with indies
+* @param { string } s 
 * @param { number } startIndex 
 * @param { number } endIndex 
 */
@@ -54,19 +69,13 @@ function remove(s, startIndex, endIndex)
   return s.substring(0, startIndex) + s.substring(endIndex);
 }
 
-/** @type { HTMLElement }
-*/
-let input;
-
-/** @type { HTMLElement }
-*/
-let placeholder;
-
+// what happen when the app restores focus
 function focus()
 {
   input.focus();
 }
 
+// what happen when the app restores loses focus
 function blur()
 {
   mainWindow.hide();
@@ -75,6 +84,7 @@ function blur()
   updatePlaceholder();
 }
 
+// update the placeholder when the user writes into input
 function updatePlaceholder()
 {
   if (placeholder.value.length > 0)
@@ -83,32 +93,41 @@ function updatePlaceholder()
     placeholder.value = placeholder.current = placeholder.default;
 }
 
+// what happens when the app first starts the renderer-process
 function init()
 {
+  // set the window's size
   mainWindow.setSize(size.x, size.yOpened);
+
+  // set the window's location
   mainWindow.setPosition(location.x, location.y);
 
+  // load the elements from html
   input = document.getElementById('input');
   placeholder = document.getElementById('placeholder');
 
+  // set the default placeholder sentence when the input string is empty
   placeholder.value = placeholder.current = placeholder.default = 'Search';
 
+  // get the input element's padding
   const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
+  // set the input element's size and font-size
   input.style.width = placeholder.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
   input.style.height = placeholder.style.height = size.yClosed + 'px';
   input.style.fontSize = placeholder.style.fontSize  = (size.yClosed / 2) + 'px';
 
+  // register the onInput event with updatePlaceholder() function
   input.oninput = updatePlaceholder;
 
   // currentWindow.openDevTools();
 
+  // register the focus and blur events with their functions
   mainWindow.on('focus', focus);
   mainWindow.on('blur', blur);
 
+  // reset the focus
   focus();
-
-  // TODO if the app lost focus, hide it
 
   // window.onkeyup = (event) =>
   // {

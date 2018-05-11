@@ -43,6 +43,7 @@ function createWindow ()
     mainWindow = null;
   });
 
+  // how to restore the app when it's hidden
   electron.globalShortcut.register('Control+Space', () =>
   {
     mainWindow.show();
