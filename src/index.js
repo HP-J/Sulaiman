@@ -56,8 +56,6 @@ function remove(s, startIndex, endIndex)
 
 let input, placeholder;
 
-const placeholderDefaultText = 'Search';
-
 function init()
 {
   currentWindow.setSize(size.x, size.yOpened);
@@ -66,7 +64,7 @@ function init()
   input = document.getElementById('input');
   placeholder = document.getElementById('placeholder');
 
-  placeholder.value = placeholderDefaultText;
+  placeholder.value = placeholder.current = placeholder.default = 'Search';
 
   const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
@@ -76,19 +74,15 @@ function init()
 
   input.oninput = () =>
   {
-    // console.log();
-    
-    placeholder.value = input.value + remove(placeholder.value, 0, input.value.length); 
-    // placeholder.value = input.value;
-
+    if (placeholder.value.length > 0)
+      placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
+    else
+      placeholder.value = placeholder.current = placeholder.default;
   };
 
   // currentWindow.openDevTools();
 
   input.focus();
-
-  // console.log('s'.length);
-
 
   // TODO if the app lost focus, hide it
 
