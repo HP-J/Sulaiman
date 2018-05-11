@@ -1,6 +1,6 @@
 import { remote, screen } from 'electron';
 
-const currentWindow = remote.getCurrentWindow();
+const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
 /** @param { number } number 
@@ -54,12 +54,39 @@ function remove(s, startIndex, endIndex)
   return s.substring(0, startIndex) + s.substring(endIndex);
 }
 
-let input, placeholder;
+/** @type { HTMLElement }
+*/
+let input;
+
+/** @type { HTMLElement }
+*/
+let placeholder;
+
+function focus()
+{
+  input.focus();
+}
+
+function blur()
+{
+  mainWindow.hide();
+
+  input.value = '';
+  updatePlaceholder();
+}
+
+function updatePlaceholder()
+{
+  if (placeholder.value.length > 0)
+    placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
+  else
+    placeholder.value = placeholder.current = placeholder.default;
+}
 
 function init()
 {
-  currentWindow.setSize(size.x, size.yOpened);
-  currentWindow.setPosition(location.x, location.y);
+  mainWindow.setSize(size.x, size.yOpened);
+  mainWindow.setPosition(location.x, location.y);
 
   input = document.getElementById('input');
   placeholder = document.getElementById('placeholder');
@@ -72,17 +99,14 @@ function init()
   input.style.height = placeholder.style.height = size.yClosed + 'px';
   input.style.fontSize = placeholder.style.fontSize  = (size.yClosed / 2) + 'px';
 
-  input.oninput = () =>
-  {
-    if (placeholder.value.length > 0)
-      placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
-    else
-      placeholder.value = placeholder.current = placeholder.default;
-  };
+  input.oninput = updatePlaceholder;
 
   // currentWindow.openDevTools();
 
-  input.focus();
+  mainWindow.on('focus', focus);
+  mainWindow.on('blur', blur);
+
+  focus();
 
   // TODO if the app lost focus, hide it
 

@@ -9,6 +9,8 @@ const url = require('url');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+/** @type { BrowserWindow }
+*/
 let mainWindow;
 
 function createWindow () 
@@ -17,8 +19,9 @@ function createWindow ()
   mainWindow = new BrowserWindow(
     {
       frame: false,
-      // resizable: false,
+      resizable: false,
       skipTaskbar: true,
+      title: 'Sulaiman',
       width: 0,
       height: 0
     }
@@ -31,9 +34,6 @@ function createWindow ()
     slashes: true
   }));
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
-
   // Emitted when the window is closed.
   mainWindow.on('closed', function () 
   {
@@ -43,7 +43,11 @@ function createWindow ()
     mainWindow = null;
   });
 
-  global.mainWindow = mainWindow;
+  electron.globalShortcut.register('Control+Space', () =>
+  {
+    mainWindow.show();
+    mainWindow.setSkipTaskbar(true);
+  });
 }
 
 // fix chrome/linux color issue
@@ -64,6 +68,12 @@ app.on('window-all-closed', function ()
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') 
     app.quit();
+});
+
+app.on('will-quit', () => 
+{
+  // Unregister all shortcuts
+  electron.globalShortcut.unregisterAll();
 });
 
 app.on('activate', function () 
