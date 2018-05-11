@@ -3,7 +3,7 @@ import { remote, screen } from 'electron';
 const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-/** the box the user will use to write
+/** the element the user will use to write
 * @type { HTMLElement }
 */
 let input;

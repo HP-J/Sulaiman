@@ -1,7 +1,7 @@
 {
-  "name": "project-sulaiman",
+  "name": "sulaiman",
   "version": "0.1.0",
-  "description": "The most useless and ugly keyboard launcher in the planet",
+  "description": "the most useless and ugly keyboard launcher in the planet",
   "main": "app.js",
   "scripts": {
     "dev": "webpack --config webpack.config.js && electron . && rm ./src/bundle.js",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/ker0olos/Project-Sulaiman.git"
+    "url": "https://gitlab.com/ker0olos/sulaiman.git"
   },
   "author": "Kerolos Zaki",
   "license": "MIT",

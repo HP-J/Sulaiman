@@ -21,7 +21,6 @@ function createWindow ()
       frame: false,
       resizable: false,
       skipTaskbar: true,
-      title: 'Sulaiman',
       width: 0,
       height: 0
     }
