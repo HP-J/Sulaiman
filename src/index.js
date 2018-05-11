@@ -24,7 +24,9 @@ const location =
   y: Math.floor((screenSize.height - size.yOpened) / 2),
 };
 
-
+/** @param { HTMLElement } oElm 
+* @param { string } strCssRule 
+*/
 function getStyle(oElm, strCssRule)
 {
   let strValue = '';
@@ -43,17 +45,28 @@ function getStyle(oElm, strCssRule)
   return strValue;
 }
 
+/** @param { string } s 
+* @param { number } startIndex 
+* @param { number } endIndex 
+*/
+function remove(s, startIndex, endIndex)
+{
+  return s.substring(0, startIndex) + s.substring(endIndex);
+}
+
 let input, placeholder;
+
+const placeholderDefaultText = 'Search';
 
 function init()
 {
-  currentWindow.setSize(size.x, size.yClosed);
+  currentWindow.setSize(size.x, size.yOpened);
   currentWindow.setPosition(location.x, location.y);
 
   input = document.getElementById('input');
   placeholder = document.getElementById('placeholder');
 
-  placeholder.value = 'Search';
+  placeholder.value = placeholderDefaultText;
 
   const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
@@ -61,9 +74,21 @@ function init()
   input.style.height = placeholder.style.height = size.yClosed + 'px';
   input.style.fontSize = placeholder.style.fontSize  = (size.yClosed / 2) + 'px';
 
-  input.focus();
+  input.oninput = () =>
+  {
+    // console.log();
+    
+    placeholder.value = input.value + remove(placeholder.value, 0, input.value.length); 
+    // placeholder.value = input.value;
+
+  };
 
   // currentWindow.openDevTools();
+
+  input.focus();
+
+  // console.log('s'.length);
+
 
   // TODO if the app lost focus, hide it
 
