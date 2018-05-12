@@ -1,7 +1,14 @@
 import { remote, screen, ipcRenderer } from 'electron';
+// import s from '../resources/next.svg';
+
+import fs from 'fs';
+import path from 'path';
+import svgload from './svgload.js';
 
 const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
+
+logToMain(svgload('../resources/next.svg'));
 
 /** the element the user will use to write
 * @type { HTMLElement }
@@ -20,7 +27,7 @@ const size =
   x: multiPercent(screenSize.width, 50),
   yFull: multiPercent(screenSize.height, 70),
   yBar: multiPercent(screenSize.height, 7),
-  yClient: function() { return this.yFull - this.yBar; }
+  yClient: 0
 };
 
 /** the size of the windows (based on screen-size and window-size)
@@ -108,14 +115,17 @@ function logToMain(args)
 */
 function init()
 {
+  // set the client size
+  size.yClient = size.yFull - size.yBar;
+
   // set the electron window size
   mainWindow.setSize(size.x, size.yFull);
 
   // set the electron window location
   mainWindow.setPosition(location.x, location.y);
 
-  createBar();
-  registerEvents();
+  // createBar();
+  // registerEvents();
 
   // reset the focus
   // focus();
@@ -174,22 +184,36 @@ function registerEvents()
   };
 }
 
+let buttons = 0;
+
 function createButton()
 {
   const div = document.createElement('div');
   div.className = 'button';
-  div.innerHTML = 'Hello';
 
   div.style.position = 'absolute';
 
   div.style.left = 0;
-  div.style.top = size.yBar + 'px';
+  div.style.top = (size.yBar + (multiPercent(size.yClient, 10) * buttons)) + 'px';
+
+  buttons += 1;
 
   div.style.width = size.x + 'px';
-  div.style.height = 100 + 'px';
+  div.style.height = multiPercent(size.yClient, 15) + 'px';
+
+  // div.style.visibility = 'hidden';
 
   document.body.appendChild(div);
 }
 
 init();
-createButton();
+
+// logToMain(s);
+
+// createButton();
+// createButton();
+// createButton();
+
+// createButton();
+// createButton();
+// createButton();

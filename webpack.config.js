@@ -6,7 +6,11 @@ module.exports =
   // devtool: 'cheap-eval-source-map',
   mode: 'production',
   entry: './src/index.js',
-  target: 'electron-main',
+  target: 'electron-renderer',
+  node: {
+    __filename: false,
+    __dirname: false
+  },
   output:
     {
       path: path.join(__dirname, '/src'),
@@ -19,7 +23,12 @@ module.exports =
       [
         {
           test: /\.js$/,
-          loader: 'babel-loader',
+          use: 'babel-loader',
+          exclude: /node_modules/
+        },
+        {
+          test: /\.svg$/,
+          use: 'svg-loader',
           exclude: /node_modules/
         }
       ]
