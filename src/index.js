@@ -1,4 +1,4 @@
-import { remote, screen } from 'electron';
+import { remote, screen, ipcRenderer } from 'electron';
 
 const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
@@ -13,19 +13,22 @@ let input;
 */
 let placeholder;
 
-// the size of the windows (based on screen-size)
+/** the size of the windows (based on screen-size)
+*/
 const size =
 {
   x: multiPercent(screenSize.width, 50),
-  yOpened: multiPercent(screenSize.height, 70),
-  yClosed: multiPercent(screenSize.height, 7),
+  yFull: multiPercent(screenSize.height, 70),
+  yBar: multiPercent(screenSize.height, 7),
+  yClient: function() { return this.yFull - this.yBar; }
 };
 
-// the size of the windows (based on screen-size and window-size)
+/** the size of the windows (based on screen-size and window-size)
+*/ 
 const location =
 {
   x: Math.floor((screenSize.width - size.x) / 2),
-  y: Math.floor((screenSize.height - size.yOpened) / 2),
+  y: Math.floor((screenSize.height - size.yFull) / 2),
 };
 
 /** Multiple a number by a percentage
@@ -69,13 +72,15 @@ function remove(s, startIndex, endIndex)
   return s.substring(0, startIndex) + s.substring(endIndex);
 }
 
-// what happen when the app restores focus
+/** what happen when the app restores focus
+*/
 function focus()
 {
   input.focus();
 }
 
-// what happen when the app restores loses focus
+/** what happen when the app restores loses focus
+*/ 
 function blur()
 {
   mainWindow.hide();
@@ -84,7 +89,8 @@ function blur()
   updatePlaceholder();
 }
 
-// update the placeholder when the user writes into input
+/** update the placeholder when the user writes into input
+*/
 function updatePlaceholder()
 {
   if (placeholder.value.length > 0)
@@ -93,30 +99,62 @@ function updatePlaceholder()
     placeholder.value = placeholder.current = placeholder.default;
 }
 
-// what happens when the app first starts the renderer-process
+function logToMain(args)
+{
+  ipcRenderer.send('async', args);
+}
+
+/** what happens when the app first starts the renderer-process
+*/
 function init()
 {
-  // set the window's size
-  mainWindow.setSize(size.x, size.yOpened);
+  // set the electron window size
+  mainWindow.setSize(size.x, size.yFull);
 
-  // set the window's location
+  // set the electron window location
   mainWindow.setPosition(location.x, location.y);
 
-  // load the elements from html
-  input = document.getElementById('input');
-  placeholder = document.getElementById('placeholder');
+  createBar();
+  registerEvents();
 
-  // set the default placeholder sentence when the input string is empty
+  // reset the focus
+  // focus();
+}
+
+function createBar()
+{
+  // create the elements from dom
+  input = document.createElement('input');
+  placeholder = document.createElement('input');
+
+  // set placeholder css' class
+  placeholder.className = 'placeholder';
+
+  // input type is text
+  input.setAttribute('type', 'text');
+  placeholder.setAttribute('type', 'text');
+
+  // placeholder is a read-only
+  placeholder.readOnly = true;
+
+  // append the bar to dom
+  document.body.appendChild(input);
+  document.body.appendChild(placeholder);
+
+  // return the default placeholder value, when the input value is empty
   placeholder.value = placeholder.current = placeholder.default = 'Search';
 
-  // get the input element's padding
+  // get the input element's padding from css
   const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
 
-  // set the input element's size and font-size
+  // set the input and placeholder elements' size and font-size
   input.style.width = placeholder.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
-  input.style.height = placeholder.style.height = size.yClosed + 'px';
-  input.style.fontSize = placeholder.style.fontSize  = (size.yClosed / 2) + 'px';
+  input.style.height = placeholder.style.height = size.yBar + 'px';
+  input.style.fontSize = placeholder.style.fontSize  = (size.yBar / 2) + 'px';
+}
 
+function registerEvents()
+{
   // register the onInput event with updatePlaceholder() function
   input.oninput = updatePlaceholder;
 
@@ -126,14 +164,32 @@ function init()
   mainWindow.on('focus', focus);
   mainWindow.on('blur', blur);
 
-  // reset the focus
-  focus();
+  // register the navigation keys
+  window.onkeyup = (event) =>
+  {
+    // back-arrow 37
+    // up-arrow 38
+    // forward-arrow 39
+    // down-arrow 40
+  };
+}
 
-  // window.onkeyup = (event) =>
-  // {
-  //   if (event.keyCode === 27)
-  //     currentWindow.close();
-  // };
+function createButton()
+{
+  const div = document.createElement('div');
+  div.className = 'button';
+  div.innerHTML = 'Hello';
+
+  div.style.position = 'absolute';
+
+  div.style.left = 0;
+  div.style.top = size.yBar + 'px';
+
+  div.style.width = size.x + 'px';
+  div.style.height = 100 + 'px';
+
+  document.body.appendChild(div);
 }
 
 init();
+createButton();

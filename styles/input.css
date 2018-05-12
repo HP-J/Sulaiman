@@ -1,27 +1,10 @@
-@font-face {
-  font-family: Oxygen;
-  src: url(../resources//Oxygen-Light.ttf);
-  font-weight: 100;
-}
-
-@font-face {
-  font-family: Oxygen;
-  src: url(../resources/Oxygen-Regular.ttf);
-  font-weight: 200;
-}
-
-@font-face {
-  font-family: Oxygen;
-  src: url(../resources/Oxygen-Bold.ttf);
-  font-weight: 300;
-}
-
 input
 {
   z-index: 0;
-  background-color: #3E4143;
-  color: #FFFFFF;
+  background-color: rgba(0, 0, 0, 0);
+  color: rgb(255, 255, 255);
   border: 0px;
+  padding: 0px;
   font-family: Oxygen;
   font-weight: 200;
   overflow: hidden;
@@ -37,7 +20,7 @@ input:focus
 
 .placeholder
 {
-  z-index: 1;
-  background-color: rgba(0, 0, 0, 0);
+  z-index: -1;
+  background-color: rgb(62, 65, 67);
   color: rgba(255, 255, 255, 0.5);
 }

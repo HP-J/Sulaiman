@@ -31,7 +31,8 @@
         ],
         "brace-style": [
             "error",
-            "allman"
+            "allman",
+            { "allowSingleLine": true }
         ],
         "semi": [
             "error",
