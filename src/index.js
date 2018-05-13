@@ -105,7 +105,7 @@ function init()
   // registerEvents();
 
   // reset the focus
-  // focus();
+  focus();
 }
 
 /** @param { string } className 
