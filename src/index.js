@@ -6,29 +6,25 @@ const mainWindow = remote.getCurrentWindow();
 
 const next = requireSVG('../resources/next.svg');
 
+/** the parent of the search bar 
+* @type { HTMLDivElement }
+*/
+let searchBar;
+
+/** the parent of every search results and add-on pages
+* @type { HTMLDivElement }
+*/
+let page;
+
 /** the element the user will use to write
-* @type { HTMLElement }
+* @type { HTMLInputElement }
 */
 let input;
 
 /** the placeholder that will show auto-complete
-* @type { HTMLElement }
+* @type { HTMLInputElement }
 */
 let placeholder;
-
-let searchBar;
-
-let page;
-
-/** remove a piece of a string with indies
-* @param { string } s 
-* @param { number } startIndex 
-* @param { number } endIndex 
-*/
-function remove(s, startIndex, endIndex)
-{
-  return s.substring(0, startIndex) + s.substring(endIndex);
-}
 
 /** what happen when the app restores focus
 */
@@ -45,6 +41,16 @@ function blur()
 
   input.value = '';
   updatePlaceholder();
+}
+
+/** remove a piece of a string with indies
+* @param { string } s 
+* @param { number } startIndex 
+* @param { number } endIndex 
+*/
+function remove(s, startIndex, endIndex)
+{
+  return s.substring(0, startIndex) + s.substring(endIndex);
 }
 
 /** update the placeholder when the user writes into input
@@ -95,7 +101,6 @@ function init()
 
   // create and append search bar's input and placeholder boxes
   createBar();
-
 
   // registerEvents();
 
