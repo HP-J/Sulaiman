@@ -1,36 +1,36 @@
-.searchBar
+#searchBar
 {
   background-color: rgb(62, 65, 67);
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 10vh;
 }
 
-.searchBarInput, .searchBarPlaceholder
+#searchBarPlaceholder, #searchBarInput
 {
   z-index: 2;
   background-color: rgba(0, 0, 0, 0);
   color: rgb(255, 255, 255);
-  font-family: Oxygen;
   position: absolute;
-  font-weight: 200;
-  font-size: 200%;
-  padding: 0px;
-  border: 0px;
   left: 10px;
   top: 0;
   width: calc(100vw - 20px);
   height: inherit;
+  font-family: Oxygen;
+  font-size: 200%;
+  font-weight: 200;
+  padding: 0px;
+  border: 0px;
 }
 
-.searchBarInput:focus
-{
-  outline: none;
-}
-
-.searchBarPlaceholder
+#searchBarPlaceholder
 {
   z-index: 1;
   background-color: rgb(62, 65, 67);
   color: rgba(255, 255, 255, 0.5);
+}
+
+#searchBarInput:focus
+{
+  outline: none;
 }

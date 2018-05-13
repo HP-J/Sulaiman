@@ -1,27 +1,29 @@
-.page
+#page
 {
-  z-index: -1;
   background-color: blueviolet;
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 90vh;
+  
+  display: grid;
+  grid-template-columns: 100vw;
+  grid-template-rows: 10vh;
+  grid-row-gap: 1px;
 }
 
-/* .button
+.button
 {
-  z-index: -1;
-  background-color: rgb(62, 65, 67);
   background-color: blue;
-  position: absolute;
+  width: inherit;
+  height: 10vh;
   padding: 0px;
   border: 0px;
-} */
+}
 
-/* .button:focus
+.button:focus
 {
   outline: none;
-  background-color: black;
-} */
+}
 
 /* .buttonTitle
 {
@@ -52,4 +54,11 @@
   height: 4vw;
   left: 10px;
   stroke-width: 1px;
+} */
+
+/* #addon
+{
+  background-color: rgb(138, 138, 138);
+  width: inherit;
+  height: 90vh;
 } */

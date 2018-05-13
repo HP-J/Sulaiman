@@ -16,15 +16,15 @@ let searchBar;
 */
 let page;
 
-/** the element the user will use to write
-* @type { HTMLInputElement }
-*/
-let input;
-
 /** the placeholder that will show auto-complete
 * @type { HTMLInputElement }
 */
 let placeholder;
+
+/** the element the user will use to write
+* @type { HTMLInputElement }
+*/
+let input;
 
 /** what happen when the app restores focus
 */
@@ -91,16 +91,16 @@ function init()
     Math.floor((screenSize.height - sizeY) / 2)
   );
 
-  // create and append search bar and page div blocks
-
+  // create and append search bar div block
   searchBar = requireBlock('searchBar');
   document.body.appendChild(searchBar);
 
-  page = requireBlock('page');
-  document.body.appendChild(page);
-
   // create and append search bar's input and placeholder boxes
   createBar();
+
+  // create and append page div block
+  page = requireBlock('page');
+  document.body.appendChild(page);
 
   // registerEvents();
 
@@ -108,28 +108,28 @@ function init()
   focus();
 }
 
-/** @param { string } className 
+/** @param { string } id
 */
-function requireBlock(className)
+function requireBlock(id)
 {
   const div = document.createElement('div');
   
-  div.className = className;
+  div.id = id;
 
   return div;
 }
 
-/** @param { string } className 
-* @param { boolean } readOnly 
+/** @param { Object.<string, string> } options 
 */
-function requireInput(className, readOnly)
+function requireInput(options)
 {
   const input = document.createElement('input');
 
   input.setAttribute('type', 'text');
 
-  input.className = className;
-  input.readOnly = readOnly;
+  input.id = options.id || '';
+  input.className = options.className || '';
+  input.readOnly = options.readOnly || false;
 
   return input;
 }
@@ -137,12 +137,12 @@ function requireInput(className, readOnly)
 function createBar()
 {
   // create the elements from dom
-  input = requireInput('searchBarInput', false);
-  placeholder = requireInput('searchBarPlaceholder', true);
+  placeholder = requireInput({ id: 'searchBarPlaceholder', readOnly: true });
+  input = requireInput({ id: 'searchBarInput' });
 
   // append the bar to dom
-  searchBar.appendChild(input);
   searchBar.appendChild(placeholder);
+  searchBar.appendChild(input);
 
   // return the default placeholder value, when the input value is empty
   placeholder.value = placeholder.current = placeholder.default = 'Search';
@@ -182,39 +182,40 @@ function registerEvents()
   };
 }
 
-// function requireButton()
-// {
-//   const button = document.createElement('button');
-//   button.className = 'button';
+function requireButton()
+{
+  const button = document.createElement('button');
+  button.className = 'button';
 
-//   return button;
-// }
+  return button;
+}
 
 // function createButton()
 // {
-//   const div = requireButton();;
-
-//   div.style.top = size.yBar + 'px';
-
-//   div.style.left = 0;
-
-//   div.style.width = size.x + 'px';
-//   div.style.height = buttonHeight + 'px';
+//   const button = requireButton();;
 
 //   // div.style.visibility = 'hidden';
 
-//   document.body.appendChild(div);
+//   page.appendChild(button);
 
-//   next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-//   next.setAttribute('class', 'icon-normal');
+//   // next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+//   // next.setAttribute('class', 'icon-normal');
 
-//   next.style.position = 'absolute';
+//   // next.style.position = 'absolute';
 //   // next.style.top = ((buttonHeight - iconWidth) / 2) + 'px';
 //   // TODO fix
-//   next.style.top = 'calc((' + buttonHeight + 'px - 4vw) / 2);';
+//   // next.style.top = 'calc((' + buttonHeight + 'px - 4vw) / 2);';
 
-//   div.appendChild(next);
+//   // div.appendChild(next);
 // }
 
 init();
 // createButton();
+
+const button = requireButton();
+
+page.appendChild(button);
+
+const button2 = requireButton();
+
+page.appendChild(button2);
