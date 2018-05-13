@@ -211,12 +211,15 @@ init();
 next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
 next.setAttribute('class', 'icon-normal');
 
-next.style.width = '24px';
-next.style.height = '24px';
+next.style.width =  next.style.height = multiPercent(size.x, 5) + 'px';
+
+next.style.position = 'absolute';
+next.style.left = (multiPercent(size.x, 5) / 2) + 'px';
+next.style.top = (size.yBar + (multiPercent(size.yClient, 10) * buttons) + (multiPercent(size.x, 5) / 2)) + 'px';
 
 document.body.appendChild(next);
 
-// createButton();
+createButton();
 // createButton();
 // createButton();
 
