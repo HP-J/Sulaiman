@@ -1,4 +1,18 @@
-div
+.button
 {
   background-color: blue;
+}
+
+.icon-normal
+{
+  stroke: white;
+  fill: white;
+  stroke-width: 2px;
+}
+
+.icon-selected
+{
+  stroke: black;
+  fill: white;
+  stroke-width: 2px;
 }

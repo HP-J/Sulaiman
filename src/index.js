@@ -209,13 +209,10 @@ function createButton()
 init();
 
 next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+next.setAttribute('class', 'icon-normal');
 
-next.style.width = '32px';
-next.style.height = '32px';
-
-next.style.stroke = 'white';
-next.style.fill = 'black';
-next.style.strokeWidth = '4px';
+next.style.width = '24px';
+next.style.height = '24px';
 
 document.body.appendChild(next);
 
