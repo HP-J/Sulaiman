@@ -1,0 +1,36 @@
+.searchBar
+{
+  z-index: -1;
+  background-color: green;
+  position: relative;
+  width: 100%;
+  height: 10vh;
+}
+
+.searchBarInput, .searchBarPlaceholder
+{
+  background-color: rgba(0, 0, 0, 0);
+  color: rgb(255, 255, 255);
+  font-family: Oxygen;
+  position: absolute;
+  font-weight: 200;
+  font-size: 200%;
+  padding: 0px;
+  border: 0px;
+  left: 10px;
+  top: 0;
+  width: calc(100vw - 20px);
+  height: inherit;
+}
+
+.searchBarInput:focus
+{
+  outline: none;
+}
+
+.searchBarPlaceholder
+{
+  z-index: -1;
+  background-color: rgb(62, 65, 67);
+  color: rgba(255, 255, 255, 0.5);
+}

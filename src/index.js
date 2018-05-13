@@ -1,10 +1,8 @@
 import { remote, screen, ipcRenderer } from 'electron';
-// import s from '../resources/next.svg';
 
 import requireSVG from './requireSVG.js';
 
 const mainWindow = remote.getCurrentWindow();
-const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
 const next = requireSVG('../resources/next.svg');
 
@@ -18,54 +16,9 @@ let input;
 */
 let placeholder;
 
-/** the size of the windows (based on screen-size)
-*/
-const size =
-{
-  x: multiPercent(screenSize.width, 50),
-  yFull: multiPercent(screenSize.height, 70),
-  yBar: multiPercent(screenSize.height, 7),
-  yClient: 0
-};
+let searchBar;
 
-/** the size of the windows (based on screen-size and window-size)
-*/ 
-const location =
-{
-  x: Math.floor((screenSize.width - size.x) / 2),
-  y: Math.floor((screenSize.height - size.yFull) / 2),
-};
-
-/** Multiple a number by a percentage
-* @param { number } number 
-* @param { number } percentage
-*/
-function multiPercent(number, percentage)
-{
-  return Math.floor(number * (percentage / 100));
-}
-
-/** get a css value from an element
-* @param { HTMLElement } oElm the html element
-* @param { string } strCssRule the rule you need to extract the value from
-*/
-function getStyle(oElm, strCssRule)
-{
-  let strValue = '';
-  if(document.defaultView && document.defaultView.getComputedStyle)
-  {
-    strValue = document.defaultView.getComputedStyle(oElm, '').getPropertyValue(strCssRule);
-  }
-  else if(oElm.currentStyle)
-  {
-    strCssRule = strCssRule.replace(/-(\w)/g, function (strMatch, p1)
-    {
-      return p1.toUpperCase();
-    });
-    strValue = oElm.currentStyle[strCssRule];
-  }
-  return strValue;
-}
+let page;
 
 /** remove a piece of a string with indies
 * @param { string } s 
@@ -113,52 +66,81 @@ function logToMain(args)
 */
 function init()
 {
-  // set the client size
-  size.yClient = size.yFull - size.yBar;
-
   // set the electron window size
-  mainWindow.setSize(size.x, size.yFull);
+  // window's width is 50% of the screen's width
+  // window's height is 70% of the screen's height
+
+  const screenSize = screen.getPrimaryDisplay().workAreaSize;
+
+  const sizeX = Math.floor(screenSize.width * (50 / 100));
+  const sizeY = Math.floor(screenSize.height * (70 / 100));
+
+  mainWindow.setSize(sizeX, sizeY);
 
   // set the electron window location
-  mainWindow.setPosition(location.x, location.y);
+  // center of the screen
 
-  // createBar();
+  mainWindow.setPosition(
+    Math.floor((screenSize.width - sizeX) / 2),
+    Math.floor((screenSize.height - sizeY) / 2)
+  );
+
+  // create and append search bar and page div blocks
+
+  searchBar = requireBlock('searchBar');
+  document.body.appendChild(searchBar);
+
+  page = requireBlock('page');
+  document.body.appendChild(page);
+
+  // create and append search bar's input and placeholder boxes
+  createBar();
+
+
   // registerEvents();
 
   // reset the focus
   // focus();
 }
 
+/** @param { string } className 
+*/
+function requireBlock(className)
+{
+  const div = document.createElement('div');
+  
+  div.className = className;
+
+  return div;
+}
+
+/** @param { string } className 
+* @param { boolean } readOnly 
+*/
+function requireInput(className, readOnly)
+{
+  const input = document.createElement('input');
+
+  input.setAttribute('type', 'text');
+
+  input.className = className;
+  input.readOnly = readOnly;
+
+  return input;
+}
+
 function createBar()
 {
   // create the elements from dom
-  input = document.createElement('input');
-  placeholder = document.createElement('input');
-
-  // set placeholder css' class
-  placeholder.className = 'placeholder';
-
-  // input type is text
-  input.setAttribute('type', 'text');
-  placeholder.setAttribute('type', 'text');
-
-  // placeholder is a read-only
-  placeholder.readOnly = true;
+  input = requireInput('searchBarInput', false);
+  placeholder = requireInput('searchBarPlaceholder', true);
 
   // append the bar to dom
-  document.body.appendChild(input);
-  document.body.appendChild(placeholder);
+  searchBar.appendChild(input);
+  searchBar.appendChild(placeholder);
 
   // return the default placeholder value, when the input value is empty
   placeholder.value = placeholder.current = placeholder.default = 'Search';
-
-  // get the input element's padding from css
-  const inputPaddingLeft = parseInt(getStyle(input, 'left').replace(/\D/g, ''));
-
-  // set the input and placeholder elements' size and font-size
-  input.style.width = placeholder.style.width = (size.x - (inputPaddingLeft * 2)) + 'px';
-  input.style.height = placeholder.style.height = size.yBar + 'px';
-  input.style.fontSize = placeholder.style.fontSize  = (size.yBar / 2) + 'px';
 }
 
 function registerEvents()
@@ -173,56 +155,61 @@ function registerEvents()
   mainWindow.on('blur', blur);
 
   // register the navigation keys
+
+  // back-arrow 37
+  // up-arrow 38
+  // forward-arrow 39
+  // down-arrow 40
+
+  window.onkeydown = (event) =>
+  {
+    event.preventDefault();
+  };
+
   window.onkeyup = (event) =>
   {
-    // back-arrow 37
-    // up-arrow 38
-    // forward-arrow 39
-    // down-arrow 40
+    event.preventDefault();
+  };
+
+  window.onkeypress = (event) =>
+  {
+    event.preventDefault();
   };
 }
 
-let buttons = 0;
+// function requireButton()
+// {
+//   const button = document.createElement('button');
+//   button.className = 'button';
 
-function createButton()
-{
-  const div = document.createElement('div');
-  div.className = 'button';
+//   return button;
+// }
 
-  div.style.position = 'absolute';
+// function createButton()
+// {
+//   const div = requireButton();;
 
-  // div.innerHTML = next.content;
+//   div.style.top = size.yBar + 'px';
 
-  div.style.left = 0;
-  div.style.top = (size.yBar + (multiPercent(size.yClient, 10) * buttons)) + 'px';
+//   div.style.left = 0;
 
-  buttons += 1;
+//   div.style.width = size.x + 'px';
+//   div.style.height = buttonHeight + 'px';
 
-  div.style.width = size.x + 'px';
-  div.style.height = multiPercent(size.yClient, 15) + 'px';
+//   // div.style.visibility = 'hidden';
 
-  // div.style.visibility = 'hidden';
+//   document.body.appendChild(div);
 
-  document.body.appendChild(div);
-}
+//   next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+//   next.setAttribute('class', 'icon-normal');
+
+//   next.style.position = 'absolute';
+//   // next.style.top = ((buttonHeight - iconWidth) / 2) + 'px';
+//   // TODO fix
+//   next.style.top = 'calc((' + buttonHeight + 'px - 4vw) / 2);';
+
+//   div.appendChild(next);
+// }
 
 init();
-
-next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-next.setAttribute('class', 'icon-normal');
-
-next.style.width =  next.style.height = multiPercent(size.x, 5) + 'px';
-
-next.style.position = 'absolute';
-next.style.left = (multiPercent(size.x, 5) / 2) + 'px';
-next.style.top = (size.yBar + (multiPercent(size.yClient, 10) * buttons) + (multiPercent(size.x, 5) / 2)) + 'px';
-
-document.body.appendChild(next);
-
-createButton();
-// createButton();
-// createButton();
-
-// createButton();
-// createButton();
 // createButton();
