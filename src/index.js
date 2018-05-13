@@ -1,14 +1,12 @@
 import { remote, screen, ipcRenderer } from 'electron';
 // import s from '../resources/next.svg';
 
-import fs from 'fs';
-import path from 'path';
-import svgload from './svgload.js';
+import requireSVG from './requireSVG.js';
 
 const mainWindow = remote.getCurrentWindow();
 const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-logToMain(svgload('../resources/next.svg'));
+const next = requireSVG('../resources/next.svg');
 
 /** the element the user will use to write
 * @type { HTMLElement }
@@ -193,6 +191,8 @@ function createButton()
 
   div.style.position = 'absolute';
 
+  // div.innerHTML = next.content;
+
   div.style.left = 0;
   div.style.top = (size.yBar + (multiPercent(size.yClient, 10) * buttons)) + 'px';
 
@@ -208,7 +208,16 @@ function createButton()
 
 init();
 
-// logToMain(s);
+next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+
+next.style.width = '32px';
+next.style.height = '32px';
+
+next.style.stroke = 'white';
+next.style.fill = 'black';
+next.style.strokeWidth = '4px';
+
+document.body.appendChild(next);
 
 // createButton();
 // createButton();

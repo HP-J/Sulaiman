@@ -8,11 +8,12 @@ export default function (path)
   if (!existsSync(path))
     throw 'file does not exist';
 
-  let content = readFileSync(path).toString();
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-  // this.cacheable && this.cacheable();
+  const content = readFileSync(path).toString();
 
   const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
+
   let attrs = {};
 
   if (match) 
@@ -25,27 +26,15 @@ export default function (path)
         .reduce(function (obj, attr) 
         {
           const split = attr.split('=');
-          const name = split[0];
-          let value = true;
 
           if (split && split[1]) 
-          {
-            value = split[1].replace(/['"]/g, '');
-          }
-
-          obj[name] = value;
-
-          return obj;
+            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
 
         }, {});
     }
-    
-    content = match[2] || '';
+
+    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
   }
 
-  content = content.replace(/\n/g, ' ').trim();
-  // this.value = content;
-
-  return 'module.exports = ' + JSON.stringify({ attributes: attrs, content: content });
+  return svg;
 }
-// export const seperable = true;
