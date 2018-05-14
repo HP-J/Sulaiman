@@ -33,6 +33,8 @@ export default function (path)
         }, {});
     }
 
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
     svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
   }
 

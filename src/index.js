@@ -26,48 +26,6 @@ let placeholder;
 */
 let input;
 
-/** what happen when the app restores focus
-*/
-function focus()
-{
-  input.focus();
-}
-
-/** what happen when the app restores loses focus
-*/ 
-function blur()
-{
-  mainWindow.hide();
-
-  input.value = '';
-  updatePlaceholder();
-}
-
-/** remove a piece of a string with indies
-* @param { string } s 
-* @param { number } startIndex 
-* @param { number } endIndex 
-*/
-function remove(s, startIndex, endIndex)
-{
-  return s.substring(0, startIndex) + s.substring(endIndex);
-}
-
-/** update the placeholder when the user writes into input
-*/
-function updatePlaceholder()
-{
-  if (placeholder.value.length > 0)
-    placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
-  else
-    placeholder.value = placeholder.current = placeholder.default;
-}
-
-function logToMain(args)
-{
-  ipcRenderer.send('async', args);
-}
-
 /** what happens when the app first starts the renderer-process
 */
 function init()
@@ -91,21 +49,64 @@ function init()
     Math.floor((screenSize.height - sizeY) / 2)
   );
 
-  // create and append search bar div block
+  // create and append search bar block
   searchBar = requireBlock('searchBar');
   document.body.appendChild(searchBar);
 
   // create and append search bar's input and placeholder boxes
   createBar();
 
-  // create and append page div block
+  // create and append page block
   page = requireBlock('page');
   document.body.appendChild(page);
 
-  // registerEvents();
+  // register elements events and track key presses
+  registerEvents();
 
-  // reset the focus
+  // reset the application focus
   focus();
+}
+
+/** remove a piece of a string using indies
+* @param { string } s 
+* @param { number } startIndex 
+* @param { number } endIndex 
+*/
+function remove(s, startIndex, endIndex)
+{
+  return s.substring(0, startIndex) + s.substring(endIndex);
+}
+
+/** what happen when the app restores focus
+*/
+function focus()
+{
+  input.focus();
+}
+
+/** what happen when the app restores loses focus
+*/ 
+function blur()
+{
+  mainWindow.hide();
+
+  input.value = '';
+  updatePlaceholder();
+}
+
+/** update the placeholder when the user writes into input
+*/
+function updatePlaceholder()
+{
+  if (placeholder.value.length > 0)
+    placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
+  else
+    placeholder.value = placeholder.current = placeholder.default;
+}
+
+function logToMain(args)
+{
+  ipcRenderer.send('async', args);
 }
 
 /** @param { string } id
@@ -128,8 +129,8 @@ function requireInput(options)
   input.setAttribute('type', 'text');
 
   input.id = options.id || '';
-  input.className = options.className || '';
-  input.readOnly = options.readOnly || false;
+  input.className = options.class || '';
+  input.readOnly = (options.readOnly === undefined) ? true : false;
 
   return input;
 }
@@ -137,8 +138,8 @@ function requireInput(options)
 function createBar()
 {
   // create the elements from dom
-  placeholder = requireInput({ id: 'searchBarPlaceholder', readOnly: true });
-  input = requireInput({ id: 'searchBarInput' });
+  placeholder = requireInput({ id: 'searchBarPlaceholder' });
+  input = requireInput({ id: 'searchBarInput', readOnly: false });
 
   // append the bar to dom
   searchBar.appendChild(placeholder);
@@ -150,72 +151,75 @@ function createBar()
 
 function registerEvents()
 {
-  // register the onInput event with updatePlaceholder() function
+  // * element specific events
+
+  // when the user change the text in search bar call updatePlaceholder()
   input.oninput = updatePlaceholder;
 
-  // currentWindow.openDevTools();
-
-  // register the focus and blur events with their functions
+  // when the application  gets focus and unfocused
   mainWindow.on('focus', focus);
   mainWindow.on('blur', blur);
 
-  // register the navigation keys
+  // * register hotkeys & the navigation keys
 
   // back-arrow 37
   // up-arrow 38
   // forward-arrow 39
   // down-arrow 40
+  // tab 9
 
   window.onkeydown = (event) =>
   {
-    event.preventDefault();
+    if (event.keyCode === 9)
+      event.preventDefault();
+    
+    if (event.keyCode === 116)
+      mainWindow.reload();
   };
 
   window.onkeyup = (event) =>
   {
-    event.preventDefault();
+    // event.preventDefault();
   };
 
   window.onkeypress = (event) =>
   {
-    event.preventDefault();
+    // event.preventDefault();
   };
 }
 
-function requireButton()
+/** @param { SVGSVGElement } icon 
+* @param { SVGSVGElement } action 
+*/
+function requireButton(icon, action)
 {
   const button = document.createElement('button');
   button.className = 'button';
 
+  next.setAttribute('class', 'icon');
+  button.appendChild(next);
+
+  const next2 = next.cloneNode(true); 
+
+  next2.setAttribute('class', 'action');
+  button.appendChild(next2);
+
+  const title = requireInput({ class: 'buttonTitle' });
+  button.appendChild(title);
+
+  const description = requireInput({ class: 'buttonDescription' });
+  button.appendChild(description);
+
+
+  // const description;
+
   return button;
 }
 
-// function createButton()
-// {
-//   const button = requireButton();;
-
-//   // div.style.visibility = 'hidden';
-
-//   page.appendChild(button);
-
-//   // next.setAttribute('preserveAspectRatio', 'xMinYMin meet');
-//   // next.setAttribute('class', 'icon-normal');
-
-//   // next.style.position = 'absolute';
-//   // next.style.top = ((buttonHeight - iconWidth) / 2) + 'px';
-//   // TODO fix
-//   // next.style.top = 'calc((' + buttonHeight + 'px - 4vw) / 2);';
-
-//   // div.appendChild(next);
-// }
-
 init();
-// createButton();
 
-const button = requireButton();
+const button = requireButton(next);
+
+// next.setAttribute('class', 'icon-normal');
 
 page.appendChild(button);
-
-const button2 = requireButton();
-
-page.appendChild(button2);

@@ -3,17 +3,20 @@
   background-color: blueviolet;
   position: relative;
   width: 100vw;
-  height: 90vh;
+  height: calc(90vh - 4px);
   
+  top: 2px;
+
   display: grid;
   grid-template-columns: 100vw;
   grid-template-rows: 10vh;
-  grid-row-gap: 1px;
+  grid-row-gap: 2px;
 }
 
 .button
 {
   background-color: blue;
+  position: absolute;
   width: inherit;
   height: 10vh;
   padding: 0px;
@@ -25,40 +28,35 @@
   outline: none;
 }
 
-/* .buttonTitle
+.icon, .action
 {
-
-} */
-
-
-/* .buttonDescription
-{
-
-} */
-
-/* .icon-normal
-{
-  stroke: white;
-  fill: white;
-  width: 4vw;
-  height: 4vw;
+  background-color: black;
+  position: absolute;
   left: 10px;
-  stroke-width: 1px;
+  top: 0px;
+  width: 5%;
+  height: inherit;
 }
 
-.icon-selected
+.action
 {
-  stroke: black;
-  fill: white;
-  width: 4vw;
-  height: 4vw;
-  left: 10px;
-  stroke-width: 1px;
-} */
+  left: calc(95% - 10px);
+}
 
-/* #addon
+.buttonTitle, .buttonDescription
 {
-  background-color: rgb(138, 138, 138);
-  width: inherit;
-  height: 90vh;
-} */
+  background-color: green;
+  position: absolute;
+  left: calc(5% + 20px);
+  top: 0px;
+  height: 50%;
+  width: calc(90% - 40px);
+  padding: 0px;
+  border: 0px;
+}
+
+.buttonDescription
+{
+  background-color: orange;
+  top: 50%;
+}
