@@ -2,8 +2,6 @@ import { remote, screen, ipcRenderer } from 'electron';
 
 import { load } from './theme.js';
 
-import * as require from './require.js';
-
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
@@ -67,15 +65,12 @@ function registerEvents()
 
 function focus()
 {
-  searchBar.input.focus();
+  searchBar.focus();
 }
 
 function blur()
 {
   mainWindow.hide();
-
-  input.value = '';
-  updatePlaceholder();
 }
 
 export function logToMain(args)

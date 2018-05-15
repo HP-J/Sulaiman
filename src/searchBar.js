@@ -32,6 +32,15 @@ export function load()
   input.oninput = updatePlaceholder;
 }
 
+export function focus()
+{
+  input.value = '';
+
+  updatePlaceholder();
+
+  input.focus();
+}
+
 /** update the placeholder when the user writes into input
 */
 function updatePlaceholder()
