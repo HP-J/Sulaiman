@@ -1,11 +1,11 @@
-import { remote, screen, ipcRenderer } from 'electron';
+import { remote, screen } from 'electron';
 
-import { load } from './theme.js';
+import { load, visuals } from './theme.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-// import Button from './button.js';
+import { Button, ButtonMeta } from './button.js';
 
 const mainWindow = remote.getCurrentWindow();
 
@@ -73,11 +73,6 @@ function blur()
   mainWindow.hide();
 }
 
-export function logToMain(args)
-{
-  ipcRenderer.send('async', args);
-}
-
 // append the style, load the visuals
 load('dark');
 
@@ -93,8 +88,14 @@ page.load();
 // register elements events and track key presses
 registerEvents();
 
-// const button = new Button();
-// page.domElement.appendChild(button.domElement);
+// TODO button manager 
+// change visual and title and etc
+// add, deactivate, reactivate on command
+
+const button = new Button(new ButtonMeta('title', 'description', visuals.exit, visuals.exit));
+page.domElement.appendChild(button.domElement);
+
+button.update(new ButtonMeta('title updated', 'description updated', visuals.next));
 
 // reset the application focus
 focus();
