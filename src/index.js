@@ -85,8 +85,6 @@ searchBar.load();
 // create and append page block
 page.load();
 
-console.log('debug');
-
 // register elements events and track key presses
 registerEvents();
 

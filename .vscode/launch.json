@@ -9,20 +9,23 @@
       "postDebugTask": "clean",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-      "program": "${workspaceRoot}/app.js"
+      "program": "${workspaceRoot}/app.js",
+      "console": "integratedTerminal",
+      "protocol": "inspector"
     },
     {
       "name": "Debug Renderer Process",
       "type": "chrome",
       "request": "launch",
+      "sourceMaps": true,
       "preLaunchTask": "build",
       "postDebugTask": "clean",
+      "webRoot": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
         "${workspaceRoot}/app.js",
         "--remote-debugging-port=9222"
-      ],
-      "webRoot": "${workspaceRoot}"
+      ]
     }
   ]
 }
