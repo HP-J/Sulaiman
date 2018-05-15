@@ -28,7 +28,7 @@
   outline: none;
 }
 
-.icon, .action
+.buttonIcon, .buttonAction
 {
   background-color: black;
   position: absolute;
@@ -38,7 +38,7 @@
   height: inherit;
 }
 
-.action
+.buttonAction
 {
   left: calc(95% - 10px);
 }
