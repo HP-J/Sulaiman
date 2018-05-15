@@ -1,5 +1,9 @@
 import * as require from './require.js';
 
+import { visuals } from './theme.js';
+import { ButtonMeta } from './button.js';
+import * as page from './page.js';
+
 /** @type { HTMLDivElement }
 */
 export let domElement;
@@ -45,7 +49,18 @@ export function focus()
 */
 function updatePlaceholder()
 {
-  if (placeholder.value.length > 0)
+  const meta = [];
+
+  for (let i = 0; i < input.value.length; i++)
+  {
+    meta.push(new ButtonMeta(i, i, visuals.next, visuals.next));
+  }
+
+  page.list(meta);
+
+  placeholder.current = input.value + ' = ' + input.value.length;
+
+  if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
   else
     placeholder.value = placeholder.current = placeholder.default;

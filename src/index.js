@@ -73,11 +73,11 @@ function blur()
   mainWindow.hide();
 }
 
-// append the style, load the visuals
-load('dark');
-
 // fit the screen
 resize();
+
+// append the style, load the visuals
+load('dark');
 
 // create and append search bar block
 searchBar.load();
@@ -92,10 +92,10 @@ registerEvents();
 // change visual and title and etc
 // add, deactivate, reactivate on command
 
-const button = new Button(new ButtonMeta('title', 'description', visuals.exit, visuals.exit));
-page.domElement.appendChild(button.domElement);
+// const button = new Button(new ButtonMeta('1', '1', visuals.exit, visuals.exit));
+// page.domElement.appendChild(button.domElement);
 
-button.update(new ButtonMeta('title updated', 'description updated', visuals.next));
+// button.update(new ButtonMeta('title updated', 'description updated', visuals.next));
 
 // reset the application focus
 focus();

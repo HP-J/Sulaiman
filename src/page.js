@@ -7,7 +7,7 @@ import { Button, ButtonMeta } from './button.js';
 export let domElement;
 
 /** an array of the buttons that has been initialized
-* type { Button[] }
+* @type { Button[] }
 */
 const buttons = [];
 
@@ -26,8 +26,27 @@ export function load()
 */
 export function list(meta)
 {
+  while (domElement.firstChild)
+  {
+    domElement.removeChild(domElement.firstChild);
+  }
+
   for (let i = 0; i < meta.length; i++)
   {
-    // if (i > )
+    let button;
+
+    // if (i < buttons.length)
+    // {
+    //   buttons[i].update(meta[i]);
+    // }
+    // else
+    // {
+      button = new Button(meta[i]);
+      buttons.push(button);
+
+      // domElement.remov
+
+      domElement.appendChild(button.domElement);
+    // }
   }
 }

@@ -9,14 +9,14 @@
 
   display: grid;
   grid-template-columns: 100vw;
-  grid-template-rows: 10vh;
+  grid-auto-rows: 10vh;
   grid-row-gap: 2px;
 }
 
 .button
 {
   background-color: blue;
-  position: absolute;
+  position: relative;
   width: inherit;
   height: 10vh;
   padding: 0px;
