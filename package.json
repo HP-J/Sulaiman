@@ -4,8 +4,8 @@
   "description": "the most useless and ugly keyboard launcher in the planet",
   "main": "app.js",
   "scripts": {
-    "dev": "webpack --config webpack.config.js && electron . && rm ./src/bundle.js",
     "build": "webpack --config webpack.config.js",
+    "clean": "rm ./src/bundle.js",
     "check": "ncu",
     "update": "ncu -u"
   },

@@ -13,7 +13,7 @@ const buttons = [];
 
 /** the total of the buttons that has been initialized
 */
-let total = 0;
+const total = 0;
 
 export function load()
 {
@@ -33,7 +33,7 @@ export function list(meta)
 
   for (let i = 0; i < meta.length; i++)
   {
-    let button;
+    // let button;
 
     // if (i < buttons.length)
     // {
@@ -41,12 +41,11 @@ export function list(meta)
     // }
     // else
     // {
-      button = new Button(meta[i]);
-      buttons.push(button);
 
-      // domElement.remov
+    const button = new Button(meta[i]);
+    buttons.push(button);
 
-      domElement.appendChild(button.domElement);
+    domElement.appendChild(button.domElement);
     // }
   }
 }

@@ -5,7 +5,7 @@ import { load, visuals } from './theme.js';
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-import { Button, ButtonMeta } from './button.js';
+// import { Button, ButtonMeta } from './button.js';
 
 const mainWindow = remote.getCurrentWindow();
 
@@ -85,12 +85,10 @@ searchBar.load();
 // create and append page block
 page.load();
 
+console.log('debug');
+
 // register elements events and track key presses
 registerEvents();
-
-// TODO button manager 
-// change visual and title and etc
-// add, deactivate, reactivate on command
 
 // const button = new Button(new ButtonMeta('1', '1', visuals.exit, visuals.exit));
 // page.domElement.appendChild(button.domElement);
