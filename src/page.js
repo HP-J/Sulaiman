@@ -17,15 +17,7 @@ export let domElement;
 /** an array of the buttons that has been initialized
 * @type { Button[] }
 */
-let buttons = [];
-
-/** the total of the buttons that has been initialized
-*/
-let total = 0;
-
-/** the fixed height a button
-*/
-let height = 0;
+const buttons = [];
 
 export function load()
 {
@@ -37,27 +29,44 @@ export function load()
   
   botHideout = require.block();
   // document.body.appendChild(botHideout);
-
+  
   domElement.onscroll = onScroll;
-
+    
   // init top and bottom hideouts
   onScroll();
+}
+
+function getStyle(elm, rule)
+{
+  return Math.round(parseFloat(window.getComputedStyle(elm)[rule].replace('px', '')));
+}
+
+/** @param { HTMLButtonElement } button 
+*/
+function isVisible(button)
+{
+  const pageRect = domElement.getBoundingClientRect();
+  const buttonRect = button.domElement.getBoundingClientRect();
+
+  const pageMinY = Math.round(pageRect.top);
+  const pageMaxY = Math.round(pageRect.height);
+  const buttonMinY = Math.round(buttonRect.top) - pageMinY;
+  const buttonMaxY = (Math.round(buttonRect.top) - pageMinY) + Math.round(buttonRect.height);
+
+  return (buttonMinY < pageMaxY) && (buttonMaxY >= 0) ? 'inside' : 'outside';
 }
 
 /** @param { UIEvent } event 
 */
 function onScroll(event)
 {
-  // TODO infinity scrolling
-
   if (buttons.length > 0)
   {
-    // console.log(buttons.length);
-    // console.log(domElement.scrollHeight + ' from ' + (54 * buttons.length));
+    console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[14]));
   }
   else
   {
-    topHideout.style.visibility =  botHideout.style.visibility = 'hidden';
+    // topHideout.style.visibility =  botHideout.style.visibility = 'hidden';
   }
 }
 
@@ -78,7 +87,6 @@ export function list(meta)
       // console.log(height);
 
       buttons[i].domElement.style.display = 'none';
-      buttons[i].domElement.style.position = 'absolute';
     }
     else if (i < buttons.length)
     {
@@ -87,7 +95,6 @@ export function list(meta)
       // buttons[i].update(meta[i]);
       
       buttons[i].domElement.style.display = 'block';
-      buttons[i].domElement.style.position = 'relative';
     }
     else
     {
