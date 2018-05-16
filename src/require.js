@@ -46,30 +46,39 @@ export function button()
   return button;
 }
 
-/** @param { string } id
+/** @param { string } className
+* @param { string } id 
 */
-export function block(id)
+export function block(className, id)
 {
   const div = document.createElement('div');
   
-  div.id = id;
+  if (className !== undefined)
+    div.className = className;
+
+  if (id !== undefined)
+    div.id = id;
 
   return div;
 }
 
-/** @param { string } id 
+/** @param { string } readOnly 
 * @param { string } className 
-* @param { string } readOnly 
+* @param { string } id 
 */
-export function input(id, className, readOnly)
+export function input(readOnly, className, id)
 {
   const input = document.createElement('input');
 
   input.setAttribute('type', 'text');
 
-  input.id = id || '';
-  input.className = className || '';
-  input.readOnly = (readOnly === undefined) ? true : false;
+  if (id !== undefined)
+    input.id = id;
+
+  if (className !== undefined)
+    input.className = className;
+  
+  input.readOnly = readOnly;
 
   return input;
 }

@@ -8,8 +8,8 @@ export class Button
   {
     this.domElement = require.button();
 
-    this.title = require.input('', 'buttonTitle');
-    this.description = require.input('', 'buttonDescription');
+    this.title = require.input(true, 'buttonTitle');
+    this.description = require.input(true, 'buttonDescription');
 
     /** @type { SVGSVGElement } */
     this.icon = undefined;

@@ -4,8 +4,9 @@
   "description": "the most useless and ugly keyboard launcher in the planet",
   "main": "app.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "clean": "rm ./src/bundle.js",
+    "dev": "webpack --config webpack.development.js",
+    "build": "webpack --config webpack.production.js",
+    "clean": "rm ./src/bundle.*",
     "check": "ncu",
     "update": "ncu -u"
   },
@@ -23,6 +24,7 @@
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
+    "electron-process-manager": "^0.5.1",
     "eslint": "^4.19.1",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3"

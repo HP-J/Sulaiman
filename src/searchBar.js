@@ -18,12 +18,12 @@ export let input;
 
 export function load()
 {
-  domElement = require.block('searchBar');
+  domElement = require.block(undefined, 'searchBar');
   document.body.appendChild(domElement);
 
   // create the elements dom
-  placeholder = require.input('searchBarPlaceholder');
-  input = require.input('searchBarInput', '', false);
+  placeholder = require.input(true, undefined, 'searchBarPlaceholder');
+  input = require.input(false, undefined, 'searchBarInput');
 
   // append the bar to dom
   domElement.appendChild(placeholder);
@@ -34,6 +34,8 @@ export function load()
 
   // when the user change the text in search bar call updatePlaceholder()
   input.oninput = updatePlaceholder;
+
+  // input.value = 'Hello';
 }
 
 export function focus()
@@ -53,12 +55,12 @@ function updatePlaceholder()
 
   for (let i = 0; i < input.value.length; i++)
   {
-    meta.push(new ButtonMeta(i, i, visuals.next, visuals.next));
+    meta.push(new ButtonMeta(input.value.charAt(i), i, visuals.next, visuals.next));
   }
 
   page.list(meta);
 
-  placeholder.current = input.value + ' = ' + input.value.length;
+  // placeholder.current = input.value + ' = ' + input.value.length;
 
   if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);

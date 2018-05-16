@@ -5,6 +5,9 @@
   width: 100vw;
   height: calc(90vh - 4px);
   
+  overflow-y: scroll;
+  overflow-x: hidden;
+
   top: 2px;
 
   display: grid;

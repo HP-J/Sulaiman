@@ -1,5 +1,7 @@
 const electron = require('electron');
 
+const { openProcessManager } = require('electron-process-manager');
+
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -49,6 +51,26 @@ function createWindow ()
     mainWindow.show();
     mainWindow.setSkipTaskbar(true);
   });
+
+  // openProcessManager();
+  // mainWindow.webContents.openDevTools({ mode: 'detach' });
+}
+
+/** @param {*} argv the args that was sent from the second instance
+* @param {*} workingDirectory the current working directory
+*/
+function singleInstance(argv, workingDirectory)
+{
+  // TODO call focus() from renderer-process
+}
+
+// if the user tried to open more instance while a one is already opened
+// then quit the new ones
+if (app.makeSingleInstance(singleInstance)) 
+{
+  app.quit();
+
+  return;
 }
 
 // fix chrome/linux color issue
