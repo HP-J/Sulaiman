@@ -56,6 +56,11 @@ function updatePlaceholder()
     meta.push(new ButtonMeta(input.value.charAt(i), i, visuals.next, visuals.next));
   }
 
+  // for (let i = 0; i < 2000; i++)
+  // {
+  //   meta.push(new ButtonMeta(input.value.charAt(i), i, visuals.next, visuals.next));
+  // }
+
   page.list(meta);
 
   // placeholder.current = input.value + ' = ' + input.value.length;

@@ -52,7 +52,8 @@ function onScroll(event)
 
   if (buttons.length > 0)
   {
-    console.log(buttons.length);
+    // console.log(buttons.length);
+    // console.log(domElement.scrollHeight + ' from ' + (54 * buttons.length));
   }
   else
   {
@@ -65,15 +66,6 @@ function onScroll(event)
 */
 export function list(meta)
 {
-  // for (let i = 0; i < buttons.length; i++)
-  // {
-  //   domElement.removeChild(buttons[i].domElement);
-  // }
-
-  // buttons.length = 0;
-  
-  // console.log('================Start================');
-
   const length = (meta.length > buttons.length) ? meta.length : buttons.length;
 
   for (let i = 0; i < length; i++)
@@ -82,7 +74,11 @@ export function list(meta)
     {
       // console.log('deactivate a button');
 
-      // buttons[i].domElement.style.visibility = 'hidden';
+      // const height = parseInt(window.getComputedStyle(buttons[i].domElement).height.replace('px', ''));
+      // console.log(height);
+
+      buttons[i].domElement.style.display = 'none';
+      buttons[i].domElement.style.position = 'absolute';
     }
     else if (i < buttons.length)
     {
@@ -90,7 +86,8 @@ export function list(meta)
 
       // buttons[i].update(meta[i]);
       
-      // buttons[i].domElement.style.visibility = 'visible';
+      buttons[i].domElement.style.display = 'block';
+      buttons[i].domElement.style.position = 'relative';
     }
     else
     {
@@ -98,19 +95,6 @@ export function list(meta)
       
       const button = new Button(meta[i]);
       buttons.push(button);
-
-      if (i === 0)
-      {
-        button.domElement.style.height = '10vh';
-      }
-      if (i === 1)
-      {
-        button.domElement.style.height = '15vh';
-      }
-      if (i === 2)
-      {
-        button.domElement.style.height = '5vh';
-      }
 
       domElement.appendChild(button.domElement);
     }

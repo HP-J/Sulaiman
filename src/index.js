@@ -17,8 +17,8 @@ function resize()
 
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
-  const sizeX = Math.floor(screenSize.width * (50 / 100));
-  const sizeY = Math.floor(screenSize.height * (70 / 100));
+  const sizeX = Math.round(screenSize.width * (50 / 100));
+  const sizeY = Math.round(screenSize.height * (70 / 100));
 
   mainWindow.setSize(sizeX, sizeY);
 
@@ -26,8 +26,8 @@ function resize()
   // center of the screen
 
   mainWindow.setPosition(
-    Math.floor((screenSize.width - sizeX) / 2),
-    Math.floor((screenSize.height - sizeY) / 2)
+    Math.round((screenSize.width - sizeX) / 2),
+    Math.round((screenSize.height - sizeY) / 2)
   );
 }
 
