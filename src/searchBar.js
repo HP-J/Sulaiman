@@ -34,8 +34,6 @@ export function load()
 
   // when the user change the text in search bar call updatePlaceholder()
   input.oninput = updatePlaceholder;
-
-  // input.value = 'Hello';
 }
 
 export function focus()

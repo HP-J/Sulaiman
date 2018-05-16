@@ -56,8 +56,8 @@ function createWindow ()
   // mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
-/** @param {*} argv the args that was sent from the second instance
-* @param {*} workingDirectory the current working directory
+/** @param { string[] } argv the args that was sent from the second instance
+* @param { string } workingDirectory the current working directory
 */
 function singleInstance(argv, workingDirectory)
 {

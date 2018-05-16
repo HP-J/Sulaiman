@@ -4,6 +4,14 @@ import { Button, ButtonMeta } from './button.js';
 
 /** @type { HTMLDivElement }
 */
+let topHideout;
+
+/** @type { HTMLDivElement }
+*/
+let botHideout;
+
+/** @type { HTMLDivElement }
+*/
 export let domElement;
 
 /** an array of the buttons that has been initialized
@@ -13,21 +21,43 @@ let buttons = [];
 
 /** the total of the buttons that has been initialized
 */
-const total = 0;
+let total = 0;
+
+/** the fixed height a button
+*/
+let height = 0;
 
 export function load()
 {
   domElement = require.block(undefined, 'page');
   document.body.appendChild(domElement);
 
+  topHideout = require.block();
+  // domElement.appendChild(topHideout);
+  
+  botHideout = require.block();
+  // document.body.appendChild(botHideout);
+
   domElement.onscroll = onScroll;
+
+  // init top and bottom hideouts
+  onScroll();
 }
 
 /** @param { UIEvent } event 
 */
 function onScroll(event)
 {
+  // TODO infinity scrolling
 
+  if (buttons.length > 0)
+  {
+    console.log(buttons.length);
+  }
+  else
+  {
+    topHideout.style.visibility =  botHideout.style.visibility = 'hidden';
+  }
 }
 
 /** list the required buttons on the page block using a reactive elements
@@ -42,35 +72,47 @@ export function list(meta)
 
   // buttons.length = 0;
   
-  console.log('================Start================');
+  // console.log('================Start================');
 
-  for (let i = 0; i < meta.length; i++)
+  const length = (meta.length > buttons.length) ? meta.length : buttons.length;
+
+  for (let i = 0; i < length; i++)
   {
-    // let button;
-
-    if (i < buttons.length)
+    if (i >= meta.length)
     {
-      console.log('update an old button');
+      // console.log('deactivate a button');
+
+      // buttons[i].domElement.style.visibility = 'hidden';
+    }
+    else if (i < buttons.length)
+    {
+      // console.log('reactivate and update a button');
+
+      // buttons[i].update(meta[i]);
+      
+      // buttons[i].domElement.style.visibility = 'visible';
     }
     else
     {
-      console.log('create a new button');
-    }
-
-    // if (i < buttons.length)
-    // {
-    //   buttons[i].update(meta[i]);
-    // }
-    // else
-    // {
-
-    // const button = new Button(meta[i]);
-
-    // button.domElement.style.visibility = 'hidden';
+      // console.log('create a new button');
       
-    // buttons.push(button);
+      const button = new Button(meta[i]);
+      buttons.push(button);
 
-    // domElement.appendChild(button.domElement);
-    // }
+      if (i === 0)
+      {
+        button.domElement.style.height = '10vh';
+      }
+      if (i === 1)
+      {
+        button.domElement.style.height = '15vh';
+      }
+      if (i === 2)
+      {
+        button.domElement.style.height = '5vh';
+      }
+
+      domElement.appendChild(button.domElement);
+    }
   }
 }
