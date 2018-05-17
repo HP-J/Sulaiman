@@ -50,9 +50,9 @@ function hide(button)
 */
 function show(button)
 {
-  button.domElement.rect = button.domElement.cache = null;
-
   button.domElement.getBoundingClientRect = button.domElement.cache;
+  
+  button.domElement.rect = button.domElement.cache = null;
 
   buttons[0].domElement.style.display = 'block';
 }
@@ -78,21 +78,11 @@ export function load()
 */
 export function onScroll()
 {
-  if (buttons.length > 0)
+  // if (buttons.length > 0)
   {
-    // console.log('buttons.length: ' + buttons.length);
-
-    console.log(buttons[0].domElement.getBoundingClientRect().height);
-    // console.log(buttons[0].domElement.getBoundingClientRect().width);
-
-    // console.log(isVisible(buttons[0]));
-    
-    // buttons[0].domElement.style.display = 'none';
-    // hide(buttons[0]);
-
-    // console.log(isVisible(buttons[0]));
-    // console.log(buttons[0].domElement.getBoundingClientRect().height);
-    
+    // where I were left off
+    // I was trying to create show() and hide() so that there always come back right even with display set to none
+    // so I can collect the right height for the hideouts when I calculate it 
 
     // console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[10]));
 
@@ -106,35 +96,36 @@ export function onScroll()
     // topHeight os topScroll
     // while botScroll is is scrollHeight - topHeight
 
-    // let top = true;
-    // let topHeight = 0;
-    // let botHeight = 0;
+    let top = true;
+    const height = Math.round(domElement.getBoundingClientRect().height);
+    let topHeight = 0;
+    let botHeight = 0;
 
-    // for (let i = 0; i < buttons.length; i++)
-    // {
-    //   if (isVisible(buttons[i]))
-    //   {
-    //     top = false;
+    for (let i = 0; i < buttons.length; i++)
+    {
+      if (isVisible(buttons[i]))
+      {
+        top = false;
 
-    //     // buttons[i].domElement.style.display = 'block';
-    //   }
-    //   else
-    //   {
-    //     // buttons[i].domElement.style.display = 'none';
+        // buttons[i].domElement.style.display = 'block';
+      }
+      else
+      {
+        // buttons[i].domElement.style.display = 'none';
 
-    //     if (top)
-    //     {
-    //       topHeight += 90;
-    //     }
-    //     else
-    //     {
-    //       botHeight += 90;
-    //     }
-    //   }
-    // }
+        if (top)
+        {
+          topHeight += 90;
+        }
+        else
+        {
+          botHeight += 90;
+        }
+      }
+    }
 
-    // console.log(domElement.scrollTop + ' -> ' + topHeight);
-    // console.log((domElement.scrollHeight - domElement.scrollTop) + ' -> ' + botHeight);
+    console.log(domElement.scrollTop + ' -> ' + topHeight);
+    console.log(((domElement.scrollHeight - height) -  domElement.scrollTop) + ' -> ' + botHeight);
   }
   // else
   {

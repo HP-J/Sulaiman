@@ -1,6 +1,6 @@
 const electron = require('electron');
 
-const { openProcessManager } = require('electron-process-manager');
+// const { openProcessManager } = require('electron-process-manager');
 
 // Module to control application life.
 const app = electron.app;
@@ -73,7 +73,7 @@ function createWindow ()
 /** @param { string[] } argv the args that was sent from the second instance
 * @param { string } workingDirectory the current working directory
 */
-function singleInstance(argv, workingDirectory)
+function singleInstance()
 {
   // TODO call focus() from renderer-process
 }

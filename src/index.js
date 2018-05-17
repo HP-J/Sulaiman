@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-import { load, visuals } from './theme.js';
+import { load } from './theme.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';

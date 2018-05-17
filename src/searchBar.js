@@ -1,6 +1,6 @@
 import * as require from './require.js';
 
-// import { visuals } from './theme.js';
+import { visuals } from './theme.js';
 import { ButtonMeta } from './button.js';
 import * as page from './page.js';
 
