@@ -36,20 +36,14 @@ export function load(themeName)
 */
 function loadCSS(dir)
 {
-  // css files are located in a directory named style
   dir = dir + '/style/';
-
-  const head = document.getElementsByTagName('head')[0];
-
-  if (!existsSync(dir))
-    throw 'css theme does not exist';
 
   const files = readdirSync(dir);
 
   for (let i = 0; i < files.length; i++)
   {
     if (files[i].endsWith('.css'))
-      head.appendChild(require.css(join(dir, files[i])));
+      document.head.appendChild(require.style(join(dir, files[i])));
   }
 }
 
@@ -58,9 +52,6 @@ function loadCSS(dir)
 function loadVisuals(dir)
 {
   dir = dir + '/visuals/';
-
-  if (!existsSync(dir))
-    throw 'visuals theme does not exist';
 
   const files = readdirSync(dir);
 

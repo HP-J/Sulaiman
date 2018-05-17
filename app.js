@@ -18,14 +18,28 @@ let mainWindow;
 
 function createWindow () 
 {
+  const screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+
+  const width = Math.round(screenSize.width * (50 / 100));
+  const height = Math.round(screenSize.height * (70 / 100));
+
   // Create the browser window.
+
+  // set the electron window size
+  // window's width is 50% of the screen's width
+  // window's height is 70% of the screen's height
+
+  // set the electron window location
+  // center of the screen
   mainWindow = new BrowserWindow(
     {
       frame: false,
       resizable: false,
       skipTaskbar: true,
-      width: 0,
-      height: 0
+      width: width,
+      height: height,
+      x: Math.round((screenSize.width - width) / 2),
+      y: Math.round((screenSize.height - height) / 2)
     }
   );
 

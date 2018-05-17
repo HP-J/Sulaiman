@@ -1,6 +1,6 @@
 import * as require from './require.js';
 
-import { visuals } from './theme.js';
+// import { visuals } from './theme.js';
 import { ButtonMeta } from './button.js';
 import * as page from './page.js';
 
@@ -53,15 +53,16 @@ function updatePlaceholder()
 
   // for (let i = 0; i < input.value.length; i++)
   // {
-  //   meta.push(new ButtonMeta(input.value.charAt(i), i, visuals.next, visuals.next));
+  //   meta.push(new ButtonMeta(input.value.charAt(i), i));
   // }
 
   for (let i = 0; i < 1; i++)
   {
-    meta.push(new ButtonMeta(i, i, visuals.next, visuals.next));
+    meta.push(new ButtonMeta(i, i));
   }
 
   page.list(meta);
+  page.onScroll();
 
   // placeholder.current = input.value + ' = ' + input.value.length;
 

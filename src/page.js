@@ -19,7 +19,7 @@ export let domElement;
 */
 const buttons = [];
 
-/** @param { HTMLButtonElement } button 
+/** @param { Button } button 
 */
 function isVisible(button)
 {
@@ -34,58 +34,107 @@ function isVisible(button)
   return (buttonMinY < pageMaxY) && (buttonMaxY >= 0);
 }
 
+/** @param { Button } button 
+*/
+function hide(button)
+{
+  button.domElement.rect = button.domElement.getBoundingClientRect();
+  button.domElement.cache = button.domElement.getBoundingClientRect;
+
+  button.domElement.getBoundingClientRect = function() { return this.rect; };
+
+  buttons[0].domElement.style.display = 'none';
+}
+
+/** @param { Button } button 
+*/
+function show(button)
+{
+  button.domElement.rect = button.domElement.cache = null;
+
+  button.domElement.getBoundingClientRect = button.domElement.cache;
+
+  buttons[0].domElement.style.display = 'block';
+}
+
 export function load()
 {
   domElement = require.block(undefined, 'page');
   document.body.appendChild(domElement);
 
   topHideout = require.block('topHideout');
-  domElement.appendChild(topHideout);
+  // domElement.appendChild(topHideout);
   
   botHideout = require.block('botHideout');
-  domElement.appendChild(botHideout);
+  // domElement.appendChild(botHideout);
   
   domElement.onscroll = onScroll;
     
   // init top and bottom hideouts
-  onScroll();
+  // onScroll();
 }
 
 /** @param { UIEvent } event 
 */
-function onScroll(event)
+export function onScroll()
 {
-  // if (buttons.length > 0)
+  if (buttons.length > 0)
   {
-    // console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[10]));
-    
-    // const topHeight = domElement.scrollTop;
-    // const botHeight = domElement.scrollHeight - topHeight;
+    // console.log('buttons.length: ' + buttons.length);
 
-    // const topHeight = 129;
-    // const botHeight = domElement.scrollHeight - topHeight;
+    console.log(buttons[0].domElement.getBoundingClientRect().height);
+    // console.log(buttons[0].domElement.getBoundingClientRect().width);
+
+    // console.log(isVisible(buttons[0]));
+    
+    // buttons[0].domElement.style.display = 'none';
+    // hide(buttons[0]);
+
+    // console.log(isVisible(buttons[0]));
+    // console.log(buttons[0].domElement.getBoundingClientRect().height);
+    
+
+    // console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[10]));
+
+    // topHideout.style.height = domElement.scrollTop + 'px';
+    // botHideout.style.height = (domElement.scrollHeight - domElement.scrollTop) + 'px';
+
+    // topHideout.style.height = 129 + 'px';
+    // botHideout.style.height = (400 - 129) + 'px';
 
     // todo use the topScroll to calc how far is the top hide out is
     // topHeight os topScroll
     // while botScroll is is scrollHeight - topHeight
 
+    // let top = true;
+    // let topHeight = 0;
+    // let botHeight = 0;
+
     // for (let i = 0; i < buttons.length; i++)
     // {
-      
-    // console.log(i);
+    //   if (isVisible(buttons[i]))
+    //   {
+    //     top = false;
 
-    // if (i === 0 || i === 10)
-    //   console.log(isVisible(buttons[i]));
+    //     // buttons[i].domElement.style.display = 'block';
+    //   }
+    //   else
+    //   {
+    //     // buttons[i].domElement.style.display = 'none';
 
-    // const element = array[i];
-
-    // if (isVisible(buttons[i].domElement))
-    //   buttons[i].domElement.style.display = 'block';
-    // else
-    //   buttons[i].domElement.style.display = 'none';
-
-    // console.log(i + ': ' + isVisible(buttons[i].domElement));
+    //     if (top)
+    //     {
+    //       topHeight += 90;
+    //     }
+    //     else
+    //     {
+    //       botHeight += 90;
+    //     }
+    //   }
     // }
+
+    // console.log(domElement.scrollTop + ' -> ' + topHeight);
+    // console.log((domElement.scrollHeight - domElement.scrollTop) + ' -> ' + botHeight);
   }
   // else
   {
@@ -99,8 +148,6 @@ function onScroll(event)
 */
 export function list(meta)
 {
-  domElement.scrollTop = 0;
-
   const length = (meta.length > buttons.length) ? meta.length : buttons.length;
 
   for (let i = 0; i < length; i++)
@@ -108,9 +155,6 @@ export function list(meta)
     if (i >= meta.length)
     {
       // console.log('deactivate a button');
-
-      // const height = parseInt(window.getComputedStyle(buttons[i].domElement).height.replace('px', ''));
-      // console.log(height);
 
       buttons[i].domElement.style.display = 'none';
     }

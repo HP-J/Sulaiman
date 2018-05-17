@@ -1,12 +1,17 @@
 import { readFileSync } from 'fs';
 
+function textFile(path)
+{
+  return readFileSync(path).toString();
+}
+
 /** @param { string } path 
 */
 export function svg(path) 
 {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-  const content = readFileSync(path).toString();
+  const content = textFile(path);
 
   const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
 
@@ -85,12 +90,12 @@ export function input(readOnly, className, id)
 
 /** @param { string } path 
 */
-export function css(path)
+export function style(path)
 {
-  const css = document.createElement('link');
-  css.type = 'text/css';
-  css.rel = 'stylesheet';
-  css.href = path;
+  const style = document.createElement('style');
+  style.type = 'text/css';
 
-  return css;
+  style.appendChild(document.createTextNode(textFile(path)));
+
+  return style;
 }

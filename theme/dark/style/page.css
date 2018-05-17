@@ -13,37 +13,34 @@
   /* changing some of the grid rules will break your app */
   display: grid;
   grid-auto-rows: max-content;
-  grid-template-areas: "topHideout" "button" "botHideout";
   grid-row-gap: 2px;
 }
 
 .topHideout, .botHideout
 {
-  grid-area: topHideout;
+  order: -1;
   background-color: black;
-  position: relative;
-  top: 0px;
-  left: 0px;
   width: inherit;
   height: 10vh;
 }
 
 .botHideout
 {
-  grid-area: botHideout;
+  order: 1;
+  background-color: white;
 }
 
 .button
 {
-  grid-area: button;
   background-color: blue;
   position: relative;
   left: 0px;
   width: inherit;
   height: 10vh;
+  /* height: 90px; */
   padding: 0px;
   border: 0px;
-}
+ }
 
 .button:focus
 {
