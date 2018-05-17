@@ -66,9 +66,9 @@ export function load()
   // domElement.appendChild(topHideout);
   
   botHideout = require.block('botHideout');
-  // domElement.appendChild(botHideout);
+  domElement.appendChild(botHideout);
   
-  domElement.onscroll = onScroll;
+  // domElement.onscroll = onScroll;
     
   // init top and bottom hideouts
   // onScroll();
@@ -78,8 +78,12 @@ export function load()
 */
 export function onScroll()
 {
+  const height = domElement.getBoundingClientRect().height;
+  botHideout.style.bottom =  (domElement.getBoundingClientRect().height - domElement.scrollHeight) + 'px';
+  botHideout.style.height =  ((domElement.scrollHeight - height) -  domElement.scrollTop) + 'px';
+
   // if (buttons.length > 0)
-  {
+  // {
     // where I were left off
     // I was trying to create show() and hide() so that there always come back right even with display set to none
     // so I can collect the right height for the hideouts when I calculate it 
@@ -96,42 +100,42 @@ export function onScroll()
     // topHeight os topScroll
     // while botScroll is is scrollHeight - topHeight
 
-    let top = true;
-    const height = Math.round(domElement.getBoundingClientRect().height);
-    let topHeight = 0;
-    let botHeight = 0;
+  //   let top = true;
+  //   const height = Math.round(domElement.getBoundingClientRect().height);
+  //   let topHeight = 0;
+  //   let botHeight = 0;
 
-    for (let i = 0; i < buttons.length; i++)
-    {
-      if (isVisible(buttons[i]))
-      {
-        top = false;
+  //   for (let i = 0; i < buttons.length; i++)
+  //   {
+  //     if (isVisible(buttons[i]))
+  //     {
+  //       top = false;
 
-        // buttons[i].domElement.style.display = 'block';
-      }
-      else
-      {
-        // buttons[i].domElement.style.display = 'none';
+  //       // buttons[i].domElement.style.display = 'block';
+  //     }
+  //     else
+  //     {
+  //       // buttons[i].domElement.style.display = 'none';
 
-        if (top)
-        {
-          topHeight += 90;
-        }
-        else
-        {
-          botHeight += 90;
-        }
-      }
-    }
+  //       if (top)
+  //       {
+  //         topHeight += 90;
+  //       }
+  //       else
+  //       {
+  //         botHeight += 90;
+  //       }
+  //     }
+  //   }
 
-    console.log(domElement.scrollTop + ' -> ' + topHeight);
-    console.log(((domElement.scrollHeight - height) -  domElement.scrollTop) + ' -> ' + botHeight);
-  }
-  // else
-  {
-    // topHideout.style.display =  botHideout.style.display = 'none';
-    // topHideout.style.width =  botHideout.style.width = 'none';
-  }
+  //   console.log(domElement.scrollTop + ' -> ' + topHeight);
+  //   console.log((() + ' -> ' + botHeight);
+  // }
+  // // else
+  // {
+  //   // topHideout.style.display =  botHideout.style.display = 'none';
+  //   // topHideout.style.width =  botHideout.style.width = 'none';
+  // }
 }
 
 /** list the required buttons on the page block using a reactive elements

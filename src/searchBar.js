@@ -56,7 +56,7 @@ function updatePlaceholder()
   //   meta.push(new ButtonMeta(input.value.charAt(i), i));
   // }
 
-  for (let i = 0; i < 1; i++)
+  for (let i = 0; i < 12; i++)
   {
     meta.push(new ButtonMeta(i, i));
   }

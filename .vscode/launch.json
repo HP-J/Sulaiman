@@ -9,7 +9,7 @@
       "postDebugTask": "clean",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-      "program": "${workspaceRoot}/app.js",
+      "program": "${workspaceRoot}/src/app.js",
       "console": "integratedTerminal",
       "protocol": "inspector"
     },
@@ -24,7 +24,7 @@
       "webRoot": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
-        "${workspaceRoot}/app.js",
+        "${workspaceRoot}/src/app.js",
         "--remote-debugging-port=9222"
       ]
     }

@@ -20,9 +20,6 @@ function createWindow ()
 {
   const screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
-  const width = Math.round(screenSize.width * (50 / 100));
-  const height = Math.round(screenSize.height * (70 / 100));
-
   // Create the browser window.
 
   // set the electron window size
@@ -31,6 +28,10 @@ function createWindow ()
 
   // set the electron window location
   // center of the screen
+
+  const width = Math.round(screenSize.width * (50 / 100));
+  const height = Math.round(screenSize.height * (70 / 100));
+
   mainWindow = new BrowserWindow(
     {
       frame: false,
@@ -43,9 +44,9 @@ function createWindow ()
     }
   );
 
-  // and load the index.html of the app.
+  // and load the index.html of the app
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, './src/index.html'),
+    pathname: path.join(__dirname, './index.html'),
     protocol: 'file:',
     slashes: true
   }));

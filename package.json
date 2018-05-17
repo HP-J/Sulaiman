@@ -2,7 +2,7 @@
   "name": "sulaiman",
   "version": "0.1.0",
   "description": "the most useless and ugly keyboard launcher in the planet",
-  "main": "app.js",
+  "main": "./src/app.js",
   "scripts": {
     "dev": "webpack --config webpack.development.js",
     "build": "webpack --config webpack.production.js",

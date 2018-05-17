@@ -18,15 +18,15 @@
 
 .topHideout, .botHideout
 {
-  order: -1;
+  z-index: 1;
   background-color: black;
+  position: absolute;
   width: inherit;
-  height: 10vh;
+  height: 10px;
 }
 
 .botHideout
 {
-  order: 1;
   background-color: white;
 }
 
