@@ -10,13 +10,32 @@
 
   top: 2px;
 
+  /* changing some of the grid rules will break your app */
   display: grid;
   grid-auto-rows: max-content;
+  grid-template-areas: "topHideout" "button" "botHideout";
   grid-row-gap: 2px;
+}
+
+.topHideout, .botHideout
+{
+  grid-area: topHideout;
+  background-color: black;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: inherit;
+  height: 10vh;
+}
+
+.botHideout
+{
+  grid-area: botHideout;
 }
 
 .button
 {
+  grid-area: button;
   background-color: blue;
   position: relative;
   left: 0px;
