@@ -17,7 +17,8 @@
   "author": "Kerolos Zaki",
   "license": "MIT",
   "dependencies": {
-    "electron": "^2.0.0"
+    "electron": "^2.0.0",
+    "postcss-url": "^7.3.2"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",

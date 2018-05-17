@@ -1,11 +1,18 @@
 import { readFileSync } from 'fs';
 
+import postcss from 'postcss';
+import url from 'postcss-url';
+
+/** reads the file and returns the text inside it
+* @param { string } path 
+*/
 function textFile(path)
 {
   return readFileSync(path).toString();
 }
 
-/** @param { string } path 
+/** reads a svg file and returns an svg element with the right attributes
+* @param { string } path 
 */
 export function svg(path) 
 {
@@ -42,6 +49,8 @@ export function svg(path)
   return svg;
 }
 
+/** returns a button element with the button class name
+*/
 export function button()
 {
   const button = document.createElement('button');
@@ -51,7 +60,8 @@ export function button()
   return button;
 }
 
-/** @param { string } className
+/** returns an empty div block with selected class name and id
+* @param { string } className
 * @param { string } id 
 */
 export function block(className, id)
@@ -67,7 +77,9 @@ export function block(className, id)
   return div;
 }
 
-/** @param { string } readOnly 
+/** returns an input element with with
+* selected class name, id and settings
+* @param { string } readOnly 
 * @param { string } className 
 * @param { string } id 
 */
@@ -88,14 +100,21 @@ export function input(readOnly, className, id)
   return input;
 }
 
-/** @param { string } path 
+/** returns a style element after applying post-css
+* @param { string } path 
 */
 export function style(path)
 {
   const style = document.createElement('style');
   style.type = 'text/css';
 
-  style.appendChild(document.createTextNode(textFile(path)));
+  let styleString = textFile(path);
+
+  // using postcss-url plugin
+  // convert url() to encodeURIComponent or base64
+  styleString = postcss().use(url({url: 'inline'})).process(styleString, { from: path }).css;
+
+  style.appendChild(document.createTextNode(styleString));
 
   return style;
 }

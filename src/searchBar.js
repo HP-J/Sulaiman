@@ -16,26 +16,33 @@ export let placeholder;
 */
 export let input;
 
+/** create and append search bar block, input and input placeholder
+*/
 export function load()
 {
+  // create and append search bar block
   domElement = require.block(undefined, 'searchBar');
   document.body.appendChild(domElement);
 
-  // create the elements dom
+  // create and append input and input placeholder
   placeholder = require.input(true, undefined, 'searchBarPlaceholder');
   input = require.input(false, undefined, 'searchBarInput');
 
-  // append the bar to dom
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
 
-  // return the default placeholder value, when the input value is empty
+  // set the default placeholder value
+  // value is infected by what is written in the input value
+  // current is not infected by what is written in the input value
+  // default the placeholder value when input value is empty
   placeholder.value = placeholder.current = placeholder.default = 'Search';
 
-  // when the user change the text in search bar call updatePlaceholder()
+  // when the user change the input value callback updatePlaceholder()
   input.oninput = updatePlaceholder;
 }
 
+/** focus the keyboard on search bar input
+*/
 export function focus()
 {
   input.value = '';
@@ -45,7 +52,7 @@ export function focus()
   input.focus();
 }
 
-/** update the placeholder when the user writes into input
+/** an event callback, gets called when the user changes the input value
 */
 function updatePlaceholder()
 {
@@ -72,7 +79,7 @@ function updatePlaceholder()
     placeholder.value = placeholder.current = placeholder.default;
 }
 
-/** remove a piece of a string using indies
+/** remove a piece of the string using indies
 * @param { string } s 
 * @param { number } startIndex 
 * @param { number } endIndex 

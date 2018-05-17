@@ -9,7 +9,6 @@ const mainWindow = remote.getCurrentWindow();
 
 function registerEvents()
 {
-  // when the application  gets focus and unfocused
   mainWindow.on('focus', focus);
   mainWindow.on('blur', blur);
 
@@ -17,13 +16,14 @@ function registerEvents()
   // up-arrow 38
   // forward-arrow 39
   // down-arrow 40
-  // tab 9
 
   window.onkeydown = (event) =>
   {
+    // TAB
     if (event.keyCode === 9)
       event.preventDefault();
     
+    // F5
     if (event.keyCode === 116)
       mainWindow.reload();
   };
@@ -39,11 +39,15 @@ function registerEvents()
   };
 }
 
+/** an event callback, gets called when the application gets focus
+*/
 function focus()
 {
   searchBar.focus();
 }
 
+/** an event callback, gets called when the application gets unfocused
+*/
 function blur()
 {
   mainWindow.hide();
