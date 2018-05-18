@@ -1,14 +1,23 @@
 #page
 {
-  background-color: blueviolet;
+  background-color: red;
   position: relative;
+  top: 2px;
   width: 100vw;
   height: calc(90vh - 4px);
-  
-  overflow-y: scroll;
   overflow-x: hidden;
+  overflow-y: scroll;
+}
 
-  top: 2px;
+#grid
+{
+  background-color: blueviolet;
+  position: absolute;
+  
+  width: inherit;
+  height: inherit;
+
+  overflow: hidden;
 
   /* changing some of the grid rules will break your app */
   display: grid;
@@ -21,6 +30,8 @@
   z-index: 1;
   background-color: black;
   position: absolute;
+  top: 0px;
+  left: 0px;
   width: inherit;
   height: 10px;
 }
@@ -28,10 +39,12 @@
 .botInfinity
 {
   background-color: white;
+  top: unset;
 }
 
 .button
 {
+  z-index: 2;
   background-color: blue;
   position: relative;
   left: 0px;
@@ -40,7 +53,7 @@
   height: 90px;
   padding: 0px;
   border: 0px;
- }
+}
 
 .button:focus
 {

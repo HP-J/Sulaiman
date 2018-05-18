@@ -16,7 +16,7 @@ const url = require('url');
 */
 let mainWindow;
 
-function createWindow () 
+function createWindow ()
 {
   const screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
 
@@ -30,7 +30,7 @@ function createWindow ()
   // center of the screen
 
   const width = Math.round(screenSize.width * (50 / 100));
-  const height = Math.round(screenSize.height * (70 / 100));
+  const height = Math.round(screenSize.height * (65 / 100));
 
   mainWindow = new BrowserWindow(
     {
@@ -60,7 +60,8 @@ function createWindow ()
     mainWindow = null;
   });
 
-  // how to restore the app when it's hidden
+  // how to restore the app when it's hidden, this can fail if
+  // the shortcut is being used by another application
   electron.globalShortcut.register('Control+Space', () =>
   {
     mainWindow.show();

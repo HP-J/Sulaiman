@@ -53,6 +53,12 @@ function blur()
   mainWindow.hide();
 }
 
+// disable eval
+window.eval = global.eval = () =>
+{
+  throw new Error('Sorry, this app does not support window.eval().');
+};
+
 // append the style, load the visuals
 load('dark');
 

@@ -1,6 +1,6 @@
 import * as require from './require.js';
 
-import { visuals } from './theme.js';
+// import { visuals } from './theme.js';
 import { ButtonMeta } from './button.js';
 import * as page from './page.js';
 
@@ -63,7 +63,7 @@ function updatePlaceholder()
   //   meta.push(new ButtonMeta(input.value.charAt(i), i));
   // }
 
-  for (let i = 0; i < 12; i++)
+  for (let i = 0; i < 20; i++)
   {
     meta.push(new ButtonMeta(i, i));
   }

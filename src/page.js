@@ -19,6 +19,11 @@ let botInfinity;
 */
 export let domElement;
 
+/** the grid block
+* @type { HTMLDivElement }
+*/
+export let grid;
+
 /** an array of the buttons that has been initialized
 * @type { Button[] }
 */
@@ -31,11 +36,17 @@ export function load()
   domElement = require.block(undefined, 'page');
   document.body.appendChild(domElement);
 
+  grid = require.block(undefined, 'grid');
+  domElement.appendChild(grid);
+
   topInfinity = require.block('topInfinity');
-  // domElement.appendChild(topHideout);
-  
-  botInfinity = require.block('botInfinity');
-  domElement.appendChild(botInfinity);
+  domElement.appendChild(topInfinity);
+
+  // botInfinity = require.block('botInfinity');
+  // domElement.appendChild(botInfinity);
+
+  // botInfinity = require.block('botInfinity');
+  // domElement.appendChild(botInfinity);
   
   // domElement.onscroll = onScroll;
     
@@ -64,12 +75,16 @@ function isVisible(button)
 */
 function hide(button)
 {
+  // const top = domElement.scrollTop;
+  
   button.domElement.rect = button.domElement.getBoundingClientRect();
   button.domElement.cache = button.domElement.getBoundingClientRect;
 
-  button.domElement.getBoundingClientRect = function() { return this.rect; };
+  button.domElement.getBoundingClientRect = () => { return this.rect; };
 
-  buttons[0].domElement.style.display = 'none';
+  button.domElement.style.display = 'none';
+
+  // domElement.scrollTop = top;
 }
 
 /** show a button in list, infinity scrolling
@@ -77,11 +92,15 @@ function hide(button)
 */
 function show(button)
 {
+  // const top = domElement.scrollTop;
+
   button.domElement.getBoundingClientRect = button.domElement.cache;
   
   button.domElement.rect = button.domElement.cache = null;
 
-  buttons[0].domElement.style.display = 'block';
+  button.domElement.style.display = 'block';
+
+  // domElement.scrollTop = top;
 }
 
 /** infinity scrolling update callback
@@ -89,32 +108,54 @@ function show(button)
 */
 export function onScroll()
 {
-  const height = domElement.getBoundingClientRect().height;
+  // const height = domElement.getBoundingClientRect().height;
   
-  botInfinity.style.bottom =  (domElement.getBoundingClientRect().height - domElement.scrollHeight) + 'px';
-  botInfinity.style.height =  ((domElement.scrollHeight - height) -  domElement.scrollTop) + 'px';
+  // domElement.scrollTop = 210;
+
+  // const rect = domElement.getBoundingClientRect();
+
+  topInfinity.style.height = grid.scrollHeight + 'px';
+  // console.log(grid.scrollHeight);
+
+  // botInfinity.style.bottom =  (domElement.getBoundingClientRect().height - domElement.scrollHeight) + 'px';
+  // botInfinity.style.height =  ((domElement.scrollHeight - height) -  domElement.scrollTop) + 'px';
+
+  // topInfinity.style.height =  domElement.scrollTop + 'px';
+
+  // hide(buttons[0]);
+  // domElement.scrollTop = 210;
+  // hide(buttons[1]);
+  // console.log(isVisible(buttons[2]));
+
+  // console.log(rect.top + domElement.scrollTop);
+  // console.log(domElement.scrollHeight || rect.height);
 
   // if (buttons.length > 0)
   {
     // console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[10]));
 
     // for (let i = 0; i < buttons.length; i++)
-    // {
-    //   if (isVisible(buttons[i]))
-    //   {
-    //     // buttons[i].domElement.style.display = 'block';
-    //   }
-    //   else
-    //   {
-    //     // buttons[i].domElement.style.display = 'none';
-    //   }
-    // }
+    {
+      // if (isVisible(buttons[i]))
+      {
+        // buttons[i].domElement.style.display = 'block';
+        // show(buttons[i]);
+      }
+      // else
+      {
+        // buttons[i].domElement.style.display = 'none';
+        // hide(buttons[i]);
+      }
+    }
   }
   // else
   {
     // topHideout.style.display =  botHideout.style.display = 'none';
     // topHideout.style.width =  botHideout.style.width = 'none';
   }
+
+  // console.log(domElement.scrollTop);
+  // console.log(domElement.scrollHeight);
 }
 
 /** list the required buttons on the page block using a reactive elements
@@ -147,7 +188,7 @@ export function list(meta)
       const button = new Button(meta[i]);
       buttons.push(button);
 
-      domElement.appendChild(button.domElement);
+      grid.appendChild(button.domElement);
     }
   }
 }
