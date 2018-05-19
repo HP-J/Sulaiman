@@ -11,7 +11,9 @@ export const visuals =
   files: undefined,
   more: undefined,
   next: undefined,
+  open: undefined,
   search: undefined,
+  settings: undefined,
   voice: undefined
 };
 

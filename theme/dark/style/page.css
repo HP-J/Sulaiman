@@ -1,5 +1,5 @@
 #page
-{
+{ 
   background-color: #3e4143;
   position: relative;
   top: 2px;
@@ -11,7 +11,7 @@
   /* changing some of the grid rules will break your app */
   display: grid;
   grid-auto-rows: max-content;
-  grid-row-gap: 2px;
+  grid-row-gap: 0px;
 }
 
 .button
