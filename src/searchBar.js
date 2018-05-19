@@ -3,6 +3,7 @@ import * as require from './require.js';
 // import { visuals } from './theme.js';
 import { ButtonMeta } from './button.js';
 import * as page from './page.js';
+import { visuals } from './theme.js';
 
 /** @type { HTMLDivElement }
 */
@@ -58,20 +59,12 @@ function updatePlaceholder()
 {
   const meta = [];
 
-  // for (let i = 0; i < input.value.length; i++)
-  // {
-  //   meta.push(new ButtonMeta(input.value.charAt(i), i));
-  // }
-
-  for (let i = 0; i < 2000; i++)
-  {
-    meta.push(new ButtonMeta(i, i));
-  }
+  meta.push(new ButtonMeta('Exit sign!', 'but you can copy me!', visuals.exit, visuals.copy));
+  meta.push(new ButtonMeta('File.file', 'open file in browser!', visuals.files, visuals.browser));
+  meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', visuals.search, visuals.next));
+  meta.push(new ButtonMeta('Voice Microphone Icon', 'open icon', visuals.voice, visuals.more));
 
   page.list(meta);
-  page.onScroll();
-
-  // placeholder.current = input.value + ' = ' + input.value.length;
 
   if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);

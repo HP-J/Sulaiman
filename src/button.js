@@ -30,8 +30,8 @@ export class Button
     this.title.value = buttonMeta.title;
     this.description.value = buttonMeta.description;
     
-    // this.icon = updateVisual(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
-    // this.action = updateVisual(this.domElement, this.action, buttonMeta.action, 'buttonAction');
+    this.icon = updateVisual(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
+    this.action = updateVisual(this.domElement, this.action, buttonMeta.action, 'buttonAction');
 
     /** @param { HTMLButtonElement } dom
     * @param { SVGSVGElement } oldVisual
@@ -44,14 +44,14 @@ export class Button
         newVisual = newVisual.cloneNode(true);
         newVisual.setAttribute('class', className);
 
-        if (oldVisual && dom.contains(oldVisual))
+        if (oldVisual !== undefined && dom.contains(oldVisual))
           dom.replaceChild(newVisual, oldVisual);
         else
           dom.appendChild(newVisual);
         
         return newVisual;
       }
-      else
+      else if (oldVisual !== undefined)
       {
         dom.removeChild(oldVisual);
 

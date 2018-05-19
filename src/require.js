@@ -100,6 +100,23 @@ export function input(readOnly, className, id)
   return input;
 }
 
+export function para(className)
+{
+  const input = document.createElement('textarea');
+
+  // input.setAttribute('type', 'text');
+
+  // if (id !== undefined)
+  //   input.id = id;
+
+  if (className !== undefined)
+    input.className = className;
+  
+  // input.readOnly = readOnly;
+
+  return input;
+}
+
 /** returns a style element after applying post-css
 * @param { string } path 
 */

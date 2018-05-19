@@ -1,7 +1,5 @@
 const electron = require('electron');
 
-// const { openProcessManager } = require('electron-process-manager');
-
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.

@@ -1,21 +1,10 @@
 #page
 {
-  background-color: red;
+  background-color: #3e4143;
   position: relative;
   top: 2px;
   width: 100vw;
-  height: calc(90vh - 4px);
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
-
-#grid
-{
-  background-color: blueviolet;
-  position: absolute;
-  
-  width: inherit;
-  height: inherit;
+  height: calc(90vh - 2px);
 
   overflow: hidden;
 
@@ -25,42 +14,31 @@
   grid-row-gap: 2px;
 }
 
-.infinity
-{
-  z-index: 1;
-  background-color: black;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: inherit;
-  height: 10px;
-}
-
 .button
 {
-  z-index: 2;
-  background-color: blue;
+  background-color: #3e4143;
   position: relative;
   left: 0px;
   width: inherit;
-  /* height: 10vh; */
-  height: 90px;
+  height: 12vh;
   padding: 0px;
   border: 0px;
 }
 
 .button:focus
 {
+  background-color: #1c1d1e;
   outline: none;
 }
 
 .buttonIcon, .buttonAction
 {
-  background-color: black;
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
   position: absolute;
   left: 10px;
   top: 0px;
-  width: 5%;
+  width: 3.5vw;
   height: inherit;
 }
 
@@ -71,18 +49,25 @@
 
 .buttonTitle, .buttonDescription
 {
-  background-color: green;
+  background-color: rgba(0, 0, 0, 0);
+  color: #ffffff;
+  pointer-events: none;
   position: absolute;
   left: calc(5% + 20px);
   top: 0px;
   height: 50%;
   width: calc(90% - 40px);
+  font-family: Oxygen;
+  font-size: 110%;
+  font-weight: 200;
+  margin-top: 0.8vh;
   padding: 0px;
   border: 0px;
 }
 
 .buttonDescription
 {
-  background-color: orange;
+  color: rgba(255, 255, 255, 0.5);
   top: 50%;
+  margin-top: -0.8vh;
 }

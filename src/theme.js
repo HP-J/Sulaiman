@@ -3,12 +3,10 @@ import { join } from 'path';
 
 import * as require from './require.js';
 
-/** @type {{ browser: SVGAElement, clipboard: SVGAElement, exit: SVGAElement, files: SVGAElement, more: SVGAElement, next: SVGAElement, search: SVGAElement, voice: SVGAElement }}
-*/
 export const visuals =
 {
   browser: undefined,
-  clipboard: undefined,
+  copy: undefined,
   exit: undefined,
   files: undefined,
   more: undefined,

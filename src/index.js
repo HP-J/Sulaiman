@@ -50,7 +50,7 @@ function focus()
 */
 function blur()
 {
-  mainWindow.hide();
+  // mainWindow.hide();
 }
 
 // disable eval
