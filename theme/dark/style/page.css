@@ -25,7 +25,7 @@
   grid-row-gap: 2px;
 }
 
-.topInfinity, .botInfinity
+.infinity
 {
   z-index: 1;
   background-color: black;
@@ -34,12 +34,6 @@
   left: 0px;
   width: inherit;
   height: 10px;
-}
-
-.botInfinity
-{
-  background-color: white;
-  top: unset;
 }
 
 .button

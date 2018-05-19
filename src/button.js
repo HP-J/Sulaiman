@@ -17,8 +17,8 @@ export class Button
     /** @type { SVGSVGElement } */
     this.action = undefined;
 
-    // this.domElement.appendChild(this.title);
-    // this.domElement.appendChild(this.description);
+    this.domElement.appendChild(this.title);
+    this.domElement.appendChild(this.description);
 
     this.update(buttonMeta);
   }
@@ -27,8 +27,8 @@ export class Button
   */
   update(buttonMeta)
   {
-    // this.title.value = buttonMeta.title;
-    // this.description.value = buttonMeta.description;
+    this.title.value = buttonMeta.title;
+    this.description.value = buttonMeta.description;
     
     // this.icon = updateVisual(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
     // this.action = updateVisual(this.domElement, this.action, buttonMeta.action, 'buttonAction');

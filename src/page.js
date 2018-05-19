@@ -2,18 +2,6 @@ import * as require from './require.js';
 
 import { Button, ButtonMeta } from './button.js';
 
-/** the top block of infinity fills out for
-* the hidden contact so the scroll height stays the same
-* @type { HTMLDivElement }
-*/
-let topInfinity;
-
-/** the bottom block of infinity fills out for 
-* the hidden contact so the scroll height stays the same
-* @type { HTMLDivElement }
-*/
-let botInfinity;
-
 /** the page block
 * @type { HTMLDivElement }
 */
@@ -23,6 +11,16 @@ export let domElement;
 * @type { HTMLDivElement }
 */
 export let grid;
+
+/** the block of infinity that fills out for
+* the grid scroll height but inside of the page block
+* @type { HTMLDivElement }
+*/
+let infinity;
+
+/**
+*/
+let scrollOffset = 0;
 
 /** an array of the buttons that has been initialized
 * @type { Button[] }
@@ -36,21 +34,14 @@ export function load()
   domElement = require.block(undefined, 'page');
   document.body.appendChild(domElement);
 
+  infinity = require.block('infinity');
+  domElement.appendChild(infinity);
+
   grid = require.block(undefined, 'grid');
   domElement.appendChild(grid);
 
-  topInfinity = require.block('topInfinity');
-  domElement.appendChild(topInfinity);
-
-  // botInfinity = require.block('botInfinity');
-  // domElement.appendChild(botInfinity);
-
-  // botInfinity = require.block('botInfinity');
-  // domElement.appendChild(botInfinity);
+  domElement.onscroll = onScroll;
   
-  // domElement.onscroll = onScroll;
-    
-  // init top and bottom hideouts
   // onScroll();
 }
 
@@ -59,32 +50,15 @@ export function load()
 */
 function isVisible(button)
 {
-  const pageRect = domElement.getBoundingClientRect();
-  const buttonRect = button.domElement.getBoundingClientRect();
+  const gridRect = grid.getBoundingClientRect();
+  const buttonRect = button.rect;
 
-  const pageMinY = Math.round(pageRect.top);
-  const pageMaxY = Math.round(pageRect.height);
-  const buttonMinY = Math.round(buttonRect.top) - pageMinY;
-  const buttonMaxY = (Math.round(buttonRect.top) - pageMinY) + Math.round(buttonRect.height);
+  const gridMinY = Math.round(gridRect.top);
+  const gridMaxY = Math.round(gridRect.height);
+  const buttonMinY = Math.round(buttonRect.top - domElement.scrollTop) - gridMinY;
+  const buttonMaxY = (Math.round(buttonRect.top - domElement.scrollTop) - gridMinY) + Math.round(buttonRect.height);
 
-  return (buttonMinY < pageMaxY) && (buttonMaxY >= 0);
-}
-
-/** hide a button from list, infinity scrolling
-* @param { Button } button 
-*/
-function hide(button)
-{
-  // const top = domElement.scrollTop;
-  
-  button.domElement.rect = button.domElement.getBoundingClientRect();
-  button.domElement.cache = button.domElement.getBoundingClientRect;
-
-  button.domElement.getBoundingClientRect = () => { return this.rect; };
-
-  button.domElement.style.display = 'none';
-
-  // domElement.scrollTop = top;
+  return (buttonMinY < gridMaxY) && (buttonMaxY >= 0);
 }
 
 /** show a button in list, infinity scrolling
@@ -92,15 +66,37 @@ function hide(button)
 */
 function show(button)
 {
-  // const top = domElement.scrollTop;
-
-  button.domElement.getBoundingClientRect = button.domElement.cache;
-  
-  button.domElement.rect = button.domElement.cache = null;
+  if (!button.hidden)
+    return;
+    
+  button.hidden = false;
 
   button.domElement.style.display = 'block';
 
-  // domElement.scrollTop = top;
+  scrollOffset -= button.scrollOffset;
+
+  grid.scrollTop = domElement.scrollTop - scrollOffset;
+    
+  button.scrollOffset = 0;
+}
+
+/** hide a button from list, infinity scrolling
+* @param { Button } button 
+*/
+function hide(button)
+{
+  if (button.hidden)
+    return;
+    
+  button.hidden = true;
+
+  button.domElement.style.display = 'none';
+
+  button.scrollOffset = (domElement.scrollTop - grid.scrollTop) - scrollOffset;
+    
+  scrollOffset += button.scrollOffset;
+
+  grid.scrollTop = domElement.scrollTop - scrollOffset;
 }
 
 /** infinity scrolling update callback
@@ -108,54 +104,19 @@ function show(button)
 */
 export function onScroll()
 {
-  // const height = domElement.getBoundingClientRect().height;
-  
-  // domElement.scrollTop = 210;
-
-  // const rect = domElement.getBoundingClientRect();
-
-  topInfinity.style.height = grid.scrollHeight + 'px';
-  // console.log(grid.scrollHeight);
-
-  // botInfinity.style.bottom =  (domElement.getBoundingClientRect().height - domElement.scrollHeight) + 'px';
-  // botInfinity.style.height =  ((domElement.scrollHeight - height) -  domElement.scrollTop) + 'px';
-
-  // topInfinity.style.height =  domElement.scrollTop + 'px';
-
-  // hide(buttons[0]);
-  // domElement.scrollTop = 210;
-  // hide(buttons[1]);
-  // console.log(isVisible(buttons[2]));
-
-  // console.log(rect.top + domElement.scrollTop);
-  // console.log(domElement.scrollHeight || rect.height);
+  grid.style.top = domElement.scrollTop + 'px';
+  grid.scrollTop = domElement.scrollTop - scrollOffset;
 
   // if (buttons.length > 0)
   {
-    // console.log('0 is ' + isVisible(buttons[0]) + ' and 14 is ' + isVisible(buttons[10]));
-
-    // for (let i = 0; i < buttons.length; i++)
+    for (let i = 0; i < buttons.length; i++)
     {
-      // if (isVisible(buttons[i]))
-      {
-        // buttons[i].domElement.style.display = 'block';
-        // show(buttons[i]);
-      }
-      // else
-      {
-        // buttons[i].domElement.style.display = 'none';
-        // hide(buttons[i]);
-      }
+      if (isVisible(buttons[i]))
+        show(buttons[i]);
+      else
+        hide(buttons[i]);
     }
   }
-  // else
-  {
-    // topHideout.style.display =  botHideout.style.display = 'none';
-    // topHideout.style.width =  botHideout.style.width = 'none';
-  }
-
-  // console.log(domElement.scrollTop);
-  // console.log(domElement.scrollHeight);
 }
 
 /** list the required buttons on the page block using a reactive elements
@@ -188,7 +149,13 @@ export function list(meta)
       const button = new Button(meta[i]);
       buttons.push(button);
 
+      button.scrollOffset = 0;
+
       grid.appendChild(button.domElement);
+
+      button.rect = button.domElement.getBoundingClientRect();
     }
   }
+
+  infinity.style.height = (grid.scrollHeight || domElement.getBoundingClientRect().height) + 'px';
 }
