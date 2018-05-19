@@ -12,7 +12,7 @@ export let domElement;
 
 /** the max number of buttons that can be created 
 */
-const maxButtons = 200;
+const maxButtons = 250;
 
 /** an array of the buttons that has been initialized
 * @type { Button[] }

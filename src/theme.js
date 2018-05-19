@@ -3,7 +3,7 @@ import { join } from 'path';
 
 import * as require from './require.js';
 
-export const visuals =
+export const icons =
 {
   browser: undefined,
   copy: undefined,
@@ -33,7 +33,7 @@ export function load(themeName)
     throw 'theme does not exist';
 
   loadCSS(dir);
-  loadVisuals(dir);
+  loadIcons(dir);
 }
 
 /** @param { string } dir 
@@ -53,9 +53,9 @@ function loadCSS(dir)
 
 /** @param { string } dir 
 */
-function loadVisuals(dir)
+function loadIcons(dir)
 {
-  dir = dir + '/visuals/';
+  dir = dir + '/icons/';
 
   const files = readdirSync(dir);
 
@@ -64,8 +64,8 @@ function loadVisuals(dir)
     const name = files[i].split('.')[0];
     
     if (files[i].endsWith('.svg'))
-      visuals[name] = require.svg(join(dir, files[i]));
+      icons[name] = require.svg(join(dir, files[i]));
     else if (files[i].endsWith('.png'))
-      visuals[name] = require.image(join(dir, files[i]));
+      icons[name] = require.image(join(dir, files[i]));
   }
 }

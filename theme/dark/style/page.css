@@ -30,7 +30,7 @@
   outline: none;
 }
 
-.buttonIcon, .buttonAction
+.buttonIcon, .buttonActionIcon
 {
   background-color: rgba(0, 0, 0, 0);
   background-size: 100% auto;
@@ -44,20 +44,9 @@
   height: inherit;
 }
 
-.buttonAction
+.buttonActionIcon
 {
   left: calc(95% - 10px);
-}
-
-.image
-{
-  background-color: wheat;
-
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 24px;
-  height: 30px;
 }
 
 .buttonTitle, .buttonDescription

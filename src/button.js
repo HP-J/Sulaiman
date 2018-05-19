@@ -32,30 +32,30 @@ export class Button
     this.title.value = buttonMeta.title;
     this.description.value = buttonMeta.description;
     
-    this.icon = updateVisual(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
-    this.action = updateVisual(this.domElement, this.action, buttonMeta.action, 'buttonAction');
+    this.icon = updateIcon(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
+    this.action = updateIcon(this.domElement, this.action, buttonMeta.action, 'buttonActionIcon');
 
     /** @param { HTMLButtonElement } dom
-    * @param { HTMLElement } oldVisual
-    * @param { HTMLElement } newVisual
+    * @param { HTMLElement } oldIcon
+    * @param { HTMLElement } newIcon
     */
-    function updateVisual(dom, oldVisual, newVisual, className)
+    function updateIcon(dom, oldIcon, newIcon, className)
     {
-      if (newVisual !== undefined)
+      if (newIcon !== undefined)
       {
-        newVisual = newVisual.cloneNode(true);
-        newVisual.setAttribute('class', className);
+        newIcon = newIcon.cloneNode(true);
+        newIcon.setAttribute('class', className);
 
-        if (oldVisual !== undefined && dom.contains(oldVisual))
-          dom.replaceChild(newVisual, oldVisual);
+        if (oldIcon !== undefined && dom.contains(oldIcon))
+          dom.replaceChild(newIcon, oldIcon);
         else
-          dom.appendChild(newVisual);
+          dom.appendChild(newIcon);
         
-        return newVisual;
+        return newIcon;
       }
-      else if (oldVisual !== undefined)
+      else if (oldIcon !== undefined)
       {
-        dom.removeChild(oldVisual);
+        dom.removeChild(oldIcon);
 
         return undefined;
       }
@@ -67,8 +67,8 @@ export class ButtonMeta
 {
   /** @param { string } title
   * @param { string } description 
-  * @param { SVGSVGElement } icon
-  * @param { SVGSVGElement } action
+  * @param { HTMLElement } icon
+  * @param { HTMLElement } action
   */
   constructor(title, description, icon, action)
   {
