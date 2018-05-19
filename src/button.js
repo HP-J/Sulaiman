@@ -11,12 +11,14 @@ export class Button
     this.title = require.input(true, 'buttonTitle');
     this.description = require.input(true, 'buttonDescription');
 
-    /** @type { SVGSVGElement } */
+    /** @type { HTMLElement }
+    */
     this.icon = undefined;
 
-    /** @type { SVGSVGElement } */
+    /** @type { HTMLElement }
+    */
     this.action = undefined;
-
+    
     this.domElement.appendChild(this.title);
     this.domElement.appendChild(this.description);
 
@@ -34,8 +36,8 @@ export class Button
     this.action = updateVisual(this.domElement, this.action, buttonMeta.action, 'buttonAction');
 
     /** @param { HTMLButtonElement } dom
-    * @param { SVGSVGElement } oldVisual
-    * @param { SVGSVGElement } newVisual
+    * @param { HTMLElement } oldVisual
+    * @param { HTMLElement } newVisual
     */
     function updateVisual(dom, oldVisual, newVisual, className)
     {

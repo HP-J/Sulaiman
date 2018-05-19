@@ -17,6 +17,7 @@
   "author": "Kerolos Zaki",
   "license": "MIT",
   "dependencies": {
+    "@meltwater/fetch-favicon": "^1.0.4",
     "electron": "^2.0.0",
     "postcss-url": "^7.3.2"
   },
@@ -25,7 +26,6 @@
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
-    "electron-process-manager": "^0.5.1",
     "eslint": "^4.19.1",
     "webpack": "^4.8.3",
     "webpack-cli": "^2.1.3"

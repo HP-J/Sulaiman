@@ -9,11 +9,16 @@ export const visuals =
   copy: undefined,
   exit: undefined,
   files: undefined,
+  home: undefined,
+  image: undefined,
+  internet: undefined,
   more: undefined,
   next: undefined,
   open: undefined,
+  phi: undefined,
   search: undefined,
-  settings: undefined,
+  text: undefined,
+  video: undefined,
   voice: undefined
 };
 
@@ -57,11 +62,11 @@ function loadVisuals(dir)
 
   for (let i = 0; i < files.length; i++)
   {
+    const name = files[i].split('.')[0];
+    
     if (files[i].endsWith('.svg'))
-    {
-      const name = files[i].split('.')[0];
-
       visuals[name] = require.svg(join(dir, files[i]));
-    }
+    else if (files[i].endsWith('.png'))
+      visuals[name] = require.image(join(dir, files[i]));
   }
 }

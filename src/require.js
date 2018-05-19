@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 
 import postcss from 'postcss';
 import url from 'postcss-url';
+import { join } from 'path';
 
 /** reads the file and returns the text inside it
 * @param { string } path 
@@ -47,6 +48,17 @@ export function svg(path)
   }
 
   return svg;
+}
+
+/** returns a div element with background image url
+*/
+export function image(path)
+{
+  const img = document.createElement('div');
+
+  img.style.backgroundImage = 'url(' + path + ')';
+
+  return img;
 }
 
 /** returns a button element with the button class name
