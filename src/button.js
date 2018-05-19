@@ -44,7 +44,7 @@ export class Button
       if (newIcon !== undefined)
       {
         newIcon = newIcon.cloneNode(true);
-        newIcon.setAttribute('class', className);
+        newIcon.className = className;
 
         if (oldIcon !== undefined && dom.contains(oldIcon))
           dom.replaceChild(newIcon, oldIcon);

@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 
 import postcss from 'postcss';
 import url from 'postcss-url';
-import { join } from 'path';
 
 /** reads the file and returns the text inside it
 * @param { string } path 
@@ -12,43 +11,43 @@ function textFile(path)
   return readFileSync(path).toString();
 }
 
-/** reads a svg file and returns an svg element with the right attributes
-* @param { string } path 
-*/
-export function svg(path) 
-{
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+// /** reads a svg file and returns an svg element with the right attributes
+// * @param { string } path 
+// */
+// export function svg(path)
+// {
+//   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-  const content = textFile(path);
+//   const content = textFile(path);
 
-  const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
+//   const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
 
-  let attrs = {};
+//   let attrs = {};
 
-  if (match) 
-  {
-    attrs = match[1];
+//   if (match) 
+//   {
+//     attrs = match[1];
     
-    if (attrs) 
-    {
-      attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
-        .reduce(function (obj, attr) 
-        {
-          const split = attr.split('=');
+//     if (attrs) 
+//     {
+//       attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
+//         .reduce(function (obj, attr) 
+//         {
+//           const split = attr.split('=');
 
-          if (split && split[1]) 
-            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
+//           if (split && split[1]) 
+//             svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
 
-        }, {});
-    }
+//         }, {});
+//     }
 
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+//     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
-  }
+//     svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
+//   }
 
-  return svg;
-}
+//   return svg;
+// }
 
 /** returns a div element with background image url
 */
@@ -112,23 +111,6 @@ export function input(readOnly, className, id)
   return input;
 }
 
-export function para(className)
-{
-  const input = document.createElement('textarea');
-
-  // input.setAttribute('type', 'text');
-
-  // if (id !== undefined)
-  //   input.id = id;
-
-  if (className !== undefined)
-    input.className = className;
-  
-  // input.readOnly = readOnly;
-
-  return input;
-}
-
 /** returns a style element after applying post-css
 * @param { string } path 
 */
@@ -139,9 +121,14 @@ export function style(path)
 
   let styleString = textFile(path);
 
-  // using postcss-url plugin
-  // convert url() to encodeURIComponent or base64
-  styleString = postcss().use(url({url: 'inline'})).process(styleString, { from: path }).css;
+  const options =
+  {
+    url: 'rebase'
+  };
+
+  // using postcss-url plugin to
+  // rebase url()
+  styleString = postcss().use(url(options)).process(styleString, { from: path, to: __filename }).css;
 
   style.appendChild(document.createTextNode(styleString));
 
