@@ -9,7 +9,6 @@ export const visuals =
   copy: undefined,
   exit: undefined,
   files: undefined,
-  home: undefined,
   image: undefined,
   internet: undefined,
   more: undefined,

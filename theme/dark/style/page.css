@@ -11,7 +11,6 @@
   /* changing some of the grid rules will break your app */
   display: grid;
   grid-auto-rows: max-content;
-  grid-row-gap: 0px;
 }
 
 .button
@@ -41,7 +40,7 @@
   position: absolute;
   left: 10px;
   top: 0px;
-  width: 3.5vw;
+  width: 3.8vw;
   height: inherit;
 }
 

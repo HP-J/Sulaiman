@@ -1,10 +1,5 @@
 import * as require from './require.js';
 
-// import { visuals } from './theme.js';
-import { ButtonMeta } from './button.js';
-import * as page from './page.js';
-import { visuals } from './theme.js';
-
 /** @type { HTMLDivElement }
 */
 export let domElement;
@@ -57,17 +52,6 @@ export function focus()
 */
 function updatePlaceholder()
 {
-  const meta = [];
-
-  // meta.push(new ButtonMeta('Text!', 'you can copy me!', undefined, visuals.copy));
-  // meta.push(new ButtonMeta('File.file', 'open file!', visuals.files, visuals.open));
-  // meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', visuals.search, visuals.next));
-  // meta.push(new ButtonMeta('www.facebook.com', 'open in browser!', undefined, visuals.browser));
-  // meta.push(new ButtonMeta('Voice Microphone Icon', 'see more options', visuals.voice, visuals.more));
-  // meta.push(new ButtonMeta('Exit sulaiman', '', undefined, visuals.exit));
-
-  page.list(meta);
-
   if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
   else

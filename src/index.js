@@ -73,3 +73,14 @@ registerEvents();
 
 // reset the application focus
 focus();
+
+// const meta = [];
+
+// meta.push(new ButtonMeta('Text!', 'you can copy me!', undefined, visuals.copy));
+// meta.push(new ButtonMeta('File.file', 'open file!', visuals.files, visuals.open));
+// meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', visuals.search, visuals.next));
+// meta.push(new ButtonMeta('www.facebook.com', 'open in browser!', undefined, visuals.browser));
+// meta.push(new ButtonMeta('Voice Microphone Icon', 'see more options', visuals.voice, visuals.more));
+// meta.push(new ButtonMeta('Exit sulaiman', '', visuals.phi, visuals.exit));
+
+// page.list(meta);
