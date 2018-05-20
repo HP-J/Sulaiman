@@ -40,7 +40,10 @@
   position: absolute;
   left: 10px;
   top: 0px;
-  width: 3.8vw;
+  /* width: 3.8vw; */
+  width: 4.5vw;
+  fill: green;
+  stroke: green;
   height: inherit;
 }
 

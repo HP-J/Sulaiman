@@ -63,7 +63,9 @@ function loadIcons(dir)
   {
     const name = files[i].split('.')[0];
     
-    if (files[i].endsWith('.svg') || files[i].endsWith('.png'))
+    if (files[i].endsWith('.svg'))
+      icons[name] = require.svg(join(dir, files[i]));
+    else if (files[i].endsWith('.png'))
       icons[name] = require.image(join(dir, files[i]));
   }
 }

@@ -11,43 +11,43 @@ function textFile(path)
   return readFileSync(path).toString();
 }
 
-// /** reads a svg file and returns an svg element with the right attributes
-// * @param { string } path 
-// */
-// export function svg(path)
-// {
-//   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+/** reads a svg file and returns an svg element with the right attributes
+* @param { string } path 
+*/
+export function svg(path)
+{
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
-//   const content = textFile(path);
+  const content = textFile(path);
 
-//   const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
+  const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
 
-//   let attrs = {};
+  let attrs = {};
 
-//   if (match) 
-//   {
-//     attrs = match[1];
+  if (match) 
+  {
+    attrs = match[1];
     
-//     if (attrs) 
-//     {
-//       attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
-//         .reduce(function (obj, attr) 
-//         {
-//           const split = attr.split('=');
+    if (attrs) 
+    {
+      attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
+        .reduce(function (obj, attr) 
+        {
+          const split = attr.split('=');
 
-//           if (split && split[1]) 
-//             svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
+          if (split && split[1]) 
+            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
 
-//         }, {});
-//     }
+        }, {});
+    }
 
-//     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-//     svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
-//   }
+    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
+  }
 
-//   return svg;
-// }
+  return svg;
+}
 
 /** returns a div element with background image url
 */
