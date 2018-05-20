@@ -1,0 +1,2 @@
+import * as extension from '..';
+

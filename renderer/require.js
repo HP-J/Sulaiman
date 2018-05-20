@@ -60,30 +60,26 @@ export function image(path)
   return img;
 }
 
-/** returns a button element with the button class name
-*/
-export function button()
-{
-  const button = document.createElement('button');
-
-  button.className = 'button';
-
-  return button;
-}
-
-/** returns an empty div block with selected class name and id
-* @param { string } className
+/** returns an empty div block with the selected id
 * @param { string } id 
 */
-export function block(className, id)
+export function div(id)
+{
+  const div = document.createElement('div');
+
+  div.id = id;
+
+  return div;
+}
+
+/** returns an empty focusable div block with the block class
+*/
+export function block()
 {
   const div = document.createElement('div');
   
-  if (className !== undefined)
-    div.className = className;
-
-  if (id !== undefined)
-    div.id = id;
+  div.tabIndex = 0;
+  div.className = 'button';
 
   return div;
 }

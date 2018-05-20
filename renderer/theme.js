@@ -3,6 +3,8 @@ import { join } from 'path';
 
 import * as require from './require.js';
 
+// TODO let the theme.js handle cloning icons
+
 export const icons =
 {
   browser: undefined,

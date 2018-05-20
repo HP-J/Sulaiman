@@ -83,8 +83,6 @@ function singleInstance()
 if (app.makeSingleInstance(singleInstance)) 
 {
   app.quit();
-
-  return;
 }
 
 // fix chrome/linux color issue

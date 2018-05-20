@@ -1,8 +1,8 @@
 import { remote } from 'electron';
 
-import { load, icons } from './theme.js';
+import { load } from './theme.js';
 
-import { ButtonMeta } from './button.js';
+import * as require from './require.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
@@ -73,16 +73,21 @@ page.load();
 // register elements events and track key presses
 registerEvents();
 
-// reset the application focus
-focus();
-
-const meta = [];
+// const meta = [];
 
 // meta.push(new ButtonMeta('Text!', 'you can copy me!', undefined, visuals.copy));
 // meta.push(new ButtonMeta('File.file', 'open file!', visuals.files, visuals.open));
-meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.search, icons.next));
+// meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.search, icons.next));
 // meta.push(new ButtonMeta('www.facebook.com', 'open in browser!', undefined, visuals.browser));
 // meta.push(new ButtonMeta('Voice Microphone Icon', 'see more options', visuals.voice, visuals.more));
 // meta.push(new ButtonMeta('Exit sulaiman', '', visuals.phi, visuals.exit));
 
-page.list(meta);
+// const test = require.block();
+// page.domElement.appendChild(test);
+
+// test.focus();
+
+// page.list(meta);
+
+// reset the application focus
+// focus();

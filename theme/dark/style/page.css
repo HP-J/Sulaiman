@@ -1,6 +1,6 @@
 #page
 { 
-  background-color: #3e4143;
+  background-color: #464a4c;
   position: relative;
   top: 2px;
   width: 100vw;
@@ -15,7 +15,7 @@
 
 .button
 {
-  background-color: #3e4143;
+  background-color: blue;
   position: relative;
   left: 0px;
   width: inherit;

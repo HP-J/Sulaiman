@@ -1,5 +1,7 @@
 import * as require from './require.js';
 
+// import * as extension from '..';
+
 /** @type { HTMLDivElement }
 */
 export let domElement;
@@ -17,7 +19,7 @@ export let input;
 export function load()
 {
   // create and append search bar block
-  domElement = require.block(undefined, 'searchBar');
+  domElement = require.div('searchBar');
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder

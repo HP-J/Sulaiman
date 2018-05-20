@@ -2,9 +2,9 @@ const path = require('path');
 
 module.exports =
 {
-  devtool: 'none',
-  mode: 'production',
-  entry: './src/index.js',
+  devtool: 'source-map',
+  mode: 'development',
+  entry: './src/renderer.js',
   target: 'electron-renderer',
   node: {
     __filename: false,
@@ -14,7 +14,7 @@ module.exports =
     {
       path: path.join(__dirname, 'src'),
       publicPath: '/',
-      filename: 'bundle.js'
+      filename: 'bundle.renderer.js'
     },
   module:
     {
