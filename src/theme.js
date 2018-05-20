@@ -17,6 +17,7 @@ export const icons =
   phi: undefined,
   search: undefined,
   text: undefined,
+  unknown: undefined,
   video: undefined,
   voice: undefined
 };

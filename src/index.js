@@ -81,7 +81,7 @@ const meta = [];
 // meta.push(new ButtonMeta('Text!', 'you can copy me!', undefined, visuals.copy));
 // meta.push(new ButtonMeta('File.file', 'open file!', visuals.files, visuals.open));
 meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.text, icons.browser));
-meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.copy, icons.exit));
+meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.unknown, icons.exit));
 meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.files, icons.image));
 meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.internet, icons.more));
 meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.next, icons.open));
