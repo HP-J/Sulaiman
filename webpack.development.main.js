@@ -4,7 +4,7 @@ module.exports =
 {
   devtool: 'source-map',
   mode: 'development',
-  entry: './src/main.js',
+  entry: './src/main/main.js',
   target: 'electron-main',
   node: {
     __filename: false,
@@ -12,9 +12,9 @@ module.exports =
   },
   output:
     {
-      path: path.join(__dirname, 'src'),
+      path: path.join(__dirname, 'src/main'),
       publicPath: '/',
-      filename: 'bundle.main.js'
+      filename: 'bundle.js'
     },
   module:
     {

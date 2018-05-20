@@ -4,7 +4,7 @@ module.exports =
 {
   devtool: 'source-map',
   mode: 'development',
-  entry: './src/renderer.js',
+  entry: './src/renderer/renderer.js',
   target: 'electron-renderer',
   node: {
     __filename: false,
@@ -12,9 +12,9 @@ module.exports =
   },
   output:
     {
-      path: path.join(__dirname, 'src'),
+      path: path.join(__dirname, 'src/renderer'),
       publicPath: '/',
-      filename: 'bundle.renderer.js'
+      filename: 'bundle.js'
     },
   module:
     {
