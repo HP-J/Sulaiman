@@ -36,14 +36,13 @@
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center;
+  fill: white;
+  stroke: white;
   pointer-events: none;
   position: absolute;
   left: 10px;
   top: 0px;
-  /* width: 3.8vw; */
-  width: 4.5vw;
-  fill: green;
-  stroke: green;
+  width: 3.8vw;
   height: inherit;
 }
 
