@@ -4,23 +4,38 @@ import { NodeVM, VM } from 'vm2';
 
 export default function()
 {
-  const vm = new NodeVM({
-    require: {
-      external: true
-    }
-  });
-  
-  vm.run(`
-      var request = require('request');
-
-      request('http://www.google.com', function (error, response, body) {
-          console.error(error);
-          if (!error && response.statusCode == 200) {
-              console.log(body) // Show the HTML for the Google homepage.
+  const vm = new NodeVM(
+    {
+      require: 
+      {
+        builtin: [ 'fs', 'path' ],
+        mock:
+        {
+          fs:
+          {
+            readFileSync() { return 'Nice try!'; }
+          },
+          oya:
+          {
+            helloWorld() { return 'Hello World!'; }
           }
-      })
-      
-      `, path.join(__dirname, './renderer.js'));
+        }
+      }
+    });
+
+  vm.run(
+    // `
+    // const fs = require('fs');
+    // const path = require('path');
+    // const file = fs.readFileSync(path.join(__dirname, './sandbox.js')).toString();
+    // console.log(file);
+    // `
+    `
+    const oya = require('oya');
+
+    console.log(oya.helloWorld());
+    `
+    , path.join(__dirname, './renderer.js'));
 
   // const vm = new VM({
   //   timeout: 1000,
