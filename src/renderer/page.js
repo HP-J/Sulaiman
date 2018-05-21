@@ -1,4 +1,4 @@
-import * as require from './require.js';
+import * as create from './create.js';
 
 // import * as extension from './extension.js';
 
@@ -23,7 +23,7 @@ const blocks = [];
 */
 export function load()
 {
-  domElement = require.div('page');
+  domElement = create.div('page');
   document.body.appendChild(domElement);
 }
 

@@ -1,5 +1,5 @@
 /** returns an empty div block with the selected id
-* @param { string } id 
+* @param { string } id
 */
 export function div(id)
 {

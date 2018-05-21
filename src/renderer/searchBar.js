@@ -1,4 +1,4 @@
-import * as require from './require.js';
+import * as create from './create.js';
 
 // import * as extension from '..';
 
@@ -19,12 +19,12 @@ export let input;
 export function load()
 {
   // create and append search bar block
-  domElement = require.div('searchBar');
+  domElement = create.div('searchBar');
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder
-  placeholder = require.input(true, undefined, 'searchBarPlaceholder');
-  input = require.input(false, undefined, 'searchBarInput');
+  placeholder = create.input(true, undefined, 'searchBarPlaceholder');
+  input = create.input(false, undefined, 'searchBarInput');
 
   domElement.appendChild(placeholder);
   domElement.appendChild(input);

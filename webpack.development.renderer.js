@@ -4,6 +4,9 @@ module.exports =
 {
   devtool: 'source-map',
   mode: 'development',
+  externals: {
+    'vm2': 'require("vm2")'
+  },
   entry: './src/renderer/renderer.js',
   target: 'electron-renderer',
   node: {

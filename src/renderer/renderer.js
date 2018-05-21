@@ -2,10 +2,10 @@ import { remote } from 'electron';
 
 import { load } from './theme.js';
 
-import * as require from './require.js';
-
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
+
+import sandbox from './sandbox.js';
 
 const mainWindow = remote.getCurrentWindow();
 
@@ -91,3 +91,5 @@ registerEvents();
 
 // reset the application focus
 // focus();
+
+sandbox();

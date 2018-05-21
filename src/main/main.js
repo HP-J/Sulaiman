@@ -1,12 +1,7 @@
-const electron = require('electron');
+import { BrowserWindow, app, screen, globalShortcut } from 'electron';
 
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
-
-const path = require('path');
-const url = require('url');
+import path from 'path';
+import url from 'url';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -16,7 +11,7 @@ let mainWindow;
 
 function createWindow ()
 {
-  const screenSize = electron.screen.getPrimaryDisplay().workAreaSize;
+  const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
 
@@ -60,7 +55,7 @@ function createWindow ()
 
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
-  electron.globalShortcut.register('Control+Space', () =>
+  globalShortcut.register('Control+Space', () =>
   {
     mainWindow.show();
     mainWindow.setSkipTaskbar(true);
@@ -108,7 +103,7 @@ app.on('window-all-closed', function ()
 app.on('will-quit', () => 
 {
   // Unregister all shortcuts
-  electron.globalShortcut.unregisterAll();
+  globalShortcut.unregisterAll();
 });
 
 app.on('activate', function () 
@@ -118,6 +113,11 @@ app.on('activate', function ()
   if (mainWindow === null) 
     createWindow();
 });
+
+// import { VM } from 'vm2';
+// const vm = new VM();
+
+// vm.run('process.exit()');
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
