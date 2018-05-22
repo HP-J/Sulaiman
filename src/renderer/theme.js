@@ -4,6 +4,10 @@ import { join } from 'path';
 import postcss from 'postcss';
 import url from 'postcss-url';
 
+// TODO every ext has it own icons, themes come with no icons
+
+// TODO I dont like using post-css, it feels avoidable
+
 // TODO let the theme.js handle cloning icons
 
 export const icons =
@@ -25,11 +29,9 @@ export const icons =
   voice: undefined
 };
 
-const themeDir = '../theme/dark';
-
 export function load()
 {
-  const dir = join(__dirname, themeDir);
+  const dir = join(__dirname, '../theme/dark');
 
   if (!existsSync(dir))
     throw 'theme does not exist';
