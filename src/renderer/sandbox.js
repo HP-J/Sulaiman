@@ -6,6 +6,7 @@ export default function()
 {
   const vm = new NodeVM(
     {
+      sandbox: { 'window': window },
       require: 
       {
         builtin: [ 'fs', 'path' ],
@@ -30,12 +31,15 @@ export default function()
     // const file = fs.readFileSync(path.join(__dirname, './sandbox.js')).toString();
     // console.log(file);
     // `
-    `
-    const oya = require('oya');
+    // `
+    // const oya = require('oya');
 
-    console.log(oya.helloWorld());
+    // console.log(oya.helloWorld());
+    // `
     `
-    , path.join(__dirname, './renderer.js'));
+    window.eval('');
+    ` ,path.join(__dirname, './renderer.js')
+  );
 
   // const vm = new VM({
   //   timeout: 1000,

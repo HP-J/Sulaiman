@@ -4,8 +4,8 @@
   "description": "the most useless and ugly keyboard launcher in the planet",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --config webpack.development.main.js --config webpack.development.renderer.js",
-    "clean": "rm ./src/main/bundle.* && rm ./src/renderer/bundle.*",
+    "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
+    "clean": "rm -r ./public/",
     "check": "ncu",
     "update": "ncu -u"
   },
@@ -18,16 +18,14 @@
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
     "electron": "^2.0.0",
-    "postcss-url": "^7.3.2"
+    "postcss-url": "^7.3.2",
+    "vm2": "^3.6.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
-    "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.7.0",
-    "eslint": "^4.19.1",
-    "vm2": "^3.6.0",
-    "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.3"
+    "eslint": "^4.19.1"
   }
 }

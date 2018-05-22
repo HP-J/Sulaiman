@@ -1,6 +1,3 @@
 /node_modules
 
-bundle.*
-
-src/renderer/package*
-src/renderer/node_modules
+public

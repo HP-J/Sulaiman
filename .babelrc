@@ -1,1 +1,8 @@
-{ "presets": [ [ "env", { "modules": false } ] ] }
+{
+  "presets":
+  [
+    [
+      "env"
+    ]
+  ]
+}

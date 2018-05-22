@@ -5,8 +5,6 @@
       "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "dev",
-      "postDebugTask": "clean",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "program": "${workspaceRoot}/src/main/bundle.js",
@@ -18,13 +16,11 @@
       "type": "chrome",
       "request": "launch",
       "sourceMaps": true,
-      "preLaunchTask": "dev",
-      "postDebugTask": "clean",
       "internalConsoleOptions": "openOnSessionStart",
       "webRoot": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
-        "${workspaceRoot}/src/main/bundle.js",
+        "${workspaceRoot}/public/main/main.js",
         "--remote-debugging-port=9222"
       ]
     }
