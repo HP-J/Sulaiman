@@ -1,16 +1,48 @@
-// import * as extension from './extension.js';
+/** this object is called registry object,
+* it contains all the permissions and configuration of the extension,
+* when sulaiman first starts the user will get a registry object request
+* that will show him all the permissions the extension wants, if they
+* chosen to agree, then the entry function is called and the callbacks 
+* will be registered to their events.
+*/
+export default {
+  name: 'ext-test',
+  entry: 'init',
+  events: {
 
-const fs = require('fs');
+  },
+  permissions: [
+    /** some modules like 'fs' are divided to multiple subsets of functions,
+    * in those cases, the module will be ignored if it was added in `require: []` and can only be
+    * required in `permissions: []`.
+    * example: 'fs.read' will give you access to the read functions of the 'fs' module
+    * while 'fs.write' gives you access to all the write, rename and remove functions,
+    * 'fs' will give you access to all the subsets combined.
+    * the module can be `require('fs')` normally but if you dont have a permission for a subset
+    * all the subset's functions will be undefined
+    */
+    'fs.read',
+    'fs.write',
+    /** you can also ask for permissions to use some global variables,
+    * and some sulaiman api, the permissions can be found in the extension wiki page
+    */
+    'window.body'
+  ],
+  /** here you can ask for permissions to use a full module,
+  * any type of module external, builtin or local.
+  * if a module is not set in the array and was called in a `require()` it will throw an error,
+  * and you can only load local modules from inside the extension directory  
+  */
+  require: [
+    'path',
+    'request',
+    './secondPart.js'
+  ]
+};
 
-console.log(fs.readFileSync(__filename).toString());
-// extension.register(
-//   {
-//     displayName: 'hello i am ext test'
-//   });
+/** gets triggered once, when the user accepts the registry object request
+*/
+function init()
+{
 
-// export function register()
-// {
-//   console.log('better');
-// }
-
-// console.log('worst');
+}

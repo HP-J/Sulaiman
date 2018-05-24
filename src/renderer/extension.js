@@ -2,7 +2,7 @@
 // TODO access to change placeholder (every button when selected can change placeholder value) (what about auto-complete)
 // TODO access to allocate block from page (how to clean a block childs)
 
-import { NodeVM, VM } from 'vm2';
+import { NodeVM } from 'vm2';
 
 // /** @param { (inputValue: string) => void } callback
 // */
@@ -15,23 +15,10 @@ export function init()
 {
   const vm = new NodeVM(
     {
-      // sandbox: { 'window': window },
-      require: 
+      require:
       {
-        external: [ './extTest.js' ],
-        context: 'sandbox',
-        // builtin: [ 'fs', 'path' ],
-        mock:
-        {
-          // fs:
-          // {
-          //   readFileSync() { return 'Nice try!'; }
-          // },
-          // oya:
-          // {
-          //   helloWorld() { return 'Hello World!'; }
-          // }
-        }
+        external: [  './extTest.js' ],
+        context: 'sandbox'
       }
     });
   
@@ -43,7 +30,6 @@ export function init()
 */
 export function register(options)
 {
-  // _getCallerFile();
   console.log('registered options');
   
   return false;
