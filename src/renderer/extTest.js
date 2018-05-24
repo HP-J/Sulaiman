@@ -1,3 +1,5 @@
+// TODO move registry objects to json files
+
 /** this object is called registry object,
 * it contains all the permissions and configuration of the extension,
 * when sulaiman first starts the user will get a registry object request
@@ -6,10 +8,13 @@
 * will be registered to their events.
 */
 export default {
+  /** the extension name */
   name: 'ext-test',
+  /** the function that gets called when the user accepts the registry object request */
   entry: 'init',
+  /** there is a set of events that you can register callback to */
   events: {
-
+    oninput: 'inputCallback'
   },
   permissions: [
     /** some modules like 'fs' are divided to multiple subsets of functions,
@@ -23,6 +28,7 @@ export default {
     */
     'fs.read',
     'fs.write',
+
     /** you can also ask for permissions to use some global variables,
     * and some sulaiman api, the permissions can be found in the extension wiki page
     */
@@ -41,6 +47,7 @@ export default {
 };
 
 /** gets triggered once, when the user accepts the registry object request
+* specified in the `entry` from the registry object
 */
 function init()
 {
