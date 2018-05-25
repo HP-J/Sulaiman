@@ -2,43 +2,9 @@
 // TODO access to change placeholder (every button when selected can change placeholder value) (what about auto-complete)
 // TODO access to allocate block from page (how to clean a block childs)
 
-import { NodeVM } from 'vm2';
+const fs = require('fs');
 
-// /** @param { (inputValue: string) => void } callback
-// */
-// export function oninput(callback)
-// {
-
-// }
-
-export function init()
+export function register(name)
 {
-  const vm = new NodeVM(
-    {
-      require:
-      {
-        external: [  './extTest.js' ],
-        context: 'sandbox'
-      }
-    });
-  
-  vm.run('require("./extTest.js");', __filename);
+  console.log('registered: ' + name);
 }
-
-/** @param { {displayName: string} } options
-* @returns 
-*/
-export function register(options)
-{
-  console.log('registered options');
-  
-  return false;
-}
-
-// /** @param { string } extensionName
-//  * @returns { HTMLDivElement } do what ever you what with it
-// */
-// export function allocate()
-// {
-
-// }

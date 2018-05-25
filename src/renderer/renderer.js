@@ -5,7 +5,7 @@ import { load } from './theme.js';
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-import * as extension from './extension.js';
+import { init } from './registry.js';
 
 const mainWindow = remote.getCurrentWindow();
 
@@ -92,4 +92,4 @@ registerEvents();
 // reset the application focus
 // focus();
 
-extension.init();
+init();
