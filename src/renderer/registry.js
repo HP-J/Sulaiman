@@ -1,5 +1,4 @@
 import { NodeVM } from 'vm2';
-
 import { join } from 'path';
 
 export function init()
@@ -8,11 +7,12 @@ export function init()
     {
       require:
       {
-        external: [  './ext-boilerplate.js' ],
-        context: 'sandbox',
-        import: [ join(__dirname, './extension.js') ]
+        import: [ join(__dirname, './extension.js') ],
+        external: [  '../extensions/ext-boilerplate.js' ],
+        context: 'sandbox'
       }
     });
-  
-  console.log(vm.run('require("./ext-boilerplate.js").default;', __filename));
+
+  vm.run('require("../extensions/ext-boilerplate.js");', __filename);
+  console.log('vm2 exited');
 }

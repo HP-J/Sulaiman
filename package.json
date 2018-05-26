@@ -2,12 +2,9 @@
   "name": "sulaiman",
   "version": "0.1.0-2",
   "description": "the most useless and ugly keyboard launcher in the planet",
-  "main": "index.js",
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
-    "clean": "rm -r ./public/",
-    "check": "ncu",
-    "update": "ncu -u"
+    "clean": "rm -r ./public/"
   },
   "repository": {
     "type": "git",
@@ -17,7 +14,7 @@
   "license": "MIT",
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
-    "electron": "^2.0.0",
+    "electron": "^2.0.2",
     "postcss-url": "^7.3.2",
     "vm2": "^3.6.0"
   },
