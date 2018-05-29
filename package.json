@@ -4,7 +4,8 @@
   "description": "the most useless and ugly keyboard launcher in the planet",
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
-    "clean": "rm -r ./public/"
+    "clean": "rm -r ./public/",
+    "test": "mocha --require babel-core/register"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,8 @@
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.3",
     "babel-preset-env": "^1.7.0",
-    "eslint": "^4.19.1"
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "mocha": "^5.2.0"
   }
 }

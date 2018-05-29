@@ -23,7 +23,7 @@ const blocks = [];
 */
 export function load()
 {
-  domElement = create.div('page');
+  domElement = create.div(`page`);
   document.body.appendChild(domElement);
 }
 

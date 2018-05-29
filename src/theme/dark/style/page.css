@@ -32,7 +32,7 @@
 
 .buttonIcon, .buttonActionIcon
 {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center;
@@ -53,7 +53,7 @@
 
 .buttonTitle, .buttonDescription
 {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
   color: #ffffff;
   pointer-events: none;
   position: absolute;

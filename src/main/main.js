@@ -39,13 +39,13 @@ function createWindow ()
 
   // and load the index.html of the app
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, '../index.html'),
-    protocol: 'file:',
+    pathname: path.join(__dirname, `../index.html`),
+    protocol: `file:`,
     slashes: true
   }));
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () 
+  mainWindow.on(`closed`, function () 
   {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
@@ -55,7 +55,7 @@ function createWindow ()
 
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
-  globalShortcut.register('Control+Space', () =>
+  globalShortcut.register(`Control+Space`, () =>
   {
     mainWindow.show();
     mainWindow.setSkipTaskbar(true);
@@ -81,7 +81,7 @@ if (app.makeSingleInstance(singleInstance))
 }
 
 // fix chrome/linux color issue
-app.commandLine.appendSwitch('--force-color-profile', 'sRBG');
+app.commandLine.appendSwitch(`--force-color-profile`, `sRBG`);
 
 // disables v-sync
 // app.commandLine.appendArgument('--disable-gpu-vsync');
@@ -89,24 +89,24 @@ app.commandLine.appendSwitch('--force-color-profile', 'sRBG');
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on(`ready`, createWindow);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function () 
+app.on(`window-all-closed`, function () 
 {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') 
+  if (process.platform !== `darwin`) 
     app.quit();
 });
 
-app.on('will-quit', () => 
+app.on(`will-quit`, () => 
 {
   // Unregister all shortcuts
   globalShortcut.unregisterAll();
 });
 
-app.on('activate', function () 
+app.on(`activate`, function () 
 {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.

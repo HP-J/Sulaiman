@@ -11,8 +11,8 @@ const mainWindow = remote.getCurrentWindow();
 
 function registerEvents()
 {
-  mainWindow.on('focus', focus);
-  mainWindow.on('blur', blur);
+  mainWindow.on(`focus`, focus);
+  mainWindow.on(`blur`, blur);
 
   // back-arrow 37
   // up-arrow 38
@@ -58,7 +58,7 @@ function blur()
 // disable eval
 window.eval = global.eval = () =>
 {
-  throw new Error('Sorry, this app does not support window.eval().');
+  throw new Error(`Sorry, this app does not support window.eval().`);
 };
 
 // append the style and load the icons

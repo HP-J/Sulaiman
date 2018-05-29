@@ -19,12 +19,12 @@ export let input;
 export function load()
 {
   // create and append search bar block
-  domElement = create.div('searchBar');
+  domElement = create.div(`searchBar`);
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder
-  placeholder = create.input(true, undefined, 'searchBarPlaceholder');
-  input = create.input(false, undefined, 'searchBarInput');
+  placeholder = create.input(true, undefined, `searchBarPlaceholder`);
+  input = create.input(false, undefined, `searchBarInput`);
 
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
@@ -33,7 +33,7 @@ export function load()
   // value is infected by what is written in the input value
   // current is not infected by what is written in the input value
   // default the placeholder value when input value is empty
-  placeholder.value = placeholder.current = placeholder.default = 'Search';
+  placeholder.value = placeholder.current = placeholder.default = `Search`;
 
   // when the user change the input value callback updatePlaceholder()
   input.oninput = updatePlaceholder;
@@ -43,7 +43,7 @@ export function load()
 */
 export function focus()
 {
-  input.value = '';
+  input.value = ``;
 
   updatePlaceholder();
 
