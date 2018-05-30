@@ -1,11 +1,9 @@
-const localConst = 4; 
-
-function callback()
+function init()
 {
-  console.log(`register completed, we have been called back`);
+  console.log('register completed, extension started');
 }
 
-function oninput(text)
+function oninputCallback(text)
 {
-  console.log(`oninput extension ${localConst}'s callback: ${text}`);
+  console.log('got a oninput callback with value:' + text);
 }

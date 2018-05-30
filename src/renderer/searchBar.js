@@ -1,5 +1,7 @@
 import * as create from './create.js';
 
+import { callEvent } from './registry.js';
+
 // import * as extension from '..';
 
 /** @type { HTMLDivElement }
@@ -19,12 +21,12 @@ export let input;
 export function load()
 {
   // create and append search bar block
-  domElement = create.div(`searchBar`);
+  domElement = create.div('searchBar');
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder
-  placeholder = create.input(true, undefined, `searchBarPlaceholder`);
-  input = create.input(false, undefined, `searchBarInput`);
+  placeholder = create.input(true, undefined, 'searchBarPlaceholder');
+  input = create.input(false, undefined, 'searchBarInput');
 
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
@@ -33,27 +35,30 @@ export function load()
   // value is infected by what is written in the input value
   // current is not infected by what is written in the input value
   // default the placeholder value when input value is empty
-  placeholder.value = placeholder.current = placeholder.default = `Search`;
+  placeholder.value = placeholder.current = placeholder.default = 'Search';
 
   // when the user change the input value callback updatePlaceholder()
-  input.oninput = updatePlaceholder;
+  input.oninput = oninputCallback;
 }
 
 /** focus the keyboard on search bar input
 */
 export function focus()
 {
-  input.value = ``;
-
-  updatePlaceholder();
+  input.value = '';
+  oninputCallback();
 
   input.focus();
 }
 
 /** an event callback, gets called when the user changes the input value
 */
-function updatePlaceholder()
+function oninputCallback()
 {
+  // Call oninput event in extensions
+  callEvent('oninput', input.value);
+
+  // Update Placeholder
   if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
   else

@@ -1,1 +1,1 @@
-export { register } from '../renderer/extension.js';
+// export { hi } from '../renderer/extension.js';

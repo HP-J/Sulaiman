@@ -3,7 +3,7 @@
 */
 export function div(id)
 {
-  const div = document.createElement(`div`);
+  const div = document.createElement('div');
 
   div.id = id;
 
@@ -14,10 +14,10 @@ export function div(id)
 */
 export function block()
 {
-  const div = document.createElement(`div`);
+  const div = document.createElement('div');
   
   div.tabIndex = 0;
-  div.className = `button`;
+  div.className = 'button';
 
   return div;
 }
@@ -30,9 +30,9 @@ export function block()
 */
 export function input(readOnly, className, id)
 {
-  const input = document.createElement(`input`);
+  const input = document.createElement('input');
 
-  input.setAttribute(`type`, `text`);
+  input.setAttribute('type', 'text');
 
   if (id !== undefined)
     input.id = id;

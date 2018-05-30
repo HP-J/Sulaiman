@@ -26,7 +26,7 @@
         ],
         "quotes": [
             "error",
-            "backtick"
+            "single"
         ],
         "brace-style": [
             "error",

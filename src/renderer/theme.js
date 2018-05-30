@@ -31,10 +31,10 @@ export const icons =
 
 export function load()
 {
-  const dir = join(__dirname, `../theme/dark`);
+  const dir = join(__dirname, '../theme/dark');
 
   if (!existsSync(dir))
-    throw `theme does not exist`;
+    throw 'theme does not exist';
 
   loadCSS(dir);
   loadIcons(dir);
@@ -44,13 +44,13 @@ export function load()
 */
 function loadCSS(dir)
 {
-  dir = dir + `/style/`;
+  dir = dir + '/style/';
 
   const files = readdirSync(dir);
 
   for (let i = 0; i < files.length; i++)
   {
-    if (files[i].endsWith(`.css`))
+    if (files[i].endsWith('.css'))
       document.head.appendChild(style(join(dir, files[i])));
   }
 }
@@ -59,17 +59,17 @@ function loadCSS(dir)
 */
 function loadIcons(dir)
 {
-  dir = dir + `/icons/`;
+  dir = dir + '/icons/';
 
   const files = readdirSync(dir);
 
   for (let i = 0; i < files.length; i++)
   {
-    const name = files[i].split(`.`)[0];
+    const name = files[i].split('.')[0];
     
-    if (files[i].endsWith(`.svg`))
+    if (files[i].endsWith('.svg'))
       icons[name] = svg(join(dir, files[i]));
-    else if (files[i].endsWith(`.png`))
+    else if (files[i].endsWith('.png'))
       icons[name] = image(join(dir, files[i]));
   }
 }
@@ -87,7 +87,7 @@ function textFile(path)
 */
 function svg(path)
 {
-  const svg = document.createElementNS(`http://www.w3.org/2000/svg`, `svg`);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
   const content = textFile(path);
 
@@ -104,17 +104,17 @@ function svg(path)
       attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
         .reduce(function (obj, attr) 
         {
-          const split = attr.split(`=`);
+          const split = attr.split('=');
 
           if (split && split[1]) 
-            svg.setAttribute(split[0], split[1].replace(/['"]/g, ``));
+            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
 
         }, {});
     }
 
-    svg.setAttribute(`preserveAspectRatio`, `xMidYMid meet`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    svg.innerHTML = match[2].replace(/\n/g, ` `).trim() || ``;
+    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
   }
 
   return svg;
@@ -124,9 +124,9 @@ function svg(path)
 */
 function image(path)
 {
-  const img = document.createElement(`div`);
+  const img = document.createElement('div');
 
-  img.style.backgroundImage = `url(` + path + `)`;
+  img.style.backgroundImage = 'url(' + path + ')';
 
   return img;
 }
@@ -136,15 +136,15 @@ function image(path)
 */
 function style(path)
 {
-  const style = document.createElement(`style`);
-  style.type = `text/css`;
+  const style = document.createElement('style');
+  style.type = 'text/css';
 
   let styleString = textFile(path);
 
   const urlOptions =
   {
     // rebase change the path based on a new dir
-    url: `rebase`
+    url: 'rebase'
   };
 
   const rebaseOptions =
@@ -152,7 +152,7 @@ function style(path)
     // thr current css file path
     from: path,
     // the new parent is one dir up
-    to: join(__dirname, `.`)
+    to: join(__dirname, '.')
   };
 
   // using postcss-url plugin to
