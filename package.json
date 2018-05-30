@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
-    "test": "mocha --require babel-core/register"
+    "tests": "mocha --require babel-core/register"
   },
   "repository": {
     "type": "git",
@@ -16,8 +16,8 @@
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
     "electron": "^2.0.2",
-    "postcss-url": "^7.3.2",
-    "vm2": "^3.6.0"
+    "json5": "^1.0.1",
+    "postcss-url": "^7.3.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -26,6 +26,7 @@
     "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
-    "mocha": "^5.2.0"
+    "mocha": "^5.2.0",
+    "vm2": "^3.6.0"
   }
 }

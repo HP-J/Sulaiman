@@ -1,17 +1,11 @@
-import { register } from '.';
+const localConst = 4; 
 
-register(`ext-boilerplate`,
-  [ ],
-  [ ],
-  { oninput: oninput },
-  () =>
-  {
-    // TODO make sure the callback is executed in a sandbox
-  
-    console.log(`register completed, we have been called back`);
-  });
+function callback()
+{
+  console.log(`register completed, we have been called back`);
+}
 
 function oninput(text)
 {
-  console.log(`oninput extension callback: ${text}`);
+  console.log(`oninput extension ${localConst}'s callback: ${text}`);
 }
