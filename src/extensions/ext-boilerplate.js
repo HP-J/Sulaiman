@@ -1,13 +1,15 @@
-import { join } from 'path';
+import * as extension from '.';
 
 function init()
 {
-  console.log(join(__dirname, 'index.js'));
-  
-  // console.log('register completed, extension started');
+  extension.onSearchBar('onSearchBar');
 }
 
-function oninputCallback(text)
+function onSearchBar(text)
 {
-  console.log('got a oninput callback with value:' + text);
+  console.log('got a onSearchBar callback with value: ' + text);
 }
+
+// any code your write here on root gets executed every time sulaiman requires this module
+// which is every time we want to execute a callback or a function, so if you want to execute a code only once
+// put inside a the start callback

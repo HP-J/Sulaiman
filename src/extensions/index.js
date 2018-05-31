@@ -1,1 +1,1 @@
-// export { hi } from '../renderer/extension.js';
+export * from '../renderer/extension.js';

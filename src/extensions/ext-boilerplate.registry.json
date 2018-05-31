@@ -17,14 +17,11 @@
   // example: `[ 'window.body' ]` you can find all the available permissions and what they do in our wiki
 
   // @param { [ '...' ] } modules here you can ask for permissions to use a full module, example: `[ 'electron', 'request' ]`
-  // @param { { 'oninput': Function } } events a set of events that you can attach callback to,
-  // you can find all the available events and when they are executed in our wiki
 
-  // @param { () => {} } init gets executed when the user accepts the registry object request
+  // @param { string } start gets executed when the user accepts the registry object request
 
   name: "ext-boilerplate",
   permissions: [ ],
   modules: [ "path" ],
-  events: { oninput: "oninputCallback" },
   start: "init"
 }

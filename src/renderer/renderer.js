@@ -90,6 +90,6 @@ registerEvents();
 // page.list(meta);
 
 // reset the application focus
-// focus();
+focus();
 
 init();

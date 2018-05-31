@@ -13,12 +13,17 @@ import builtinModules from 'builtin-modules';
 */
 const extVMs = {};
 
-/** the global events registry,
-* every event has an array of the extensions that are registered to it,
-* every time that event is called, we go to every extension registered to it and execute their callback for that specific event
-* @type { Object.<string, [ { extensionPath: string, callback: string } ]> }
-*/
+// /** the global events registry,
+// * every event has an array of the extensions that are registered to it,
+// * every time that event is called, we go to every extension registered to it and execute their callback for that specific event
+// * @type { Object.<string, [ { extensionPath: string, callback: string } ]> }
+// */
 const extEvents = {};
+
+/** the current active and running code extension
+* @type { string } 
+*/
+let currentExtensionPath;
 
 export function init()
 {
@@ -34,19 +39,17 @@ export function init()
   // when we get a respond if it was a reject then return
   // else if approve
 
-  // TODO implement permissions
+  // TODO move events to extension api somehow, it was stupid making it part of registry since it has noting to do with creating the vm
+  
+  // TODO implement handling permissions
 
-  const builtin = [];
-  const external = [];
+  // 1- fs / original-fs -> remove from modules if exists
+  // handel fs.read and fs.write
+
+  // 2- window.body
 
   // separate node builtin modules from the external modules
-  for (let i = 0; i < registry.modules.length; i++)
-  {
-    if (isBuiltin(registry.modules[i]))
-      builtin.push(registry.modules[i]);
-    else
-      external.push(registry.modules[i]);
-  }
+  const { builtin, external } = handelSeparation(registry.modules);
 
   // create a new vm for the extension with only the modules and permissions the user approved
   extVMs[extensionPath] = 
@@ -67,24 +70,76 @@ export function init()
     script: readFileSync(extensionPath).toString()
   };
 
-  // register the extension events in the global events registry
-  for (const event in registry.events)
-  {
-    // if the event is not initialized yet in the global events registry then create a new parameter for it
-    if (extEvents[event] === undefined)
-      extEvents[event] = [];
-
-    // add the extension's extensionPath and callback in the event's array
-    // extEvents[event].push({ extensionPath: extensionPath, callback: registry.events[event] });
-  }
-
   // if it exists
   // run the extension's start callback function
   if (registry.start)
-    run(extensionPath, registry.start);
+    runInVM(extensionPath, registry.start);
 }
 
-/** call an event on the extensions registered for it
+// function handelPermissions()
+// {
+
+// }
+
+/** separate node builtin modules from the external modules
+* @param { [] } registryModules the modules requests array from the registry object
+* @returns { { builtin: [], external: [] } }
+*/
+function handelSeparation(registryModules)
+{
+  const builtin = [];
+  const external = [];
+
+  // loop through all the modules requests
+  for (let i = 0; i < registryModules.length; i++)
+  {
+    // checks if a module is a node builtin module or an external
+    // and add them to two separate arrays
+    if (isBuiltin(registryModules[i]))
+      builtin.push(registryModules[i]);
+    else
+      external.push(registryModules[i]);
+  }
+
+  return {
+    builtin,
+    external
+  };
+}
+
+/** checks if a module is a node builtin module or an external
+* @returns { boolean } 
+*/
+function isBuiltin(moduleName)
+{
+  return builtinModules.indexOf(moduleName) > -1;
+}
+
+// runs an extension function inside the extension's vm
+function runInVM(extensionPath, functionName, value)
+{
+  // set the current extension path
+  // so if a extension api needs the path it can find it
+  currentExtensionPath = extensionPath;
+
+  return extVMs[extensionPath].vm.run(extVMs[extensionPath].script + '\n' + functionName + '("' + value + '");', extensionPath);
+}
+
+/** register an extension callback on an event
+* @param { string } event 
+* @param { string } value 
+*/
+export function registerCallback(event, callbackName)
+{
+  // if the event is not initialized yet in the global events registry then create a new parameter for it
+  if (extEvents[event] === undefined)
+    extEvents[event] = [];
+
+  // add the extension's extensionPath and callback in the event's array
+  extEvents[event].push({ extensionPath: currentExtensionPath, callback: callbackName });
+}
+
+/** call an event in the extensions registered on it
 * @param { string } event 
 * @param { string } value 
 */
@@ -98,17 +153,6 @@ export function callEvent(event, value)
   for (let i = 0; i < extEvents[event].length; i++)
   {
     // execute the callback on the extension's vm
-    run(extEvents[event][i].moduleName, extEvents[event][i].callback, value);
+    runInVM(extEvents[event][i].extensionPath, extEvents[event][i].callback, value);
   }
-}
-
-function isBuiltin(moduleName)
-{
-  return builtinModules.indexOf(moduleName) > -1;
-}
-
-// runs an extension function inside the extension's vm
-function run(extensionPath, functionName, value)
-{
-  return extVMs[extensionPath].vm.run(extVMs[extensionPath].script + '\n' + functionName + '("' + value + '");', extensionPath);
 }

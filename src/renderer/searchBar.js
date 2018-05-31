@@ -59,8 +59,8 @@ export function focus()
 */
 function oninputCallback()
 {
-  // call oninput event in extensions
-  callEvent('oninput', input.value);
+  // call onSearchBar event in all extensions register i  it
+  callEvent('onSearchBar', input.value);
 
   // update the search bar placeholder
   if (input.value.length > 0)
