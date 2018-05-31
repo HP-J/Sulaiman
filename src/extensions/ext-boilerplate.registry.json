@@ -23,8 +23,8 @@
   // @param { () => {} } init gets executed when the user accepts the registry object request
 
   name: "ext-boilerplate",
-  permissions: [],
-  modules: [],
+  permissions: [ ],
+  modules: [ "path" ],
   events: { oninput: "oninputCallback" },
   start: "init"
 }

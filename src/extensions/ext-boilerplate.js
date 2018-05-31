@@ -1,6 +1,10 @@
+import { join } from 'path';
+
 function init()
 {
-  console.log('register completed, extension started');
+  console.log(join(__dirname, 'index.js'));
+  
+  // console.log('register completed, extension started');
 }
 
 function oninputCallback(text)

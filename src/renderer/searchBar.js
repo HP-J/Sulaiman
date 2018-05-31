@@ -46,8 +46,12 @@ export function load()
 export function focus()
 {
   input.value = '';
+
+  // setting input value manually doesn't call the event
+  // then we also execute the callback manually
   oninputCallback();
 
+  // focus on the search bar so the user can start typing automatically
   input.focus();
 }
 
@@ -55,10 +59,10 @@ export function focus()
 */
 function oninputCallback()
 {
-  // Call oninput event in extensions
+  // call oninput event in extensions
   callEvent('oninput', input.value);
 
-  // Update Placeholder
+  // update the search bar placeholder
   if (input.value.length > 0)
     placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
   else
