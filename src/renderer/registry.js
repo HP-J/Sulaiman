@@ -8,16 +8,13 @@ import JSON5 from 'json5';
 import builtinModules from 'builtin-modules';
 
 /** a list of all the extensions' vms,
-* the extension extensionPath is the key, while the NodeVM is the value
 * @type { Object.<string, { vm: NodeVM, script: string }> }
 */
 const extVMs = {};
 
-// /** the global events registry,
-// * every event has an array of the extensions that are registered to it,
-// * every time that event is called, we go to every extension registered to it and execute their callback for that specific event
-// * @type { Object.<string, [ { extensionPath: string, callback: string } ]> }
-// */
+/** the global events registry
+* @type { Object.<string, [ { extensionPath: string, callbackName: string } ]> }
+*/
 const extEvents = {};
 
 /** the current active and running code extension
@@ -55,6 +52,8 @@ export function init()
   extVMs[extensionPath] = 
   {
     vm: new NodeVM({
+      sandbox: {
+      },
       require:
       {
         // accepted registry request node builtin modules
@@ -116,43 +115,59 @@ function isBuiltin(moduleName)
 }
 
 // runs an extension function inside the extension's vm
-function runInVM(extensionPath, functionName, value)
+function runInVM(extensionPath, functionName, args)
 {
   // set the current extension path
   // so if a extension api needs the path it can find it
   currentExtensionPath = extensionPath;
 
-  return extVMs[extensionPath].vm.run(extVMs[extensionPath].script + '\n' + functionName + '("' + value + '");', extensionPath);
+  return extVMs[extensionPath].vm.run(extVMs[extensionPath].script + '\n' + functionName + '(' + args + ');', extensionPath);
 }
 
 /** register an extension callback on an event
-* @param { string } event 
+* @param { string } eventName ""
 * @param { string } value 
 */
-export function registerCallback(event, callbackName)
+function registerCallback(eventName, callbackName)
 {
   // if the event is not initialized yet in the global events registry then create a new parameter for it
-  if (extEvents[event] === undefined)
-    extEvents[event] = [];
+  if (extEvents[eventName] === undefined)
+    extEvents[eventName] = [];
 
   // add the extension's extensionPath and callback in the event's array
-  extEvents[event].push({ extensionPath: currentExtensionPath, callback: callbackName });
+  extEvents[eventName].push({ extensionPath: currentExtensionPath, callbackName: callbackName });
 }
 
-/** call an event in the extensions registered on it
-* @param { string } event 
-* @param { string } value 
+/** emits an event's callbacks
+* @param { string } eventName 
+* @param { string } args 
 */
-export function callEvent(event, value)
+function emitCallbacks(eventName, args)
 {
   // check if any extension has registered for the event
-  if (extEvents[event] === undefined)
+  if (extEvents[eventName] === undefined)
     return;
 
   // loop though all the extensions in the event
-  for (let i = 0; i < extEvents[event].length; i++)
+  for (let i = 0; i < extEvents[eventName].length; i++)
   {
-    // execute the callback on the extension's vm
-    runInVM(extEvents[event][i].extensionPath, extEvents[event][i].callback, value);
+    // emit the callback on the extension's vm
+    runInVM(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, args);
   }
+}
+
+/** emits every time the user writes something into the search bar
+* @param { string } callbackName the callback function's name
+*/
+export function onSearchBar(callbackName)
+{
+  registerCallback('onSearchBar', callbackName);
+}
+
+/** emits every time the user writes something into the search bar
+* @param { string } args
+*/
+export function emitSearchBar(args)
+{
+  emitCallbacks('onSearchBar', args);
 }

@@ -2,12 +2,12 @@ import * as extension from '.';
 
 function init()
 {
-  extension.onSearchBar('onSearchBar');
+  extension.onSearchBar(onSearchBar.name);
 }
 
 function onSearchBar(text)
 {
-  console.log('got a onSearchBar callback with value: ' + text);
+  console.log(text);
 }
 
 // any code your write here on root gets executed every time sulaiman requires this module

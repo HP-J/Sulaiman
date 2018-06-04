@@ -1,6 +1,6 @@
 import * as create from './create.js';
 
-import { callEvent } from './registry.js';
+import { emitSearchBar } from './registry.js';
 
 // import * as extension from '..';
 
@@ -59,8 +59,8 @@ export function focus()
 */
 function oninputCallback()
 {
-  // call onSearchBar event in all extensions register i  it
-  callEvent('onSearchBar', input.value);
+  // emits the onSearchBar event
+  emitSearchBar(JSON.stringify(input.value));
 
   // update the search bar placeholder
   if (input.value.length > 0)

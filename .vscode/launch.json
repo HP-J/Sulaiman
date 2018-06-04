@@ -7,7 +7,7 @@
       "request": "launch",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
-      "program": "${workspaceRoot}/src/main/bundle.js",
+      "program": "${workspaceRoot}/public/main/main.js",
       "console": "integratedTerminal",
       "protocol": "inspector"
     },
