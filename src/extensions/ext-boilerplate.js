@@ -2,7 +2,7 @@ import * as extension from '.';
 
 function init()
 {
-  extension.onSearchBar(onSearchBar.name);
+  // extension.onSearchBar(onSearchBar.name);
 }
 
 function onSearchBar(text)

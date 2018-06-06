@@ -8,15 +8,11 @@
 
   // @param { string } name the name of the extension
 
-  // @param { [ 'fs.read', 'fs.write', 'window.body' ] } permissions
-  // some modules like `fs` are divided to multiple subsets of functions,
-  // in those cases, the module will be ignored if it was added in `require` and can only be
-  // required in `permissions`.
-  // example: `[ 'fs.read' ]` will give you access to the read functions only of the `fs` module,
-  // you can also ask for permissions to use some global variables
-  // example: `[ 'window.body' ]` you can find all the available permissions and what they do in our wiki
+  // @param { [ 'document.body' ] } permissions
+  // you can ask for permissions to use some global variables
+  // example: `[ 'document.body' ]` you can find all the available permissions and what they do in our wiki
 
-  // @param { [ '...' ] } modules here you can ask for permissions to use a full module, example: `[ 'electron', 'request' ]`
+  // @param { [ '...' ] } modules here you can ask for permissions to use a full module, example: `[ 'fs', 'electron', 'request' ]`
 
   // @param { string } start gets executed when the user accepts the registry object request
 

@@ -28,7 +28,7 @@ export function init()
   const registryPath = join(__dirname, '../extensions/ext-boilerplate.registry.json');
 
   /** parse the registry object JSON file
-  * @type { { name: string, permissions: [], modules: [], events: Object.<string, string>, start: string } }
+  * @type { { name: string, permissions: [], modules: [], start: string } }
   */
   const registry = JSON5.parse(readFileSync(registryPath));
 
@@ -36,14 +36,12 @@ export function init()
   // when we get a respond if it was a reject then return
   // else if approve
 
-  // TODO move events to extension api somehow, it was stupid making it part of registry since it has noting to do with creating the vm
-  
   // TODO implement handling permissions
 
   // 1- fs / original-fs -> remove from modules if exists
   // handel fs.read and fs.write
 
-  // 2- window.body
+  const sandbox = handelPermissions(registry.permissions);
 
   // separate node builtin modules from the external modules
   const { builtin, external } = handelSeparation(registry.modules);
@@ -52,8 +50,7 @@ export function init()
   extVMs[extensionPath] = 
   {
     vm: new NodeVM({
-      sandbox: {
-      },
+      sandbox: sandbox,
       require:
       {
         // accepted registry request node builtin modules
@@ -75,10 +72,25 @@ export function init()
     runInVM(extensionPath, registry.start);
 }
 
-// function handelPermissions()
-// {
+/** ~~~
+* @param { [] } registryPermissions
+* @returns { { sandbox: {} } }
+*/
+function handelPermissions(registryPermissions)
+{
+  const sandbox =
+  {
+    document
+  };
 
-// }
+  for (let i = 0; i < registryPermissions.length; i++)
+  {
+    if (registryPermissions[i] === 'document.body')
+      sandbox.document.body = document.body;
+  }
+
+  return sandbox;
+}
 
 /** separate node builtin modules from the external modules
 * @param { [] } registryModules the modules requests array from the registry object
