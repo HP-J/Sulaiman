@@ -1,6 +1,29 @@
-// TODO access to change placeholder (every button when selected can change placeholder value) (what about auto-complete)
-// TODO access to allocate block from page (how to clean a block childs)
+// TODO access to change placeholder value
+
+import { domElement } from './page.js';
+
+import Block from './block.js';
+
+export {
+  Block
+};
 
 export { 
   onSearchBar
 } from './registry.js';
+
+/** add a block to the page
+* @param { Block } block 
+*/
+export function appendBlock(block)
+{
+  domElement.appendChild(block);
+}
+
+/** remove a block to the page
+* @param { Block } block 
+*/
+export function removeBlock(block)
+{
+  domElement.removeChild(block.domElement);
+}

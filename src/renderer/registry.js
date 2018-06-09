@@ -36,11 +36,6 @@ export function init()
   // when we get a respond if it was a reject then return
   // else if approve
 
-  // TODO implement handling permissions
-
-  // 1- fs / original-fs -> remove from modules if exists
-  // handel fs.read and fs.write
-
   const sandbox = handelPermissions(registry.permissions);
 
   // separate node builtin modules from the external modules
@@ -58,7 +53,7 @@ export function init()
         // accepted registry request modules
         external: [ './extension.js', ...external ],
         // limit externals to this path, so extensions can't require any local modules outside of their directory
-        root: join(__dirname, '../extensions'),
+        // root: join(__dirname, '../extensions'),
         // host allows any required module to require more modules inside it with no limits
         context: 'host'
       }
@@ -72,7 +67,7 @@ export function init()
     runInVM(extensionPath, registry.start);
 }
 
-/** ~~~
+/** handle permissions to use global variables
 * @param { [] } registryPermissions
 * @returns { { sandbox: {} } }
 */
@@ -80,14 +75,25 @@ function handelPermissions(registryPermissions)
 {
   const sandbox =
   {
-    document
+    document:
+    {
+
+    } 
   };
 
-  for (let i = 0; i < registryPermissions.length; i++)
-  {
-    if (registryPermissions[i] === 'document.body')
-      sandbox.document.body = document.body;
-  }
+  sandbox.document.createElement =  document.createElement.bind(document);
+  sandbox.document.body = document.body;
+
+  // sandbox.document.createElement = document.contains;
+  
+  // for (let i = 0; i < registryPermissions.length; i++)
+  // {
+  //   if (registryPermissions[i] === 'document.body')
+  //     sandbox.document['body'] = document.body;
+  // }
+
+  // sandbox.document['createElement'] = document.createElement;
+  // sandbox.document.createElementNS = document.createElementNS;
 
   return sandbox;
 }
@@ -169,11 +175,11 @@ function emitCallbacks(eventName, args)
 }
 
 /** emits every time the user writes something into the search bar
-* @param { string } callbackName the callback function's name
+* @param { Function } callback the callback function
 */
-export function onSearchBar(callbackName)
+export function onSearchBar(callback)
 {
-  registerCallback('onSearchBar', callbackName);
+  registerCallback('onSearchBar', callback.name);
 }
 
 /** emits every time the user writes something into the search bar

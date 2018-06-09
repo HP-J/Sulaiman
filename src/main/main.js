@@ -17,13 +17,13 @@ function createWindow ()
 
   // set the electron window size
   // window's width is 50% of the screen's width
-  // window's height is 70% of the screen's height
+  // window's height is 65% of the screen's height
 
   // set the electron window location
   // center of the screen
 
-  const width = Math.round(screenSize.width * (50 / 100));
-  const height = Math.round(screenSize.height * (65 / 100));
+  const width = Math.round(screenSize.width * 0.50);
+  const height = Math.round(screenSize.height * 0.65);
 
   mainWindow = new BrowserWindow(
     {
@@ -60,9 +60,6 @@ function createWindow ()
     mainWindow.show();
     mainWindow.setSkipTaskbar(true);
   });
-
-  // openProcessManager();
-  // mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 /** @param { string[] } argv the args that was sent from the second instance
