@@ -55,11 +55,9 @@ function createWindow ()
 
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
-  globalShortcut.register('Control+Space', () =>
-  {
-    mainWindow.show();
-    mainWindow.setSkipTaskbar(true);
-  });
+  globalShortcut.register('Control+Space', focus);
+
+  // mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 /** @param { string[] } argv the args that was sent from the second instance
@@ -67,12 +65,18 @@ function createWindow ()
 */
 function singleInstance()
 {
-  // TODO call focus() from renderer-process
+  focus();
+}
+
+function focus()
+{
+  mainWindow.show();
+  mainWindow.setSkipTaskbar(true);
 }
 
 // if the user tried to open more instance while a one is already opened
-// then quit the new ones
-if (app.makeSingleInstance(singleInstance)) 
+// then quit the new ones and focus on the opened one instead
+if (app.makeSingleInstance(singleInstance))
 {
   app.quit();
 }

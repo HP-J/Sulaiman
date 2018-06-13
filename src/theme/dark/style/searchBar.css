@@ -1,6 +1,6 @@
 #searchBar
 {
-  background-color: #3e4143;
+  background-color: #4F4F4F;
   position: relative;
   width: 100vw;
   height: 10vh;
@@ -24,8 +24,8 @@
 
 #searchBarPlaceholder
 {
-  background-color: #3e4143;
-  color: rgba(255, 255, 255, 0.5);
+  background-color: #4F4F4F;
+  color: #878787;
   pointer-events: none;
 }
 

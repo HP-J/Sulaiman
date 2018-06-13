@@ -1,14 +1,13 @@
 #page
 { 
-  background-color: #464a4c;
+  background-color: #292929;
   position: relative;
-  top: 2px;
   width: 100vw;
-  height: calc(90vh - 2px);
+  height: calc(90vh);
 
   overflow: hidden;
 
-  /* changing some of the grid rules will break your app */
+  /* changing some of the grid rules might break the app */
   display: grid;
   grid-auto-rows: max-content;
 }
@@ -24,9 +23,9 @@
   border: 0px;
 }
 
-.button:focus
+.button:focus, .button:hover
 {
-  background-color: #1c1d1e;
+  background-color: #4F4F4F;
   outline: none;
 }
 
@@ -71,7 +70,7 @@
 
 .buttonDescription
 {
-  color: rgba(255, 255, 255, 0.5);
+  color: #878787;
   top: 50%;
   margin-top: -0.8vh;
 }

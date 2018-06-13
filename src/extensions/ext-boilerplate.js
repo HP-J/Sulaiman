@@ -4,16 +4,13 @@ export function init()
 {
   // extension.onSearchBar(onSearchBar);
 
-  // const block = new extension.Block();
+  const block = new extension.Block();
+  
+  block.setClass('button');
 
-  const block = document.createElement('div');
-
-  // block.setAttribute('class', 'button');
   block.style.backgroundColor = 'red';
 
-
-  document.body.appendChild(block);
-  // extension.appendBlock(block);
+  extension.appendBlock(block);
 }
 
 function onSearchBar(text)

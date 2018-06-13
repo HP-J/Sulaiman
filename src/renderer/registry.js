@@ -53,7 +53,7 @@ export function init()
         // accepted registry request modules
         external: [ './extension.js', ...external ],
         // limit externals to this path, so extensions can't require any local modules outside of their directory
-        // root: join(__dirname, '../extensions'),
+        root: join(__dirname, '../extensions'),
         // host allows any required module to require more modules inside it with no limits
         context: 'host'
       }
@@ -75,14 +75,12 @@ function handelPermissions(registryPermissions)
 {
   const sandbox =
   {
-    document:
-    {
-
-    } 
+    document: document
   };
 
-  sandbox.document.createElement =  document.createElement.bind(document);
-  sandbox.document.body = document.body;
+  // TODO debug code => remove
+  // sandbox.document.createElement =  document.createElement.bind(document);
+  // sandbox.document.body = document.body;
 
   // sandbox.document.createElement = document.contains;
   
@@ -104,24 +102,17 @@ function handelPermissions(registryPermissions)
 */
 function handelSeparation(registryModules)
 {
-  const builtin = [];
-  const external = [];
+  const builtin = [], external = [];
 
   // loop through all the modules requests
   for (let i = 0; i < registryModules.length; i++)
   {
     // checks if a module is a node builtin module or an external
     // and add them to two separate arrays
-    if (isBuiltin(registryModules[i]))
-      builtin.push(registryModules[i]);
-    else
-      external.push(registryModules[i]);
+    (isBuiltin(registryModules[i]) ? builtin : external).push(registryModules[i]);
   }
 
-  return {
-    builtin,
-    external
-  };
+  return { builtin, external };
 }
 
 /** checks if a module is a node builtin module or an external
@@ -162,7 +153,7 @@ function registerCallback(eventName, callbackName)
 */
 function emitCallbacks(eventName, args)
 {
-  // check if any extension has registered for the event
+  // check if (any) extension has registered for the event
   if (extEvents[eventName] === undefined)
     return;
 

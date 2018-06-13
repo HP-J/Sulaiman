@@ -17,7 +17,7 @@ export {
 */
 export function appendBlock(block)
 {
-  domElement.appendChild(block);
+  domElement.appendChild(block.domElement);
 }
 
 /** remove a block to the page
@@ -25,5 +25,5 @@ export function appendBlock(block)
 */
 export function removeBlock(block)
 {
-  domElement.removeChild(block.domElement);
+  // domElement.removeChild(block.domElement);
 }
