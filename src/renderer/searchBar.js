@@ -16,7 +16,7 @@ export let input;
 
 /** create and append search bar block, input and input placeholder
 */
-export function load()
+export function append()
 {
   // create and append search bar block
   domElement = create.div('searchBar');

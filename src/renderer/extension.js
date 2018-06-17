@@ -1,4 +1,5 @@
 // TODO access to change placeholder value
+// TODO access to current theme icons
 
 import { domElement } from './page.js';
 
@@ -25,5 +26,5 @@ export function appendBlock(block)
 */
 export function removeBlock(block)
 {
-  // domElement.removeChild(block.domElement);
+  domElement.removeChild(block.domElement);
 }

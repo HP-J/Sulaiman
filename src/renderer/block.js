@@ -1,13 +1,15 @@
+import * as create from './create.js';
+
 export default class Block
 {
   constructor()
   {
-    /** the block's html element (not recommended to use directly)
-    * @type { HTMLElement }
+    /** the block's html element (not recommended to use directly... it has issues)
+    * @type { HTMLDivElement }
     */
     this.domElement = document.createElement('div');
 
-    const handler = 
+    const handler =
     {
       style: this.domElement.style,
       get: function(target, prop)
@@ -22,26 +24,42 @@ export default class Block
       }
     };
 
-    /** @type { CSSStyleDeclaration }
+    /** the css stylesheet of the block
+    * @type { CSSStyleDeclaration }
     */
     this.style = new Proxy({}, handler);
   }
 
+  /** clean all the html element childs and start fresh
+  */
   clear()
   {
-    // TODO clear all childs of dom element
+    while (this.domElement.hasChildNodes())
+    {
+      this.domElement.removeChild(this.domElement.lastChild);
+    }
   }
 
+  /** set an attribute
+  * @param { string } qualifiedName
+  * @param { * } value
+  */
   setAttribute(qualifiedName, value)
   {
     this.domElement.setAttribute(qualifiedName, value);
   }
 
-  setClass(name)
+  /** set the html element class(es)
+  * @param { string } value string of the classes separated with commas
+  */
+  setClass(value)
   {
-    this.domElement.setAttribute('class', name);
+    this.domElement.setAttribute('class', value);
   }
 
+  /** get the html element class(es)
+  * @returns { string } string of the classes separated with commas
+  */
   getClass()
   {
     return this.domElement.getAttribute('class');
@@ -50,19 +68,28 @@ export default class Block
   /**
   * @param { string } title
   * @param { string } description
-  * @param { HTMLElement } icon
-  * @param { HTMLElement } actionIcon
+  * @param { string | HTMLElement } icon
+  * @param { string | HTMLElement } actionIcon
   */
   itsButton(title, description, icon, actionIcon)
   {
     // clean all childs
-    // clearing the element every time we update button is not efficient
+    // if (this.getClass().indexOf('button') > -1)
+    // {
     // this.clear();
+    // }
 
-    //  this.title.value = buttonMeta.title;
-    //  this.description.value = buttonMeta.description;
+    this.setClass('button');
 
-    
+    const titleElem = create.input(true, 'buttonTitle');
+    const descriptionElem = create.input(true, 'buttonDescription');
+
+    titleElem.value = title;
+    descriptionElem.value = description;
+
+    this.domElement.appendChild(titleElem);
+    this.domElement.appendChild(descriptionElem);
+
     //  this.icon = updateIcon(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
     //  this.action = updateIcon(this.domElement, this.action, buttonMeta.action, 'buttonActionIcon');
 

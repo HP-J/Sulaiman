@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-import { load } from './theme.js';
+import { loadTheme, loadStyles } from './theme.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
@@ -30,12 +30,12 @@ function registerEvents()
       mainWindow.reload();
   };
 
-  window.onkeyup = (event) =>
+  window.onkeyup = () =>
   {
     // event.preventDefault();
   };
 
-  window.onkeypress = (event) =>
+  window.onkeypress = () =>
   {
     // event.preventDefault();
   };
@@ -58,38 +58,24 @@ function blur()
 // disable eval
 window.eval = global.eval = () =>
 {
-  throw new Error('Sorry, this app does not support window.eval().');
+  throw new Error('this app does not support evil');
 };
 
-// append the style and load the icons
-load();
+// load the styles
+loadStyles('dark', () =>
+{
+  // create and append search bar block
+  searchBar.append();
 
-// create and append search bar block
-searchBar.load();
+  // create and append page block
+  page.append();
 
-// create and append page block
-page.load();
+  // register elements events and track key presses
+  registerEvents();
 
-// register elements events and track key presses
-registerEvents();
+  // reset the application focus
+  focus();
 
-// const meta = [];
-
-// meta.push(new ButtonMeta('Text!', 'you can copy me!', undefined, visuals.copy));
-// meta.push(new ButtonMeta('File.file', 'open file!', visuals.files, visuals.open));
-// meta.push(new ButtonMeta('google "google"', 'open inside sulaiman!', icons.search, icons.next));
-// meta.push(new ButtonMeta('www.facebook.com', 'open in browser!', undefined, visuals.browser));
-// meta.push(new ButtonMeta('Voice Microphone Icon', 'see more options', visuals.voice, visuals.more));
-// meta.push(new ButtonMeta('Exit sulaiman', '', visuals.phi, visuals.exit));
-
-// const test = require.block();
-// page.domElement.appendChild(test);
-
-// test.focus();
-
-// page.list(meta);
-
-// reset the application focus
-focus();
-
-init();
+  // load the extensions
+  init();
+});

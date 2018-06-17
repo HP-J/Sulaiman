@@ -7,14 +7,13 @@
 
   overflow: hidden;
 
-  /* changing some of the grid rules might break the app */
   display: grid;
   grid-auto-rows: max-content;
 }
 
 .button
 {
-  background-color: blue;
+  background-color: #292929;
   position: relative;
   left: 0px;
   width: inherit;

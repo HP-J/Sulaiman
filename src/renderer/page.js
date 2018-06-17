@@ -7,7 +7,7 @@ export let domElement;
 
 /** create and append page block
 */
-export function load()
+export function append()
 {
   domElement = create.div('page');
   document.body.appendChild(domElement);

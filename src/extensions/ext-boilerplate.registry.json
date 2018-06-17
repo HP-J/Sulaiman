@@ -7,7 +7,7 @@
   // then events will register their attached callbacks if any, then the callback function gets executed
 
   // @param { string } start gets executed when the user accepts the registry object request
-  start: "init",
+  start: "start",
 
   // @param { string } name the name of the extension
   name: "ext-boilerplate",
