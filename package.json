@@ -1,7 +1,8 @@
 {
   "name": "sulaiman",
-  "version": "0.1.0-2",
+  "version": "0.1.0",
   "description": "the most useless and ugly keyboard launcher in the planet",
+  "main": "index.js",
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",

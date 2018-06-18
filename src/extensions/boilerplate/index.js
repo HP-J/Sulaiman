@@ -1,4 +1,4 @@
-import * as extension from '.';
+import * as extension from 'sulaiman';
 
 // the current behavior doesn't allow you to store variables
 // everything you do gets deleted when your code stops running

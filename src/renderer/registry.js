@@ -1,6 +1,6 @@
 import { NodeVM } from 'vm2';
 
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 import JSON5 from 'json5';
@@ -22,15 +22,18 @@ const extEvents = {};
 */
 let currentExtensionPath;
 
+// TODO read the extensions directory
+
 export function init()
 {
-  const extensionPath = join(__dirname, '../extensions/ext-boilerplate.js');
-  const registryPath = join(__dirname, '../extensions/ext-boilerplate.registry.json');
+  const extensionPath = join(__dirname, '../extensions/boilerplate/index.js');
+  const registryPath = join(__dirname, '../extensions/boilerplate/registry.json');
 
-  /** parse the registry object JSON file
+  /** parse the registry object JSON(5) file
   * @type { { name: string, permissions: [], modules: [], start: string } }
   */
-  const registry = JSON5.parse(readFileSync(registryPath));
+  const registry = (existsSync(registryPath + '5')) ? 
+    JSON5.parse(readFileSync(registryPath + '5')) : JSON.parse(readFileSync(registryPath));
 
   // TODO ask the user for the permissions using async (don't hang the application)
   // when we get a respond if it was a reject then return
@@ -54,6 +57,10 @@ export function init()
         external: [ './extension.js', ...external ],
         // limit externals to this path, so extensions can't require any local modules outside of their directory
         root: join(__dirname, '../extensions'),
+        // allow access to the running sulaiman apis
+        mock: {
+          'sulaiman': require('./extension.js')
+        },
         // host allows any required module to require more modules inside it with no limits
         context: 'host'
       }
@@ -166,7 +173,7 @@ function emitCallbacks(eventName, args)
 }
 
 /** emits every time the user writes something into the search bar
-* @param { Function } callback the callback function
+* @param { () => any } callback the callback function
 */
 export function onSearchBar(callback)
 {

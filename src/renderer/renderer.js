@@ -24,20 +24,17 @@ function registerEvents()
     // TAB
     if (event.keyCode === 9)
       event.preventDefault();
-    
+  };
+
+  window.onkeyup = () =>
+  {
     // F5
     if (event.keyCode === 116)
       mainWindow.reload();
   };
 
-  window.onkeyup = () =>
-  {
-    // event.preventDefault();
-  };
-
   window.onkeypress = () =>
   {
-    // event.preventDefault();
   };
 }
 

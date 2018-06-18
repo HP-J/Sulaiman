@@ -1,5 +1,5 @@
 {
-  // sulaiman uses JSON5
+  // sulaiman supports JSON5
 
   // when sulaiman (re)load the user will get a registry request
   // that will show him all the permissions you're asking for, if they

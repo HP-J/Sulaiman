@@ -14,6 +14,7 @@ function textFile(path)
 
 /** loads the style files of a theme async
 * @param { string } themeName
+* @param { () => any } callback
 */
 export function loadStyles(themeName, callback)
 {
@@ -28,7 +29,7 @@ export function loadStyles(themeName, callback)
     // loop through them all
     for (let i = 0; i < files.length; i++)
     {
-      // if the file is really a stylesheet
+      // if the file is a stylesheet
       if (files[i].endsWith('.css'))
       {
         // create a link element
@@ -42,7 +43,7 @@ export function loadStyles(themeName, callback)
         style.media = 'none';
   
         // if this is the last stylesheet in the lpp[]
-        style.last = i === files.length - 1;
+        style.last = (i === files.length - 1);
   
         style.onload = () =>
         {
