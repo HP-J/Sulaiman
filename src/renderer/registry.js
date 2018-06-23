@@ -56,7 +56,7 @@ export function init()
         // accepted registry request modules
         external: [ './extension.js', ...external ],
         // limit externals to this path, so extensions can't require any local modules outside of their directory
-        root: join(__dirname, '../extensions'),
+        root: join(__dirname, '../extensions/boilerplate'),
         // allow access to the running sulaiman apis
         mock: {
           'sulaiman': require('./extension.js')

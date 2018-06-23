@@ -1,4 +1,7 @@
-import * as extension from 'sulaiman';
+import * as ext from 'sulaiman';
+// import * as ext from '/mnt/K/.Projects/sulaiman/src/renderer/extension.js';
+
+import { join } from 'path';
 
 // the current behavior doesn't allow you to store variables
 // everything you do gets deleted when your code stops running
@@ -11,6 +14,8 @@ import * as extension from 'sulaiman';
 // if you want to execute a code only once put it inside the start callback
 
 // TODO test if local modules are hosted outside the proxies
+// if the user creates a new script file and required that script
+// will it escape the host or not
 
 // TODO assign functions to global objects then 
 // calling them in a element callback is a way to escape the sandbox  
@@ -19,11 +24,11 @@ export function start()
 {
   // extension.onSearchBar(onSearchBar);
 
-  const block = new extension.Block();
+  const block = new ext.Block();
 
-  block.itsButton('hello', 'world', undefined, undefined);
+  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/open.svg')));
 
-  extension.appendBlock(block);
+  ext.appendBlock(block);
 }
 
 function onSearchBar(text)

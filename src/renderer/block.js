@@ -9,6 +9,8 @@ export default class Block
     */
     this.domElement = document.createElement('div');
 
+    this.domElement.tabIndex = 1;
+
     const handler =
     {
       style: this.domElement.style,
@@ -68,8 +70,8 @@ export default class Block
   /**
   * @param { string } title
   * @param { string } description
-  * @param { string | HTMLElement } icon
-  * @param { string | HTMLElement } actionIcon
+  * @param { HTMLElement } icon
+  * @param { HTMLElement } actionIcon
   */
   itsButton(title, description, icon, actionIcon)
   {
@@ -90,34 +92,20 @@ export default class Block
     this.domElement.appendChild(titleElem);
     this.domElement.appendChild(descriptionElem);
 
-    //  this.icon = updateIcon(this.domElement, this.icon, buttonMeta.icon, 'buttonIcon');
-    //  this.action = updateIcon(this.domElement, this.action, buttonMeta.action, 'buttonActionIcon');
+    if (icon !== undefined)
+    {
+      icon.setAttribute('class', 'buttonIcon');
+      icon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    // /** @param { HTMLButtonElement } dom
-    //     * @param { HTMLElement } oldIcon
-    //     * @param { HTMLElement } newIcon
-    //     */
-    // function updateIcon(dom, oldIcon, newIcon, className)
-    // {
-    //   if (newIcon !== undefined)
-    //   {
-    //     newIcon = newIcon.cloneNode(true);
+      this.domElement.appendChild(icon);
+    }
 
-    //     newIcon.setAttribute('class', className);
-
-    //     if (oldIcon !== undefined && dom.contains(oldIcon))
-    //       dom.replaceChild(newIcon, oldIcon);
-    //     else
-    //       dom.appendChild(newIcon);
-        
-    //     return newIcon;
-    //   }
-    //   else if (oldIcon !== undefined)
-    //   {
-    //     dom.removeChild(oldIcon);
-
-    //     return undefined;
-    //   }
-    // }
+    if (actionIcon !== undefined)
+    {
+      actionIcon.setAttribute('class', 'buttonActionIcon');
+      actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  
+      this.domElement.appendChild(actionIcon);
+    }
   }
 }

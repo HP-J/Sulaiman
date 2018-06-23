@@ -34,14 +34,16 @@
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center;
-  fill: white;
-  stroke: white;
+  fill: red;
+  stroke: red;
   pointer-events: none;
   position: absolute;
   left: 10px;
   top: 0px;
   width: 3.8vw;
   height: inherit;
+  padding: 0px;
+  /* border: 1px red solid; */
 }
 
 .buttonActionIcon
@@ -64,7 +66,7 @@
   font-weight: 200;
   margin-top: 0.8vh;
   padding: 0px;
-  border: 0px;
+  border: 1px red solid;
 }
 
 .buttonDescription

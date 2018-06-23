@@ -1,10 +1,12 @@
 {
-  "name": "boilerplate",
+  "name": "sulax-boilerplate",
   "version": "1.0.0",
-  "description": "A boilerplate for a sulaiman extension",
+  "description": "A boilerplate to create a new sulaiman extension",
   "main": "index.js",
   "keywords": [
-    "sulaiman-extension"
+    "sulaiman",
+    "sulaiman-extension",
+    "sulaiman-boilerplate"
   ],
   "devDependencies": {
     "sulaiman": "0.1.0"

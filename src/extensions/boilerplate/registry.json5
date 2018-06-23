@@ -6,7 +6,7 @@
   // chosen to accept the request, your extension gets the permissions and modules you asked for,
   // then events will register their attached callbacks if any, then the callback function gets executed
 
-  // @param { string } start gets executed when the user accepts the registry object request
+  // @param { string } start gets executed when the user' accepts the registry object request
   start: "start",
 
   // @param { string } name the name of the extension
@@ -18,5 +18,5 @@
   permissions: [ ],
 
   // @param { [ '...' ] } modules here you can ask for permissions to use a full module, example: `[ 'fs', 'electron', 'request' ]`
-  modules: [ ]
+  modules: [ 'path' ]
 }

@@ -10,18 +10,6 @@ export function div(id)
   return div;
 }
 
-/** returns an empty focusable div block with the block class
-*/
-export function block()
-{
-  const div = document.createElement('div');
-  
-  div.tabIndex = 0;
-  div.className = 'button';
-
-  return div;
-}
-
 /** returns an input element with with
 * selected class name, id and settings
 * @param { string } readOnly 

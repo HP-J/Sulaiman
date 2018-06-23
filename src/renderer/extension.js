@@ -5,9 +5,11 @@ import { domElement } from './page.js';
 
 import Block from './block.js';
 
+export { Block };
+
 export {
-  Block
-};
+  getIcon
+} from './theme.js';
 
 export { 
   onSearchBar

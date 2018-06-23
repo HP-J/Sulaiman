@@ -1,22 +1,20 @@
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-// TODO let extensions load icons using a path
+// TODO let extensions load icons using their path
 // TODO let extensions interchange themes on a button hover
 
-/** reads the file and returns the text inside it
-* @param { string } path 
+/** when a new icon is loaded it gets cached in this 
+* object so it can be cloned if requested again
+* @type { Object.<string, HTMLElement> }
 */
-function textFile(path)
-{
-  return readFileSync(path).toString();
-}
+const cachedIcons = {};
 
-/** loads the style files of a theme async
+/** binds the style from theme files using async
 * @param { string } themeName
 * @param { () => any } callback
 */
-export function loadStyles(themeName, callback)
+export function bindStyles(themeName, callback)
 {
   const dir = join(__dirname, '../themes/' + themeName + '/styles');
 
@@ -66,70 +64,80 @@ export function loadStyles(themeName, callback)
   }
 }
 
-// /** @param { string } dir 
-// */
-// function loadIcons(dir)
-// {
-//   dir = dir + '/icons/';
+/** loads an icon and puts it into a div or svg element
+*  based on its format and returns that element
+* @param { string } dir direction to the image
+* (.png and .svg are the only formats supported)
+* @returns { HTMLDivElement | SVGSVGElement } an element with the loaded icon
+*/
+export function getIcon(dir)
+{
+  if (cachedIcons[dir])
+  {
+    return cachedIcons[dir].cloneNode(true);
+  }
+  else
+  {
+    let icon;
 
-//   const files = readdirSync(dir);
+    if (!existsSync(dir))
+      throw 'icon (' + dir + ') dose not exists';
 
-//   for (let i = 0; i < files.length; i++)
-//   {
-//     const name = files[i].split('.')[0];
+    if (dir.endsWith('.svg'))
+      icon = svg(dir);
+    else if (dir.endsWith('.png'))
+      icon = image(dir);
+
+    cachedIcons[dir] = icon;
+
+    return icon;
+  }
+}
+
+/** reads a svg file and returns an svg element with the right attributes
+* @param { string } dir 
+*/
+function svg(dir)
+{
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  const content = readFileSync(dir).toString();
+
+  const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
+
+  let attrs = {};
+
+  if (match) 
+  {
+    attrs = match[1];
     
-//     if (files[i].endsWith('.svg'))
-//       icons[name] = svg(join(dir, files[i]));
-//     else if (files[i].endsWith('.png'))
-//       icons[name] = image(join(dir, files[i]));
-//   }
-// }
+    if (attrs) 
+    {
+      attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
+        .reduce(function (obj, attr) 
+        {
+          const split = attr.split('=');
 
-// /** reads a svg file and returns an svg element with the right attributes
-// * @param { string } path 
-// */
-// function svg(path)
-// {
-//   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          if (split && split[1]) 
+            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
 
-//   const content = textFile(path);
+        }, {});
+    }
 
-//   const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
+    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
+  }
 
-//   let attrs = {};
+  return svg;
+}
 
-//   if (match) 
-//   {
-//     attrs = match[1];
-    
-//     if (attrs) 
-//     {
-//       attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
-//         .reduce(function (obj, attr) 
-//         {
-//           const split = attr.split('=');
+/** returns a div element with background image url
+* @param { string } url
+*/
+function image(url)
+{
+  const img = document.createElement('div');
 
-//           if (split && split[1]) 
-//             svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
+  img.style.backgroundImage = 'url(' + url + ')';
 
-//         }, {});
-//     }
-
-//     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-//     svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
-//   }
-
-//   return svg;
-// }
-
-// /** returns a div element with background image url
-// */
-// function image(path)
-// {
-//   const img = document.createElement('div');
-
-//   img.style.backgroundImage = 'url(' + path + ')';
-
-//   return img;
-// }
+  return img;
+}

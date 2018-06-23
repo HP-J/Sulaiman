@@ -27,9 +27,9 @@ function createWindow ()
 
   mainWindow = new BrowserWindow(
     {
-      frame: false,
-      resizable: false,
-      skipTaskbar: true,
+      frame: true,
+      resizable: true,
+      skipTaskbar: false,
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
@@ -56,8 +56,6 @@ function createWindow ()
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
   globalShortcut.register('Control+Space', focus);
-
-  // mainWindow.webContents.openDevTools({ mode: 'detach' });
 }
 
 /** @param { string[] } argv the args that was sent from the second instance
@@ -81,11 +79,8 @@ if (app.makeSingleInstance(singleInstance))
   app.quit();
 }
 
-// fix chrome/linux color issue
+// fix color issues
 app.commandLine.appendSwitch('--force-color-profile', 'sRBG');
-
-// disables v-sync
-// app.commandLine.appendArgument('--disable-gpu-vsync');
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -114,11 +109,6 @@ app.on('activate', function ()
   if (mainWindow === null) 
     createWindow();
 });
-
-// import { VM } from 'vm2';
-// const vm = new VM();
-
-// vm.run('process.exit()');
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
