@@ -3,6 +3,8 @@
 
 import { domElement } from './page.js';
 
+import { registerCallback } from './registry.js';
+
 import Block from './block.js';
 
 export { Block };
@@ -10,10 +12,6 @@ export { Block };
 export {
   getIcon
 } from './theme.js';
-
-export { 
-  onSearchInput
-} from './registry.js';
 
 /** add a block to the page
 * @param { Block } block 
@@ -29,4 +27,12 @@ export function appendBlock(block)
 export function removeBlock(block)
 {
   domElement.removeChild(block.domElement);
+}
+
+/** emits every time the user writes something into the search bar
+* @param { () => any } callback the callback function
+*/
+export function onSearchInput(callback)
+{
+  registerCallback('onSearchInput', callback.name);
 }

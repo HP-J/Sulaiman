@@ -20,7 +20,7 @@ const extEvents = {};
 /** the current active and running code extension
 * @type { string } 
 */
-let currentExtensionPath;
+export let currentExtensionPath;
 
 // TODO read the extensions directory
 
@@ -45,7 +45,7 @@ export function init()
   const { builtin, external } = handelSeparation(registry.modules);
 
   // create a new vm for the extension with only the modules and permissions the user approved
-  extVMs[extensionPath] = 
+  extVMs[extensionPath] =
   {
     vm: new NodeVM({
       sandbox: sandbox,
@@ -130,8 +130,12 @@ function isBuiltin(moduleName)
   return builtinModules.indexOf(moduleName) > -1;
 }
 
-// runs an extension function inside the extension's vm
-function runInVM(extensionPath, functionName, args)
+/** runs an function in the extension script inside its sandbox
+* @param { string } extensionPath 
+* @param { string } functionName 
+* @param { any[] } args 
+*/
+export function runInVM(extensionPath, functionName, args)
 {
   // set the current extension path
   // so if a extension api needs the path it can find it
@@ -144,7 +148,7 @@ function runInVM(extensionPath, functionName, args)
 * @param { string } eventName ""
 * @param { string } value 
 */
-function registerCallback(eventName, callbackName)
+export function registerCallback(eventName, callbackName)
 {
   // if the event is not initialized yet in the global events registry then create a new parameter for it
   if (extEvents[eventName] === undefined)
@@ -158,7 +162,7 @@ function registerCallback(eventName, callbackName)
 * @param { string } eventName 
 * @param { string } args 
 */
-function emitCallbacks(eventName, args)
+export function emitCallbacks(eventName, args)
 {
   // check if (any) extension has registered for the event
   if (extEvents[eventName] === undefined)
@@ -170,20 +174,4 @@ function emitCallbacks(eventName, args)
     // emit the callback on the extension's vm
     runInVM(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, args);
   }
-}
-
-/** emits every time the user writes something into the search bar
-* @param { () => any } callback the callback function
-*/
-export function onSearchInput(callback)
-{
-  registerCallback('onSearchBar', callback.name);
-}
-
-/** emits every time the user writes something into the search bar
-* @param { string } args
-*/
-export function emitSearchInput(args)
-{
-  emitCallbacks('onSearchBar', args);
 }

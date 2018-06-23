@@ -22,7 +22,7 @@ import { join } from 'path';
 
 export function start()
 {
-  // extension.onSearchBar(onSearchBar);
+  // ext.onSearchInput(onSearchInput);
 
   const block = new ext.Block();
 
@@ -31,7 +31,17 @@ export function start()
   ext.appendBlock(block);
 }
 
-function onSearchBar(text)
+/**
+ * 
+ * @param { MouseEvent } ev 
+ */
+function onclick(ev)
 {
-  // console.log('onSearchBar: ' + text);
+  
+  console.log(ev);
+}
+
+function onSearchInput(text)
+{
+  // console.log('onSearchInput: ' + text);
 }
