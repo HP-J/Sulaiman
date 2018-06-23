@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "the most useless and ugly keyboard launcher in the planet",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
@@ -13,18 +14,18 @@
     "url": "https://gitlab.com/herpproject/sulaiman.git"
   },
   "author": "Herp Project",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
-    "electron": "^2.0.2",
+    "electron": "^2.0.3",
     "json5": "^1.0.1",
     "vm2": "^3.6.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
+    "babel-eslint": "^8.2.4",
     "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "eslint": "^4.19.1",
