@@ -16,7 +16,7 @@
   width: calc(100vw - 20px);
   height: inherit;
   font-family: Oxygen;
-  font-size: 135%;
+  font-size: calc(50% + 3vh);
   font-weight: 200;
   padding: 0px;
   border: 0px;

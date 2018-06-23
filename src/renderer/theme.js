@@ -1,7 +1,6 @@
 import { existsSync, readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-// TODO let extensions load icons using their path
 // TODO let extensions interchange themes on a button hover
 
 /** when a new icon is loaded it gets cached in this 

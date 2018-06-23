@@ -175,7 +175,7 @@ function emitCallbacks(eventName, args)
 /** emits every time the user writes something into the search bar
 * @param { () => any } callback the callback function
 */
-export function onSearchBar(callback)
+export function onSearchInput(callback)
 {
   registerCallback('onSearchBar', callback.name);
 }
@@ -183,7 +183,7 @@ export function onSearchBar(callback)
 /** emits every time the user writes something into the search bar
 * @param { string } args
 */
-export function emitSearchBar(args)
+export function emitSearchInput(args)
 {
   emitCallbacks('onSearchBar', args);
 }

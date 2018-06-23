@@ -1,5 +1,5 @@
 // TODO access to change placeholder value
-// TODO access to current theme icons
+// TODO onSearchKeyword register a specific keyword that if the user searched the event emits
 
 import { domElement } from './page.js';
 
@@ -12,7 +12,7 @@ export {
 } from './theme.js';
 
 export { 
-  onSearchBar
+  onSearchInput
 } from './registry.js';
 
 /** add a block to the page

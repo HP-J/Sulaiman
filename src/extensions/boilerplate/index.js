@@ -26,7 +26,7 @@ export function start()
 
   const block = new ext.Block();
 
-  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/open.svg')));
+  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
 
   ext.appendBlock(block);
 }
