@@ -9,13 +9,13 @@ import { join } from 'path';
 */
 const cachedIcons = {};
 
-/** binds the style from theme files using async
-* @param { string } themeName
+/** binds the style from a theme using async
+* @param { string } themeDirName the directory of the theme
 * @param { () => any } callback
 */
-export function bindStyles(themeName, callback)
+export function bindStyles(themeDirName, callback)
 {
-  const dir = join(__dirname, '../themes/' + themeName + '/styles');
+  const dir = join(__dirname, '../themes/' + themeDirName);
 
   // check if the theme exists
   if (existsSync(dir))

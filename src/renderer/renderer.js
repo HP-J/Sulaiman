@@ -59,7 +59,7 @@ window.eval = global.eval = () =>
 };
 
 // load the styles
-bindStyles('dark', () =>
+bindStyles('default', () =>
 {
   // create and append search bar block
   searchBar.append();

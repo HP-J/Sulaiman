@@ -3,14 +3,19 @@
   "version": "1.0.0",
   "description": "A boilerplate to create a new sulaiman extension",
   "main": "index.js",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/herpproject/sulaiman-boilerplate.git"
+  },
   "keywords": [
     "sulaiman",
     "sulaiman-extension",
     "sulaiman-boilerplate"
   ],
+  "author": "Herp Project",
+  "license": "MIT",
   "devDependencies": {
     "sulaiman": "0.1.0"
-  },
-  "author": "Herp Project",
-  "license": "MIT"
+  }
 }

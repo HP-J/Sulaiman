@@ -1,7 +1,7 @@
 {
   "name": "sulaiman",
   "version": "0.1.0",
-  "description": "a wild terrifying keyboard launcher appeared",
+  "description": "wild keyboard launcher appeared",
   "main": "index.js",
   "private": true,
   "scripts": {

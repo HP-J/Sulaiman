@@ -17,9 +17,6 @@ import { join } from 'path';
 // if the user creates a new script file and required that script
 // will it escape the host or not
 
-// TODO assign functions to global objects then 
-// calling them in a element callback is a way to escape the sandbox  
-
 export function start()
 {
   // ext.onSearchInput(onSearchInput);
@@ -28,7 +25,9 @@ export function start()
 
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
 
-  // block.style.backgroundColor = 'red';
+  block.style.backgroundColor = 'red';
+
+  block.events.onclick = 'onclick';
 
   ext.appendBlock(block);
 }
@@ -38,7 +37,7 @@ export function start()
 */
 function onclick(ev)
 {
-  console.log(ev !== undefined);
+  console.log(this);
 }
 
 function onSearchInput(text)

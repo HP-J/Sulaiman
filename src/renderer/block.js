@@ -1,6 +1,6 @@
 import * as create from './create.js';
 
-import {  currentExtensionPath, runInVM } from './registry.js';
+import {  currentExtensionPath, runFunction } from './registry.js';
 
 import JSON5 from 'json5';
 
@@ -35,7 +35,32 @@ export default class Block
     */
     this.style = new Proxy({}, styleHandler);
 
-    
+    const eventHandler =
+    {
+      domElement: this.domElement,
+      path: currentExtensionPath,
+      get: function(target, eventName)
+      {
+        return (this.domElement[eventName] !== null && this.domElement[eventName] !== undefined);
+      },
+      set: function(obj, eventName, functionName)
+      {
+        const path = this.path;
+
+        this.domElement[eventName] = function (ev)
+        {
+          runFunction(path, functionName, this, ev);
+        };
+
+        return true;
+      }
+    };
+
+    // TODO JSDoc (auto-complete)
+    /** contains all the HTMLElements events
+    * @type { {} }
+    */
+    this.events = new Proxy({}, eventHandler);
   }
 
   /** clean all the html element childs and start fresh

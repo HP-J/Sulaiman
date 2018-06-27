@@ -1,0 +1,17 @@
+.gitignore
+.babelrc
+.eslintrc.json
+
+*.html
+*.svg
+*.png
+
+/.vscode
+/.nyc_output
+/coverage
+/public
+/test
+
+/src/main
+/src/themes
+/src/extensions

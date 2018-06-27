@@ -58,7 +58,7 @@ export function focus()
 function oninputCallback()
 {
   // emits the onSearchInput event to extensions
-  emitCallbacks('onSearchInput', input.value);
+  emitCallbacks('onSearchInput', undefined, input.value);
 
   // update the search bar placeholder
   if (input.value.length > 0)

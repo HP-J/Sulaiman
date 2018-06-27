@@ -22,14 +22,14 @@ const extEvents = {};
 */
 export let currentExtensionPath;
 
-// TODO read the extensions directory
+// TODO load all the extensions directory
 
 export function init()
 {
   const extensionPath = join(__dirname, '../extensions/boilerplate/index.js');
   const registryPath = join(__dirname, '../extensions/boilerplate/registry.json');
 
-  /** parse the registry object JSON(5) file
+  /** parse the registry object JSON or JSON(5) file
   * @type { { name: string, permissions: [], modules: [], start: string } }
   */
   const registry = (existsSync(registryPath + '5')) ? 
@@ -131,17 +131,18 @@ function isBuiltin(moduleName)
 }
 
 /** run a function in the an extension script inside its NodeVM
-* @param { string } extensionPath 
-* @param { string } functionName 
-* @param { ...any } args 
+* @param { string } extensionPath
+* @param { string } functionName
+* @param { any } thisArg
+* @param { any[] } args
 */
-export function runFunction(extensionPath, functionName, ...args)
+export function runFunction(extensionPath, functionName, thisArg, ...args)
 {
   // set the current extension path
   // so if a extension api needs the path it can find it
   currentExtensionPath = extensionPath;
 
-  return extVMs[extensionPath].vm.runFunction(extVMs[extensionPath].script, functionName, extensionPath, ...args);
+  return extVMs[extensionPath].vm.runFunction(extVMs[extensionPath].script, functionName, extensionPath, thisArg, ...args);
 }
 
 /** register an extension callback on an event
@@ -160,9 +161,10 @@ export function registerCallback(eventName, callbackName)
 
 /** emits an event's callbacks
 * @param { string } eventName 
-* @param { ...any } args 
+* @param { any } thisArg
+* @param { any[] } args 
 */
-export function emitCallbacks(eventName, ...args)
+export function emitCallbacks(eventName, thisArg, ...args)
 {
   // check if (any) extension has registered for the event
   if (extEvents[eventName] === undefined)
@@ -172,6 +174,6 @@ export function emitCallbacks(eventName, ...args)
   for (let i = 0; i < extEvents[eventName].length; i++)
   {
     // emit the callback
-    runFunction(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, ...args);
+    runFunction(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, thisArg, ...args);
   }
 }
