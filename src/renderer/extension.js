@@ -7,7 +7,9 @@ import { registerCallback } from './registry.js';
 
 import Block from './block.js';
 
-export { Block };
+export {
+  Block
+};
 
 export {
   getIcon

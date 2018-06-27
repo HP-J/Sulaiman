@@ -28,17 +28,17 @@ export function start()
 
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
 
+  // block.style.backgroundColor = 'red';
+
   ext.appendBlock(block);
 }
 
 /**
- * 
- * @param { MouseEvent } ev 
- */
+* @param { MouseEvent } ev
+*/
 function onclick(ev)
 {
-  
-  console.log(ev);
+  console.log(ev !== undefined);
 }
 
 function onSearchInput(text)

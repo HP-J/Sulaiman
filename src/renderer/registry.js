@@ -71,7 +71,7 @@ export function init()
   // if it exists
   // run the extension's start callback function
   if (registry.start)
-    runInVM(extensionPath, registry.start);
+    runFunction(extensionPath, registry.start);
 }
 
 /** handle permissions to use global variables
@@ -130,18 +130,18 @@ function isBuiltin(moduleName)
   return builtinModules.indexOf(moduleName) > -1;
 }
 
-/** runs an function in the extension script inside its sandbox
+/** run a function in the an extension script inside its NodeVM
 * @param { string } extensionPath 
 * @param { string } functionName 
-* @param { any[] } args 
+* @param { ...any } args 
 */
-export function runInVM(extensionPath, functionName, args)
+export function runFunction(extensionPath, functionName, ...args)
 {
   // set the current extension path
   // so if a extension api needs the path it can find it
   currentExtensionPath = extensionPath;
 
-  return extVMs[extensionPath].vm.run(extVMs[extensionPath].script + '\n' + functionName + '(' + args + ');', extensionPath);
+  return extVMs[extensionPath].vm.runFunction(extVMs[extensionPath].script, functionName, extensionPath, ...args);
 }
 
 /** register an extension callback on an event
@@ -160,9 +160,9 @@ export function registerCallback(eventName, callbackName)
 
 /** emits an event's callbacks
 * @param { string } eventName 
-* @param { string } args 
+* @param { ...any } args 
 */
-export function emitCallbacks(eventName, args)
+export function emitCallbacks(eventName, ...args)
 {
   // check if (any) extension has registered for the event
   if (extEvents[eventName] === undefined)
@@ -171,7 +171,7 @@ export function emitCallbacks(eventName, args)
   // loop though all the extensions in the event
   for (let i = 0; i < extEvents[eventName].length; i++)
   {
-    // emit the callback on the extension's vm
-    runInVM(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, args);
+    // emit the callback
+    runFunction(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, ...args);
   }
 }

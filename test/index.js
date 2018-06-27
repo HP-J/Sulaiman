@@ -1,9 +1,9 @@
-import { assert } from 'chai';
+import assert from 'assert';
 
-describe('App', function()
+describe('App 2', () =>
 {
-  it('test the app', function()
+  it('test the app 2', () =>
   {
-    assert.equal(3, 3);
+    assert.strictEqual(3, 3);
   });
 });

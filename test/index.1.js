@@ -1,9 +1,9 @@
-import { assert } from 'chai';
+import assert from 'assert';
 
 describe('App 1', () =>
 {
   it('test the app 1', () =>
   {
-    assert.equal(5, 5);
+    assert.strictEqual(5, 5);
   });
 });
