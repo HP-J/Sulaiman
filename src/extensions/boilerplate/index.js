@@ -1,5 +1,4 @@
 import * as ext from 'sulaiman';
-// import * as ext from '/mnt/K/.Projects/sulaiman/src/renderer/extension.js';
 
 import { join } from 'path';
 
@@ -19,17 +18,18 @@ import { join } from 'path';
 
 export function start()
 {
-  // ext.onSearchInput(onSearchInput);
-
   const block = new ext.Block();
-
+  
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
-
+  
   block.style.backgroundColor = 'red';
 
-  block.events.onclick = 'onclick';
-
   ext.appendBlock(block);
+
+  // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
+  // the function needs to exists on the root of the script
+  // ext.onSearchInput(onSearchInput);
+  // block.events.onclick = onclick;
 }
 
 /**
@@ -37,7 +37,7 @@ export function start()
 */
 function onclick(ev)
 {
-  console.log(this);
+  // console.log(this);
 }
 
 function onSearchInput(text)
