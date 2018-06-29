@@ -65,29 +65,29 @@ export function bindStyles(themeDirName, callback)
 
 /** loads an icon and puts it into a div or svg element
 *  based on its format and returns that element
-* @param { string } dir direction to the image
+* @param { string } path to the image
 * (.png and .svg are the only formats supported)
 * @returns { HTMLDivElement | SVGSVGElement } an element with the loaded icon
 */
-export function getIcon(dir)
+export function getIcon(path)
 {
-  if (cachedIcons[dir])
+  if (cachedIcons[path])
   {
-    return cachedIcons[dir].cloneNode(true);
+    return cachedIcons[path].cloneNode(true);
   }
   else
   {
     let icon;
 
-    if (!existsSync(dir))
-      throw 'icon (' + dir + ') dose not exists';
+    if (!existsSync(path))
+      throw 'icon (' + path + ') dose not exists';
 
-    if (dir.endsWith('.svg'))
-      icon = svg(dir);
-    else if (dir.endsWith('.png'))
-      icon = image(dir);
+    if (path.endsWith('.svg'))
+      icon = svg(path);
+    else if (path.endsWith('.png'))
+      icon = image(path);
 
-    cachedIcons[dir] = icon;
+    cachedIcons[path] = icon;
 
     return icon;
   }

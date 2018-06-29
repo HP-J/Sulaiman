@@ -5,9 +5,12 @@ import { domElement } from './page.js';
 
 import { registerCallback } from './registry.js';
 
-export { Block } from './block.js';
+import Block from './block.js';
+export { Block };
 
-/** @type { Electron.clipboard }
+/** [needs a registry permission]
+* access to read & write to clipboard 
+* @type { Electron.clipboard }
 */
 export const clipboard = undefined;
 

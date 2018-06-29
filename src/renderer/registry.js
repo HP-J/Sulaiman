@@ -1,6 +1,6 @@
 import { NodeVM } from 'vm2';
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, readdirSync, existsSync, lstatSync } from 'fs';
 import { join } from 'path';
 
 import JSON5 from 'json5';
@@ -22,20 +22,62 @@ const extEvents = {};
 */
 export let currentExtensionPath;
 
-// TODO load all the extensions directory
-
 export function init()
 {
-  const extensionPath = join(__dirname, '../extensions/boilerplate/index.js');
-  const registryPath = join(__dirname, '../extensions/boilerplate/registry.json');
+  const root = join(__dirname, '../extensions/');
 
-  /** parse the registry object JSON or JSON(5) file
-  * @type { { name: string, permissions: [], modules: [], start: string } }
+  let extensionPath = undefined;
+  let registryPath = undefined;
+
+  const extensions = readdirSync(root);
+
+  for (let i = 0; i < extensions.length; i++)
+  {
+    // if the path isn't to a directory continue the loop
+    if (!lstatSync(root + extensions[i]).isDirectory())
+      continue;
+
+    // the required files
+    extensionPath = root + extensions[i] + '/index.js';
+    registryPath = root + extensions[i] + '/registry.json';
+
+    // if the index.js file doesn't exists continue the loop
+    if (!existsSync(extensionPath))
+      continue;
+    
+    // if the registry.json file doesn't exists
+    if (!existsSync(registryPath))
+    {
+      // check for registry.json5
+      if (existsSync(registryPath + 5))
+        registryPath += 5;
+      // if both don't exists continue the loop
+      else continue;
+    }
+
+    // load the extension
+    loadExtension(extensionPath, registryPath);
+  }
+}
+
+/** creates the NodeVM with the permissions from the registry
+* file after asking the user about them
+* @param { string } extensionPath 
+* @param { string } registryPath 
+*/
+function loadExtension(extensionPath, registryPath)
+{
+  /** @type { { name: string, permissions: [], modules: [], start: string } }
   */
-  const registry = (existsSync(registryPath + '5')) ? 
-    JSON5.parse(readFileSync(registryPath + '5')) : JSON.parse(readFileSync(registryPath));
+  let registry = undefined;
 
-  // TODO ask the user for the permissions using async (don't hang the application)
+  // parse the registry object JSON or JSON(5) file
+  if (registryPath.endsWith('5'))
+    registry = JSON5.parse(readFileSync(registryPath));
+  else
+    registry = JSON.parse(readFileSync(registryPath));
+
+  // TODO ask the user for the permissions using async 
   // when we get a respond if it was a reject then return
   // else if approve
 

@@ -2,9 +2,7 @@ import * as create from './create.js';
 
 import {  currentExtensionPath, runFunction } from './registry.js';
 
-import JSON5 from 'json5';
-
-export class Block
+export default class Block
 {
   constructor()
   {
