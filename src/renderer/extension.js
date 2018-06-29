@@ -5,15 +5,13 @@ import { domElement } from './page.js';
 
 import { registerCallback } from './registry.js';
 
-import Block from './block.js';
+export { Block } from './block.js';
 
-export {
-  Block
-};
+/** @type { Electron.clipboard }
+*/
+export const clipboard = undefined;
 
-export {
-  getIcon
-} from './theme.js';
+export { getIcon } from './theme.js';
 
 /** add a block to the page
 * @param { Block } block 

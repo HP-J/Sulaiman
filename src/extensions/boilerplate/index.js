@@ -26,10 +26,12 @@ export function start()
 
   ext.appendBlock(block);
 
+  ext.clipboard.writeText('hello world');
+
   // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
   // the function needs to exists on the root of the script
-  // ext.onSearchInput(onSearchInput);
-  // block.events.onclick = onclick;
+  ext.onSearchInput(onSearchInput);
+  block.events.onclick = onclick;
 }
 
 /**
@@ -37,10 +39,10 @@ export function start()
 */
 function onclick(ev)
 {
-  // console.log(this);
+  console.log(this);
 }
 
 function onSearchInput(text)
 {
-  // console.log('onSearchInput: ' + text);
+  console.log('onSearchInput: ' + text);
 }

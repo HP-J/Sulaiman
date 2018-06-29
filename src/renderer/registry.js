@@ -39,7 +39,7 @@ export function init()
   // when we get a respond if it was a reject then return
   // else if approve
 
-  const sandbox = handelPermissions(registry.permissions);
+  const { sandbox, mock } = handelPermissions(registry.permissions);
 
   // separate node builtin modules from the external modules
   const { builtin, external } = handelSeparation(registry.modules);
@@ -58,9 +58,7 @@ export function init()
         // limit externals to this path, so extensions can't require any local modules outside of their directory
         root: join(__dirname, '../extensions/boilerplate'),
         // allow access to the running sulaiman apis
-        mock: {
-          'sulaiman': require('./extension.js')
-        },
+        mock: mock,
         // host allows any required module to require more modules inside it with no limits
         context: 'host'
       }
@@ -80,27 +78,28 @@ export function init()
 */
 function handelPermissions(registryPermissions)
 {
+  // allow access to global objects
   const sandbox =
   {
-    document: document
+    document: {}
   };
 
-  // TODO debug code => remove
-  // sandbox.document.createElement =  document.createElement.bind(document);
-  // sandbox.document.body = document.body;
+  // override specific apis from any module
+  const mock =
+  {
+    sulaiman: require('./extension.js')
+  };
 
-  // sandbox.document.createElement = document.contains;
-  
-  // for (let i = 0; i < registryPermissions.length; i++)
-  // {
-  //   if (registryPermissions[i] === 'document.body')
-  //     sandbox.document['body'] = document.body;
-  // }
+  for (let i = 0; i < registryPermissions.length; i++)
+  {
+    if (registryPermissions[i] === 'document.body')
+      sandbox.document['body'] = document.body;
+    
+    else if (registryPermissions[i] === 'clipboard')
+      mock.sulaiman.clipboard = require('electron').clipboard;
+  }
 
-  // sandbox.document['createElement'] = document.createElement;
-  // sandbox.document.createElementNS = document.createElementNS;
-
-  return sandbox;
+  return { sandbox, mock };
 }
 
 /** separate node builtin modules from the external modules

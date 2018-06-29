@@ -15,7 +15,7 @@
   // @param { [ 'document.body' ] } permissions
   // you can ask for permissions to use some global variables
   // example: `[ 'document.body' ]` you can find all the available permissions and what they do in our wiki
-  permissions: [ ],
+  permissions: [ 'document.body', 'clipboard' ],
 
   // @param { [ '...' ] } modules here you can ask for permissions to use a full module, example: `[ 'fs', 'electron', 'request' ]`
   modules: [ 'path' ]

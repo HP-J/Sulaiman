@@ -4,7 +4,7 @@ import {  currentExtensionPath, runFunction } from './registry.js';
 
 import JSON5 from 'json5';
 
-export default class Block
+export class Block
 {
   constructor()
   {
