@@ -33,4 +33,6 @@
 
 ### Support
 Sulaiman is a free open-source software, so yeah you can support the development here..
-<script src="https://liberapay.com/HerpProject/widgets/receiving.js"></script>
+
+<img src="http://img.shields.io/liberapay/patrons/HerpProject.svg?logo=liberapay">
+<img src="http://img.shields.io/liberapay/receives/HerpProject.svg?logo=liberapay">
