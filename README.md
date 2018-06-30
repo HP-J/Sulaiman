@@ -1,8 +1,8 @@
 # sulaiman
-### a keyboard launcher with no features:
+### A keyboard launcher with no features:
 
 - It can't and won't boost your productivity.
-<!-- - It's NOT a cross-platform application. -->
+- It's NOT a cross-platform application.
 - You can't change the color, size, location and shape of the GUI using CSS themes.
 - Extensions don't run on their separate sandbox with user-selected permissions.
 - We don't have a good extension API either.
@@ -30,3 +30,7 @@
   - flatpak
   - Snap
 - macOS -->
+
+### Support
+Sulaiman is a free open-source software, so yeah you can support the development here..
+<script src="https://liberapay.com/HerpProject/widgets/receiving.js"></script>
