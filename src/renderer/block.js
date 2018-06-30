@@ -182,6 +182,7 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
+  // TODO finish the button template function
   /**
   * @param { string } title
   * @param { string } description

@@ -2,6 +2,8 @@ import * as ext from 'sulaiman';
 
 import { join } from 'path';
 
+// TODO finish documenting and move it to a new repo
+
 // the current behavior doesn't allow you to store variables
 // everything you do gets deleted when your code stops running
 // TODO since we don't keep extensions in memory
