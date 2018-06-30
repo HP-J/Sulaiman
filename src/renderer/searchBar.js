@@ -1,4 +1,4 @@
-import * as create from './create.js';
+import { div, input } from './theme';
 
 import { emitCallbacks } from './registry.js';
 
@@ -19,12 +19,12 @@ export let input;
 export function append()
 {
   // create and append search bar block
-  domElement = create.div('searchBar');
+  domElement = div('searchBar');
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder
-  placeholder = create.input(true, undefined, 'searchBarPlaceholder');
-  input = create.input(false, undefined, 'searchBarInput');
+  placeholder = input(true, 'searchBarPlaceholder');
+  input = input(false, 'searchBarInput');
 
   domElement.appendChild(placeholder);
   domElement.appendChild(input);

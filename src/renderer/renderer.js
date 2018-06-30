@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-import { bindStyles } from './theme.js';
+import { appendStyles } from './theme.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
@@ -59,7 +59,7 @@ window.eval = global.eval = () =>
 };
 
 // load the styles
-bindStyles('default', () =>
+appendStyles('default', () =>
 {
   // create and append search bar block
   searchBar.append();

@@ -1,4 +1,4 @@
-import * as create from './create.js';
+import { div } from './theme.js';
 
 /** the page block
 * @type { HTMLDivElement }
@@ -9,6 +9,6 @@ export let domElement;
 */
 export function append()
 {
-  domElement = create.div('page');
+  domElement = div('page');
   document.body.appendChild(domElement);
 }

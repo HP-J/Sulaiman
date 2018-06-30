@@ -28,6 +28,9 @@ export function start()
 
   ext.appendBlock(block);
 
+  // ext.appendStyle(join(__dirname, './page-alt.css'), () => { });
+  // ext.removeStyle(join(__dirname, './page-alt.css'));
+
   ext.clipboard.writeText('hello world');
 
   // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox

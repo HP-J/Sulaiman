@@ -1,4 +1,4 @@
-#searchBar
+.searchBar
 {
   background-color: #4F4F4F;
   position: relative;
@@ -6,7 +6,7 @@
   height: 10vh;
 }
 
-#searchBarPlaceholder, #searchBarInput
+.searchBarPlaceholder, .searchBarInput
 {
   background-color: rgba(0, 0, 0, 0);
   color: #ffffff;
@@ -22,14 +22,14 @@
   border: 0px;
 }
 
-#searchBarPlaceholder
+.searchBarPlaceholder
 {
   background-color: #4F4F4F;
   color: #878787;
   pointer-events: none;
 }
 
-#searchBarInput:focus
+.searchBarInput:focus
 {
   outline: none;
 }

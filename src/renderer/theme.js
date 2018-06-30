@@ -10,56 +10,46 @@ import { join } from 'path';
 const cachedIcons = {};
 
 /** binds the style from a theme using async
-* @param { string } themeDirName the directory of the theme
-* @param { () => any } callback
+* @param { string } dir the directory of the theme
+* @param { () => void } callback
 */
-export function bindStyles(themeDirName, callback)
+export function appendStyles(dir, callback)
 {
-  const dir = join(__dirname, '../themes/' + themeDirName);
+  // resolve to a full path
+  dir = join(__dirname, '../themes/' + dir);
 
-  // check if the theme exists
-  if (existsSync(dir))
+  // get all the style files in that directory
+  const files = readdirSync(dir).filter(x => { return x.endsWith('.css'); });
+
+  const length = files.length;
+  let loaded = 0;
+
+  // loop through them all
+  for (let i = 0; i < length; i++)
   {
-    // get all the files in that directory
-    const files = readdirSync(dir);
+  // create a link element
+    const style = document.createElement('link');
 
-    // loop through them all
-    for (let i = 0; i < files.length; i++)
+    style.rel = 'stylesheet';
+    style.href = join(dir, files[i]);
+
+    // the dom doesn't wait for invalid media types
+    // but sill loads them async
+    style.media = 'none';
+
+    style.onload = function()
     {
-      // if the file is a stylesheet
-      if (files[i].endsWith('.css'))
-      {
-        // create a link element
-        const style = document.createElement('link');
-  
-        style.rel = 'stylesheet';
-        style.href = join(dir, files[i]);
+    // fix the media type so the dom apply the stylesheet
+      this.media = 'all';
 
-        // the dom doesn't wait for invalid media types
-        // but sill loads them async
-        style.media = 'none';
-  
-        // if this is the last stylesheet in the lpp[]
-        style.last = (i === files.length - 1);
-  
-        style.onload = () =>
-        {
-          // fix the media type so the dom apply the stylesheet
-          style.media = 'all';
-  
-          // if this is the last stylesheet execute the callback
-          if (style.last)
-            callback();
-        };
-      
-        document.head.appendChild(style);
-      }
-    }
-  }
-  // if not fail silently
-  else
-  {
-    callback();
+      // if all files are loaded run the callback
+      loaded += 1;
+
+      if(loaded === length)
+        callback();
+    };
+
+    document.head.appendChild(style);
   }
 }
 
@@ -139,4 +129,34 @@ function image(url)
   img.style.backgroundImage = 'url(' + url + ')';
 
   return img;
+}
+
+/** returns an empty div block with the selected id
+* @param { string } className
+*/
+export function div(className)
+{
+  const div = document.createElement('div');
+
+  div.className = className;
+
+  return div;
+}
+
+/** returns an input element with with
+* selected class name, id and settings
+* @param { string } readOnly 
+* @param { string } className 
+*/
+export function input(readOnly, className)
+{
+  const input = document.createElement('input');
+
+  input.setAttribute('type', 'text');
+
+  input.className = className;
+  
+  input.readOnly = readOnly;
+
+  return input;
 }

@@ -1,4 +1,4 @@
-import * as create from './create.js';
+import { input } from './theme.js';
 
 import {  currentExtensionPath, runFunction } from './registry.js';
 
@@ -199,8 +199,8 @@ export default class Block
 
     this.setClass('button');
 
-    const titleElem = create.input(true, 'buttonTitle');
-    const descriptionElem = create.input(true, 'buttonDescription');
+    const titleElem = input(true, 'buttonTitle');
+    const descriptionElem = input(true, 'buttonDescription');
 
     titleElem.value = title;
     descriptionElem.value = description;
