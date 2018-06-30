@@ -1,4 +1,4 @@
-import { NodeVM } from 'vm2';
+import { NodeVM } from '@herpproject/vm2';
 
 import { readFileSync, readdirSync, existsSync, lstatSync } from 'fs';
 import { join } from 'path';

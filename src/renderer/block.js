@@ -1,4 +1,4 @@
-import { input } from './theme.js';
+import { getInput } from './theme.js';
 
 import {  currentExtensionPath, runFunction } from './registry.js';
 
@@ -199,8 +199,8 @@ export default class Block
 
     this.setClass('button');
 
-    const titleElem = input(true, 'buttonTitle');
-    const descriptionElem = input(true, 'buttonDescription');
+    const titleElem = getInput(true, 'buttonTitle');
+    const descriptionElem = getInput(true, 'buttonDescription');
 
     titleElem.value = title;
     descriptionElem.value = description;

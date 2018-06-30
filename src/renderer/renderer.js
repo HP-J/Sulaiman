@@ -1,6 +1,6 @@
 import { remote } from 'electron';
 
-import { appendStyles } from './theme.js';
+import { appendTheme } from './theme.js';
 
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
@@ -58,8 +58,7 @@ window.eval = global.eval = () =>
   throw new Error('this app does not support evil');
 };
 
-// load the styles
-appendStyles('default', () =>
+appendTheme('default', () =>
 {
   // create and append search bar block
   searchBar.append();

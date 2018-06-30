@@ -1,4 +1,4 @@
-import { div, input } from './theme';
+import { getDiv, getInput } from './theme';
 
 import { emitCallbacks } from './registry.js';
 
@@ -19,12 +19,12 @@ export let input;
 export function append()
 {
   // create and append search bar block
-  domElement = div('searchBar');
+  domElement = getDiv('searchBar');
   document.body.appendChild(domElement);
 
   // create and append input and input placeholder
-  placeholder = input(true, 'searchBarPlaceholder');
-  input = input(false, 'searchBarInput');
+  placeholder = getInput(true, 'searchBarPlaceholder');
+  input = getInput(false, 'searchBarInput');
 
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
@@ -36,7 +36,7 @@ export function append()
   placeholder.value = placeholder.current = placeholder.default = 'Search';
 
   // when the user change the input value callback updatePlaceholder()
-  input.oninput = oninputCallback;
+  input.oninput = oninput;
 }
 
 /** focus the keyboard on search bar input
@@ -47,7 +47,7 @@ export function focus()
 
   // setting input value manually doesn't call the event
   // then we also execute the callback manually
-  oninputCallback();
+  oninput();
 
   // focus on the search bar so the user can start typing automatically
   input.focus();
@@ -55,9 +55,9 @@ export function focus()
 
 /** an event callback, gets called when the user changes the input value
 */
-function oninputCallback()
+function oninput()
 {
-  // emits the onSearchInput event to extensions
+  // emits the event to extensions
   emitCallbacks('onSearchInput', undefined, input.value);
 
   // update the search bar placeholder
