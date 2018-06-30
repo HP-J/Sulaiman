@@ -2,13 +2,10 @@ import * as ext from 'sulaiman';
 
 import { join } from 'path';
 
-// TODO finish documenting and move it to a new repo
+// TODO finish documenting and move it to a new repository
 
 // the current behavior doesn't allow you to store variables
 // everything you do gets deleted when your code stops running
-// TODO since we don't keep extensions in memory
-// extension.saveObject()
-// extension.loadObject()
 
 // any code your write on root gets executed every time sulaiman requires this module
 // which is every time we want to execute an event callback
@@ -49,5 +46,10 @@ function onclick(ev)
 
 function onSearchInput(text)
 {
+  if (text === 'g')
+    ext.setPlaceholder('google');
+  if (text === 'ga')
+    ext.setPlaceholder('gamely');
+
   console.log('onSearchInput: ' + text);
 }

@@ -1,6 +1,3 @@
-// TODO access to change placeholder value
-// TODO onSearchKeyword register a specific keyword that if the user searched the event emits
-
 import { existsSync, readFileSync } from 'fs';
 
 import { domElement } from './page.js';
@@ -10,6 +7,8 @@ import { registerCallback, currentExtensionPath } from './registry.js';
 import Block from './block.js';
 
 export { Block };
+
+export { setPlaceholder } from './searchBar.js';
 
 /** [needs a registry permission]
 * access to read & write to clipboard 
@@ -35,14 +34,17 @@ const appendedStyles = {};
 */
 export function getIcon(path)
 {
+  // if the icon is cached
   if (cachedIcons[path])
   {
+    // return a clone of it
     return cachedIcons[path].cloneNode(true);
   }
   else
   {
     let icon;
 
+    // icon dose not exists
     if (!existsSync(path))
       throw 'icon (' + path + ') dose not exists';
 
@@ -51,8 +53,10 @@ export function getIcon(path)
     else if (path.endsWith('.png'))
       icon = image(path);
 
+    // cache the icon for later use
     cachedIcons[path] = icon;
 
+    // return the icon in an html element
     return icon;
   }
 }
@@ -110,6 +114,7 @@ function image(path)
 */
 export function appendStyle(path)
 {
+  // if the file is already loaded
   if (appendedStyles[currentExtensionPath] === undefined)
     appendedStyles[currentExtensionPath] = [];
   else if (appendedStyles[currentExtensionPath][path] !== undefined)
@@ -131,8 +136,10 @@ export function appendStyle(path)
     style.media = 'all';
   };
 
+  // add the file to the list of loaded styles
   appendedStyles[currentExtensionPath][path] = style;
 
+  // append the style to the dom
   document.head.appendChild(style);
 }
 
@@ -141,9 +148,16 @@ export function appendStyle(path)
 */
 export function removeStyle(path)
 {
+  // if the file is really loaded
   if (appendedStyles[currentExtensionPath] !== undefined &&
     appendedStyles[currentExtensionPath][path] !== undefined)
+  {
+    // remove it from dom
     document.head.removeChild(appendedStyles[currentExtensionPath][path]);
+
+    // remove it from the list of loaded styles
+    appendedStyles[currentExtensionPath][path] = undefined;
+  }
 }
 
 /** add a block to the page

@@ -61,10 +61,19 @@ function oninput()
   emitCallbacks('onSearchInput', undefined, input.value);
 
   // update the search bar placeholder
-  if (input.value.length > 0)
-    placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
-  else
-    placeholder.value = placeholder.current = placeholder.default;
+  if (input.value.length <= 0)
+    setPlaceholder(placeholder.default);
+
+  // merge the input and the placeholder values to create auto-complete
+  placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
+}
+
+/** set the text in the search bar placeholder
+* @param { string } value 
+*/
+export function setPlaceholder(value)
+{
+  placeholder.current = value;
 }
 
 /** remove a piece of the string using indies
