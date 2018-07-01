@@ -1,3 +1,5 @@
+![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
+![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
@@ -7,8 +9,6 @@
 - You can't change the color, size, location and shape of the GUI using CSS themes.
 - Extensions don't run on their separate sandbox with user-selected permissions.
 - We don't have a good extension API either.
-- ![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
-  ![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 
 <!-- - The running apps on your system can't stream to sulaiman like normal extensions without actually having to manually install any extension. -->
 
