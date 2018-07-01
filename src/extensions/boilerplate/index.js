@@ -21,19 +21,19 @@ export function start()
   
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
   
-  block.style.backgroundColor = 'red';
+  // block.style.backgroundColor = 'red';
 
   ext.appendBlock(block);
 
-  ext.appendStyle(join(__dirname, './page-alt.css'));
-  ext.removeStyle(join(__dirname, './page-alt.css'));
+  // ext.appendStyle(join(__dirname, './page-alt.css'));
+  // ext.removeStyle(join(__dirname, './page-alt.css'));
 
-  ext.clipboard.writeText('hello world');
+  // ext.clipboard.writeText('hello world');
 
   // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
   // the function needs to exists on the root of the script
-  ext.onSearchInput(onSearchInput);
-  block.events.onclick = onclick;
+  // ext.onSearchInput(onSearchInput);
+  // block.events.onclick = onclick;
 }
 
 /**

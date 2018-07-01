@@ -1,11 +1,15 @@
-# sulaiman
-### A keyboard launcher with no features:
 
+# sulaiman
+#### A keyboard launcher with no features
+
+- ![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
+  ![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 - It can't and won't boost your productivity.
 - It's NOT a cross-platform application.
 - You can't change the color, size, location and shape of the GUI using CSS themes.
 - Extensions don't run on their separate sandbox with user-selected permissions.
 - We don't have a good extension API either.
+
 <!-- - The running apps on your system can't stream to sulaiman like normal extensions without actually having to manually install any extension. -->
 
 <!-- ### How to Add Extensions to your Sulaiman?
@@ -23,16 +27,21 @@
 ### How to Stream to Sulaiman? (Coming Soon)
 - now streaming is nice, it allows you as a developer to show some info or add some fast actions, things that are normally not so easy to reach on your app or maybe you are some voice-chat app and want users to control the app when they are running a game in full-screen and want another way then using your awful broken overlay. -->
 
-<!-- ### Download
+<!-- # Install
 - Windows
-- linux
-  - AUR <3
-  - flatpak
+  - MSI
+- Linux
+  - AUR
   - Snap
-- macOS -->
+  - AppImage
+- macOS
+  - Homebrew
+  - DMG -->
 
-### Support
-Sulaiman is a free open-source software, so yeah you can support the development here..
+# Support
 
-<img src="http://img.shields.io/liberapay/patrons/HerpProject.svg?logo=liberapay">
-<img src="http://img.shields.io/liberapay/receives/HerpProject.svg?logo=liberapay">
+![](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)
+![](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)
+![](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)
+
+sulaiman is a free, and open-source software, you can support the development with liberapay, thank you...
