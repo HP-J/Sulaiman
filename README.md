@@ -1,14 +1,14 @@
 
-# sulaiman
+# Welcome to Sulaiman
 #### A keyboard launcher with no features
 
-- ![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
-  ![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 - It can't and won't boost your productivity.
 - It's NOT a cross-platform application.
 - You can't change the color, size, location and shape of the GUI using CSS themes.
 - Extensions don't run on their separate sandbox with user-selected permissions.
 - We don't have a good extension API either.
+- ![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
+  ![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 
 <!-- - The running apps on your system can't stream to sulaiman like normal extensions without actually having to manually install any extension. -->
 
@@ -44,4 +44,4 @@
 ![](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)
 ![](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)
 
-sulaiman is a free, and open-source software, you can support the development with liberapay, thank you...
+Sulaiman is a free, and open-source software, you can support the development with liberapay, thank you...
