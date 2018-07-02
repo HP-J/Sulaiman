@@ -1,5 +1,5 @@
-![](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
-![](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
+![coverage](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
+![pipeline](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
 
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
@@ -40,8 +40,8 @@
 
 # Support
 
-![](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)
-![](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)
-![](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)
+[![patrons](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/)
+[![receives](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject)
+[![goal](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/donate)
 
 Sulaiman is a free, and open-source software, you can support the development with liberapay, thank you...

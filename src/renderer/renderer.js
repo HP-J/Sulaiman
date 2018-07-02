@@ -52,12 +52,6 @@ function blur()
   // mainWindow.hide();
 }
 
-// disable eval
-window.eval = global.eval = () =>
-{
-  throw new Error('this app does not support evil');
-};
-
 appendTheme('default', () =>
 {
   // create and append search bar block

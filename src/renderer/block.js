@@ -151,10 +151,18 @@ export default class Block
   */
   clear()
   {
+    // remove all children
     while (this.domElement.hasChildNodes())
     {
       this.domElement.removeChild(this.domElement.lastChild);
     }
+
+    // remove all classes and ids
+    this.setClass('');
+    this.setId('');
+
+    // remove the css text
+    this.domElement.style.cssText = '';
   }
 
   /** set an attribute
@@ -166,12 +174,20 @@ export default class Block
     this.domElement.setAttribute(qualifiedName, value);
   }
 
-  /** set the html element class(es)
-  * @param { string } value string of the classes separated with commas
+  /** set the html element class
+  * @param { string } className string of the class name
   */
-  setClass(value)
+  setClass(className)
   {
-    this.domElement.setAttribute('class', value);
+    this.domElement.setAttribute('class', className);
+  }
+
+  /** set the html element id
+  * @param { string } id string of the id
+  */
+  setId(id)
+  {
+    this.domElement.setAttribute('id', id);
   }
 
   /** get the html element class(es)
@@ -182,7 +198,6 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
-  // TODO finish the button template function
   /**
   * @param { string } title
   * @param { string } description
@@ -191,11 +206,7 @@ export default class Block
   */
   itsButton(title, description, icon, actionIcon)
   {
-    // clean all childs
-    // if (this.getClass().indexOf('button') > -1)
-    // {
-    // this.clear();
-    // }
+    this.clear();
 
     this.setClass('button');
 

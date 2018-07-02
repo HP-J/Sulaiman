@@ -1,6 +1,6 @@
 {
   "name": "sulaiman",
-  "version": "0.1.0",
+  "version": "0.1.0-2",
   "description": "In no way, shape, or form is this the package you need to create sulaiman extensions",
   "main": "index.js",
   "private": true,

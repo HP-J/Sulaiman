@@ -19,7 +19,7 @@ export function start()
 {
   const block = new ext.Block();
   
-  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/phi.svg')));
+  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
   // block.style.backgroundColor = 'red';
 
