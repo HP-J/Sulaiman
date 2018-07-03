@@ -1,0 +1,63 @@
+.button
+{
+  background-color: #292929;
+  position: relative;
+  left: 0px;
+  width: inherit;
+  height: 12vh;
+  padding: 0px;
+  border: 0px;
+}
+
+.button:focus, .button:hover
+{
+  background-color: #4F4F4F;
+  outline: none;
+}
+
+.buttonIcon, .buttonActionIcon
+{
+  background-color: transparent;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  fill: white;
+  stroke: white;
+  pointer-events: none;
+  position: absolute;
+  left: 10px;
+  top: 0px;
+  width: 3.8vw;
+  height: inherit;
+  padding: 0px;
+}
+
+.buttonActionIcon
+{
+  left: calc(95% - 10px);
+}
+
+.buttonTitle, .buttonDescription
+{
+  background-color: transparent;
+  color: #ffffff;
+  pointer-events: none;
+  position: absolute;
+  left: calc(5% + 20px);
+  top: 0px;
+  height: 50%;
+  width: calc(90% - 40px);
+  font-family: Oxygen;
+  font-size: calc(50% + 2vh);
+  font-weight: 200;
+  margin-top: 0.8vh;
+  padding: 0px;
+  border: 0px;
+}
+
+.buttonDescription
+{
+  color: #878787;
+  top: 50%;
+  margin-top: -0.8vh;
+}

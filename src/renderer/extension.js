@@ -11,7 +11,7 @@ export { Block };
 export { setPlaceholder } from './searchBar.js';
 
 /** [needs a registry permission]
-* access to read & write to clipboard 
+* access to read & write to clipboard
 * @type { Electron.clipboard }
 */
 export const clipboard = undefined;
@@ -81,7 +81,7 @@ function svg(path)
     if (attrs)
     {
       attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
-        .reduce(function (obj, attr)
+        .reduce((obj, attr) =>
         {
           const split = attr.split('=');
 
@@ -161,7 +161,7 @@ export function removeStyle(path)
 }
 
 /** add a block to the page
-* @param { Block } block 
+* @param { Block } block
 */
 export function appendBlock(block)
 {
@@ -169,7 +169,7 @@ export function appendBlock(block)
 }
 
 /** remove a block to the page
-* @param { Block } block 
+* @param { Block } block
 */
 export function removeBlock(block)
 {

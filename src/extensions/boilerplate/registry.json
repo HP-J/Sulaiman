@@ -1,0 +1,6 @@
+{
+  "name": "ext-boilerplate",
+  "permissions": [ "document.body", "clipboard" ],
+  "modules": [ "path" ],
+  "start": "start"
+}

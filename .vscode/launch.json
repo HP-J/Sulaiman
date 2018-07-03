@@ -6,6 +6,9 @@
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}",
+      "env": {
+        "DEBUG": "1"
+      },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "program": "${workspaceRoot}/public/main/main.js",
       "console": "integratedTerminal",
@@ -18,6 +21,9 @@
       "sourceMaps": true,
       "internalConsoleOptions": "openOnSessionStart",
       "webRoot": "${workspaceRoot}",
+      "env": {
+        "DEBUG": "1"
+      },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
         "${workspaceRoot}/public/main/main.js",

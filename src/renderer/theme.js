@@ -1,7 +1,7 @@
 import { readdirSync } from 'fs';
 import { join } from 'path';
 
-/** binds the style files from a theme using async
+/** binds the style files from a theme [async]
 * @param { string } dir the directory of the theme
 * @param { () => void } callback
 */

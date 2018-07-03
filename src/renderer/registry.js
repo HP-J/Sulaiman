@@ -3,8 +3,6 @@ import { NodeVM } from '@herpproject/vm2';
 import { readFileSync, readdirSync, existsSync, lstatSync } from 'fs';
 import { join } from 'path';
 
-import JSON5 from 'json5';
-
 import builtinModules from 'builtin-modules';
 
 /** a list of all the extensions' vms,
@@ -18,9 +16,16 @@ const extVMs = {};
 const extEvents = {};
 
 /** the current active and running code extension
-* @type { string } 
+* @type { string }
 */
 export let currentExtensionPath;
+
+/** @typedef { Object } Registry
+* @property { string } name
+* @property { string[] } permissions
+* @property { string[] } modules
+* @property { string } start
+*/
 
 export function init()
 {
@@ -47,40 +52,30 @@ export function init()
     
     // if the registry.json file doesn't exists
     if (!existsSync(registryPath))
-    {
-      // check for registry.json5
-      if (existsSync(registryPath + 5))
-        registryPath += 5;
-      // if both don't exists continue the loop
-      else continue;
-    }
+      continue;
 
-    // load the extension
-    loadExtension(extensionPath, registryPath);
+    // ask the user then load the extension when he and if he accepts the registry object
+    askUser(extensionPath, JSON.parse(readFileSync(registryPath)),
+      (extensionPath, registry) => { loadExtension(extensionPath, registry); });
   }
 }
 
-/** creates the NodeVM with the permissions from the registry
-* file after asking the user about them
-* @param { string } extensionPath 
-* @param { string } registryPath 
+/** Ask the user using GUI if he accepts an extension's registry object [async]
+* @param { string } extensionPath
+* @param { Registry } registry
+* @param { (extensionPath: string, registry: Registry) => void } callback
 */
-function loadExtension(extensionPath, registryPath)
+function askUser(extensionPath, registry, callback)
 {
-  /** @type { { name: string, permissions: [], modules: [], start: string } }
-  */
-  let registry = undefined;
+  callback(extensionPath, registry);
+}
 
-  // parse the registry object JSON or JSON(5) file
-  if (registryPath.endsWith('5'))
-    registry = JSON5.parse(readFileSync(registryPath));
-  else
-    registry = JSON.parse(readFileSync(registryPath));
-
-  // TODO ask the user for the permissions using async 
-  // when we get a respond if it was a reject then return
-  // else if approve
-
+/** creates a new NodeVM with the registry object
+* @param { string } extensionPath
+* @param { Registry } registry
+*/
+function loadExtension(extensionPath, registry)
+{
   const { sandbox, mock } = handelPermissions(registry.permissions);
 
   // separate node builtin modules from the external modules
@@ -164,7 +159,7 @@ function handelSeparation(registryModules)
 }
 
 /** checks if a module is a node builtin module or an external
-* @returns { boolean } 
+* @returns { boolean }
 */
 function isBuiltin(moduleName)
 {
@@ -188,7 +183,7 @@ export function runFunction(extensionPath, functionName, thisArg, ...args)
 
 /** register an extension callback on an event
 * @param { string } eventName ""
-* @param { string } value 
+* @param { string } value
 */
 export function registerCallback(eventName, callbackName)
 {
@@ -201,9 +196,9 @@ export function registerCallback(eventName, callbackName)
 }
 
 /** emits an event's callbacks
-* @param { string } eventName 
+* @param { string } eventName
 * @param { any } thisArg
-* @param { any[] } args 
+* @param { any[] } args
 */
 export function emitCallbacks(eventName, thisArg, ...args)
 {

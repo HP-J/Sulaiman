@@ -54,7 +54,7 @@ export default class Block
         if (!func.name || func.name === '')
           return false;
 
-        this.domElement[eventName] = function (ev)
+        this.domElement[eventName] = function(ev)
         {
           runFunction(path, func.name, this, ev);
         };
@@ -63,8 +63,7 @@ export default class Block
       }
     };
 
-    /**
-    * @typedef { Object } Events
+    /** @typedef { Object } Events
     * @property { (this: HTMLElement, ev: UIEvent) } onabort
     * @property { (this: HTMLElement, ev: FocusEvent) } onblur
     * @property { (this: HTMLElement, ev: Event) } oncanplay

@@ -8,6 +8,7 @@
     "extends": [ "eslint:recommended" ],
     "parser": "babel-eslint",
     "rules": {
+        "camelcase": "error",
         "prefer-const": [ 
             "error",
             {
@@ -29,6 +30,7 @@
             "error",
             "single"
         ],
+        "no-empty-function": "error",
         "brace-style": [
             "error",
             "allman",
@@ -38,8 +40,21 @@
             "error",
             "always"
         ],
+        "prefer-arrow-callback": "error",
+        "arrow-body-style": ["error", "always"],
+        "arrow-parens": ["error", "always"],
+        "no-confusing-arrow": "error",
         "no-console": ["warn"],
+        "space-before-function-paren": ["error", "never"],
+        "space-in-parens": ["error", "never"],
+        "object-curly-spacing": ["error", "always"],
+        "computed-property-spacing": ["error", "never"],
         "array-bracket-spacing": ["error", "always"],
-        "arrow-body-style": ["error", "always"]
+        "comma-spacing": ["error", { "after": true }],
+        "arrow-spacing": ["error", { "before": true, "after": true }],
+        "func-call-spacing": ["error", "never"],
+        "key-spacing": ["error", { "afterColon": true }],
+        "keyword-spacing": ["error", { "before": true, "after": true }],
+        "no-trailing-spaces": ["error", { "skipBlankLines": true }]
     }
 }

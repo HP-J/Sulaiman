@@ -19,8 +19,7 @@
     "@herpproject/vm2": "file:../vm2",
     "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
-    "electron": "^2.0.3",
-    "json5": "^1.0.1"
+    "electron": "^2.0.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
