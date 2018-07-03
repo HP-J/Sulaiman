@@ -32,8 +32,8 @@ export function start()
 
   // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
   // the function needs to exists on the root of the script
+  // block.events.onclick = onclick;
   // ext.onSearchInput(onSearchInput);
-  block.events.onclick = onclick;
 }
 
 /**
@@ -41,7 +41,7 @@ export function start()
 */
 function onclick(ev)
 {
-  console.log(ev.ctrlKey);
+  // console.log(ev.ctrlKey);
 }
 
 function onSearchInput(text)

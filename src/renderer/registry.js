@@ -11,7 +11,7 @@ import builtinModules from 'builtin-modules';
 const extVMs = {};
 
 /** the global events registry
-* @type { Object.<string, [ { extensionPath: string, callbackName: string } ]> }
+* @type { Object.<string, Function[]> }
 */
 const extEvents = {};
 
@@ -186,17 +186,17 @@ export function runFunction(extensionPath, functionName, thisArg, ...args)
 }
 
 /** register an extension callback on an event
-* @param { string } eventName ""
-* @param { string } value
+* @param { string } eventName
+* @param { Function } callback
 */
-export function registerCallback(eventName, callbackName)
+export function registerCallback(eventName, callback)
 {
   // if the event is not initialized yet in the global events registry then create a new parameter for it
   if (extEvents[eventName] === undefined)
     extEvents[eventName] = [];
 
   // add the extension's extensionPath and callback in the event's array
-  extEvents[eventName].push({ extensionPath: currentExtensionPath, callbackName: callbackName });
+  extEvents[eventName].push(callback);
 }
 
 /** emits an event's callbacks
@@ -214,6 +214,6 @@ export function emitCallbacks(eventName, thisArg, ...args)
   for (let i = 0; i < extEvents[eventName].length; i++)
   {
     // emit the callback
-    runFunction(extEvents[eventName][i].extensionPath, extEvents[eventName][i].callbackName, thisArg, ...args);
+    extEvents[eventName][i].call(thisArg, ...args);
   }
 }

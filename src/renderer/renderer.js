@@ -81,6 +81,8 @@ appendStyle('./splash.css', () =>
     
   // register elements events and track key presses
   registerEvents();
+
+  focus();
   
   loadExtensions();
 });

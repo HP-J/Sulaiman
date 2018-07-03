@@ -183,9 +183,9 @@ export function removeBlock(block)
 }
 
 /** emits every time the user writes something into the search bar
-* @param { () => any } callback the callback function
+* @param { Function } callback the callback function
 */
 export function onSearchInput(callback)
 {
-  registerCallback('onSearchInput', callback.name);
+  registerCallback('onSearchInput', callback);
 }
