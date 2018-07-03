@@ -27,7 +27,9 @@ export let currentExtensionPath;
 * @property { string } start
 */
 
-export function init()
+/** load and start all extensions
+*/
+export function loadExtensions()
 {
   const root = join(__dirname, '../extensions/');
 
@@ -59,6 +61,8 @@ export function init()
       (extensionPath, registry) => { loadExtension(extensionPath, registry); });
   }
 }
+
+// TODO actually asking the user using GUI
 
 /** Ask the user using GUI if he accepts an extension's registry object [async]
 * @param { string } extensionPath

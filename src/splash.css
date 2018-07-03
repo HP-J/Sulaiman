@@ -5,8 +5,9 @@ body
 
 .splash
 {
+  z-index: 2;
   background-color: #272727;
-  position: relative;
+  position: absolute;
   width: 100vw;
   height: 100vh;
 }
@@ -14,12 +15,12 @@ body
 .dot, .dot2, .dot3
 {
   position: absolute;
-  width: 6.5vw;
-  height: 6.5vw;
+  width: 5.5vw;
+  height: 5.5vw;
   border-radius: 50%;
   background-color: #444444;
-  left: calc((100vw - 6.5vw) / 2);
-  top: 35vh;
+  left: calc((100vw - 5.5vw) / 2);
+  top: 37.5vh;
   transform: scale(1, 1.25);
   animation: bounce 0.5s cubic-bezier(0.5, 0.05, 0.8, 0.5);
   animation-direction: alternate;
@@ -28,13 +29,13 @@ body
 
 .dot2
 {
-  left: calc(((100vw - 6.5vw) / 2) + 10vw);
+  left: calc(((100vw - 5.5vw) / 2) + 10vw);
   animation-delay: 0.2s;
 }
 
 .dot3
 {
-  left: calc(((100vw - 6.5vw) / 2) - 10vw);
+  left: calc(((100vw - 5.5vw) / 2) - 10vw);
   animation-delay: 0.35s;
 }
 

@@ -2,6 +2,8 @@ import { existsSync, readFileSync } from 'fs';
 
 import { domElement } from './page.js';
 
+import { splash } from './renderer.js';
+
 import { registerCallback, currentExtensionPath } from './registry.js';
 
 import Block from './block.js';
@@ -115,7 +117,7 @@ function image(path)
 /** append a stylesheet file to the dom
 * @param { string } path to the stylesheet (css) file
 */
-export function appendStyle(path)
+export function appendStyle(path, callback)
 {
   // if the file is already loaded
   if (appendedStyles[currentExtensionPath] === undefined)
@@ -129,21 +131,22 @@ export function appendStyle(path)
   style.rel = 'stylesheet';
   style.href = path;
 
-  // the dom doesn't wait for invalid media types
-  // but sill loads them async
-  style.media = 'none';
-
-  style.onload = () =>
-  {
-    // fix the media type so the dom apply the stylesheet
-    style.media = 'all';
-  };
-
-  // add the file to the list of loaded styles
   appendedStyles[currentExtensionPath][path] = style;
+
+  style.onload = callback;
 
   // append the style to the dom
   document.head.appendChild(style);
+}
+
+export function showSplashScreen()
+{
+  splash.style.display = 'block';
+}
+
+export function hideSplashScreen()
+{
+  splash.style.display = 'none';
 }
 
 /** remove a stylesheet file from the dom

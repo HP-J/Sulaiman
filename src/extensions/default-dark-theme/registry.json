@@ -1,0 +1,6 @@
+{
+  "name": "Default Dark",
+  "permissions": [ ],
+  "modules": [ "path", "fs" ],
+  "start": "start"
+}

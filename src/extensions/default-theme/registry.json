@@ -1,7 +1,0 @@
-{
-  "name": "Default",
-  "description": "The default theme for sulaiman",
-  "permissions": [ "document.body" ],
-  "modules": [ "path", "fs" ],
-  "start": "start"
-}

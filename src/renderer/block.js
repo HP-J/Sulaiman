@@ -197,6 +197,9 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
+  // TODO itsDialogue
+  // TODO itsDismissible
+
   /**
   * @param { string } title
   * @param { string } description

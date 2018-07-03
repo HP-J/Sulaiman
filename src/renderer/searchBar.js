@@ -26,9 +26,6 @@ export function append()
   placeholder = getInput(true, 'searchBarPlaceholder');
   input = getInput(false, 'searchBarInput');
 
-  // placeholder.style.visibility = 'hidden';
-  // input.style.visibility = 'hidden';
-
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
 

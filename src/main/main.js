@@ -27,6 +27,7 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
+      backgroundColor: '#272727',
       frame: (process.env.DEBUG) ? true : false,
       resizable: (process.env.DEBUG) ? true : false,
       skipTaskbar: (process.env.DEBUG) ? false : true,
@@ -69,7 +70,7 @@ function singleInstance()
 function focus()
 {
   mainWindow.show();
-  mainWindow.setSkipTaskbar(true);
+  mainWindow.setSkipTaskbar((process.env.DEBUG) ? false : true);
 }
 
 // if the user tried to open more instance while a one is already opened

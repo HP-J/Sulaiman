@@ -1,7 +1,7 @@
 {
-  "name": "sulaiman-default-theme",
+  "name": "sulaiman-default-dark",
   "version": "0.1.0",
-  "description": "The default theme for sulaiman",
+  "description": "The default dark theme for Sulaiman",
   "main": "index.js",
   "private": true,
   "repository": {
@@ -11,6 +11,8 @@
   "keywords": [
     "sulaiman",
     "sulaiman-theme",
+    "sulaiman-default-theme",
+    "sulaiman-default-dark-theme",
     "sulaiman-dark-theme"
   ],
   "author": "Herp Project",

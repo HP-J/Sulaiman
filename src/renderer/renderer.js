@@ -5,29 +5,27 @@ import { getDiv } from './util.js';
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-import { init } from './registry.js';
-import { appendStyle, getIcon } from './extension.js';
-import { join } from 'path';
+import { loadExtensions } from './registry.js';
+import { appendStyle, hideSplashScreen } from './extension.js';
 
-const mainWindow = remote.getCurrentWindow();
+export const splash = getDiv('splash');
 
-// TODO move themes as normal extensions
-// so they can be controlled and updated with extensions manager
-// append page and search bar and make them invisible
-// show splash screen then start loading all the extensions
-// create a registry option for extensions that only need
-// to run once but make sure they can't register for events
-// when all the extensions are loaded make page and search bar visible
-// and remove the splash screen
+export const mainWindow = remote.getCurrentWindow();
 
+// TODO Extensions Control Room
 // TODO check for sulaiman updates and download packages on AppImages, Windows, and DMG
 
-// TODO auto-start as an extension
+// TODO Extension Ideas
+// apps
+// calculator
+// files
+// google
+// auto-start
 
 function registerEvents()
 {
-  // mainWindow.on('focus', focus);
-  // mainWindow.on('blur', blur);
+  mainWindow.on('focus', focus);
+  mainWindow.on('blur', blur);
 
   // back-arrow 37
   // up-arrow 38
@@ -67,30 +65,27 @@ function blur()
   // mainWindow.hide();
 }
 
-appendStyle('./splash.css');
+appendStyle('./splash.css', () =>
+{
+  document.body.appendChild(splash);
 
-const splash = getDiv('splash');
-document.body.appendChild(splash);
-
-splash.appendChild(getDiv('dot'));
-splash.appendChild(getDiv('dot2'));
-splash.appendChild(getDiv('dot3'));
-
-// const icon = getIcon(join(__dirname, '../phi.svg'), 'splashIcon');
-// splash.appendChild(icon);
-
-//   // create and append search bar block
-// searchBar.append();
-
-
-//   // create and append page block
-  // page.append();
-
-//   // register elements events and track key presses
+  splash.appendChild(getDiv('dot'));
+  splash.appendChild(getDiv('dot2'));
+  splash.appendChild(getDiv('dot3'));
+    
+  // create and append search bar block
+  searchBar.append();
+    
+  // create and append page block
+  page.append();
+    
+  // register elements events and track key presses
   registerEvents();
+  
+  loadExtensions();
+});
 
-//   // reset the application focus
-  // focus();
-
-//   // load the extensions
-  // init();
+setTimeout(() =>
+{
+  hideSplashScreen();
+}, 10000);
