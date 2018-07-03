@@ -1,9 +1,13 @@
 import { remote } from 'electron';
 
+import { getDiv } from './util.js';
+
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
 import { init } from './registry.js';
+import { appendStyle, getIcon } from './extension.js';
+import { join } from 'path';
 
 const mainWindow = remote.getCurrentWindow();
 
@@ -63,20 +67,26 @@ function blur()
   // mainWindow.hide();
 }
 
-// appendTheme('default', () =>
-// {
+appendStyle('./splash.css');
+const icon = getIcon(join(__dirname, '../phi.svg'), 'splashIcon');
+
+const splash = getDiv('splash');
+
+document.body.appendChild(splash);
+splash.appendChild(icon);
+
 //   // create and append search bar block
-  searchBar.append();
+// searchBar.append();
+
 
 //   // create and append page block
-  page.append();
+  // page.append();
 
 //   // register elements events and track key presses
-  registerEvents();
+  // registerEvents();
 
 //   // reset the application focus
-  focus();
+  // focus();
 
 //   // load the extensions
-  init();
-// });
+  // init();

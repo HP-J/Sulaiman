@@ -1,8 +1,6 @@
 body
 {
   background-color: #292929;
-  overflow: hidden;
-  margin: 0px;
 }
 
 .page
@@ -10,9 +8,7 @@ body
   background-color: #292929;
   position: relative;
   width: 100vw;
-  height: calc(90vh);
-
-  overflow: hidden;
+  height: 90vh;
 
   display: grid;
   grid-auto-rows: max-content;

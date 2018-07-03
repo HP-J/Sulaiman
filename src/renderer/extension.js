@@ -30,9 +30,10 @@ const appendedStyles = {};
 *  based on its format and returns that element
 * @param { string } path to the image
 * (.png and .svg are the only formats supported)
+* @param { string } [className] [optional] add a class to the icon's element
 * @returns { HTMLDivElement | SVGSVGElement } an element with the loaded icon
 */
-export function getIcon(path)
+export function getIcon(path, className)
 {
   // if the icon is cached
   if (cachedIcons[path])
@@ -52,6 +53,8 @@ export function getIcon(path)
       icon = svg(path);
     else if (path.endsWith('.png'))
       icon = image(path);
+
+    icon.setAttribute('class', className);
 
     // cache the icon for later use
     cachedIcons[path] = icon;

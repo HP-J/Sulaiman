@@ -10,5 +10,6 @@ export let domElement;
 export function append()
 {
   domElement = getDiv('page');
+
   document.body.appendChild(domElement);
 }

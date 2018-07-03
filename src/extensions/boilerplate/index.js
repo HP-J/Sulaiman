@@ -1,6 +1,6 @@
-import * as ext from 'sulaiman';
+// import * as ext from 'sulaiman';
 
-import { join } from 'path';
+// import { join } from 'path';
 
 // TODO finish documenting and move it to a new repository
 
@@ -17,13 +17,13 @@ import { join } from 'path';
 
 export function start()
 {
-  const block = new ext.Block();
+  // const block = new ext.Block();
   
-  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
+  // block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
   // block.style.backgroundColor = 'red';
 
-  ext.appendBlock(block);
+  // ext.appendBlock(block);
 
   // ext.appendStyle(join(__dirname, './page-alt.css'));
   // ext.removeStyle(join(__dirname, './page-alt.css'));
@@ -36,20 +36,17 @@ export function start()
   // block.events.onclick = onclick;
 }
 
-/**
-* @param { MouseEvent } ev
-*/
 function onclick(ev)
 {
-  console.log(this);
+  // console.log(this);
 }
 
 function onSearchInput(text)
 {
-  if (text === 'g')
-    ext.setPlaceholder('google');
-  if (text === 'ga')
-    ext.setPlaceholder('gamely');
+  // if (text === 'g')
+  //   ext.setPlaceholder('google');
+  // if (text === 'ga')
+  //   ext.setPlaceholder('gamely');
 
-  console.log('onSearchInput: ' + text);
+  // console.log('onSearchInput: ' + text);
 }

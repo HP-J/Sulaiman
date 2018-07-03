@@ -1,0 +1,46 @@
+body
+{
+  margin: 0px;
+}
+
+.splash
+{
+  background-color: rgb(39, 39, 39);
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+.splashIcon
+{
+  stroke: rgba(81, 81, 81, 0.25);
+  position: relative;
+
+  display: block;
+  margin: auto;
+
+  top: calc((100vh - 40vh) / 2);
+
+  width: 40vh;
+  height: 40vh;
+
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin
+{
+  50%
+  {
+    transform: rotate(0deg) scale(1);
+  }
+
+  50%
+  {
+    transform: rotate(180deg) scale(1.15);
+  }
+ 
+  100%
+  {
+    transform: rotate(360deg) scale(1);
+  }
+}
