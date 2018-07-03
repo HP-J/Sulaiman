@@ -1,7 +1,5 @@
 import { getInput } from './util.js';
 
-import {  currentExtensionPath, runFunction } from './registry.js';
-
 export default class Block
 {
   constructor()

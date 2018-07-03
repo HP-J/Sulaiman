@@ -1,14 +1,12 @@
 import { remote } from 'electron';
 
-import { getDiv } from './util.js';
-
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
 import { loadExtensions } from './registry.js';
-import { appendStyle, hideSplashScreen } from './extension.js';
+import { hideSplashScreen } from './extension.js';
 
-export const splash = getDiv('splash');
+export const splash = document.body.getElementsByClassName('splash')[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
@@ -51,7 +49,7 @@ function registerEvents()
   // };
 }
 
-/** an event callback, gets called when the application gets focus
+/** gets called when the application gets focus
 */
 function focus()
 {
@@ -65,28 +63,23 @@ function blur()
   // mainWindow.hide();
 }
 
-appendStyle('./splash.css', () =>
-{
-  document.body.appendChild(splash);
+// create and append search bar block
+searchBar.append();
+    
+// create and append page block
+page.append();
+    
+// register elements events and track key presses
+registerEvents();
 
-  splash.appendChild(getDiv('dot'));
-  splash.appendChild(getDiv('dot2'));
-  splash.appendChild(getDiv('dot3'));
-    
-  // create and append search bar block
-  searchBar.append();
-    
-  // create and append page block
-  page.append();
-    
-  // register elements events and track key presses
-  registerEvents();
-
-  focus();
+// start focus
+focus();
   
-  loadExtensions();
-});
+// load all extensions
+loadExtensions();
 
+// set a timeout to hide the splash screen to give a chance to
+// extensions that leverages it to hide it themselves
 setTimeout(() =>
 {
   hideSplashScreen();

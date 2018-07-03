@@ -21,7 +21,7 @@ export function start()
   
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
-  // block.style.backgroundColor = 'red';
+  block.style.backgroundColor = 'red';
 
   ext.appendBlock(block);
 

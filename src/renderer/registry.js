@@ -107,13 +107,20 @@ function loadExtension(extensionPath, registry)
     script: readFileSync(extensionPath).toString()
   };
 
+  // TODO try to remove runFunction entirety by getting start function from the exports and calling it
+  // if so revamp emitCallbacks to be less like runFunction
+  // delete the fork of vm2 and use a the normal node pack
+  // update docs to remove the stupid limits that runFunction had
+
+  // TODO remove anything that uses currentExtensionPath because it's no longer reliable
+
   // if it exists
   // run the extension's start callback function
   if (registry.start)
     runFunction(extensionPath, registry.start);
 }
 
-/** handle permissions to use global variables
+/** handle permissions to use global variables and mockups
 * @param { [] } registryPermissions
 * @returns { { sandbox: {} } }
 */

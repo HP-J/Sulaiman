@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 
 import { domElement } from './page.js';
 
@@ -7,6 +7,7 @@ import { splash } from './renderer.js';
 import { registerCallback, currentExtensionPath } from './registry.js';
 
 import Block from './block.js';
+import { join } from 'path';
 
 export { Block };
 
@@ -114,29 +115,55 @@ function image(path)
   return img;
 }
 
-/** append a stylesheet file to the dom [async]
-* @param { string } path to the stylesheet (css) file
+/** append a stylesheet files to the DOM [async]
+* @param { () => void } callback gets called when all the styles are loaded
+* @param { string[] } files paths to the stylesheets (css) files to want to append to DOM
 */
-export function appendStyle(path, callback)
+export function appendStyle(callback, ...files)
 {
-  // if the file is already loaded
-  if (appendedStyles[currentExtensionPath] === undefined)
-    appendedStyles[currentExtensionPath] = [];
-  else if (appendedStyles[currentExtensionPath][path] !== undefined)
-    throw 'this stylesheet file is already loaded';
+  let length = 0;
 
-  // create a link element
-  const style = document.createElement('link');
+  for (let i = 0; i < files.length; i++)
+  {
+    const path = files[i];
 
-  style.rel = 'stylesheet';
-  style.href = path;
+    // if the file is already loaded
+    if (appendedStyles[currentExtensionPath] === undefined)
+      appendedStyles[currentExtensionPath] = [];
+    else if (appendedStyles[currentExtensionPath][path] !== undefined)
+      throw 'this stylesheet file is already loaded';
 
-  appendedStyles[currentExtensionPath][path] = style;
+    // create a link element
+    const style = document.createElement('link');
 
-  style.onload = callback;
+    style.rel = 'stylesheet';
+    style.href = path;
 
-  // append the style to the dom
-  document.head.appendChild(style);
+    appendedStyles[currentExtensionPath][path] = style;
+
+    style.onload = () =>
+    {
+      length += 1;
+
+      if (files.length === length)
+        callback();
+    };
+
+    // append the style to the dom
+    document.head.appendChild(style);
+  }
+}
+
+/** append all the stylesheet files from a directory to the DOM [async]
+* @param { string } dir the stylesheet directory
+* @param { () => void } callback gets called when all the styles are loaded
+*/
+export function appendStyleDir(dir, callback)
+{
+  appendStyle(callback,
+    ...readdirSync(dir)
+      .filter((x) => { return x.endsWith('.css'); })
+      .map((x) => { return join(dir, x); }));
 }
 
 export function showSplashScreen()
