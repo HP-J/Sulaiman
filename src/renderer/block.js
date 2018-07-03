@@ -36,28 +36,13 @@ export default class Block
     const eventHandler =
     {
       domElement: this.domElement,
-      path: currentExtensionPath,
-      get: function(target, eventName)
+      get: function(target, prop)
       {
-        if (this.domElement[eventName] !== null && this.domElement[eventName] !== undefined)
-          return true;
-        else
-          return undefined;
+        return this.domElement[prop];
       },
-      /**
-       * @param { Function } func
-       */
-      set: function(obj, eventName, func)
+      set: function(obj, prop, value)
       {
-        const path = this.path;
-
-        if (!func.name || func.name === '')
-          return false;
-
-        this.domElement[eventName] = function(ev)
-        {
-          runFunction(path, func.name, this, ev);
-        };
+        this.domElement[prop] = value;
 
         return true;
       }

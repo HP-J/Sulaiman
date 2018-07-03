@@ -1,6 +1,6 @@
-// import * as ext from 'sulaiman';
+import * as ext from 'sulaiman';
 
-// import { join } from 'path';
+import { join } from 'path';
 
 // TODO finish documenting and move it to a new repository
 
@@ -17,13 +17,13 @@
 
 export function start()
 {
-  // const block = new ext.Block();
+  const block = new ext.Block();
   
-  // block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
+  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
   // block.style.backgroundColor = 'red';
 
-  // ext.appendBlock(block);
+  ext.appendBlock(block);
 
   // ext.appendStyle(join(__dirname, './page-alt.css'));
   // ext.removeStyle(join(__dirname, './page-alt.css'));
@@ -33,12 +33,15 @@ export function start()
   // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
   // the function needs to exists on the root of the script
   // ext.onSearchInput(onSearchInput);
-  // block.events.onclick = onclick;
+  block.events.onclick = onclick;
 }
 
+/**
+* @param {MouseEvent} ev
+*/
 function onclick(ev)
 {
-  // console.log(this);
+  console.log(ev.ctrlKey);
 }
 
 function onSearchInput(text)

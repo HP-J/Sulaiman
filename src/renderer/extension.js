@@ -114,7 +114,7 @@ function image(path)
   return img;
 }
 
-/** append a stylesheet file to the dom
+/** append a stylesheet file to the dom [async]
 * @param { string } path to the stylesheet (css) file
 */
 export function appendStyle(path, callback)
