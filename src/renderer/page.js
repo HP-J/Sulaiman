@@ -1,4 +1,4 @@
-import { getDiv } from './theme.js';
+import { getDiv } from './util.js';
 
 /** the page block
 * @type { HTMLDivElement }

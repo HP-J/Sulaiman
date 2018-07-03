@@ -1,17 +1,17 @@
 {
-  "name": "sulaiman-boilerplate",
+  "name": "sulaiman-default-theme",
   "version": "0.1.0",
-  "description": "A boilerplate to create a new sulaiman extension",
+  "description": "The default theme for sulaiman",
   "main": "index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/herpproject/sulaiman-boilerplate.git"
+    "url": "https://gitlab.com/herpproject/sulaiman-default-theme.git"
   },
   "keywords": [
     "sulaiman",
-    "sulaiman-extension",
-    "sulaiman-boilerplate"
+    "sulaiman-theme",
+    "sulaiman-dark-theme"
   ],
   "author": "Herp Project",
   "license": "MIT",

@@ -1,5 +1,6 @@
 {
-  "name": "ext-boilerplate",
+  "name": "Boilerplate",
+  "description": "A boilerplate to create a new sulaiman extension",
   "permissions": [ "document.body", "clipboard" ],
   "modules": [ "path" ],
   "start": "start"

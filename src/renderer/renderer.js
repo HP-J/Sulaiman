@@ -1,7 +1,5 @@
 import { remote } from 'electron';
 
-import { appendTheme } from './theme.js';
-
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
@@ -65,20 +63,20 @@ function blur()
   // mainWindow.hide();
 }
 
-appendTheme('default', () =>
-{
-  // create and append search bar block
+// appendTheme('default', () =>
+// {
+//   // create and append search bar block
   searchBar.append();
 
-  // create and append page block
+//   // create and append page block
   page.append();
 
-  // register elements events and track key presses
+//   // register elements events and track key presses
   registerEvents();
 
-  // reset the application focus
+//   // reset the application focus
   focus();
 
-  // load the extensions
+//   // load the extensions
   init();
-});
+// });

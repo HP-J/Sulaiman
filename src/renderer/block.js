@@ -1,4 +1,4 @@
-import { getInput } from './theme.js';
+import { getInput } from './util.js';
 
 import {  currentExtensionPath, runFunction } from './registry.js';
 

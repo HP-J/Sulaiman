@@ -1,4 +1,4 @@
-import { getDiv, getInput } from './theme';
+import { getDiv, getInput } from './util.js';
 
 import { emitCallbacks } from './registry.js';
 
@@ -69,7 +69,7 @@ function oninput()
 }
 
 /** set the text in the search bar placeholder
-* @param { string } value 
+* @param { string } value
 */
 export function setPlaceholder(value)
 {
@@ -77,9 +77,9 @@ export function setPlaceholder(value)
 }
 
 /** remove a piece of the string using indies
-* @param { string } s 
-* @param { number } startIndex 
-* @param { number } endIndex 
+* @param { string } s
+* @param { number } startIndex
+* @param { number } endIndex
 */
 function remove(s, startIndex, endIndex)
 {
