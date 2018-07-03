@@ -5,42 +5,42 @@ body
 
 .splash
 {
-  background-color: rgb(39, 39, 39);
+  background-color: #272727;
   position: relative;
   width: 100vw;
   height: 100vh;
 }
 
-.splashIcon
+.dot, .dot2, .dot3
 {
-  stroke: rgba(81, 81, 81, 0.25);
-  position: relative;
-
-  display: block;
-  margin: auto;
-
-  top: calc((100vh - 40vh) / 2);
-
-  width: 40vh;
-  height: 40vh;
-
-  animation: spin 1.5s linear infinite;
+  position: absolute;
+  width: 6.5vw;
+  height: 6.5vw;
+  border-radius: 50%;
+  background-color: #444444;
+  left: calc((100vw - 6.5vw) / 2);
+  top: 35vh;
+  transform: scale(1, 1.25);
+  animation: bounce 0.5s cubic-bezier(0.5, 0.05, 0.8, 0.5);
+  animation-direction: alternate;
+  animation-iteration-count: infinite;
 }
 
-@keyframes spin
+.dot2
 {
-  50%
-  {
-    transform: rotate(0deg) scale(1);
-  }
+  left: calc(((100vw - 6.5vw) / 2) + 10vw);
+  animation-delay: 0.2s;
+}
 
-  50%
-  {
-    transform: rotate(180deg) scale(1.15);
-  }
- 
-  100%
-  {
-    transform: rotate(360deg) scale(1);
-  }
+.dot3
+{
+  left: calc(((100vw - 6.5vw) / 2) - 10vw);
+  animation-delay: 0.35s;
+}
+
+@keyframes bounce
+{
+  0% { transform: scale(1, 1.25) translate(0px, 0px); }
+  95% { transform: scale(1.2, 1) translate(0px, 24vh) }
+  100% { transform: scale(1.4, 1) translate(0px, 25vh); }
 }

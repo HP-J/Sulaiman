@@ -26,8 +26,8 @@ const mainWindow = remote.getCurrentWindow();
 
 function registerEvents()
 {
-  mainWindow.on('focus', focus);
-  mainWindow.on('blur', blur);
+  // mainWindow.on('focus', focus);
+  // mainWindow.on('blur', blur);
 
   // back-arrow 37
   // up-arrow 38
@@ -68,12 +68,16 @@ function blur()
 }
 
 appendStyle('./splash.css');
-const icon = getIcon(join(__dirname, '../phi.svg'), 'splashIcon');
 
 const splash = getDiv('splash');
-
 document.body.appendChild(splash);
-splash.appendChild(icon);
+
+splash.appendChild(getDiv('dot'));
+splash.appendChild(getDiv('dot2'));
+splash.appendChild(getDiv('dot3'));
+
+// const icon = getIcon(join(__dirname, '../phi.svg'), 'splashIcon');
+// splash.appendChild(icon);
 
 //   // create and append search bar block
 // searchBar.append();
@@ -83,7 +87,7 @@ splash.appendChild(icon);
   // page.append();
 
 //   // register elements events and track key presses
-  // registerEvents();
+  registerEvents();
 
 //   // reset the application focus
   // focus();
