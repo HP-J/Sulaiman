@@ -8,12 +8,14 @@
 
 .searchBarPlaceholder, .searchBarInput
 {
+  display: flex;
+  align-items: center;
   background-color: rgba(0, 0, 0, 0);
   color: #ffffff;
   position: absolute;
   left: 10px;
-  top: 0;
-  width: calc(100vw - 20px);
+  top: 0px;
+  width: calc(100vw - 25px);
   height: inherit;
   font-family: Oxygen;
   font-size: calc(50% + 3vh);
@@ -27,6 +29,7 @@
   background-color: #4F4F4F;
   color: #878787;
   pointer-events: none;
+  user-select: none;
 }
 
 .searchBarInput:focus

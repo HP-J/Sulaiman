@@ -1,5 +1,3 @@
-import { getDiv } from './util.js';
-
 /** the page block
 * @type { HTMLDivElement }
 */
@@ -9,7 +7,7 @@ export let domElement;
 */
 export function append()
 {
-  domElement = getDiv('page');
-
+  domElement = document.createElement('div');
+  domElement.setAttribute('class', 'page');
   document.body.appendChild(domElement);
 }

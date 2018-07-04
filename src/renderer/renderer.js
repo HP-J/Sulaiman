@@ -4,9 +4,9 @@ import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
 import { loadExtensionsDir } from './registry.js';
-import { hideSplashScreen } from './extension.js';
+import { hideSplashScreen, Block, appendBlock } from './extension.js';
 
-export const splash = document.body.getElementsByClassName('splash')[0];
+export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
@@ -78,6 +78,12 @@ focus();
   
 // load all extensions
 loadExtensionsDir();
+
+const dialogue = new Block();
+
+dialogue.itsDialogue('yes', 'no');
+
+appendBlock(dialogue);
 
 // set a timeout to hide the splash screen to give a chance to
 // extensions that leverages it to hide it themselves

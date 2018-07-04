@@ -1,15 +1,20 @@
-import { getInput } from './util.js';
-
+/** A class containing functions and variables to append
+* html elements to page and control them
+*/
 export default class Block
 {
   constructor()
   {
-    /** the block's html element (some functions like events and style are disabled by the sandbox, please use the block functions instead)
+    /** the block's main html element
+    * (some functions are broken due to issues with the sandbox module,
+    * please use the alterative block functions instead)
     * @type { HTMLDivElement }
     */
     this.domElement = document.createElement('div');
 
-    this.domElement.tabIndex = 1;
+    // this.domElement.tabIndex = 1;
+
+    this.reset();
 
     const styleHandler =
     {
@@ -129,9 +134,9 @@ export default class Block
     this.events = new Proxy({}, eventHandler);
   }
 
-  /** clean all the html element childs and start fresh
+  /** reset the block
   */
-  clear()
+  reset()
   {
     // remove all children
     while (this.domElement.hasChildNodes())
@@ -140,7 +145,7 @@ export default class Block
     }
 
     // remove all classes and ids
-    this.setClass('');
+    this.setClass('block');
     this.setId('');
 
     // remove the css text
@@ -161,7 +166,7 @@ export default class Block
   */
   setClass(className)
   {
-    this.domElement.setAttribute('class', className);
+    this.setAttribute('class', className);
   }
 
   /** set the html element id
@@ -169,7 +174,7 @@ export default class Block
   */
   setId(id)
   {
-    this.domElement.setAttribute('id', id);
+    this.setAttribute('id', id);
   }
 
   /** get the html element class(es)
@@ -186,30 +191,31 @@ export default class Block
   /**
   * @param { string } title
   * @param { string } description
-  * @param { HTMLElement } icon
+  * @param { HTMLElement } extensionIcon
   * @param { HTMLElement } actionIcon
   */
-  itsButton(title, description, icon, actionIcon)
+  itsButton(title, description, extensionIcon, actionIcon)
   {
-    this.clear();
+    this.reset();
 
-    this.setClass('button');
-
-    const titleElem = getInput(true, 'buttonTitle');
-    const descriptionElem = getInput(true, 'buttonDescription');
-
-    titleElem.value = title;
-    descriptionElem.value = description;
-
+    const titleElem = document.createElement('div');
+    const descriptionElem = document.createElement('div');
+    
+    titleElem.setAttribute('class', 'buttonTitle');
+    descriptionElem.setAttribute('class', 'buttonDescription');
+    
+    titleElem.innerHTML = title;
+    descriptionElem.innerHTML = description;
+    
     this.domElement.appendChild(titleElem);
     this.domElement.appendChild(descriptionElem);
 
-    if (icon !== undefined)
+    if (extensionIcon !== undefined)
     {
-      icon.setAttribute('class', 'buttonIcon');
-      icon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
+      extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      this.domElement.appendChild(icon);
+      this.domElement.appendChild(extensionIcon);
     }
 
     if (actionIcon !== undefined)
@@ -219,5 +225,16 @@ export default class Block
 
       this.domElement.appendChild(actionIcon);
     }
+  }
+
+  /** dialogue
+  * @param { string[] } options
+  */
+  itsDialogue(...options)
+  {
+    this.reset();
+
+    this.domElement.appendChild(document.createElement('button'));
+    this.domElement.appendChild(document.createElement('button'));
   }
 }

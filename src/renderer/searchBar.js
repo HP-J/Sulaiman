@@ -1,5 +1,3 @@
-import { getDiv, getInput } from './util.js';
-
 import { emitCallbacks } from './registry.js';
 
 /** @type { HTMLDivElement }
@@ -19,21 +17,25 @@ export let input;
 export function append()
 {
   // create and append search bar block
-  domElement = getDiv('searchBar');
+  domElement = document.createElement('div');
+  domElement.setAttribute('class', 'searchBar');
   document.body.appendChild(domElement);
-
-  // create and append input and input placeholder
-  placeholder = getInput(true, 'searchBarPlaceholder');
-  input = getInput(false, 'searchBarInput');
-
+  
+  // create and append placeholder and input blocks
+  input = document.createElement('input');
+  placeholder = document.createElement('div');
+  
+  input.setAttribute('class', 'searchBarInput');
+  placeholder.setAttribute('class', 'searchBarPlaceholder');
+  
   domElement.appendChild(placeholder);
   domElement.appendChild(input);
-
+  
   // set the default placeholder value
   // value is infected by what is written in the input value
   // current is not infected by what is written in the input value
   // default the placeholder value when input value is empty
-  placeholder.value = placeholder.current = placeholder.default = 'Search';
+  placeholder.innerText = placeholder.current = placeholder.default = 'Search';
 
   // when the user change the input value callback updatePlaceholder()
   input.oninput = oninput;
@@ -65,7 +67,7 @@ function oninput()
     setPlaceholder(placeholder.default);
 
   // merge the input and the placeholder values to create auto-complete
-  placeholder.value = input.value + remove(placeholder.current, 0, input.value.length);
+  placeholder.innerText = input.value + remove(placeholder.current, 0, input.value.length);
 }
 
 /** set the text in the search bar placeholder
