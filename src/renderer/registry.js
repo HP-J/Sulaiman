@@ -1,6 +1,6 @@
 import { NodeVM } from 'vm2';
 
-import { readFileSync, readdirSync, existsSync, lstatSync } from 'fs';
+import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
 
@@ -104,7 +104,11 @@ function handelPermissions(registryPermissions)
   // allow access to global objects
   const sandbox =
   {
-    document: {}
+    document:
+    {
+      createElement: document.createElement,
+      createElementNS: document.createElementNS
+    }
   };
 
   // override specific apis from any module
@@ -115,7 +119,7 @@ function handelPermissions(registryPermissions)
 
   for (let i = 0; i < registryPermissions.length; i++)
   {
-    if (registryPermissions[i] === 'document.body')
+    if (registryPermissions[i] === 'body')
       sandbox.document['body'] = document.body;
     
     else if (registryPermissions[i] === 'clipboard')

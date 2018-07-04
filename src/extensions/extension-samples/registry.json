@@ -1,5 +1,5 @@
 {
   "name": "Extension Samples",
-  "permissions": [ "document.body", "clipboard" ],
+  "permissions": [ "body", "clipboard" ],
   "modules": [ "path", "fs" ]
 }

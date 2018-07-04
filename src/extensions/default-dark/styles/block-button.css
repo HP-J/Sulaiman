@@ -25,16 +25,17 @@
   stroke: white;
   pointer-events: none;
   position: absolute;
-  left: 10px;
+  left: calc(100vw - (7.6vw + 20px));
   top: 0px;
   width: 3.8vw;
   height: inherit;
   padding: 0px;
+  border: 0px red solid;
 }
 
 .buttonActionIcon
 {
-  left: calc(95% - 10px);
+  left: calc(100vw - (3.8vw + 10px));
 }
 
 .buttonTitle, .buttonDescription
@@ -43,16 +44,16 @@
   color: #ffffff;
   pointer-events: none;
   position: absolute;
-  left: calc(5% + 20px);
+  left: 10px;
   top: 0px;
   height: 50%;
-  width: calc(90% - 40px);
+  width: calc(100vw - (7.6vw + 40px));
   font-family: Oxygen;
   font-size: calc(50% + 2vh);
   font-weight: 200;
   margin-top: 0.8vh;
   padding: 0px;
-  border: 0px;
+  border: 0px red solid;
 }
 
 .buttonDescription

@@ -11,10 +11,15 @@ import { join } from 'path';
 function onload()
 {
   const block = new ext.Block();
-  
+
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
-  // block.element.style.backgroundColor = 'red';
+  // block.domElement.style.backgroundColor = 'red';
+
+  block.events.onclick = (ev) =>
+  {
+    console.log(ev.ctrlKey);
+  };
 
   ext.appendBlock(block);
 
@@ -22,11 +27,6 @@ function onload()
   // ext.removeStyle(join(__dirname, './page-alt.css'));
 
   // ext.clipboard.writeText('hello world');
-
-  // block.element.onclick = (ev) =>
-  // {
-  //   console.log(ev.ctrlKey);
-  // };
 
   // ext.onSearchInput(onSearchInput);
 }
