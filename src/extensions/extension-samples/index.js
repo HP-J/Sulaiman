@@ -4,24 +4,17 @@ import { join } from 'path';
 
 // TODO finish documenting and move it to a new repository
 
-// the current behavior doesn't allow you to store variables
-// everything you do gets deleted when your code stops running
-
-// any code your write on root gets executed every time sulaiman requires this module
-// which is every time we want to execute an event callback
-// if you want to execute a code only once put it inside the start callback
-
 // TODO test if local modules are hosted outside the proxies
 // if the user creates a new script file and required that script
 // will it escape the host or not
 
-export function start()
+function onload()
 {
   const block = new ext.Block();
   
   block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
   
-  block.style.backgroundColor = 'red';
+  // block.element.style.backgroundColor = 'red';
 
   ext.appendBlock(block);
 
@@ -30,18 +23,12 @@ export function start()
 
   // ext.clipboard.writeText('hello world');
 
-  // assigning functions directly (ex: arrow funcs) is not allowed in the sandbox
-  // the function needs to exists on the root of the script
-  // block.events.onclick = onclick;
-  // ext.onSearchInput(onSearchInput);
-}
+  // block.element.onclick = (ev) =>
+  // {
+  //   console.log(ev.ctrlKey);
+  // };
 
-/**
-* @param {MouseEvent} ev
-*/
-function onclick(ev)
-{
-  // console.log(ev.ctrlKey);
+  // ext.onSearchInput(onSearchInput);
 }
 
 function onSearchInput(text)
@@ -53,3 +40,5 @@ function onSearchInput(text)
 
   // console.log('onSearchInput: ' + text);
 }
+
+onload();

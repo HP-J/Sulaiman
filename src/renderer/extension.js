@@ -1,13 +1,14 @@
 import { existsSync, readFileSync, readdirSync } from 'fs';
 
+import { join } from 'path';
+
 import { domElement } from './page.js';
 
 import { splash } from './renderer.js';
 
-import { registerCallback, currentExtensionPath } from './registry.js';
+import { registerCallback } from './registry.js';
 
 import Block from './block.js';
-import { join } from 'path';
 
 export { Block };
 
@@ -127,11 +128,8 @@ export function appendStyle(callback, ...files)
   {
     const path = files[i];
 
-    // if the file is already loaded
-    if (appendedStyles[currentExtensionPath] === undefined)
-      appendedStyles[currentExtensionPath] = [];
-    else if (appendedStyles[currentExtensionPath][path] !== undefined)
-      throw 'this stylesheet file is already loaded';
+    if (appendedStyles[path] !== undefined)
+      throw 'this stylesheet file is already loaded to DOM';
 
     // create a link element
     const style = document.createElement('link');
@@ -139,17 +137,20 @@ export function appendStyle(callback, ...files)
     style.rel = 'stylesheet';
     style.href = path;
 
-    appendedStyles[currentExtensionPath][path] = style;
+    // remember the loaded styles
+    appendedStyles[path] = style;
 
+    // gets called when a style file is loaded
     style.onload = () =>
     {
       length += 1;
 
+      // if all the files are loaded run the callback
       if (files.length === length)
         callback();
     };
 
-    // append the style to the dom
+    // append the style to the DOM
     document.head.appendChild(style);
   }
 }
@@ -162,8 +163,26 @@ export function appendStyleDir(dir, callback)
 {
   appendStyle(callback,
     ...readdirSync(dir)
+      // get only .css files
       .filter((x) => { return x.endsWith('.css'); })
+      // get the full path of the files
       .map((x) => { return join(dir, x); }));
+}
+
+/** remove a stylesheet file from the dom
+* @param { string } path to the stylesheet (css) file
+*/
+export function removeStyle(path)
+{
+  // if the file is really loaded
+  if (appendedStyles[path] !== undefined)
+  {
+    // remove it from dom
+    document.head.removeChild(appendedStyles[path]);
+
+    // remove it from the list of loaded styles
+    appendedStyles[path] = undefined;
+  }
 }
 
 export function showSplashScreen()
@@ -174,23 +193,6 @@ export function showSplashScreen()
 export function hideSplashScreen()
 {
   splash.style.display = 'none';
-}
-
-/** remove a stylesheet file from the dom
-* @param { string } path to the stylesheet (css) file
-*/
-export function removeStyle(path)
-{
-  // if the file is really loaded
-  if (appendedStyles[currentExtensionPath] !== undefined &&
-    appendedStyles[currentExtensionPath][path] !== undefined)
-  {
-    // remove it from dom
-    document.head.removeChild(appendedStyles[currentExtensionPath][path]);
-
-    // remove it from the list of loaded styles
-    appendedStyles[currentExtensionPath][path] = undefined;
-  }
 }
 
 /** add a block to the page

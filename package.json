@@ -16,10 +16,10 @@
   "author": "Herp Project",
   "license": "GPL-3.0",
   "dependencies": {
-    "@herpproject/vm2": "file:../vm2",
     "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
-    "electron": "^2.0.3"
+    "electron": "^2.0.3",
+    "vm2": "^3.6.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

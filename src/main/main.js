@@ -56,7 +56,8 @@ function createWindow()
 
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
-  globalShortcut.register('Control+Space', focus);
+  if (!process.env.DEBUG)
+    globalShortcut.register('Control+Space', focus);
 }
 
 /** @param { string[] } argv the args that was sent from the second instance

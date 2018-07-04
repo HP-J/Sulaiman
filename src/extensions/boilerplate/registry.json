@@ -1,6 +1,0 @@
-{
-  "name": "Boilerplate",
-  "permissions": [ "document.body", "clipboard" ],
-  "modules": [ "path" ],
-  "start": "start"
-}

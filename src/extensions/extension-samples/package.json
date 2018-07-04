@@ -1,16 +1,19 @@
 {
-  "name": "sulaiman-boilerplate",
+  "name": "sulaiman-extension-samples",
   "version": "0.1.0",
-  "description": "A boilerplate to create a new Sulaiman extension",
+  "description": "A code samples showing off Sulaiman Extension API",
   "main": "index.js",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/herpproject/sulaiman-boilerplate.git"
+    "url": "https://gitlab.com/herpproject/sulaiman-extension-samples.git"
   },
   "keywords": [
     "sulaiman",
     "sulaiman-extension",
+    "sulaiman-samples",
+    "sulaiman-example",
+    "sulaiman-extension-example",
     "sulaiman-boilerplate"
   ],
   "author": "Herp Project",

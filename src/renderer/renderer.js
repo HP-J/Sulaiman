@@ -3,7 +3,7 @@ import { remote } from 'electron';
 import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-import { loadExtensions } from './registry.js';
+import { loadExtensionsDir } from './registry.js';
 import { hideSplashScreen } from './extension.js';
 
 export const splash = document.body.getElementsByClassName('splash')[0];
@@ -60,7 +60,8 @@ function focus()
 */
 function blur()
 {
-  // mainWindow.hide();
+  if (!process.env.DEBUG)
+    mainWindow.hide();
 }
 
 // create and append search bar block
@@ -76,7 +77,7 @@ registerEvents();
 focus();
   
 // load all extensions
-loadExtensions();
+loadExtensionsDir();
 
 // set a timeout to hide the splash screen to give a chance to
 // extensions that leverages it to hide it themselves

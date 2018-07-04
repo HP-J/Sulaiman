@@ -1,4 +1,5 @@
 import { getInput } from './util.js';
+import { ENGINE_METHOD_DIGESTS } from 'constants';
 
 export default class Block
 {
@@ -10,6 +11,32 @@ export default class Block
     this.domElement = document.createElement('div');
 
     this.domElement.tabIndex = 1;
+
+    const elementHandler =
+    {
+      elem: this.domElement,
+      get: function(target, prop)
+      {
+        console.log(target);
+        console.log(prop);
+
+        return this.elem[prop];
+      },
+      set: function(obj, prop, value)
+      {
+        console.log(obj);
+        console.log(prop);
+        console.log(value);
+        
+        this.elem[prop] = value;
+
+        return true;
+      }
+    };
+
+    /** @type { HTMLDivElement }
+    */
+    this.element = new Proxy(elementHandler.elem, elementHandler);
 
     const styleHandler =
     {

@@ -1,51 +1,38 @@
-import { NodeVM } from '@herpproject/vm2';
+import { NodeVM } from 'vm2';
 
 import { readFileSync, readdirSync, existsSync, lstatSync } from 'fs';
+
 import { join } from 'path';
 
 import builtinModules from 'builtin-modules';
-
-/** a list of all the extensions' vms,
-* @type { Object.<string, { vm: NodeVM, script: string }> }
-*/
-const extVMs = {};
 
 /** the global events registry
 * @type { Object.<string, Function[]> }
 */
 const extEvents = {};
 
-/** the current active and running code extension
-* @type { string }
-*/
-export let currentExtensionPath;
-
 /** @typedef { Object } Registry
 * @property { string } name
 * @property { string[] } permissions
 * @property { string[] } modules
-* @property { string } start
 */
 
 /** load and start all extensions
 */
-export function loadExtensions()
+export function loadExtensionsDir()
 {
   const root = join(__dirname, '../extensions/');
 
-  let extensionPath = undefined;
-  let registryPath = undefined;
+  let extensionPath = undefined, registryPath = undefined;
 
   const extensions = readdirSync(root);
 
   for (let i = 0; i < extensions.length; i++)
   {
-    // if the path isn't to a directory continue the loop
-    if (!lstatSync(root + extensions[i]).isDirectory())
-      continue;
-
-    // the required files
+    // the required extension index script
     extensionPath = root + extensions[i] + '/index.js';
+
+    // the required extension registry json
     registryPath = root + extensions[i] + '/registry.json';
 
     // if the index.js file doesn't exists continue the loop
@@ -57,21 +44,22 @@ export function loadExtensions()
       continue;
 
     // ask the user then load the extension when he and if he accepts the registry object
-    askUser(extensionPath, JSON.parse(readFileSync(registryPath)),
-      (extensionPath, registry) => { loadExtension(extensionPath, registry); });
+    askUser(extensionPath, JSON.parse(readFileSync(registryPath)));
   }
 }
 
 // TODO actually asking the user using GUI
+// TODO load extensions that don't have permissions or modules without asking
 
 /** Ask the user using GUI if he accepts an extension's registry object [async]
 * @param { string } extensionPath
 * @param { Registry } registry
 * @param { (extensionPath: string, registry: Registry) => void } callback
 */
-function askUser(extensionPath, registry, callback)
+function askUser(extensionPath, registry)
 {
-  callback(extensionPath, registry);
+  // load the extension if the user accepts
+  loadExtension(extensionPath, registry);
 }
 
 /** creates a new NodeVM with the registry object
@@ -86,38 +74,25 @@ function loadExtension(extensionPath, registry)
   const { builtin, external } = handelSeparation(registry.modules);
 
   // create a new vm for the extension with only the modules and permissions the user approved
-  extVMs[extensionPath] =
-  {
-    vm: new NodeVM({
-      sandbox: sandbox,
-      require:
-      {
-        // accepted registry request node builtin modules
-        builtin: builtin,
-        // accepted registry request modules
-        external: [ './extension.js', ...external ],
-        // limit externals to this path, so extensions can't require any local modules outside of their directory
-        root: join(__dirname, '../extensions/boilerplate'),
-        // allow access to the running sulaiman apis
-        mock: mock,
-        // host allows any required module to require more modules inside it with no limits
-        context: 'host'
-      }
-    }),
-    script: readFileSync(extensionPath).toString()
-  };
+  const vm = new NodeVM({
+    sandbox: sandbox,
+    require:
+    {
+      // accepted registry request node builtin modules
+      builtin: builtin,
+      // accepted registry request modules
+      external: [ './extension.js', ...external ],
+      // limit externals to this path, so extensions can't require any local modules outside of their directory
+      root: join(__dirname, '../extensions/boilerplate'),
+      // allow access to the running sulaiman apis
+      mock: mock,
+      // host allows any required module to require more modules inside it with no limits
+      context: 'host'
+    }
+  });
 
-  // TODO try to remove runFunction entirety by getting start function from the exports and calling it
-  // if so revamp emitCallbacks to be less like runFunction
-  // delete the fork of vm2 and use a the normal node pack
-  // update docs to remove the stupid limits that runFunction had
-
-  // TODO remove anything that uses currentExtensionPath because it's no longer reliable
-
-  // if it exists
-  // run the extension's start callback function
-  if (registry.start)
-    runFunction(extensionPath, registry.start);
+  // run the extension index script
+  vm.run(readFileSync(extensionPath).toString(), extensionPath);
 }
 
 /** handle permissions to use global variables and mockups
@@ -175,21 +150,6 @@ function handelSeparation(registryModules)
 function isBuiltin(moduleName)
 {
   return builtinModules.indexOf(moduleName) > -1;
-}
-
-/** run a function in the an extension script inside its NodeVM
-* @param { string } extensionPath
-* @param { string } functionName
-* @param { any } thisArg
-* @param { any[] } args
-*/
-export function runFunction(extensionPath, functionName, thisArg, ...args)
-{
-  // set the current extension path
-  // so if a extension api needs the path it can find it
-  currentExtensionPath = extensionPath;
-
-  return extVMs[extensionPath].vm.runFunction(extVMs[extensionPath].script, functionName, extensionPath, thisArg, ...args);
 }
 
 /** register an extension callback on an event
