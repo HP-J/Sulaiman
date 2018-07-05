@@ -1,5 +1,5 @@
 /** A class containing functions and variables to append
-* html elements to page and control them
+* html elements to the body and control them
 */
 export default class Block
 {
@@ -210,21 +210,21 @@ export default class Block
     this.domElement.appendChild(titleElem);
     this.domElement.appendChild(descriptionElem);
 
-    if (extensionIcon !== undefined)
-    {
-      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
-      extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // if (extensionIcon !== undefined)
+    // {
+    //   extensionIcon.setAttribute('class', 'buttonExtensionIcon');
+    //   extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      this.domElement.appendChild(extensionIcon);
-    }
+    //   this.domElement.appendChild(extensionIcon);
+    // }
 
-    if (actionIcon !== undefined)
-    {
-      actionIcon.setAttribute('class', 'buttonActionIcon');
-      actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    // if (actionIcon !== undefined)
+    // {
+    //   actionIcon.setAttribute('class', 'buttonActionIcon');
+    //   actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      this.domElement.appendChild(actionIcon);
-    }
+    //   this.domElement.appendChild(actionIcon);
+    // }
   }
 
   /** dialogue
@@ -234,7 +234,7 @@ export default class Block
   {
     this.reset();
 
-    this.domElement.appendChild(document.createElement('button'));
-    this.domElement.appendChild(document.createElement('button'));
+    // this.domElement.appendChild(document.createElement('button'));
+    // this.domElement.appendChild(document.createElement('button'));
   }
 }

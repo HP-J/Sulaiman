@@ -2,8 +2,6 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 
 import { join } from 'path';
 
-import { domElement } from './page.js';
-
 import { splash } from './renderer.js';
 
 import { registerCallback } from './registry.js';
@@ -12,7 +10,7 @@ import Block from './block.js';
 
 export { Block };
 
-export { setPlaceholder } from './searchBar.js';
+export { setPlaceholder, setDefaultPlaceholder } from './searchBar.js';
 
 /** [needs a registry permission]
 * access to read & write to clipboard
@@ -195,26 +193,42 @@ export function hideSplashScreen()
   splash.style.display = 'none';
 }
 
-/** add a block to the page
+/** add a block to the body
 * @param { Block } block
 */
 export function appendBlock(block)
 {
-  domElement.appendChild(block.domElement);
+  document.body.appendChild(block.domElement);
 }
 
-/** remove a block to the page
+/** remove a block to the body
 * @param { Block } block
 */
 export function removeBlock(block)
 {
-  domElement.removeChild(block.domElement);
+  document.body.removeChild(block.domElement);
 }
 
 /** emits every time the user writes something into the search bar
-* @param { Function } callback the callback function
+* @param { () => void } callback the callback function
 */
-export function onSearchInput(callback)
+export function onSearchBarInput(callback)
 {
-  registerCallback('onSearchInput', callback);
+  registerCallback('onSearchBarInput', callback);
+}
+
+/** emits every time sulaiman regain focus
+* @param { () => void } callback the callback function
+*/
+export function onFocus(callback)
+{
+  registerCallback('onFocus', callback);
+}
+
+/** emits every time sulaiman loses focus
+* @param { () => void } callback the callback function
+*/
+export function onBlur(callback)
+{
+  registerCallback('onBlur', callback);
 }

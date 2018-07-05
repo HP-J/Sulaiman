@@ -23,22 +23,22 @@ function onload()
 
   ext.appendBlock(block);
 
-  // ext.appendStyle(join(__dirname, './page-alt.css'));
-  // ext.removeStyle(join(__dirname, './page-alt.css'));
+  // ext.appendStyle(join(__dirname, './style.css'));
+  // ext.removeStyle(join(__dirname, './style.css'));
 
   // ext.clipboard.writeText('hello world');
 
-  // ext.onSearchInput(onSearchInput);
+  // ext.onSearchBarInput(onSearchBarInput);
 }
 
-function onSearchInput(text)
+function onSearchBarInput(text)
 {
   // if (text === 'g')
   //   ext.setPlaceholder('google');
   // if (text === 'ga')
   //   ext.setPlaceholder('gamely');
 
-  // console.log('onSearchInput: ' + text);
+  // console.log('onSearchBarInput: ' + text);
 }
 
 onload();

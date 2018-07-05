@@ -1,38 +1,37 @@
-.searchBar
-{
-  background-color: #4F4F4F;
-  position: relative;
-  width: 100vw;
-  height: 10vh;
-}
-
-.searchBarPlaceholder, .searchBarInput
+.searchBar, .searchBarPlaceholder
 {
   display: flex;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0);
-  color: #ffffff;
-  position: absolute;
-  left: 10px;
-  top: 0px;
-  width: calc(100vw - 25px);
-  height: inherit;
+  outline: none;
+  background-color: #4F4F4F;
+  color: #FFFFFF;
+  position: relative;
+  width: 100vw;
+  height: calc(15px + 4.5vh + 0.5vw);
   font-family: Oxygen;
-  font-size: calc(50% + 3vh);
+  font-size: calc(5px + 0.5vw + 0.9vh);
   font-weight: 200;
-  padding: 0px;
+  padding: 0px 10px;
   border: 0px;
 }
 
 .searchBarPlaceholder
 {
-  background-color: #4F4F4F;
-  color: #878787;
+  background-color: rgba(0, 0, 0, 0);
+  color: rgba(255, 255, 255, 0.35);
+  position: absolute;
+  left: 0px;
+  top: 0px;
   pointer-events: none;
   user-select: none;
 }
 
-.searchBarInput:focus
+.searchBar:focus, .searchBarPlaceholder-focus
 {
-  outline: none;
+  height: calc(30px + 4.5vh + 0.5vw);
+  font-size: calc(15px + 0.5vw + 0.9vh);
+}
+
+.searchBarPlaceholder-focus
+{
 }

@@ -1,9 +1,9 @@
 import { remote } from 'electron';
 
-import * as page from './page.js';
 import * as searchBar from './searchBar.js';
 
-import { loadExtensionsDir } from './registry.js';
+import { loadExtensionsDir, emitCallbacks } from './registry.js';
+
 import { hideSplashScreen, Block, appendBlock } from './extension.js';
 
 export const splash = document.body.children[0];
@@ -22,8 +22,8 @@ export const mainWindow = remote.getCurrentWindow();
 
 function registerEvents()
 {
-  mainWindow.on('focus', focus);
-  mainWindow.on('blur', blur);
+  mainWindow.on('focus', onfocus);
+  mainWindow.on('blur', onblur);
 
   // back-arrow 37
   // up-arrow 38
@@ -51,33 +51,36 @@ function registerEvents()
 
 /** gets called when the application gets focus
 */
-function focus()
+function onfocus()
 {
-  searchBar.focus();
+  searchBar.onfocus();
+
+  // emits the event to extensions
+  emitCallbacks('onFocus');
 }
 
-/** an event callback, gets called when the application gets unfocused
+/** gets called when the application gets unfocused
 */
-function blur()
+function onblur()
 {
   if (!process.env.DEBUG)
     mainWindow.hide();
+  
+  // emits the event to extensions
+  emitCallbacks('onBlur');
 }
 
 // create and append search bar block
 searchBar.append();
     
-// create and append page block
-page.append();
-    
 // register elements events and track key presses
 registerEvents();
 
-// start focus
-focus();
-  
 // load all extensions
 loadExtensionsDir();
+
+// reset focus
+onfocus();
 
 const dialogue = new Block();
 

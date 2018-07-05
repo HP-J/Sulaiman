@@ -1,0 +1,18 @@
+body
+{
+  background-color: #292929;
+}
+
+.block
+{
+  background-color: #292929;
+  position: relative;
+  width: 100%;
+  height: calc(60px + 5vh);
+}
+
+.block:focus, .block:hover
+{
+  background-color: #4F4F4F;
+  outline: none;
+}

@@ -43,23 +43,9 @@ export function loadExtensionsDir()
     if (!existsSync(registryPath))
       continue;
 
-    // ask the user then load the extension when he and if he accepts the registry object
-    askUser(extensionPath, JSON.parse(readFileSync(registryPath)));
+    // load the extension
+    loadExtension(extensionPath, JSON.parse(readFileSync(registryPath)));
   }
-}
-
-// TODO actually asking the user using GUI
-// TODO load extensions that don't have permissions or modules without asking
-
-/** Ask the user using GUI if he accepts an extension's registry object [async]
-* @param { string } extensionPath
-* @param { Registry } registry
-* @param { (extensionPath: string, registry: Registry) => void } callback
-*/
-function askUser(extensionPath, registry)
-{
-  // load the extension if the user accepts
-  loadExtension(extensionPath, registry);
 }
 
 /** creates a new NodeVM with the registry object
@@ -73,7 +59,7 @@ function loadExtension(extensionPath, registry)
   // separate node builtin modules from the external modules
   const { builtin, external } = handelSeparation(registry.modules);
 
-  // create a new vm for the extension with only the modules and permissions the user approved
+  // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
     sandbox: sandbox,
     require:
@@ -172,10 +158,9 @@ export function registerCallback(eventName, callback)
 
 /** emits an event's callbacks
 * @param { string } eventName
-* @param { any } thisArg
 * @param { any[] } args
 */
-export function emitCallbacks(eventName, thisArg, ...args)
+export function emitCallbacks(eventName, ...args)
 {
   // check if (any) extension has registered for the event
   if (extEvents[eventName] === undefined)
@@ -185,6 +170,6 @@ export function emitCallbacks(eventName, thisArg, ...args)
   for (let i = 0; i < extEvents[eventName].length; i++)
   {
     // emit the callback
-    extEvents[eventName][i].call(thisArg, ...args);
+    extEvents[eventName][i](...args);
   }
 }
