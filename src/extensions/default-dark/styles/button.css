@@ -8,44 +8,39 @@
   stroke: white;
   pointer-events: none;
   position: absolute;
-  left: calc(100vw - (7.6vw + 20px));
+  left: calc(100vw - ((16px + 2vw + 0.5vh) + 10px));
   top: 0px;
-  width: 50px;
+  width: calc(16px + 2vw + 0.5vh);
   height: inherit;
-  padding: 0px;
-  border: 0px;
 }
 
 .buttonActionIcon
 {
-  left: calc(100vw - (3.8vw + 10px));
+  left: calc(100vw - (((16px + 2vw + 0.5vh) * 2) + 20px));
 }
 
 .buttonTitle, .buttonDescription
 {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   background-color: transparent;
   color: #ffffff;
   pointer-events: none;
   user-select: none;
   cursor: default;
   position: absolute;
-  left: 12px;
+  left: 20px;
   top: 0px;
   height: 50%;
-  width: calc(100vw - (7.6vw + 42px));
+  width: calc(100vw - (((16px + 2vw + 0.5vh) * 2) + 50px));
   font-family: Oxygen;
   font-size: calc(10px + 0.5vw + 1.3vh);
   font-weight: 200;
-  margin-top: 0.8vh;
-  padding: 0px;
-  /* border: solid red 2px; */
 }
 
 .buttonDescription
 {
+  align-items: flex-start;
   color: #878787;
   top: 50%;
-  margin-top: -0.8vh;
 }

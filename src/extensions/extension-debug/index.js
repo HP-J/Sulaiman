@@ -1,8 +1,9 @@
+// ! this is a extension to DEBUG and TRY the API
+// ! IT SHOULD BE EXCLUDED FROM ANY PACKAGE
+
 import * as ext from 'sulaiman';
 
 import { join } from 'path';
-
-// TODO finish documenting and move it to a new repository
 
 // TODO test if local modules are hosted outside the proxies
 // if the user creates a new script file and required that script

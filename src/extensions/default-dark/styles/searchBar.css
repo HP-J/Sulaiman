@@ -7,9 +7,9 @@
   color: #FFFFFF;
   position: relative;
   width: 100vw;
-  height: calc(15px + 4.5vh + 0.5vw);
+  height: calc(35px + 4.5vh + 0.5vw);
   font-family: Oxygen;
-  font-size: calc(5px + 0.5vw + 0.9vh);
+  font-size: calc(15px + 1vh + 0.5vw);
   font-weight: 200;
   padding: 0px 10px;
   border: 0px;
@@ -19,19 +19,9 @@
 {
   background-color: rgba(0, 0, 0, 0);
   color: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  user-select: none;
   position: absolute;
   left: 0px;
   top: 0px;
-  pointer-events: none;
-  user-select: none;
-}
-
-.searchBar:focus, .searchBarPlaceholder-focus
-{
-  height: calc(30px + 4.5vh + 0.5vw);
-  font-size: calc(15px + 0.5vw + 0.9vh);
-}
-
-.searchBarPlaceholder-focus
-{
 }

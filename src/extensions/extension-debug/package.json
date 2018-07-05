@@ -1,0 +1,12 @@
+{
+  "name": "sulaiman-extension-debug",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "author": "Herp Project",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "sulaiman": "0.1.0"
+  }
+}

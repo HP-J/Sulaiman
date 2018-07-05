@@ -6,6 +6,7 @@ body
 .block
 {
   background-color: #292929;
+  cursor: pointer;
   position: relative;
   width: 100%;
   height: calc(60px + 5vh);

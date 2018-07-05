@@ -210,21 +210,21 @@ export default class Block
     this.domElement.appendChild(titleElem);
     this.domElement.appendChild(descriptionElem);
 
-    // if (extensionIcon !== undefined)
-    // {
-    //   extensionIcon.setAttribute('class', 'buttonExtensionIcon');
-    //   extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    if (extensionIcon !== undefined)
+    {
+      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
+      extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    //   this.domElement.appendChild(extensionIcon);
-    // }
+      this.domElement.appendChild(extensionIcon);
+    }
 
-    // if (actionIcon !== undefined)
-    // {
-    //   actionIcon.setAttribute('class', 'buttonActionIcon');
-    //   actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    if (actionIcon !== undefined)
+    {
+      actionIcon.setAttribute('class', 'buttonActionIcon');
+      actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-    //   this.domElement.appendChild(actionIcon);
-    // }
+      this.domElement.appendChild(actionIcon);
+    }
   }
 
   /** dialogue
@@ -232,7 +232,7 @@ export default class Block
   */
   itsDialogue(...options)
   {
-    this.reset();
+    // this.reset();
 
     // this.domElement.appendChild(document.createElement('button'));
     // this.domElement.appendChild(document.createElement('button'));
