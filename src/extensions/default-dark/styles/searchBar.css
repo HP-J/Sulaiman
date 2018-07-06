@@ -1,12 +1,9 @@
-.searchBar, .searchBarPlaceholder
+.searchBar
 {
-  display: flex;
-  align-items: center;
   outline: none;
   background-color: #4F4F4F;
   color: #FFFFFF;
-  position: relative;
-  width: 100vw;
+  width: 100%;
   height: calc(35px + 4.5vh + 0.5vw);
   font-family: Oxygen;
   font-size: calc(15px + 1vh + 0.5vw);
@@ -15,13 +12,7 @@
   border: 0px;
 }
 
-.searchBarPlaceholder
+.searchBar::placeholder
 {
-  background-color: rgba(0, 0, 0, 0);
-  color: rgba(255, 255, 255, 0.35);
-  pointer-events: none;
-  user-select: none;
-  position: absolute;
-  left: 0px;
-  top: 0px;
+  color: #878787;
 }

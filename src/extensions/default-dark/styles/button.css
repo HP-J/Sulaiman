@@ -8,7 +8,7 @@
   stroke: white;
   pointer-events: none;
   position: absolute;
-  left: calc(100vw - ((16px + 2vw + 0.5vh) + 10px));
+  left: calc(100vw - (((16px + 2vw + 0.5vh) * 2) + 20px));
   top: 0px;
   width: calc(16px + 2vw + 0.5vh);
   height: inherit;
@@ -16,7 +16,7 @@
 
 .buttonActionIcon
 {
-  left: calc(100vw - (((16px + 2vw + 0.5vh) * 2) + 20px));
+  left: calc(100vw - ((16px + 2vw + 0.5vh) + 10px));
 }
 
 .buttonTitle, .buttonDescription

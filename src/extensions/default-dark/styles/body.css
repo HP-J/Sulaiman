@@ -15,5 +15,4 @@ body
 .block:focus, .block:hover
 {
   background-color: #4F4F4F;
-  outline: none;
 }

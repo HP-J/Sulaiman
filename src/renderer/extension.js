@@ -10,7 +10,7 @@ import Block from './block.js';
 
 export { Block };
 
-export { setPlaceholder, setDefaultPlaceholder } from './searchBar.js';
+export { setPlaceholder } from './searchBar.js';
 
 /** [needs a registry permission]
 * access to read & write to clipboard

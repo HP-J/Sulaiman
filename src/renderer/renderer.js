@@ -11,13 +11,13 @@ export const splash = document.body.children[0];
 export const mainWindow = remote.getCurrentWindow();
 
 // TODO Extensions Control Room
-// TODO check for sulaiman updates and download packages on AppImages, Windows, and DMG
 
 // TODO Extension Ideas
 // apps
 // calculator
 // files
 // google
+// check for sulaiman updates and download packages on AppImages, Windows, and DMG
 // auto-start
 
 function registerEvents()
@@ -53,8 +53,6 @@ function registerEvents()
 */
 function onfocus()
 {
-  searchBar.onfocus();
-
   // emits the event to extensions
   emitCallbacks('onFocus');
 }
