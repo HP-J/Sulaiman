@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
-    "test": "nyc mocha --require babel-core/register"
+    "test": "eslint ./src && nyc mocha --require babel-core/register"
   },
   "repository": {
     "type": "git",
