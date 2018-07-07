@@ -1,4 +1,3 @@
-![coverage](https://gitlab.com/herpproject/sulaiman/badges/development/coverage.svg)
 ![pipeline](https://gitlab.com/herpproject/sulaiman/badges/development/pipeline.svg)
 
 # Welcome to Sulaiman

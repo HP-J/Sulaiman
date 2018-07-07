@@ -1,12 +1,20 @@
 {
   "todo-tree.flat": true,
   "todo-tree.expanded": true,
-  "mocha.options": {
-  "compilers": {
-      "js": "babel-register"
+  "mocha.requires":
+  [
+    "babel-register",
+    "babel-polyfill"
+  ],
+  "mocha.coverage":
+  {
+    "enable": false,
+    "decoration": true,
+    "runWithInterval": false,
+    "autoUpdateInterval": 20000,
+    "activeOnStart": true,
+    "runAfterTest": false,
+    "runCoverageAfterFileSave": false,
+    "reporters": []
   }
-  },
-  "mocha.requires": [
-      "babel-register"
-  ]
 }
