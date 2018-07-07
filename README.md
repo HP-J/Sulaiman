@@ -1,5 +1,5 @@
-![coverage](https://gitlab.com/herpproject/sulaiman/badges/master/coverage.svg)
-![pipeline](https://gitlab.com/herpproject/sulaiman/badges/master/pipeline.svg)
+![coverage](https://gitlab.com/herpproject/sulaiman/badges/development/coverage.svg)
+![pipeline](https://gitlab.com/herpproject/sulaiman/badges/development/pipeline.svg)
 
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
