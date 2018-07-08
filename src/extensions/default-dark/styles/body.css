@@ -1,15 +1,24 @@
 body
 {
   background-color: #292929;
+  width: 100vw;
 }
 
 .block
 {
+  outline: none;
+  overflow: hidden;
   background-color: #292929;
   cursor: pointer;
   position: relative;
-  width: 100%;
-  height: calc(60px + 5vh);
+  width: calc(100vw);
+  height: auto;
+  /* padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px; */
+  border: 0px;
+  margin: 0px;
 }
 
 .block:focus, .block:hover

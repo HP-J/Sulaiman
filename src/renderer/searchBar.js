@@ -10,7 +10,7 @@ export let input;
 export function append()
 {
   input = document.createElement('input');
-  input.setAttribute('class', 'searchBar');
+  input.setAttribute('class', 'searchBar block');
   document.body.appendChild(input);
 
   onFocus(sulaimanOnFocus);
@@ -42,7 +42,7 @@ function sulaimanOnBlur()
 */
 function oninput()
 {
-  emitCallbacks('onSearchBarInput', undefined, input.value);
+  emitCallbacks('onSearchBarInput', input.value);
 }
 
 /** set the text in the search bar (if the search bar is empty)

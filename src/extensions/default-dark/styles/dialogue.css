@@ -1,0 +1,61 @@
+.dialogueOptions
+{
+  display: grid;
+  /* grid-auto-flow: row; */
+  /* grid-template:
+  'title title'
+  'desc desc'
+  'option option'; */
+  grid-gap: 10px;
+  cursor: default;
+  height: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.dialogueTitle
+{
+  display: flex;
+  align-items: flex-end;
+  background-color: transparent;
+  color: #FFFFFF;
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: Oxygen;
+  font-size: calc(10px + 0.5vw + 1.3vh);
+  font-weight: normal;
+  border: #542C74 solid 2px;
+}
+
+.dialogueDescription
+{
+  /* grid-row: desc; */
+  color: #878787;
+  user-select: none;
+  white-space: pre-line;
+  writing-mode: horizontal-tb;
+  max-block-size: 35vh;
+  overflow: hidden;
+  width: 100vw;
+  font-family: Oxygen;
+  font-size: calc(10px + 0.5vw + 1.3vh);
+  font-weight: normal;
+  border: #542C74 solid 2px;
+}
+
+.dialogueOption
+{
+  /* grid-row: option; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #542C74;
+  color: #FFFFFF;
+  cursor: pointer;
+  width: auto;
+  height: 6.5vh;
+  font-family: Oxygen;
+  font-size: calc(10px + 0.5vw + 0.5vh);
+  font-weight: normal;
+}

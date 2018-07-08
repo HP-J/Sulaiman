@@ -7,14 +7,16 @@ export default class Block
   {
     /** the block's main html element
     * (some functions are broken due to issues with the sandbox module,
-    * please use the alterative block functions instead)
+    * please use the alterative block functions if available instead)
     * @type { HTMLDivElement }
     */
     this.domElement = document.createElement('div');
 
-    // this.domElement.tabIndex = 1;
+    this.domElement.tabIndex = 1;
 
     this.reset();
+    
+    this.setClass('block');
 
     const styleHandler =
     {
@@ -144,11 +146,7 @@ export default class Block
       this.domElement.removeChild(this.domElement.lastChild);
     }
 
-    // remove all classes and ids
-    this.setClass('block');
-    this.setId('');
-
-    // remove the css text
+    // remove the style
     this.domElement.style.cssText = '';
   }
 
@@ -185,18 +183,19 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
-  // TODO itsDialogue
   // TODO itsDismissible
 
   /**
-  * @param { string } title
-  * @param { string } description
+  * @param { string } title (HTML is allowed)
+  * @param { string } description (HTML is allowed)
   * @param { HTMLElement } extensionIcon
   * @param { HTMLElement } actionIcon
   */
-  itsButton(title, description, extensionIcon, actionIcon)
+  button(title, description, extensionIcon, actionIcon)
   {
     this.reset();
+
+    this.setClass('block button');
 
     const titleElem = document.createElement('div');
     const descriptionElem = document.createElement('div');
@@ -204,37 +203,66 @@ export default class Block
     titleElem.setAttribute('class', 'buttonTitle');
     descriptionElem.setAttribute('class', 'buttonDescription');
     
-    titleElem.innerHTML = title;
-    descriptionElem.innerHTML = description;
-    
-    this.domElement.appendChild(titleElem);
-    this.domElement.appendChild(descriptionElem);
+    titleElem.innerText = title;
+    descriptionElem.innerText = description;
 
     if (extensionIcon !== undefined)
     {
       extensionIcon.setAttribute('class', 'buttonExtensionIcon');
-      extensionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-      this.domElement.appendChild(extensionIcon);
     }
 
     if (actionIcon !== undefined)
     {
       actionIcon.setAttribute('class', 'buttonActionIcon');
-      actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-      this.domElement.appendChild(actionIcon);
+      // actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
+
+        
+    this.domElement.appendChild(titleElem);
+    if (extensionIcon !== undefined)
+      this.domElement.appendChild(extensionIcon);
+
+    if (actionIcon !== undefined)
+      this.domElement.appendChild(actionIcon);
+        
+    this.domElement.appendChild(descriptionElem);
   }
 
   /** dialogue
   * @param { string[] } options
   */
-  itsDialogue(...options)
+  dialogue(...options)
   {
-    // this.reset();
+    this.reset();
 
-    // this.domElement.appendChild(document.createElement('button'));
-    // this.domElement.appendChild(document.createElement('button'));
+    this.setClass('block dialogue');
+
+    const titleElem = document.createElement('div');
+    const descriptionElem = document.createElement('div');
+    
+    titleElem.setAttribute('class', 'dialogueTitle');
+    descriptionElem.setAttribute('class', 'dialogueDescription');
+    
+    titleElem.innerText = 'title';
+
+    descriptionElem.innerText =
+    `Once I knew a Devil,
+    He was really good to me,
+    No one has ever been good to me,
+    God have sent me to Haven, I hate God.`;
+
+    this.domElement.appendChild(titleElem);
+    this.domElement.appendChild(descriptionElem);
+
+    for (let i = 0; i < options.length; i++)
+    {
+      const option = document.createElement('div');
+
+      option.setAttribute('class', 'dialogueOption');
+
+      option.innerHTML = options[i];
+
+      this.domElement.appendChild(option);
+    }
   }
 }

@@ -80,12 +80,6 @@ loadExtensionsDir();
 // reset focus
 onfocus();
 
-const dialogue = new Block();
-
-dialogue.itsDialogue('yes', 'no');
-
-appendBlock(dialogue);
-
 // set a timeout to hide the splash screen to give a chance to
 // extensions that leverages it to hide it themselves
 setTimeout(() =>

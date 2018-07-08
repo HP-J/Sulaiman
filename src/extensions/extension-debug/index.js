@@ -9,11 +9,14 @@ import { join } from 'path';
 // if the user creates a new script file and required that script
 // will it escape the host or not
 
+let block;
+
 function onload()
 {
-  const block = new ext.Block();
+  block = new ext.Block();
 
-  block.itsButton('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
+  block.button('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
+  // block.dialogue('yes', 'no', 'later');
   
   // block.domElement.style.backgroundColor = 'red';
 
