@@ -67,14 +67,6 @@ function createWindow()
     globalShortcut.register('Control+Space', focus);
 }
 
-/** @param { string[] } argv the args that was sent from the second instance
-* @param { string } workingDirectory the current working directory
-*/
-function singleInstance()
-{
-  focus();
-}
-
 function focus()
 {
   mainWindow.show();
@@ -84,7 +76,12 @@ function focus()
 // if the user tried to open a new instance while a one is already open
 // and the new instance is not inside a debug environment
 // then quit the new instance and focus on the opened instance
-if (process.env.DEBUG || !app.makeSingleInstance(singleInstance))
+// app.on('second-instance', () =>
+// {
+//   focus();
+// });
+
+// if (process.env.DEBUG || !app.requestSingleInstanceLock())
 {
   // workaround color issues
   app.commandLine.appendSwitch('--force-color-profile', 'sRBG');

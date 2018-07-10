@@ -7,7 +7,18 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
-    "test": "eslint ./src ./test && mocha --require babel-core/register --require babel-polyfill"
+    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill --exit"
+  },
+  "nyc": {
+    "include": [
+      "**/main.js",
+
+      "**/block.js",
+      "**/extension.js",
+      "**/registry.js",
+      "**/renderer.js",
+      "**/searchBar.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -18,7 +29,6 @@
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
-    "electron": "^2.0.4",
     "vm2": "^3.6.2"
   },
   "devDependencies": {
@@ -27,9 +37,13 @@
     "babel-eslint": "^8.2.5",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
+    "electron": "^3.0.0-beta.1",
     "eslint": "^5.1.0",
     "mocha": "^5.2.0",
     "node-cmd": "^3.0.0",
-    "spectron": "^3.8.0"
+    "nyc": "^12.0.2",
+    "puppeteer": "^1.2.0",
+    "puppeteer-to-istanbul": "^1.2.2",
+    "request-promise": "^4.2.2"
   }
 }

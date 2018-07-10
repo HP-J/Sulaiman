@@ -4,7 +4,7 @@ import * as searchBar from './searchBar.js';
 
 import { loadExtensionsDir, emitCallbacks } from './registry.js';
 
-import { hideSplashScreen, Block, appendBlock } from './extension.js';
+import { hideSplashScreen } from './extension.js';
 
 export const splash = document.body.children[0];
 

@@ -162,9 +162,15 @@ export function appendStyleDir(dir, callback)
   appendStyle(callback,
     ...readdirSync(dir)
       // get only .css files
-      .filter((x) => { return x.endsWith('.css'); })
+      .filter((x) =>
+      {
+        return x.endsWith('.css');
+      })
       // get the full path of the files
-      .map((x) => { return join(dir, x); }));
+      .map((x) =>
+      {
+        return join(dir, x);
+      }));
 }
 
 /** remove a stylesheet file from the dom

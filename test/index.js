@@ -1,5 +1,3 @@
-import { Application } from 'spectron';
-
 import assert from 'assert';
 
 import { join } from 'path';
@@ -10,20 +8,33 @@ import * as cmd from 'node-cmd';
 
 import { promisify } from 'util';
 
+import { connect, Browser, Page } from 'puppeteer';
+
+import rp from 'request-promise';
+
+import pti from 'puppeteer-to-istanbul';
+
 const getAsync = promisify(cmd.get, { multiArgs: true, context: cmd });
 
 function sleep(ms)
 {
-  return new Promise((resolve) => { return setTimeout(resolve, ms); });
+  return new Promise((resolve) =>
+  {
+    return setTimeout(resolve, ms);
+  });
 }
 
 describe('Application launch', function()
 {
   this.timeout(50000);
 
-  /** @type { Application }
+  /** @type { Browser }
   */
-  let app = undefined;
+  let browser;
+
+  /** @type { Page }
+  */
+  let page;
 
   before(async() =>
   {
@@ -32,25 +43,33 @@ describe('Application launch', function()
 
     await getAsync('npx babel src --out-dir public --ignore node_modules --source-maps --copy-files');
 
-    app = new Application(
-      {
-        path: join(__dirname, '../node_modules/.bin/electron'),
-        args: [ join(__dirname, '../public/main/main.js') ]
-      });
+    cmd.run('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
 
-    await app.start();
+    await sleep(2500);
 
-    await sleep(2000);
-  });
+    const respond = await rp('http://localhost:9222/json/version', { json: true });
 
-  after(async() =>
-  {
-    if (app && app.isRunning())
-      await app.stop();
+    browser = await connect({ browserWSEndpoint: respond.webSocketDebuggerUrl });
+
+    const pages = await browser.pages();
+
+    page = pages[0];
+
+    await page.coverage.startJSCoverage();
+
+    await page.reload();
+
+    await sleep(2500);
+
+    const jsCoverage = await page.coverage.stopJSCoverage();
+    
+    pti.write(jsCoverage);
+
+    // await page.screenshot({ path: 'example.png' });
   });
 
   it('is Application Running', () =>
   {
-    assert.strictEqual(app.isRunning(), true);
+    // assert.strictEqual(app.isRunning(), true);
   });
 });
