@@ -49,21 +49,23 @@ describe('Application launch', function()
 
     const respond = await rp('http://localhost:9222/json/version', { json: true });
 
-    browser = await connect({ browserWSEndpoint: respond.webSocketDebuggerUrl });
+    console.log(respond.webSocketDebuggerUrl);
 
-    const pages = await browser.pages();
+    // browser = await connect({ browserWSEndpoint: respond.webSocketDebuggerUrl });
 
-    page = pages[0];
+    // const pages = await browser.pages();
 
-    await page.coverage.startJSCoverage();
+    // page = pages[0];
 
-    await page.reload();
+    // await page.coverage.startJSCoverage();
 
-    await sleep(2500);
+    // await page.reload();
 
-    const jsCoverage = await page.coverage.stopJSCoverage();
+    // await sleep(2500);
+
+    // const jsCoverage = await page.coverage.stopJSCoverage();
     
-    pti.write(jsCoverage);
+    // pti.write(jsCoverage);
 
     // await page.screenshot({ path: 'example.png' });
   });
