@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
-    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill --exit"
+    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill --recursive test --exit"
   },
   "nyc": {
     "include": [
