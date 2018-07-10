@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
-    "test": "mocha --require babel-core/register --require babel-polyfill --exit"
+    "test": "xvfb-run electron ./public/main/main.js"
   },
   "nyc": {
     "include": [
