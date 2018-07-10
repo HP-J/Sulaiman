@@ -4,7 +4,7 @@ cache:
 
 build:
   script:
-    - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sudo sh
+    - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
     - npm test
   only:
     - development
