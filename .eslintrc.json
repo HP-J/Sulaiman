@@ -33,8 +33,7 @@
         "no-empty-function": "error",
         "brace-style": [
             "error",
-            "allman",
-            { "allowSingleLine": true }
+            "allman"
         ],
         "semi": [
             "error",

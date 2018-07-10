@@ -2,10 +2,12 @@
 {
   background-color: #4F4F4F;
   color: #FFFFFF;
+  width: calc(100vw - 20px);
   height: calc(30px + 3vh + 0.5vw);
-  font-family: Oxygen;
   font-size: calc(15px + 1.5vh + 0.5vw);
-  font-weight: normal;
+  text-transform: none;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .searchBar::placeholder

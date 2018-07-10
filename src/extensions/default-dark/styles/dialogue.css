@@ -1,61 +1,46 @@
-.dialogueOptions
+.dialogue
 {
   display: grid;
-  /* grid-auto-flow: row; */
-  /* grid-template:
-  'title title'
-  'desc desc'
-  'option option'; */
-  grid-gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+  grid-row-gap: 10px;
+  grid-column-gap: 10px;
   cursor: default;
-  height: auto;
-  padding-top: 10px;
-  padding-bottom: 10px;
 }
 
-.dialogueTitle
+.dialogueTitle, .dialogueDescription
 {
-  display: flex;
-  align-items: flex-end;
-  background-color: transparent;
+  grid-row: 1;
   color: #FFFFFF;
-  user-select: none;
-  white-space: nowrap;
   overflow: hidden;
-  font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 1.3vh);
-  font-weight: normal;
-  border: #542C74 solid 2px;
+  width: inherit;
 }
 
 .dialogueDescription
 {
-  /* grid-row: desc; */
+  grid-row: 2;
   color: #878787;
-  user-select: none;
   white-space: pre-line;
   writing-mode: horizontal-tb;
   max-block-size: 35vh;
-  overflow: hidden;
-  width: 100vw;
-  font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 1.3vh);
-  font-weight: normal;
-  border: #542C74 solid 2px;
+  font-size: calc(10px + 0.5vw + 1vh);
 }
 
 .dialogueOption
 {
-  /* grid-row: option; */
+  grid-row: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #542C74;
   color: #FFFFFF;
   cursor: pointer;
-  width: auto;
-  height: 6.5vh;
-  font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 0.5vh);
-  font-weight: normal;
+  height: 8.5vh;
+  text-transform: uppercase;
+  font-size: calc(10px + 0.5vw + 0.8vh);
+  font-weight: 700;
+}
+
+.dialogueOption:hover
+{
+  box-sizing: border-box;
+  border: #FFFFFF solid 1px;
 }

@@ -16,7 +16,13 @@ function onload()
   block = new ext.Block();
 
   block.button('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
-  // block.dialogue('yes', 'no', 'later');
+  
+  // block.dialogue('title',
+  //   `once I knew a Devil,
+  //   He was really good to me,
+  //   No one has ever been good to me,
+  //   God have sent me to Haven, I hate God.`,
+  //   'yes', 'no', 'maybe');
   
   // block.domElement.style.backgroundColor = 'red';
 

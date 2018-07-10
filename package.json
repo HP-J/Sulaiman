@@ -18,7 +18,8 @@
   "dependencies": {
     "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
-    "electron": "^2.0.4"
+    "electron": "^2.0.4",
+    "vm2": "^3.6.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -26,10 +27,9 @@
     "babel-eslint": "^8.2.5",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "eslint": "^5.0.1",
+    "eslint": "^5.1.0",
     "mocha": "^5.2.0",
     "node-cmd": "^3.0.0",
-    "spectron": "^3.8.0",
-    "vm2": "^3.6.2"
+    "spectron": "^3.8.0"
   }
 }

@@ -186,8 +186,8 @@ export default class Block
   // TODO itsDismissible
 
   /**
-  * @param { string } title (HTML is allowed)
-  * @param { string } description (HTML is allowed)
+  * @param { string } title
+  * @param { string } description
   * @param { HTMLElement } extensionIcon
   * @param { HTMLElement } actionIcon
   */
@@ -206,32 +206,28 @@ export default class Block
     titleElem.innerText = title;
     descriptionElem.innerText = description;
 
+    this.domElement.appendChild(titleElem);
+    this.domElement.appendChild(descriptionElem);
+    
     if (extensionIcon !== undefined)
     {
       extensionIcon.setAttribute('class', 'buttonExtensionIcon');
+      this.domElement.appendChild(extensionIcon);
     }
-
+  
     if (actionIcon !== undefined)
     {
       actionIcon.setAttribute('class', 'buttonActionIcon');
-      // actionIcon.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    }
-
-        
-    this.domElement.appendChild(titleElem);
-    if (extensionIcon !== undefined)
-      this.domElement.appendChild(extensionIcon);
-
-    if (actionIcon !== undefined)
       this.domElement.appendChild(actionIcon);
-        
-    this.domElement.appendChild(descriptionElem);
+    }
   }
 
   /** dialogue
+  * @param { string } title
+  * @param { string } description
   * @param { string[] } options
   */
-  dialogue(...options)
+  dialogue(title, description, ...options)
   {
     this.reset();
 
@@ -243,13 +239,8 @@ export default class Block
     titleElem.setAttribute('class', 'dialogueTitle');
     descriptionElem.setAttribute('class', 'dialogueDescription');
     
-    titleElem.innerText = 'title';
-
-    descriptionElem.innerText =
-    `Once I knew a Devil,
-    He was really good to me,
-    No one has ever been good to me,
-    God have sent me to Haven, I hate God.`;
+    titleElem.innerText = title;
+    descriptionElem.innerText = description;
 
     this.domElement.appendChild(titleElem);
     this.domElement.appendChild(descriptionElem);
@@ -260,7 +251,7 @@ export default class Block
 
       option.setAttribute('class', 'dialogueOption');
 
-      option.innerHTML = options[i];
+      option.innerText = options[i];
 
       this.domElement.appendChild(option);
     }

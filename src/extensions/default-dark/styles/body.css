@@ -11,12 +11,18 @@ body
   background-color: #292929;
   cursor: pointer;
   position: relative;
-  width: calc(100vw);
+  width: calc(100vw - 40px);
   height: auto;
-  /* padding-left: 10px;
-  padding-right: 10px;
+  font-family: Oxygen;
+  font-size: calc(10px + 0.5vw + 1.3vh);
+  font-weight: 400;
+  user-select: none;
+  white-space: nowrap;
+  text-transform: capitalize;
+  padding-left: 20px;
+  padding-right: 20px;
   padding-top: 10px;
-  padding-bottom: 10px; */
+  padding-bottom: 10px;
   border: 0px;
   margin: 0px;
 }
