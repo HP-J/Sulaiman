@@ -1,11 +1,12 @@
-image: node:latest
+image: node:slim
 
-cache:
-  paths:
-  - node_modules/
+# cache:
+#   paths:
+#   - node_modules/
 
 build:
   script:
+    - apt-get -y install libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
     - npm install
     - npm run test2
     - npm run test3
