@@ -1,3 +1,5 @@
+image: node:slim
+
 cache:
   paths:
   - node_modules/
