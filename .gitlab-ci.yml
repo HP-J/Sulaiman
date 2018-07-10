@@ -6,6 +6,7 @@ image: node:slim
 
 build:
   script:
+    - apt-get update
     - apt-get -y install libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
     - npm install
     - npm run test2
