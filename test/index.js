@@ -43,13 +43,18 @@ describe('Application launch', function()
 
     await getAsync('npx babel src --out-dir public --ignore node_modules --source-maps --copy-files');
 
-    cmd.run('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
+    const electron = cmd.run('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
+
+    electron.stdout.on('data', (data) =>
+    {
+      console.log(data);
+    });
 
     await sleep(2500);
 
-    const respond = await rp('http://localhost:9222/json/version', { json: true });
+    // const respond = await rp('http://localhost:9222/json/version', { json: true });
 
-    console.log(respond.webSocketDebuggerUrl);
+    // console.log(respond.webSocketDebuggerUrl);
 
     // browser = await connect({ browserWSEndpoint: respond.webSocketDebuggerUrl });
 

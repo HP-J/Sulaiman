@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
     "clean": "rm -r ./public/",
+    "test2": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files",
+    "test3": "electron ./public/main/main.js --remote-debugging-port=9222",
     "test": "eslint ./src ./test && mocha --require babel-core/register --require babel-polyfill --recursive test --exit"
   },
   "nyc": {
