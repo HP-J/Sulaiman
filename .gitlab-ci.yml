@@ -7,7 +7,7 @@ cache:
 build:
   script:
     - npm install
-    - npm test2
-    - npm test3
+    - npm run test2
+    - npm run test3
   only:
     - development
