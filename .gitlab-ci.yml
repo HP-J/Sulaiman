@@ -1,15 +1,14 @@
-image: node:slim
-
-# cache:
-#   paths:
-#   - node_modules/
+cache:
+  paths:
+  - node_modules/
 
 build:
   script:
     - apt-get update
-    - apt-get -y install libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
+    - apt-get -y install xvfb libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
+    - export DISPLAY=':99.0'
+    - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - npm install
-    - npm run test2
-    - npm run test3
+    - npm test
   only:
     - development
