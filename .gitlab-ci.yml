@@ -2,6 +2,10 @@ cache:
   paths:
   - node_modules/
 
+stages:
+  - test
+  - deploy
+
 test:
   script:
     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
@@ -13,7 +17,7 @@ test:
     - linux
     - 64bit
 
-build:
+deploy:
   image: node:slim
   script:
     - echo "hello world"
