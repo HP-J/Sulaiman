@@ -4,6 +4,11 @@
   "description": "",
   "main": "index.js",
   "private": true,
+  "sulaiman": {
+    "name": "Extension Debug",
+    "permissions": [ "body", "clipboard" ],
+    "modules": [ "path", "fs" ]
+  },
   "author": "Herp Project",
   "license": "UNLICENSED",
   "devDependencies": {

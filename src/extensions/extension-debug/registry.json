@@ -1,5 +1,0 @@
-{
-  "name": "Extension Debug",
-  "permissions": [ "body", "clipboard" ],
-  "modules": [ "path", "fs" ]
-}

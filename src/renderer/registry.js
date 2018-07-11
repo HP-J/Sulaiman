@@ -6,7 +6,7 @@ import { join } from 'path';
 
 import builtinModules from 'builtin-modules';
 
-/** the global events registry
+/** the sulaiman events extensions are registered in
 * @type { Object.<string, Function[]> }
 */
 const extEvents = {};
@@ -23,7 +23,7 @@ export function loadExtensionsDir()
 {
   const root = join(__dirname, '../extensions/');
 
-  let extensionPath = undefined, registryPath = undefined;
+  let extensionPath = undefined, packagePath = undefined, packageMeta = undefined;
 
   const extensions = readdirSync(root);
 
@@ -32,19 +32,21 @@ export function loadExtensionsDir()
     // the required extension index script
     extensionPath = root + extensions[i] + '/index.js';
 
-    // the required extension registry json
-    registryPath = root + extensions[i] + '/registry.json';
+    // the required package json
+    packagePath = root + extensions[i] + '/package.json';
 
     // if the index.js file doesn't exists continue the loop
     if (!existsSync(extensionPath))
       continue;
     
-    // if the registry.json file doesn't exists
-    if (!existsSync(registryPath))
+    // if the package.json file doesn't exists
+    if (!existsSync(packagePath))
       continue;
 
+    packageMeta = JSON.parse(readFileSync(packagePath));
+
     // load the extension
-    loadExtension(extensionPath, JSON.parse(readFileSync(registryPath)));
+    loadExtension(extensionPath, packageMeta.sulaiman);
   }
 }
 
