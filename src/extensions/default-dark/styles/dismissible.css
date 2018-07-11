@@ -1,22 +1,13 @@
-.dialogue
+.notificationTitle, .notificationDescription
 {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
-  grid-row-gap: 10px;
-  grid-column-gap: 10px;
-}
-
-.dialogueTitle, .dialogueDescription
-{
-  grid-row: 1;
   color: #FFFFFF;
   overflow: hidden;
   width: inherit;
+  margin-bottom: 10px;
 }
 
-.dialogueDescription
+.notificationDescription
 {
-  grid-row: 2;
   color: #878787;
   white-space: pre-line;
   writing-mode: horizontal-tb;
@@ -24,21 +15,23 @@
   font-size: calc(10px + 0.5vw + 1vh);
 }
 
-.dialogueOption
+.notificationButton
 {
-  grid-row: 3;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
   cursor: pointer;
+  position: relative;
+  left: 75%;
+  width: 25%;
   height: calc(12px + 4vh + 1vw);
   text-transform: uppercase;
   font-size: calc(10px + 0.5vw + 0.8vh);
   font-weight: 700;
 }
 
-.dialogueOption:hover
+.notificationButton:hover
 {
   box-sizing: border-box;
   border: #FFFFFF solid 1px;

@@ -26,7 +26,6 @@
   "author": "Herp Project",
   "license": "GPL-3.0",
   "dependencies": {
-    "@meltwater/fetch-favicon": "^1.0.4",
     "builtin-modules": "^3.0.0",
     "vm2": "^3.6.2"
   },

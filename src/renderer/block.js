@@ -183,8 +183,6 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
-  // TODO itsDismissible
-
   /**
   * @param { string } title
   * @param { string } description
@@ -248,12 +246,39 @@ export default class Block
     for (let i = 0; i < options.length; i++)
     {
       const option = document.createElement('div');
-
       option.setAttribute('class', 'dialogueOption');
 
       option.innerText = options[i];
 
       this.domElement.appendChild(option);
     }
+  }
+
+  /** dialogue
+  * @param { string } title
+  * @param { string } description
+  * @param { string } dismiss
+  */
+  notification(title, description, dismiss)
+  {
+    this.reset();
+
+    this.setClass('block notification');
+
+    const titleElem = document.createElement('div');
+    const descriptionElem = document.createElement('div');
+    const dismissElem = document.createElement('div');
+   
+    titleElem.setAttribute('class', 'notificationTitle');
+    descriptionElem.setAttribute('class', 'notificationDescription');
+    dismissElem.setAttribute('class', 'notificationButton');
+    
+    titleElem.innerText = title;
+    descriptionElem.innerText = description;
+    dismissElem.innerText = dismiss;
+
+    this.domElement.appendChild(titleElem);
+    this.domElement.appendChild(descriptionElem);
+    this.domElement.appendChild(dismissElem);
   }
 }

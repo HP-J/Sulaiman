@@ -9,7 +9,6 @@ body
   outline: none;
   overflow: hidden;
   background-color: #292929;
-  cursor: pointer;
   position: relative;
   width: calc(100vw - 40px);
   height: auto;

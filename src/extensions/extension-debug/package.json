@@ -6,11 +6,20 @@
   "private": true,
   "sulaiman": {
     "name": "Extension Debug",
-    "permissions": [ "body", "clipboard" ],
-    "modules": [ "path", "fs" ]
+    "permissions": [
+      "body",
+      "clipboard"
+    ],
+    "modules": [
+      "path",
+      "fs"
+    ]
   },
   "author": "Herp Project",
   "license": "UNLICENSED",
+  "dependencies": {
+    "@meltwater/fetch-favicon": "^1.0.4"
+  },
   "devDependencies": {
     "sulaiman": "0.1.0"
   }
