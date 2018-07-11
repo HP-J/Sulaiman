@@ -7,6 +7,7 @@ stages:
   - deploy
 
 test:
+  stage: test
   script:
     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
     - npm test
@@ -18,6 +19,7 @@ test:
     - 64bit
 
 deploy:
+  stage: deploy
   image: node:slim
   script:
     - echo "hello world"
