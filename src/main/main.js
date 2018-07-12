@@ -69,19 +69,29 @@ function createWindow()
 
 function focus()
 {
+  mainWindow.restore();
+
   mainWindow.show();
+  
   mainWindow.setSkipTaskbar((process.env.DEBUG) ? false : true);
+
+  mainWindow.focus();
 }
 
 // if the user tried to open a new instance while a one is already open
 // and the new instance is not inside a debug environment
 // then quit the new instance and focus on the opened instance
-// app.on('second-instance', () =>
-// {
-//   focus();
-// });
+app.on('second-instance', () =>
+{
+  if (mainWindow)
+    focus();
+});
 
-// if (process.env.DEBUG || !app.requestSingleInstanceLock())
+if (!process.env.DEBUG && !app.requestSingleInstanceLock())
+{
+  app.quit();
+}
+else
 {
   // workaround color issues
   app.commandLine.appendSwitch('--force-color-profile', 'sRBG');

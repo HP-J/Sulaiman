@@ -4,6 +4,8 @@
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
 
+### => Sulaiman is in early stages of development, be aware that everything is subjected to be changed, and feedback is highly encouraged <=
+
 - It can't and won't boost your productivity.
 - It's NOT a cross-platform application.
 - You can't change the color, size, location and shape of the GUI using CSS themes.
@@ -44,4 +46,4 @@
 [![receives](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject)
 [![goal](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/donate)
 
-Sulaiman is a free, and open-source software, you can support the development with liberapay, thank you...
+Sulaiman is a freeware, and open-source software, you can support the development with liberapay, thank you...

@@ -2,9 +2,7 @@ import { NodeVM } from 'vm2';
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 
-import { join } from 'path';
-
-import builtinModules from 'builtin-modules';
+import { join, dirname } from 'path';
 
 /** the sulaiman events extensions are registered in
 * @type { Object.<string, Function[]> }
@@ -71,7 +69,7 @@ function loadExtension(extensionPath, registry)
       // accepted registry request modules
       external: [ './extension.js', ...external ],
       // limit externals to this path, so extensions can't require any local modules outside of their directory
-      root: join(__dirname, '../extensions/boilerplate'),
+      root: dirname(extensionPath),
       // allow access to the running sulaiman apis
       mock: mock,
       // host allows any required module to require more modules inside it with no limits
@@ -141,7 +139,16 @@ function handelSeparation(registryModules)
 */
 function isBuiltin(moduleName)
 {
-  return builtinModules.indexOf(moduleName) > -1;
+  try
+  {
+    const resolved = require.resolve(moduleName);
+
+    return !resolved.includes(require('path').sep);
+  }
+  catch (e)
+  {
+    return false;
+  }
 }
 
 /** register an extension callback on an event

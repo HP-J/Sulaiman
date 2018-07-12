@@ -11,8 +11,6 @@
       "clipboard"
     ],
     "modules": [
-      "path",
-      "fs"
     ]
   },
   "author": "Herp Project",

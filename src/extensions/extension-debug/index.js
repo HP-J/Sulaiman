@@ -3,7 +3,8 @@
 
 import * as ext from 'sulaiman';
 
-import { join } from 'path';
+// import { join } from 'path';
+import { join } from './parts.js';
 
 // TODO test if local modules are hosted outside the proxies
 // if the user creates a new script file and required that script
@@ -24,12 +25,12 @@ function onload()
     God have sent me to Haven, I hate God.`,
     'yes', 'no', 'maybe');
 
-  block.notification('title',
-    `once I knew a Devil,
-    He was really good to me,
-    No one has ever been good to me,
-    God have sent me to Haven, I hate God.`,
-    'ok');
+  // block.notification('title',
+  //   `once I knew a Devil,
+  //   He was really good to me,
+  //   No one has ever been good to me,
+  //   God have sent me to Haven, I hate God.`,
+  //   'ok');
   
   // block.domElement.style.backgroundColor = 'red';
 
