@@ -2,7 +2,7 @@
 // ! IT SHOULD BE EXCLUDED FROM ANY PACKAGE
 
 import * as ext from 'sulaiman';
-// import { join } from 'path';
+import { join } from 'path';
 
 // TODO allow local modules under the sandbox
 
@@ -12,18 +12,18 @@ function onload()
 {
   block = new ext.Block();
 
-  // block.button(
-  //   'hello',
-  //   'world',
-  //   // undefined,
-  //   ext.getIcon(join(__dirname, './icons/search.svg')),
-  //   ext.getIcon(join(__dirname, './icons/expand.svg'))
-  // );
+  block.button(
+    'hello',
+    'world',
+    // undefined,
+    ext.getIcon(join(__dirname, './icons/search.svg')),
+    ext.getIcon(join(__dirname, './icons/expand.svg'))
+  );
   
-  block.dialogue('title',
-    `there are few words that do justice to this villainy,
-    and I think it can only hasten that regime's departure.`,
-    '1', '2', '3');
+  // block.dialogue('title',
+  //   `there are few words that do justice to this villainy,
+  //   and I think it can only hasten that regime's departure.`,
+  //   '1', '2', '3');
 
   // block.notification('title',
   //   `once I knew a Devil,

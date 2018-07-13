@@ -1,29 +1,30 @@
-cache:
-  paths:
-  - node_modules/
+# cache:
+#   paths:
+#   - node_modules/
 
-stages:
-  - test
-  - deploy
+# stages:
+#   # - test
+#   - deploy
 
-test:
-  stage: test
-  script:
-    - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
-    - npm test
-  only:
-    - development
-  tags:
-    - arch
-    - linux
-    - 64bit
+# test:
+#   stage: test
+#   script:
+#     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
+#     - npm run compile
+#     - ./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222
+#   only:
+#     - development
+#   tags:
+#     - arch
+#     - linux
+#     - 64bit
 
-deploy:
-  stage: deploy
-  image: node:slim
-  script:
-    - echo "hello world"
-  only:
-    - development
-  tags:
-    - docker
+# deploy:
+#   stage: deploy
+#   image: node:slim
+#   script:
+#     - echo "hello world"
+#   only:
+#     - development
+#   tags:
+#     - docker
