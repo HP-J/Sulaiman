@@ -43,14 +43,14 @@ describe('Application launch', function()
 
   async function getDebuggerUrl()
   {
-    const respond = await rp('http://localhost:9225/json/version', { json: true });
+    const respond = await rp('http://localhost:9222/json/version', { json: true });
 
     return respond.webSocketDebuggerUrl;
   }
 
   before(async() =>
   {
-    electron = exec('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9225');
+    electron = exec('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
 
     let browserWSEndpoint;
     const sleepTimeout = 1500;
