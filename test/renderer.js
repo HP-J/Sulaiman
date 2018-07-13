@@ -54,7 +54,7 @@ describe('Application launch', function()
 
     let browserWSEndpoint;
     const sleepTimeout = 1500;
-    const retry = 15;
+    const retry = 30;
 
     for (let i = 0; i < retry; i++)
     {
@@ -64,14 +64,15 @@ describe('Application launch', function()
       }
       catch (e)
       {
+        if (i === retry - 1)
+          throw 'Error Connecting to Chrome DevTools Protocol';
+        
         await sleep(sleepTimeout);
       }
       finally
       {
         if (browserWSEndpoint)
           break;
-        else if (i === retry - 1)
-          throw 'Error Connecting to Chrome DevTools Protocol';
       }
     }
 
