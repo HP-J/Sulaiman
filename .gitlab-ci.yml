@@ -10,7 +10,8 @@ test:
   stage: test
   script:
     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
-    - npm test
+    - npm run compile
+    - npm run test
   only:
     - development
   tags:

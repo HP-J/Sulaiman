@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
+    "compile": "npx babel src --out-dir public --ignore node_modules --copy-files",
     "clean": "rm -r ./public/",
     "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill"
   },
