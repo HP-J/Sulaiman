@@ -28,6 +28,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "electron": "^3.0.0-beta.1",
+    "node-cmd": "^3.0.0",
     "pidtree": "^0.3.0",
     "vm2": "^3.6.2"
   },

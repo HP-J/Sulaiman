@@ -4,7 +4,11 @@ import { join } from 'path';
 
 import { existsSync } from 'fs';
 
-import { exec, ChildProcess } from 'child_process';
+// import { exec, ChildProcess } from 'child_process';
+
+import * as cmd from 'node-cmd';
+
+import { promisify } from 'util';
 
 import { connect, Browser, Page } from 'puppeteer';
 
@@ -12,7 +16,9 @@ import rp from 'request-promise';
 
 import pti from 'puppeteer-to-istanbul';
 
-import pidtree from 'pidtree';
+// import pidtree from 'pidtree';
+
+const getAsync = promisify(cmd.get, { multiArgs: true, context: cmd });
 
 function sleep(ms)
 {
@@ -34,53 +40,29 @@ describe('Application launch', function()
   */
   let page;
 
-  /** @type { ChildProcess }
-  */
-  let electron;
+  // /** @type { ChildProcess }
+  // */
+  // let electron;
 
-  if (!existsSync(join(__dirname, '../public')))
-    throw 'public directory does not exists';
-
-  async function getDebuggerUrl()
-  {
-    const respond = await rp('http://localhost:9222/json/version', { json: true });
-
-    return respond.webSocketDebuggerUrl;
-  }
 
   before(async() =>
   {
-    electron = exec('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
+    if (existsSync(join(__dirname, '../public')))
+      await getAsync('rm -r ./public/');
 
-    let browserWSEndpoint;
-    const sleepTimeout = 1500;
-    const retry = 30;
+    await getAsync('npx babel src --out-dir public --ignore node_modules --source-maps --copy-files');
 
-    for (let i = 0; i < retry; i++)
-    {
-      try
-      {
-        browserWSEndpoint = await getDebuggerUrl();
-      }
-      catch (e)
-      {
-        if (i === retry - 1)
-          throw e;
-        
-        await sleep(sleepTimeout);
-      }
-      finally
-      {
-        if (browserWSEndpoint)
-          break;
-      }
-    }
+    cmd.run('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
 
-    browser = await connect({ browserWSEndpoint: browserWSEndpoint });
+    await sleep(5000);
 
-    page = (await browser.pages())[0];
+    const respond = await rp('http://localhost:9222/json/version', { json: true });
 
-    browser.emit('close');
+    browser = await connect({ browserWSEndpoint: respond.webSocketDebuggerUrl });
+
+    const pages = await browser.pages();
+
+    page = pages[0];
 
     await page.coverage.startJSCoverage();
 
@@ -93,7 +75,7 @@ describe('Application launch', function()
     pti.write(jsCoverage);
   });
 
-  after(async() =>
+    after(async() =>
   {
     const list = await pidtree(electron.pid);
 
@@ -102,6 +84,16 @@ describe('Application launch', function()
       process.kill(list[i]);
     }
   });
+  
+  // after(async() =>
+  // {
+  //   const list = await pidtree(electron.pid);
+
+  //   for (let i = 0; i < list.length; i++)
+  //   {
+  //     process.kill(list[i]);
+  //   }
+  // });
 
   it('is Application Running', () =>
   {
