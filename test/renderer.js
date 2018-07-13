@@ -65,7 +65,7 @@ describe('Application launch', function()
       catch (e)
       {
         if (i === retry - 1)
-          throw 'Error Connecting to Chrome DevTools Protocol';
+          throw e;
         
         await sleep(sleepTimeout);
       }
