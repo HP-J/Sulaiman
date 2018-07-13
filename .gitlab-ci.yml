@@ -10,8 +10,7 @@ test:
   stage: test
   script:
     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
-    - npm run compile
-    - ./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222
+    - npm test
   only:
     - development
   tags:
