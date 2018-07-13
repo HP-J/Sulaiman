@@ -44,7 +44,6 @@ describe('Application launch', function()
   // */
   // let electron;
 
-
   before(async() =>
   {
     if (existsSync(join(__dirname, '../public')))
@@ -75,16 +74,6 @@ describe('Application launch', function()
     pti.write(jsCoverage);
   });
 
-    after(async() =>
-  {
-    const list = await pidtree(electron.pid);
-
-    for (let i = 0; i < list.length; i++)
-    {
-      process.kill(list[i]);
-    }
-  });
-  
   // after(async() =>
   // {
   //   const list = await pidtree(electron.pid);
