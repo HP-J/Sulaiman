@@ -207,7 +207,7 @@ export function appendBlock(block)
   document.body.appendChild(block.domElement);
 }
 
-/** remove a block to the body
+/** remove a block from the body
 * @param { Block } block
 */
 export function removeBlock(block)
@@ -215,8 +215,24 @@ export function removeBlock(block)
   document.body.removeChild(block.domElement);
 }
 
+/** add a html element to the body
+* @param { HTMLElement } domElement
+*/
+export function appendElement(domElement)
+{
+  document.body.appendChild(domElement);
+}
+
+/** remove a html element from the body
+* @param { HTMLElement } domElement
+*/
+export function removeElement(domElement)
+{
+  document.body.removeChild(domElement);
+}
+
 /** emits every time the user writes something into the search bar
-* @param { () => void } callback the callback function
+* @param { (value: string) => void } callback the callback function
 */
 export function onSearchBarInput(callback)
 {

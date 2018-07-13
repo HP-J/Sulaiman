@@ -2,13 +2,9 @@
 // ! IT SHOULD BE EXCLUDED FROM ANY PACKAGE
 
 import * as ext from 'sulaiman';
+import { join } from 'path';
 
-// import { join } from 'path';
-import { join } from './parts.js';
-
-// TODO test if local modules are hosted outside the proxies
-// if the user creates a new script file and required that script
-// will it escape the host or not
+// TODO allow local modules under the sandbox
 
 let block;
 
@@ -16,14 +12,18 @@ function onload()
 {
   block = new ext.Block();
 
-  // block.button('hello', 'world', ext.getIcon(join(__dirname, './icons/search.svg')), ext.getIcon(join(__dirname, './icons/expand.svg')));
+  block.button(
+    'hello',
+    'world',
+    // undefined,
+    ext.getIcon(join(__dirname, './icons/search.svg')),
+    ext.getIcon(join(__dirname, './icons/expand.svg'))
+  );
   
-  block.dialogue('title',
-    `once I knew a Devil,
-    He was really good to me,
-    No one has ever been good to me,
-    God have sent me to Haven, I hate God.`,
-    'yes', 'no', 'maybe');
+  // block.dialogue('title',
+  //   `there are few words that do justice to this villainy,
+  //   and I think it can only hasten that regime's departure.`,
+  //   '1', '2', '3');
 
   // block.notification('title',
   //   `once I knew a Devil,

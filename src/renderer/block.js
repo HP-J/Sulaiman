@@ -195,29 +195,41 @@ export default class Block
 
     this.setClass('block button');
 
-    const titleElem = document.createElement('div');
-    const descriptionElem = document.createElement('div');
-    
-    titleElem.setAttribute('class', 'buttonTitle');
-    descriptionElem.setAttribute('class', 'buttonDescription');
-    
-    titleElem.innerText = title;
-    descriptionElem.innerText = description;
-
-    this.domElement.appendChild(titleElem);
-    this.domElement.appendChild(descriptionElem);
-    
     if (extensionIcon !== undefined)
     {
       extensionIcon.setAttribute('class', 'buttonExtensionIcon');
       this.domElement.appendChild(extensionIcon);
     }
-  
+
+    if (title && title.length > 0)
+    {
+      const titleElem = document.createElement('div');
+      titleElem.setAttribute('class', 'buttonTitle');
+      titleElem.innerText = title;
+      
+      this.domElement.appendChild(titleElem);
+    }
+    
     if (actionIcon !== undefined)
     {
       actionIcon.setAttribute('class', 'buttonActionIcon');
       this.domElement.appendChild(actionIcon);
     }
+
+    if (description && description.length > 0)
+    {
+      const descriptionElem = document.createElement('div');
+      descriptionElem.setAttribute('class', 'buttonDescription');
+      descriptionElem.innerText = description;
+
+      this.domElement.appendChild(descriptionElem);
+    }
+    
+    const extendedElem = document.createElement('div');
+    extendedElem.setAttribute('class', 'buttonExtended');
+    extendedElem.innerText = 'hello again';
+
+    this.domElement.appendChild(extendedElem);
   }
 
   /** dialogue

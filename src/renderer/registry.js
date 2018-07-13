@@ -2,15 +2,27 @@ import { NodeVM } from 'vm2';
 
 import { readFileSync, readdirSync, existsSync } from 'fs';
 
-import { join, dirname } from 'path';
+import { join } from 'path';
+
+/** an array of all the extensions that loaded
+* @type { Object.<string, {}> } }
+*/
+export const loadedExtensions = {};
 
 /** the sulaiman events extensions are registered in
 * @type { Object.<string, Function[]> }
 */
 const extEvents = {};
 
-/** @typedef { Object } Registry
+/** @typedef { Object } PackageMeta
 * @property { string } name
+* @property { string } version
+* @property { string } description
+* @property { Registry } sulaiman
+*/
+
+/** @typedef { Object } Registry
+* @property { string } displayName
 * @property { string[] } permissions
 * @property { string[] } modules
 */
@@ -21,7 +33,7 @@ export function loadExtensionsDir()
 {
   const root = join(__dirname, '../extensions/');
 
-  let extensionPath = undefined, packagePath = undefined, packageMeta = undefined;
+  let extensionPath = undefined, packagePath = undefined;
 
   const extensions = readdirSync(root);
 
@@ -33,31 +45,29 @@ export function loadExtensionsDir()
     // the required package json
     packagePath = root + extensions[i] + '/package.json';
 
-    // if the index.js file doesn't exists continue the loop
-    if (!existsSync(extensionPath))
-      continue;
-    
     // if the package.json file doesn't exists
     if (!existsSync(packagePath))
       continue;
 
-    packageMeta = JSON.parse(readFileSync(packagePath));
+    // if the index.js file doesn't exists continue the loop
+    if (!existsSync(extensionPath))
+      continue;
 
     // load the extension
-    loadExtension(extensionPath, packageMeta.sulaiman);
+    loadExtension(extensionPath, JSON.parse(readFileSync(packagePath)));
   }
 }
 
-/** creates a new NodeVM with the registry object
+/** creates a new NodeVM for an extension and runs its index.js
 * @param { string } extensionPath
-* @param { Registry } registry
+* @param { PackageMeta } packageMeta
 */
-function loadExtension(extensionPath, registry)
+function loadExtension(extensionPath, packageMeta)
 {
-  const { sandbox, mock } = handelPermissions(registry.permissions);
+  const { sandbox, mock } = handelPermissions(packageMeta.sulaiman.permissions);
 
   // separate node builtin modules from the external modules
-  const { builtin, external } = handelSeparation(registry.modules);
+  const { builtin, external } = handelSeparation(packageMeta.sulaiman.modules);
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -69,7 +79,7 @@ function loadExtension(extensionPath, registry)
       // accepted registry request modules
       external: [ './extension.js', ...external ],
       // limit externals to this path, so extensions can't require any local modules outside of their directory
-      root: dirname(extensionPath),
+      root: 'none',
       // allow access to the running sulaiman apis
       mock: mock,
       // host allows any required module to require more modules inside it with no limits
@@ -79,6 +89,9 @@ function loadExtension(extensionPath, registry)
 
   // run the extension index script
   vm.run(readFileSync(extensionPath).toString(), extensionPath);
+
+  // append the extension that just loaded to the loaded extensions array
+  loadedExtensions[packageMeta.name] = packageMeta;
 }
 
 /** handle permissions to use global variables and mockups

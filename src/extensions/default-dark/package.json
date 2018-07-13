@@ -8,7 +8,7 @@
     "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"
   },
   "sulaiman": {
-    "name": "Default Dark",
+    "displayName": "Default Dark",
     "permissions": [ ],
     "modules": [ ]
   },

@@ -2,23 +2,20 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensionsDir, emitCallbacks } from './registry.js';
+import { loadExtensionsDir, emitCallbacks, loadedExtensions } from './registry.js';
 
-import { hideSplashScreen } from './extension.js';
+import * as api from './extension.js';
 
 export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-// TODO Extensions Control Room
-
-// TODO Extension Ideas
-// apps
-// calculator
-// files
-// google
-// check for sulaiman updates and download packages on AppImages, Windows, and DMG
+// TODO apps
 // auto-start
+// check for sulaiman updates and download packages if on AppImages, Windows or DMG
+// calculator
+// google
+// files
 
 function registerEvents()
 {
@@ -77,6 +74,18 @@ registerEvents();
 // load all extensions
 loadExtensionsDir();
 
+// TODO finish
+api.onSearchBarInput((value) =>
+{
+  if (value.startsWith('ext'))
+  {
+    for (const extension in loadedExtensions)
+    {
+      console.log(extension);
+    }
+  }
+});
+
 // reset focus
 onfocus();
 
@@ -84,5 +93,5 @@ onfocus();
 // extensions that leverages it to hide it themselves
 setTimeout(() =>
 {
-  hideSplashScreen();
+  api.hideSplashScreen();
 }, 10000);

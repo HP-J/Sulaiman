@@ -27,7 +27,6 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
-      backgroundColor: '#272727',
       show: (process.env.DEBUG) ? true : false,
       frame: (process.env.DEBUG) ? true : false,
       resizable: (process.env.DEBUG) ? true : false,

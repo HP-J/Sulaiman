@@ -5,12 +5,13 @@
   "main": "index.js",
   "private": true,
   "sulaiman": {
-    "name": "Extension Debug",
+    "displayName": "Extension Debug",
     "permissions": [
       "body",
       "clipboard"
     ],
     "modules": [
+      "path"
     ]
   },
   "author": "Herp Project",

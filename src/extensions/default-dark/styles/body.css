@@ -12,6 +12,8 @@ body
   position: relative;
   width: calc(100vw - 40px);
   height: auto;
+  min-height: 2.5vh;
+  max-height: 125vh;
   font-family: Oxygen;
   font-size: calc(10px + 0.5vw + 1.3vh);
   font-weight: 400;
