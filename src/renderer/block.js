@@ -195,12 +195,6 @@ export default class Block
 
     this.setClass('block button');
 
-    if (extensionIcon !== undefined)
-    {
-      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
-      this.domElement.appendChild(extensionIcon);
-    }
-
     if (title && title.length > 0)
     {
       const titleElem = document.createElement('div');
@@ -208,6 +202,12 @@ export default class Block
       titleElem.innerText = title;
       
       this.domElement.appendChild(titleElem);
+    }
+
+    if (extensionIcon !== undefined)
+    {
+      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
+      this.domElement.appendChild(extensionIcon);
     }
     
     if (actionIcon !== undefined)
@@ -224,12 +224,6 @@ export default class Block
 
       this.domElement.appendChild(descriptionElem);
     }
-    
-    const extendedElem = document.createElement('div');
-    extendedElem.setAttribute('class', 'buttonExtended');
-    extendedElem.innerText = 'hello again';
-
-    this.domElement.appendChild(extendedElem);
   }
 
   /** dialogue

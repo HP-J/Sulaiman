@@ -1,4 +1,4 @@
-![pipeline](https://gitlab.com/herpproject/sulaiman/badges/development/pipeline.svg)
+<!-- ![pipeline](https://gitlab.com/herpproject/sulaiman/badges/development/pipeline.svg) -->
 <!-- ![coverage](https://gitlab.com/herpproject/Sulaiman/badges/development/coverage.svg) -->
 
 # Welcome to Sulaiman

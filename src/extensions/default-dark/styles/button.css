@@ -7,24 +7,24 @@
 
 .button *
 {
+  width: 100%;
   margin: 5px 10px 0px 10px;
 }
 
 .buttonTitle, .buttonDescription
 {
-  flex-grow: 8;
+  flex-grow: 1;
+  overflow: hidden;
   background-color: transparent;
   color: #FFFFFF;
-  overflow: hidden;
-  box-sizing: border-box;
-  border: #FFFFFF dashed 2px;
+  width: auto;
   margin: 0;
 }
 
 .buttonDescription
 {
-  flex-basis: 100%;
   color: #878787;
+  width: 100%;
   white-space: pre-line;
   writing-mode: horizontal-tb;
   max-block-size: 35vh;
@@ -40,23 +40,12 @@
   background-position: center;
   fill: white;
   stroke: white;
-  width: calc(16px + 1.5vw + 0.5vh);
+  width: calc(16px + 1vw + 0.5vh);
   height: auto;
-  margin: 0px 5px 0px 0px;
-  box-sizing: border-box;
-  border: #FFFFFF dashed 2px;
+  margin: 0px 0px 0px 5px;
 }
 
 .buttonActionIcon
 {
   margin: 0px 0px 0px 5px;
-}
-
-.buttonExtended
-{
-  background-color: transparent;
-  color: #FFFFFF;
-  overflow: hidden;
-  box-sizing: border-box;
-  border: #FFFFFF dashed 2px;
 }

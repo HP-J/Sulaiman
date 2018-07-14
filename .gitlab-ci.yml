@@ -2,9 +2,9 @@
 #   paths:
 #   - node_modules/
 
-# stages:
-#   # - test
-#   - deploy
+stages:
+  # - test
+  - deploy
 
 # test:
 #   stage: test
@@ -19,12 +19,13 @@
 #     - linux
 #     - 64bit
 
-# deploy:
-#   stage: deploy
-#   image: node:slim
-#   script:
-#     - echo "hello world"
-#   only:
-#     - development
-#   tags:
-#     - docker
+deploy:
+  stage: deploy
+  # image: node:slim
+  script:
+    - echo "hello world"
+  only:
+    - release
+    - preview
+  # tags:
+  #   - docker
