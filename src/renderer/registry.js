@@ -5,7 +5,7 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 
 /** an array of all the extensions that loaded
-* @type { Object.<string, {}> } }
+* @type { Object.<string, PackageMeta> } }
 */
 export const loadedExtensions = {};
 

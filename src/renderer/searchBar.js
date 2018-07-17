@@ -10,7 +10,7 @@ export let input;
 export function append()
 {
   input = document.createElement('input');
-  input.setAttribute('class', 'searchBar block');
+  input.setAttribute('class', 'searchBar');
   document.body.appendChild(input);
 
   onFocus(sulaimanOnFocus);

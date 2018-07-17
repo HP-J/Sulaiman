@@ -199,36 +199,29 @@ export function hideSplashScreen()
   splash.style.display = 'none';
 }
 
-/** add a block to the body
-* @param { Block } block
+/** add a block or a html element to the body
+* @param { Block | HTMLElement } child
 */
-export function appendBlock(block)
+export function append(child)
 {
-  document.body.appendChild(block.domElement);
+  document.body.appendChild(child.domElement || child);
 }
 
-/** remove a block from the body
-* @param { Block } block
+/** remove a block or a html element from the body
+* @param { Block | HTMLElement } child
 */
-export function removeBlock(block)
+export function remove(child)
 {
-  document.body.removeChild(block.domElement);
+  document.body.removeChild(child.domElement || child);
 }
 
-/** add a html element to the body
-* @param { HTMLElement } domElement
+/** if the body contains a block or a html element
+* @param { Block | HTMLElement } child
+* @returns { boolean }
 */
-export function appendElement(domElement)
+export function contains(child)
 {
-  document.body.appendChild(domElement);
-}
-
-/** remove a html element from the body
-* @param { HTMLElement } domElement
-*/
-export function removeElement(domElement)
-{
-  document.body.removeChild(domElement);
+  return document.body.contains(child.domElement || child);
 }
 
 /** emits every time the user writes something into the search bar

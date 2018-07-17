@@ -183,108 +183,68 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
-  /**
-  * @param { string } title
-  * @param { string } description
-  * @param { HTMLElement } extensionIcon
-  * @param { HTMLElement } actionIcon
+  /** @typedef { Object } ButtonOptions
+  * @property { string } [title=]
+  * @property { string } [description]=
+  * @property { HTMLElement } [extensionIcon=]
+  * @property { HTMLElement } [actionIcon=]
+  * @property { boolean } [parent=false]
+  * @property { boolean } [child=false]
+  * @property { boolean } [grid=false]
   */
-  button(title, description, extensionIcon, actionIcon)
+
+  /** @param { ButtonOptions } options
+  */
+  auto(options)
   {
     this.reset();
 
-    this.setClass('block button');
+    let classes = 'block';
 
-    if (title && title.length > 0)
+    if (options.parent)
+      classes += ' blockParent';
+
+    if (options.child)
+      classes += ' blockChild';
+
+    if (options.grid)
+      classes += ' blockGrid';
+
+    this.setClass(classes);
+
+    if (options.title && options.title.length > 0)
     {
       const titleElem = document.createElement('div');
-      titleElem.setAttribute('class', 'buttonTitle');
-      titleElem.innerText = title;
+      titleElem.setAttribute('class', 'blockTitle');
+      titleElem.innerText = options.title;
       
       this.domElement.appendChild(titleElem);
     }
 
-    if (extensionIcon !== undefined)
+    if (options.extensionIcon !== undefined)
     {
-      extensionIcon.setAttribute('class', 'buttonExtensionIcon');
-      this.domElement.appendChild(extensionIcon);
+      options.extensionIcon.setAttribute('class', 'blockExtensionIcon');
+      this.domElement.appendChild(options.extensionIcon);
     }
     
-    if (actionIcon !== undefined)
+    if (options.actionIcon !== undefined)
     {
-      actionIcon.setAttribute('class', 'buttonActionIcon');
-      this.domElement.appendChild(actionIcon);
+      options.actionIcon.setAttribute('class', 'blockActionIcon');
+      this.domElement.appendChild(options.actionIcon);
     }
 
-    if (description && description.length > 0)
+    if (options.description && options.description.length > 0)
     {
       const descriptionElem = document.createElement('div');
-      descriptionElem.setAttribute('class', 'buttonDescription');
-      descriptionElem.innerText = description;
+      descriptionElem.setAttribute('class', 'blockDescription');
+      descriptionElem.innerText = options.description;
 
       this.domElement.appendChild(descriptionElem);
     }
-  }
 
-  /** dialogue
-  * @param { string } title
-  * @param { string } description
-  * @param { string[] } options
-  */
-  dialogue(title, description, ...options)
-  {
-    this.reset();
+    const breakElem = document.createElement('div');
+    breakElem.setAttribute('class', 'blockBreak');
 
-    this.setClass('block dialogue');
-
-    const titleElem = document.createElement('div');
-    const descriptionElem = document.createElement('div');
-    
-    titleElem.setAttribute('class', 'dialogueTitle');
-    descriptionElem.setAttribute('class', 'dialogueDescription');
-    
-    titleElem.innerText = title;
-    descriptionElem.innerText = description;
-
-    this.domElement.appendChild(titleElem);
-    this.domElement.appendChild(descriptionElem);
-
-    for (let i = 0; i < options.length; i++)
-    {
-      const option = document.createElement('div');
-      option.setAttribute('class', 'dialogueOption');
-
-      option.innerText = options[i];
-
-      this.domElement.appendChild(option);
-    }
-  }
-
-  /** dialogue
-  * @param { string } title
-  * @param { string } description
-  * @param { string } dismiss
-  */
-  notification(title, description, dismiss)
-  {
-    this.reset();
-
-    this.setClass('block notification');
-
-    const titleElem = document.createElement('div');
-    const descriptionElem = document.createElement('div');
-    const dismissElem = document.createElement('div');
-   
-    titleElem.setAttribute('class', 'notificationTitle');
-    descriptionElem.setAttribute('class', 'notificationDescription');
-    dismissElem.setAttribute('class', 'notificationButton');
-    
-    titleElem.innerText = title;
-    descriptionElem.innerText = description;
-    dismissElem.innerText = dismiss;
-
-    this.domElement.appendChild(titleElem);
-    this.domElement.appendChild(descriptionElem);
-    this.domElement.appendChild(dismissElem);
+    this.domElement.appendChild(breakElem);
   }
 }

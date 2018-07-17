@@ -4,7 +4,11 @@ import * as searchBar from './searchBar.js';
 
 import { loadExtensionsDir, emitCallbacks, loadedExtensions } from './registry.js';
 
+import * as ext from './extension.js';
+
 import * as api from './extension.js';
+import Block from './block.js';
+import { join } from 'path';
 
 export const splash = document.body.children[0];
 
@@ -74,17 +78,45 @@ registerEvents();
 // load all extensions
 loadExtensionsDir();
 
-// TODO finish
-api.onSearchBarInput((value) =>
-{
-  if (value.startsWith('ext'))
+const installedBlock = new Block();
+
+installedBlock.auto(
   {
-    for (const extension in loadedExtensions)
+    title: 'Installed Extensions',
+    actionIcon: ext.getIcon(join(__dirname, '../extensions/default-dark/icons/expand.svg')),
+    extensionIcon: ext.getIcon(join(__dirname, '../extensions/default-dark/icons/search.svg')),
+    parent: true
+  });
+
+for (const extension in loadedExtensions)
+{
+  const block = new Block();
+
+  block.auto(
     {
-      console.log(extension);
-    }
-  }
-});
+      description: loadedExtensions[extension].sulaiman.displayName,
+      child: true
+    });
+
+  installedBlock.domElement.appendChild(block.domElement);
+}
+
+ext.append(installedBlock);
+
+// TODO finish
+// api.onSearchBarInput((value) =>
+// {
+//   if (value.startsWith('ext'))
+//   {
+//     if (!ext.contains(installedBlock))
+//       ext.append(installedBlock);
+//   }
+//   else
+//   {
+//     if (ext.contains(installedBlock))
+//       ext.remove(installedBlock);
+//   }
+// });
 
 // reset focus
 onfocus();

@@ -80,8 +80,6 @@ describe('Application launch', function()
 
     page = (await browser.pages())[0];
 
-    browser.emit('close');
-
     await page.coverage.startJSCoverage();
 
     await page.reload();

@@ -12,13 +12,13 @@ function onload()
 {
   block = new ext.Block();
 
-  block.button(
-    'hello',
-    'world',
-    // undefined,
-    ext.getIcon(join(__dirname, './icons/search.svg')),
-    ext.getIcon(join(__dirname, './icons/expand.svg'))
-  );
+  // block.button(
+  //   'hello',
+  //   'world',
+  //   // undefined,
+  //   ext.getIcon(join(__dirname, './icons/search.svg')),
+  //   ext.getIcon(join(__dirname, './icons/expand.svg'))
+  // );
   
   // block.dialogue('title',
   //   `there are few words that do justice to this villainy,
@@ -39,7 +39,7 @@ function onload()
     console.log(ev.ctrlKey);
   };
 
-  ext.appendBlock(block);
+  ext.append(block);
 
   // ext.appendStyle(join(__dirname, './style.css'));
   // ext.removeStyle(join(__dirname, './style.css'));
@@ -59,4 +59,4 @@ function onSearchBarInput(text)
   // console.log('onSearchBarInput: ' + text);
 }
 
-onload();
+// onload();

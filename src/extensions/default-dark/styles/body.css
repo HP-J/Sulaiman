@@ -3,32 +3,3 @@ body
   background-color: #292929;
   width: 100vw;
 }
-
-.block
-{
-  outline: none;
-  overflow: hidden;
-  background-color: #292929;
-  position: relative;
-  width: calc(100vw - 40px);
-  height: auto;
-  min-height: 2.5vh;
-  max-height: 125vh;
-  font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 1.3vh);
-  font-weight: 400;
-  user-select: none;
-  white-space: nowrap;
-  text-transform: capitalize;
-  padding-left: 20px;
-  padding-right: 20px;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  border: 0px;
-  margin: 0px;
-}
-
-.block:focus, .block:hover
-{
-  background-color: #4F4F4F;
-}
