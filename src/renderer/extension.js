@@ -22,48 +22,61 @@ export const clipboard = undefined;
 * object so it can be cloned if requested again
 * @type { Object.<string, HTMLElement> }
 */
-const cachedIcons = {};
+const storedIcons = {};
 
 /** @type { Object.<string, HTMLElement[]> }
 */
 const appendedStyles = {};
 
-/** loads an icon and puts it into a div or svg element
-*  based on its format and returns that element
-* @param { string } path to the image
-* (.png and .svg are the only formats supported)
-* @param { string } [className] [optional] add a class to the icon's element
-* @returns { HTMLDivElement | SVGSVGElement } an element with the loaded icon
+/** add an icon to store
+* @param { string } path a full path to the icon
+* @param { string } iconName give the icon a name that will be used later to pull it from store
 */
-export function getIcon(path, className)
+export function storeIcon(path, iconName)
 {
-  // if the icon is cached
-  if (cachedIcons[path])
-  {
-    // return a clone of it
-    return cachedIcons[path].cloneNode(true);
-  }
+  // check if an icon with that name is already loaded
+  if (storedIcons[iconName] !== undefined)
+    throw 'an icon with that name already exists';
+
+  let icon;
+
+  if (path.endsWith('.svg'))
+    icon = svg(path);
+  else if (path.endsWith('.png'))
+    icon = image(path);
   else
+    throw 'icon format not supported, supported formats are [ png, svg ]';
+
+  // cache the icon with the required name
+  storedIcons[iconName] = icon;
+}
+
+/** pull a copy of an icon from store
+* @param { string } iconName the icon name
+* @returns { HTMLElement } the icon wrapped in a html element
+*/
+export function getIcon(iconName)
+{
+  // check if an icon exists in store and returns it
+  if (storedIcons[iconName] !== undefined)
+    return storedIcons[iconName].cloneNode(true);
+  else
+    throw 'an icon with that name already exists';
+}
+
+/** returns a list with all names of the available stored icons
+* @returns { string[] } a list with the names of the stored icons
+*/
+export function getAllStoredIconsNames()
+{
+  const names = [];
+
+  for (const name in storedIcons)
   {
-    let icon;
-
-    // icon dose not exists
-    if (!existsSync(path))
-      throw 'icon (' + path + ') dose not exists';
-
-    if (path.endsWith('.svg'))
-      icon = svg(path);
-    else if (path.endsWith('.png'))
-      icon = image(path);
-
-    icon.setAttribute('class', className);
-
-    // cache the icon for later use
-    cachedIcons[path] = icon;
-
-    // return the icon in an html element
-    return icon;
+    names.append(name);
   }
+
+  return names;
 }
 
 /** reads a svg file and returns an svg element with the right attributes
@@ -173,19 +186,22 @@ export function appendStyleDir(dir, callback)
       }));
 }
 
-/** remove a stylesheet file from the dom
-* @param { string } path to the stylesheet (css) file
+/** remove a list of stylesheet files from the DOM
+* @param { string[] } files paths to the stylesheets (css) files to want to remove from DOM
 */
-export function removeStyle(path)
+export function removeStyle(...files)
 {
-  // if the file is really loaded
-  if (appendedStyles[path] !== undefined)
+  for (let i = 0; i < files.length; i++)
   {
-    // remove it from dom
-    document.head.removeChild(appendedStyles[path]);
+    // if the file is really loaded
+    if (appendedStyles[files[i]] !== undefined)
+    {
+      // remove it from dom
+      document.head.removeChild(appendedStyles[files[i]]);
 
-    // remove it from the list of loaded styles
-    appendedStyles[path] = undefined;
+      // remove it from the list of loaded styles
+      appendedStyles[files[i]] = undefined;
+    }
   }
 }
 

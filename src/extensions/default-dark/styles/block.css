@@ -62,9 +62,12 @@
 .blockTitle, .blockDescription
 {
   flex-grow: 1;
+  flex-basis: auto;
   overflow: hidden;
   background-color: transparent;
   color: #FFFFFF;
+  width: 0px;
+  border: #FFFFFF 2px solid;
 }
 
 .blockDescription
@@ -87,10 +90,6 @@
   stroke: white;
   width: calc(16px + 1vw + 0.5vh);
   height: auto;
-  margin: 0px 0px 0px 2px;
-}
-
-.blockActionIcon
-{
-  margin: 0px 0px 0px 2px;
+  /* margin: 0px 0px 0px 5px; */
+  border: #FFFFFF 2px solid;
 }

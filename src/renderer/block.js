@@ -183,7 +183,7 @@ export default class Block
     return this.domElement.getAttribute('class');
   }
 
-  /** @typedef { Object } ButtonOptions
+  /** @typedef { Object } AutoBlockOptions
   * @property { string } [title=]
   * @property { string } [description]=
   * @property { HTMLElement } [extensionIcon=]
@@ -193,7 +193,7 @@ export default class Block
   * @property { boolean } [grid=false]
   */
 
-  /** @param { ButtonOptions } options
+  /** @param { AutoBlockOptions } options
   */
   auto(options)
   {

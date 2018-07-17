@@ -78,13 +78,16 @@ registerEvents();
 // load all extensions
 loadExtensionsDir();
 
+ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/expand.svg'), 'expand');
+ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/search.svg'), 'search');
+
 const installedBlock = new Block();
 
 installedBlock.auto(
   {
     title: 'Installed Extensions',
-    actionIcon: ext.getIcon(join(__dirname, '../extensions/default-dark/icons/expand.svg')),
-    extensionIcon: ext.getIcon(join(__dirname, '../extensions/default-dark/icons/search.svg')),
+    actionIcon: ext.getIcon('expand'),
+    extensionIcon: ext.getIcon('search'),
     parent: true
   });
 
