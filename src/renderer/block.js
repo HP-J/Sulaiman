@@ -175,37 +175,22 @@ export default class Block
     this.setAttribute('id', id);
   }
 
-  /** get the html element class(es)
-  * @returns { string } string of the classes separated with commas
-  */
-  getClass()
-  {
-    return this.domElement.getAttribute('class');
-  }
-
   /** @typedef { Object } AutoBlockOptions
   * @property { string } [title=]
   * @property { string } [description]=
   * @property { HTMLElement } [extensionIcon=]
   * @property { HTMLElement } [actionIcon=]
-  * @property { boolean } [parent=false]
-  * @property { boolean } [child=false]
   * @property { boolean } [grid=false]
   */
 
-  /** @param { AutoBlockOptions } options
+  /** [Recommended] customize the block with different options that follow the app user's css themes
+  * @param { AutoBlockOptions } options
   */
   auto(options)
   {
     this.reset();
 
     let classes = 'block';
-
-    if (options.parent)
-      classes += ' blockParent';
-
-    if (options.child)
-      classes += ' blockChild';
 
     if (options.grid)
       classes += ' blockGrid';
@@ -242,8 +227,15 @@ export default class Block
       this.domElement.appendChild(descriptionElem);
     }
 
-    const breakElem = document.createElement('div');
-    breakElem.setAttribute('class', 'blockBreak');
+    this.lineBreak();
+  }
+
+  /** adds a new line break to the block
+  */
+  lineBreak()
+  {
+    const breakElem = document.createElement('null');
+    breakElem.setAttribute('class', 'blockLineBreaks');
 
     this.domElement.appendChild(breakElem);
   }

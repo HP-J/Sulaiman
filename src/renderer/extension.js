@@ -61,7 +61,7 @@ export function getIcon(iconName)
   if (storedIcons[iconName] !== undefined)
     return storedIcons[iconName].cloneNode(true);
   else
-    throw 'an icon with that name already exists';
+    return undefined;
 }
 
 /** returns a list with all names of the available stored icons

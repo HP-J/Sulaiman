@@ -86,10 +86,11 @@ const installedBlock = new Block();
 installedBlock.auto(
   {
     title: 'Installed Extensions',
-    actionIcon: ext.getIcon('expand'),
     extensionIcon: ext.getIcon('search'),
-    parent: true
+    actionIcon: ext.getIcon('expand')
   });
+
+installedBlock.style.cursor = 'default';
 
 for (const extension in loadedExtensions)
 {
@@ -97,8 +98,7 @@ for (const extension in loadedExtensions)
 
   block.auto(
     {
-      description: loadedExtensions[extension].sulaiman.displayName,
-      child: true
+      description: loadedExtensions[extension].sulaiman.displayName
     });
 
   installedBlock.domElement.appendChild(block.domElement);
@@ -106,7 +106,7 @@ for (const extension in loadedExtensions)
 
 ext.append(installedBlock);
 
-// TODO finish
+// TODO finish the extensions control room
 // api.onSearchBarInput((value) =>
 // {
 //   if (value.startsWith('ext'))
