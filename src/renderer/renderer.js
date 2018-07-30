@@ -78,35 +78,40 @@ registerEvents();
 // load all extensions
 loadExtensionsDir();
 
+// TODO finish the extensions control room ()
+
+// TODO maybe a way to add empty space (line breaks) that gets controlled by css themes
+
 ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/expand.svg'), 'expand');
 ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/search.svg'), 'search');
 
-const installedBlock = new Block();
-
-installedBlock.auto(
-  {
-    title: 'Installed Extensions',
-    extensionIcon: ext.getIcon('search'),
-    actionIcon: ext.getIcon('expand')
-  });
-
-installedBlock.style.cursor = 'default';
-
-for (const extension in loadedExtensions)
+// for (const extension in loadedExtensions)
 {
-  const block = new Block();
+  const extension = loadedExtensions['sulaiman-extension-debug'];
 
-  block.auto(
+  const block = new Block(
     {
-      description: loadedExtensions[extension].sulaiman.displayName
+      title: extension.sulaiman.displayName,
+      description: extension.description,
+      actionIcon: ext.getIcon('expand')
     });
 
-  installedBlock.domElement.appendChild(block.domElement);
+  // TODO show all permissions then all modules
+  // TODO highlight dangerous permissions and modules according to an encoded list
+
+  // const button = new Block();
+
+  // button.appendTitle('install');
+
+  // button.style.textAlign = 'center';
+    
+  // block.appendChild(button);
+
+  //
+
+  ext.appendChild(block);
 }
 
-ext.append(installedBlock);
-
-// TODO finish the extensions control room
 // api.onSearchBarInput((value) =>
 // {
 //   if (value.startsWith('ext'))
@@ -129,4 +134,4 @@ onfocus();
 setTimeout(() =>
 {
   api.hideSplashScreen();
-}, 10000);
+}, 5000);

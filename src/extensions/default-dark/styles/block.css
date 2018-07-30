@@ -22,6 +22,13 @@
   margin: 0px;
 }
 
+.blockLineBreak
+{
+  flex-basis: 100%;
+  width: 0px;
+  height: 0px;
+}
+
 .block:focus, .block:hover
 {
   background-color: #4F4F4F;
@@ -32,20 +39,6 @@
   cursor: default;
 }
 
-.blockGrid
-{
-  flex-grow: 1;
-  flex-basis: auto;
-  width: 0px;
-}
-
-.blockLineBreak
-{
-  flex-basis: 100%;
-  width: 0px;
-  height: 0px;
-}
-
 .blockTitle, .blockDescription
 {
   flex-grow: 1;
@@ -53,7 +46,7 @@
   overflow: hidden;
   background-color: transparent;
   color: #FFFFFF;
-  width: 0px;
+  width: auto;
 }
 
 .blockDescription
@@ -65,7 +58,7 @@
   width: 100%;
 }
 
-.blockExtensionIcon, .blockActionIcon
+.blockIcon
 {
   align-self: center;
   background-color: transparent;
@@ -78,12 +71,12 @@
   height: auto;
 }
 
-/* Blocks inside other Blocks */
+/* blocks inside of a parent block */
 
 .block > .block
 {
   background-color: transparent;
-  padding: 10px 5px;
+  padding: 5px 5px;
 }
 
 .block > .block:hover
@@ -92,18 +85,18 @@
   outline: #FFFFFF solid 1px;
 }
 
-/* Spacing inside of a block */
+/* spacing between the title and icons horizontally */
 
-div ~ .block > .block
+.blockTitle + .blockIcon,
+.blockIcon + .blockIcon
 {
-  margin: 5px 0px 0px 0px;
+  margin-left: 5px;
 }
 
-/* Spacing between the title and icons */
+/* spacing between elements vertically
+excluding line breaks and the last element of a block */
 
-.blockTitle + .blockExtensionIcon,
-.blockTitle + .blockActionIcon,
-.blockExtensionIcon + .blockActionIcon
+.block > *:not(:last-child):not(.blockLineBreak)
 {
-  margin: 0px 0px 0px 5px;
+  margin-bottom: 5px;
 }

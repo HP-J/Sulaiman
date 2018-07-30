@@ -39,7 +39,7 @@ function onload()
     console.log(ev.ctrlKey);
   };
 
-  ext.append(block);
+  ext.appendChild(block);
 
   // ext.appendStyle(join(__dirname, './style.css'));
   // ext.removeStyle(join(__dirname, './style.css'));

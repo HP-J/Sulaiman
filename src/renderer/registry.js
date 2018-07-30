@@ -77,7 +77,7 @@ function loadExtension(extensionPath, packageMeta)
       // accepted registry request node builtin modules
       builtin: builtin,
       // accepted registry request modules
-      external: [ './extension.js', ...external ],
+      external: external,
       // limit externals to this path, so extensions can't require any local modules outside of their directory
       root: 'none',
       // allow access to the running sulaiman apis

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 
 import { join } from 'path';
 
@@ -218,7 +218,7 @@ export function hideSplashScreen()
 /** add a block or a html element to the body
 * @param { Block | HTMLElement } child
 */
-export function append(child)
+export function appendChild(child)
 {
   document.body.appendChild(child.domElement || child);
 }
