@@ -97,11 +97,17 @@ ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/search.svg'), 's
     });
 
   // TODO show all permissions then all modules
-  // TODO highlight dangerous permissions and modules according to an encoded list
+  // TODO highlight dangerous permissions and builtin modules according to an encoded list
+
+  block.appendLineSeparator();
+
+  const primsElem = block.appendText('PERMISSIONS', { size: 'Smaller' });
+
+  primsElem.style.fontWeight = '700';
 
   // const button = new Block();
 
-  // button.appendTitle('install');
+  // button.appendText('install');
 
   // button.style.textAlign = 'center';
     

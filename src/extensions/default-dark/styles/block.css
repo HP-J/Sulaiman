@@ -12,7 +12,6 @@
   min-height: 2.5vh;
   max-height: 125vh;
   font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 1.3vh);
   font-weight: 400;
   user-select: none;
   white-space: nowrap;
@@ -22,11 +21,19 @@
   margin: 0px;
 }
 
-.blockLineBreak
+.blockNormal
 {
-  flex-basis: 100%;
-  width: 0px;
-  height: 0px;
+  font-size: calc(10px + 0.5vw + 1vh);
+}
+
+.blockSmall
+{
+  font-size: calc(8px + 0.5vw + 1vh);
+}
+
+.blockSmaller
+{
+  font-size: calc(8px + 0.5vw + 0.8vh);
 }
 
 .block:focus, .block:hover
@@ -34,19 +41,31 @@
   background-color: #4F4F4F;
 }
 
-.blockParent
+.blockLineBreak
 {
-  cursor: default;
+  flex-basis: 100%;
+  width: 0px;
+  height: 0px;
+}
+
+.blockLineSeparator
+{
+  flex-basis: 100%;
+  width: 0px;
+  height: 5px;
 }
 
 .blockTitle, .blockDescription
 {
+  display: flex;
+  align-items: center;
   flex-grow: 1;
   flex-basis: auto;
   overflow: hidden;
   background-color: transparent;
   color: #FFFFFF;
   width: auto;
+  height: auto;
 }
 
 .blockDescription

@@ -4,10 +4,15 @@
 export default class Block
 {
   /** @typedef { Object } AutoBlockOptions
-  * @property { string } [title=]
-  * @property { string } [description]=
-  * @property { HTMLElement } [extensionIcon=]
-  * @property { HTMLElement } [actionIcon=]
+  * @property { string } [title]
+  * @property { string } [description]
+  * @property { HTMLElement } [extensionIcon]
+  * @property { HTMLElement } [actionIcon]
+  */
+
+  /** @typedef { Object } TextOptions
+  * @property { "Title" | "Description" } [type=Title]
+  * @property { "Normal" | "Small" | "Smaller" } [size=Normal]
   */
 
   /** @typedef { Object } Events
@@ -197,32 +202,28 @@ export default class Block
 
   /**
   * @param { string } text
-  * @returns { HTMLElement } the line break html element
+  * @param { TextOptions } options
+  * @returns { HTMLElement } the text html element
   */
-  appendTitle(text)
+  appendText(text, options)
   {
-    const titleElem = document.createElement('div');
-    titleElem.setAttribute('class', 'blockTitle');
-    titleElem.innerText = text;
-    
-    this.domElement.appendChild(titleElem);
+    options = options || {};
 
-    return titleElem;
-  }
+    options.type = options.type || 'Title';
+    options.size = options.size || 'Normal';
 
-  /**
-  * @param { string } text
-  * @returns { HTMLElement } the line break html element
-  */
-  appendDescription(text)
-  {
-    const descriptionElem = document.createElement('div');
-    descriptionElem.setAttribute('class', 'blockDescription');
-    descriptionElem.innerText = text;
+    const textElem = document.createElement('div');
 
-    this.domElement.appendChild(descriptionElem);
+    textElem.setAttribute(
+      'class',
+      'block' + options.type +
+      ' block' + options.size
+    );
 
-    return descriptionElem;
+    textElem.innerText = text;
+    this.domElement.appendChild(textElem);
+
+    return textElem;
   }
 
   /**
@@ -242,10 +243,20 @@ export default class Block
   */
   appendLineBreak()
   {
-    const breakElem = document.createElement('null');
-    breakElem.setAttribute('class', 'blockLineBreak');
+    const lineElem = document.createElement('null');
+    lineElem.setAttribute('class', 'blockLineBreak');
 
-    this.domElement.appendChild(breakElem);
+    this.domElement.appendChild(lineElem);
+  }
+
+  /** adds new empty space between lines
+  */
+  appendLineSeparator()
+  {
+    const lineElem = document.createElement('null');
+    lineElem.setAttribute('class', 'blockLineSeparator');
+
+    this.domElement.appendChild(lineElem);
   }
 
   /** [Recommended] customize the block with different options that follow the app user's css themes
@@ -261,7 +272,7 @@ export default class Block
     this.setClass('block');
 
     if (options.title && options.title.length > 0)
-      this.appendTitle(options.title);
+      this.appendText(options.title);
 
     if (options.extensionIcon !== undefined)
       this.appendIcon(options.extensionIcon);
@@ -270,7 +281,7 @@ export default class Block
       this.appendIcon(options.actionIcon);
 
     if (options.description && options.description.length > 0)
-      this.appendDescription(options.description);
+      this.appendText(options.description, { type: 'Description' });
 
     this.appendLineBreak();
   }
