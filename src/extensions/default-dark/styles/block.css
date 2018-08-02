@@ -1,3 +1,5 @@
+/* blocks inside of a the main body */
+
 .block
 {
   display: flex;
@@ -7,23 +9,39 @@
   cursor: pointer;
   background-color: #292929;
   position: relative;
-  width: calc(100vw - 40px);
+  width: calc(100vw - 30px);
   height: auto;
   min-height: 2.5vh;
   max-height: 125vh;
   font-family: Oxygen;
+  font-size: calc(10px + 0.5vw + 1vh);
   font-weight: 400;
   user-select: none;
   white-space: nowrap;
   text-transform: capitalize;
-  padding: 10px 20px;
+  padding: 8px 15px;
   border: 0px;
   margin: 0px;
+  /* transition: max-height 2s; */
 }
 
 .block:focus, .block:hover
 {
   background-color: #4F4F4F;
+}
+
+/* blocks inside of a parent block */
+
+.block > .block
+{
+  background-color: transparent;
+  padding: 3px 5px;
+}
+
+.block > .block:hover
+{
+  outline-offset: -1px;
+  outline: #FFFFFF solid 1px;
 }
 
 .blockLineBreak
@@ -37,7 +55,6 @@
 {
   flex-basis: 100%;
   width: 0px;
-  height: 5px;
 }
 
 .blockTitle, .blockDescription
@@ -51,6 +68,7 @@
   color: #FFFFFF;
   width: auto;
   height: auto;
+  border: 1px white solid;
 }
 
 .blockLeft
@@ -116,22 +134,9 @@
   background-position: center;
   fill: white;
   stroke: white;
-  width: calc(16px + 1vw + 0.5vh);
+  width: calc(22px + 1vw + 0.5vh);
   height: auto;
-}
-
-/* blocks inside of a parent block */
-
-.block > .block
-{
-  background-color: transparent;
-  padding: 5px 5px;
-}
-
-.block > .block:hover
-{
-  outline-offset: -1px;
-  outline: #FFFFFF solid 1px;
+  border: 1px white solid;
 }
 
 /* spacing between the title and icons horizontally */
@@ -145,7 +150,8 @@
 /* spacing between elements vertically
 excluding line breaks and the last element of a block */
 
-.block > *:not(:last-child):not(.blockLineBreak)
+.block > *:not(.blockLineBreak)
 {
-  margin-bottom: 5px;
+  margin-top: 2px;
+  margin-bottom: 2px;
 }

@@ -14,6 +14,10 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
+// TODO expand and collapse block maybe support it through the API
+
+// TODO appendText should have options to choose from Text or Button
+
 // TODO apps
 // TODO check for updates and download packages (if on AppImages, Windows or DMG)
 // TODO auto-start
@@ -81,12 +85,16 @@ loadExtensionsDir();
 
 for (const extension in loadedExtensions)
 {
-  appendExtensionControlPanel(loadedExtensions[extension]);
+  appendExtensionControlPanel(loadedExtensions[extension], 'Install');
+
+  break;
 }
 
 /** @param { PackageMeta } extension
+* @param { string } action
+* @param { () => void } callback
 */
-function appendExtensionControlPanel(extension)
+function appendExtensionControlPanel(extension, action, callback)
 {
   const block = new Block(
     {
@@ -95,7 +103,7 @@ function appendExtensionControlPanel(extension)
       actionIcon: ext.getIcon('expand')
     });
 
-  //
+  // permissions section
 
   block.appendLineSeparator();
 
@@ -104,7 +112,7 @@ function appendExtensionControlPanel(extension)
   block.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
   block.appendText(permissions, { type: 'Description', size: 'Smaller' });
 
-  //
+  // modules section
 
   const modules = extension.sulaiman.modules.join('\n');
 
@@ -113,17 +121,36 @@ function appendExtensionControlPanel(extension)
 
   block.appendLineSeparator();
 
-  //
+  // button section
 
   const button = new Block();
 
-  button.appendText('Install', { align: 'Center', style: 'Bold' });
+  button.appendText(action, { align: 'Center', style: 'Bold' });
     
   block.appendChild(button);
 
+  // append the control panel block to body
+  ext.appendChild(block);
+
   //
 
-  ext.appendChild(block);
+  isDOMReady(() =>
+  {
+    block.domElement.style.maxHeight = block.domElement.querySelector('.blockLineBreak').previousElementSibling.getBoundingClientRect().height +
+    (block.domElement.querySelector('.blockLineBreak').nextElementSibling.getBoundingClientRect().top -
+    block.domElement.querySelector('.blockLineBreak').previousElementSibling.getBoundingClientRect().bottom) + 'px';
+  });
+}
+
+function isDOMReady(callback)
+{
+  if (document.readyState === 'complete')
+    callback();
+  else
+    window.setTimeout(() =>
+    {
+      isDOMReady(callback);
+    }, 100);
 }
 
 // api.onSearchBarInput((value) =>

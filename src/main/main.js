@@ -60,6 +60,8 @@ function createWindow()
     mainWindow = null;
   });
 
+  // TODO handle global shortcut register errors
+
   // how to restore the app when it's hidden, this can fail if
   // the shortcut is being used by another application
   if (!process.env.DEBUG)

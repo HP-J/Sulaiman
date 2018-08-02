@@ -1,9 +1,13 @@
 .searchBar
 {
+  z-index: 1;
   outline: none;
   overflow: hidden;
+  position: sticky;
   background-color: #4F4F4F;
   color: #FFFFFF;
+  top: 0;
+  left: 0;
   width: calc(100vw - 20px);
   height: calc(30px + 3vh + 0.5vw);
   font-family: Oxygen;
