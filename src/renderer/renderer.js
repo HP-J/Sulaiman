@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensionsDir, emitCallbacks, loadedExtensions } from './registry.js';
+import { loadExtensionsDir, emitCallbacks, loadedExtensions, PackageMeta } from './registry.js';
 
 import * as ext from './extension.js';
 
@@ -15,8 +15,9 @@ export const splash = document.body.children[0];
 export const mainWindow = remote.getCurrentWindow();
 
 // TODO apps
-// auto-start
-// check for sulaiman updates and download packages if on AppImages, Windows or DMG
+// TODO check for updates and download packages (if on AppImages, Windows or DMG)
+// TODO auto-start
+
 // calculator
 // google
 // files
@@ -78,17 +79,15 @@ registerEvents();
 // load all extensions
 loadExtensionsDir();
 
-// TODO finish the extensions control room ()
-
-// TODO maybe a way to add empty space (line breaks) that gets controlled by css themes
-
-ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/expand.svg'), 'expand');
-ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/search.svg'), 'search');
-
-// for (const extension in loadedExtensions)
+for (const extension in loadedExtensions)
 {
-  const extension = loadedExtensions['sulaiman-extension-debug'];
+  appendExtensionControlPanel(loadedExtensions[extension]);
+}
 
+/** @param { PackageMeta } extension
+*/
+function appendExtensionControlPanel(extension)
+{
   const block = new Block(
     {
       title: extension.sulaiman.displayName,
@@ -96,22 +95,31 @@ ext.storeIcon(join(__dirname, '../extensions/default-dark/icons/search.svg'), 's
       actionIcon: ext.getIcon('expand')
     });
 
-  // TODO show all permissions then all modules
-  // TODO highlight dangerous permissions and builtin modules according to an encoded list
+  //
 
   block.appendLineSeparator();
 
-  const primsElem = block.appendText('PERMISSIONS', { size: 'Smaller' });
+  const permissions = extension.sulaiman.permissions.join('\n');
+  
+  block.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
+  block.appendText(permissions, { type: 'Description', size: 'Smaller' });
 
-  primsElem.style.fontWeight = '700';
+  //
 
-  // const button = new Block();
+  const modules = extension.sulaiman.modules.join('\n');
 
-  // button.appendText('install');
+  block.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
+  block.appendText(modules, { type: 'Description', size: 'Smaller' });
 
-  // button.style.textAlign = 'center';
+  block.appendLineSeparator();
+
+  //
+
+  const button = new Block();
+
+  button.appendText('Install', { align: 'Center', style: 'Bold' });
     
-  // block.appendChild(button);
+  block.appendChild(button);
 
   //
 

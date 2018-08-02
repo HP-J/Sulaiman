@@ -12,7 +12,9 @@ export default class Block
 
   /** @typedef { Object } TextOptions
   * @property { "Title" | "Description" } [type=Title]
-  * @property { "Normal" | "Small" | "Smaller" } [size=Normal]
+  * @property { "Left" | "Right" | "Center" } [align=Left]
+  * @property { "Medium" | "Small" | "Smaller" } [size=Medium]
+  * @property { "Normal" | "Bold" | "Light" } [style=Normal]
   */
 
   /** @typedef { Object } Events
@@ -210,14 +212,18 @@ export default class Block
     options = options || {};
 
     options.type = options.type || 'Title';
-    options.size = options.size || 'Normal';
+    options.align = options.align || 'Left';
+    options.size = options.size || 'Medium';
+    options.style = options.style || 'Normal';
 
     const textElem = document.createElement('div');
 
     textElem.setAttribute(
       'class',
       'block' + options.type +
-      ' block' + options.size
+      ' block' + options.align +
+      ' block' + options.size +
+      ' block' + options.style
     );
 
     textElem.innerText = text;
