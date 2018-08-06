@@ -286,9 +286,9 @@ export default class Block
     if (options.actionIcon !== undefined)
       this.appendIcon(options.actionIcon);
 
-    this.appendLineBreak();
-
     if (options.description && options.description.length > 0)
       this.appendText(options.description, { type: 'Description' });
+      
+    this.appendLineBreak();
   }
 }

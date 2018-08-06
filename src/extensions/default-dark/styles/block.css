@@ -7,6 +7,7 @@
   outline: none;
   overflow: hidden;
   cursor: pointer;
+  transition: max-height 2s ease-in-out;
   background-color: #292929;
   position: relative;
   width: calc(100vw - 30px);
@@ -22,7 +23,11 @@
   padding: 8px 15px;
   border: 0px;
   margin: 0px;
-  /* transition: max-height 2s; */
+}
+
+.blockCollapsed
+{
+  max-height: 70px;
 }
 
 .block:focus, .block:hover

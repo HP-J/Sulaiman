@@ -4,7 +4,7 @@ import * as ext from 'sulaiman';
 ext.setPlaceholder('Search');
 
 // append the theme stylesheets
-ext.appendStyleDir(__dirname + '/styles', ext.hideSplashScreen);
+ext.appendStyleDir(__dirname + '/styles');
 
 // store the icon set
 

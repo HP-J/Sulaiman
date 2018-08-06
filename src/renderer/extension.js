@@ -157,33 +157,13 @@ export function appendStyle(callback, ...files)
       length += 1;
 
       // if all the files are loaded run the callback
-      if (files.length === length)
+      if (files.length === length && callback)
         callback();
     };
 
     // append the style to the DOM
     document.head.appendChild(style);
   }
-}
-
-/** append all the stylesheet files from a directory to the DOM [async]
-* @param { string } dir the stylesheet directory
-* @param { () => void } callback gets called when all the styles are loaded
-*/
-export function appendStyleDir(dir, callback)
-{
-  appendStyle(callback,
-    ...readdirSync(dir)
-      // get only .css files
-      .filter((x) =>
-      {
-        return x.endsWith('.css');
-      })
-      // get the full path of the files
-      .map((x) =>
-      {
-        return join(dir, x);
-      }));
 }
 
 /** remove a list of stylesheet files from the DOM
@@ -205,14 +185,24 @@ export function removeStyle(...files)
   }
 }
 
-export function showSplashScreen()
+/** append all the stylesheet files from a directory to the DOM [async]
+* @param { string } dir the stylesheet directory
+* @param { () => void } callback gets called when all the styles are loaded
+*/
+export function appendStyleDir(dir, callback)
 {
-  splash.style.display = 'block';
-}
-
-export function hideSplashScreen()
-{
-  splash.style.display = 'none';
+  appendStyle(callback,
+    ...readdirSync(dir)
+      // get only .css files
+      .filter((x) =>
+      {
+        return x.endsWith('.css');
+      })
+      // get the full path of the files
+      .map((x) =>
+      {
+        return join(dir, x);
+      }));
 }
 
 /** add a block or a html element to the body

@@ -14,8 +14,6 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-// TODO expand and collapse block maybe support it through the API
-
 // TODO appendText should have options to choose from Text or Button
 
 // TODO apps
@@ -25,6 +23,17 @@ export const mainWindow = remote.getCurrentWindow();
 // calculator
 // google
 // files
+
+function isDOMReady(callback)
+{
+  if (document.readyState === 'complete')
+    callback();
+  else
+    window.setTimeout(() =>
+    {
+      isDOMReady(callback);
+    }, 100);
+}
 
 function registerEvents()
 {
@@ -132,25 +141,31 @@ function appendExtensionControlPanel(extension, action, callback)
   // append the control panel block to body
   ext.appendChild(block);
 
-  //
+  // isDOMReady(() =>
+  // {
+  //   const lineBreak = block.domElement.querySelector('.blockLineBreak');
 
-  isDOMReady(() =>
-  {
-    block.domElement.style.maxHeight = block.domElement.querySelector('.blockLineBreak').previousElementSibling.getBoundingClientRect().height +
-    (block.domElement.querySelector('.blockLineBreak').nextElementSibling.getBoundingClientRect().top -
-    block.domElement.querySelector('.blockLineBreak').previousElementSibling.getBoundingClientRect().bottom) + 'px';
-  });
-}
+  //   const parentElement = lineBreak.parentElement.getBoundingClientRect();
+  //   const firstElement = lineBreak.parentElement.children[0].getBoundingClientRect();
 
-function isDOMReady(callback)
-{
-  if (document.readyState === 'complete')
-    callback();
-  else
-    window.setTimeout(() =>
-    {
-      isDOMReady(callback);
-    }, 100);
+  //   const previousElementSibling = lineBreak.previousElementSibling.getBoundingClientRect();
+  //   const nextElementSibling = lineBreak.nextElementSibling.getBoundingClientRect();
+
+  //   block.style.setProperty(
+  //     'blockCollapsedHeight',
+  //     // max height equals the space of every thing above the previous sibling
+  //     ((previousElementSibling.bottom - parentElement.top) - (firstElement.top - parentElement.top)) 
+  //     // plus (the space between line break previous sibling and next sibling)
+  //     + (nextElementSibling.top - previousElementSibling.bottom) + 'px'
+  //   );
+
+  //   block.domElement.classList.add('blockCollapsed');
+
+  //   setTimeout(() =>
+  //   {
+  //     block.domElement.classList.remove('blockCollapsed');
+  //   }, 2000);
+  // });
 }
 
 // api.onSearchBarInput((value) =>
@@ -170,9 +185,8 @@ function isDOMReady(callback)
 // reset focus
 onfocus();
 
-// set a timeout to hide the splash screen to give a chance to
-// extensions that leverages it to hide it themselves
-setTimeout(() =>
+// hide the splash screen when the dom is ready
+isDOMReady(() =>
 {
-  api.hideSplashScreen();
-}, 5000);
+  splash.style.display = 'none';
+});
