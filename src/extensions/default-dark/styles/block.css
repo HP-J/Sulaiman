@@ -7,7 +7,6 @@
   outline: none;
   overflow: hidden;
   cursor: pointer;
-  transition: max-height 2s ease-in-out;
   background-color: #292929;
   position: relative;
   width: calc(100vw - 30px);
@@ -27,7 +26,7 @@
 
 .blockCollapsed
 {
-  max-height: 70px;
+  display: none;
 }
 
 .block:focus, .block:hover

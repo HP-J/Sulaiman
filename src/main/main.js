@@ -9,8 +9,40 @@ import url from 'url';
 */
 let mainWindow;
 
+let autoHide = true;
+let frame = false;
+let skipTaskbar = true;
+let resizable = false;
+
+const accelerator = 'Control+Space';
+
 function createWindow()
 {
+  // debug settings
+  if (process.env.DEBUG)
+  {
+    autoHide = false;
+    frame = true;
+    skipTaskbar = false;
+    resizable = true;
+  }
+  // register global shortcut to restore the app
+  // window when it's auto-hidden
+  else
+  {
+    if (!globalShortcut.isRegistered(accelerator))
+    {
+      globalShortcut.register('Control+Space', focus);
+    }
+    else
+    {
+      // the window can't be restored by a shortcut
+      // therefor it must be visible all the time
+      autoHide = false;
+      skipTaskbar = false;
+    }
+  }
+
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -27,10 +59,10 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
-      show: (process.env.DEBUG) ? true : false,
-      frame: (process.env.DEBUG) ? true : false,
-      resizable: (process.env.DEBUG) ? true : false,
-      skipTaskbar: (process.env.DEBUG) ? false : true,
+      show: !autoHide,
+      frame: frame,
+      skipTaskbar: skipTaskbar,
+      resizable: resizable,
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
@@ -60,12 +92,13 @@ function createWindow()
     mainWindow = null;
   });
 
-  // TODO handle global shortcut register errors
+  mainWindow.on('blur', onblur);
+}
 
-  // how to restore the app when it's hidden, this can fail if
-  // the shortcut is being used by another application
-  if (!process.env.DEBUG)
-    globalShortcut.register('Control+Space', focus);
+function onblur()
+{
+  if (autoHide)
+    mainWindow.hide();
 }
 
 function focus()
@@ -74,7 +107,7 @@ function focus()
 
   mainWindow.show();
   
-  mainWindow.setSkipTaskbar((process.env.DEBUG) ? false : true);
+  mainWindow.setSkipTaskbar(skipTaskbar);
 
   mainWindow.focus();
 }

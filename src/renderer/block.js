@@ -1,3 +1,5 @@
+import { isDOMReady } from './renderer.js';
+
 /** A class containing functions and variables to append
 * html elements to the body and control them
 */
@@ -230,6 +232,64 @@ export default class Block
     this.domElement.appendChild(textElem);
 
     return textElem;
+  }
+
+  collapse()
+  {
+    // isDOMReady(() =>
+    // {
+    //   const lineBreak = block.domElement.querySelector('.blockLineBreak');
+
+    //   const parentElement = lineBreak.parentElement.getBoundingClientRect();
+    //   const firstElement = lineBreak.parentElement.children[0].getBoundingClientRect();
+
+    //   const previousElementSibling = lineBreak.previousElementSibling.getBoundingClientRect();
+    //   const nextElementSibling = lineBreak.nextElementSibling.getBoundingClientRect();
+
+    //   block.style.setProperty(
+    //     'blockCollapsedHeight',
+    //     // max height equals the space of every thing above the previous sibling
+    //     ((previousElementSibling.bottom - parentElement.top) - (firstElement.top - parentElement.top)) 
+    //     // plus (the space between line break previous sibling and next sibling)
+    //     + (nextElementSibling.top - previousElementSibling.bottom) + 'px'
+    //   );
+
+    //   block.domElement.classList.add('blockCollapsed');
+
+    //   setTimeout(() =>
+    //   {
+    //     block.domElement.classList.remove('blockCollapsed');
+    //   }, 2000);
+    // });
+  
+    isDOMReady(() =>
+    {
+      let element = this.domElement.querySelector('.blockLineBreak').nextElementSibling;
+
+      while (element)
+      {
+        element.tmpStyle = element.getAttribute('style');
+        element.setAttribute('style', 'display: none;');
+  
+        element = element.nextElementSibling;
+      }
+    });
+  }
+
+  expand()
+  {
+    isDOMReady(() =>
+    {
+      let element = this.domElement.querySelector('.blockLineBreak').nextElementSibling;
+
+      while (element)
+      {
+        element.setAttribute('style', element.tmpStyle);
+        element.tmpStyle = undefined;
+    
+        element = element.nextElementSibling;
+      }
+    });
   }
 
   /**
