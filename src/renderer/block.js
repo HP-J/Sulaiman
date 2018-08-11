@@ -236,40 +236,16 @@ export default class Block
 
   collapse()
   {
-    // isDOMReady(() =>
-    // {
-    //   const lineBreak = block.domElement.querySelector('.blockLineBreak');
-
-    //   const parentElement = lineBreak.parentElement.getBoundingClientRect();
-    //   const firstElement = lineBreak.parentElement.children[0].getBoundingClientRect();
-
-    //   const previousElementSibling = lineBreak.previousElementSibling.getBoundingClientRect();
-    //   const nextElementSibling = lineBreak.nextElementSibling.getBoundingClientRect();
-
-    //   block.style.setProperty(
-    //     'blockCollapsedHeight',
-    //     // max height equals the space of every thing above the previous sibling
-    //     ((previousElementSibling.bottom - parentElement.top) - (firstElement.top - parentElement.top)) 
-    //     // plus (the space between line break previous sibling and next sibling)
-    //     + (nextElementSibling.top - previousElementSibling.bottom) + 'px'
-    //   );
-
-    //   block.domElement.classList.add('blockCollapsed');
-
-    //   setTimeout(() =>
-    //   {
-    //     block.domElement.classList.remove('blockCollapsed');
-    //   }, 2000);
-    // });
-  
     isDOMReady(() =>
     {
       let element = this.domElement.querySelector('.blockLineBreak').nextElementSibling;
 
       while (element)
       {
-        element.tmpStyle = element.getAttribute('style');
-        element.setAttribute('style', 'display: none;');
+        if (element.classList.contains('blockExpanded'))
+          element.classList.remove('blockExpanded');
+
+        element.classList.add('blockCollapsed');
   
         element = element.nextElementSibling;
       }
@@ -284,8 +260,10 @@ export default class Block
 
       while (element)
       {
-        element.setAttribute('style', element.tmpStyle);
-        element.tmpStyle = undefined;
+        if (element.classList.contains('blockCollapsed'))
+          element.classList.remove('blockCollapsed');
+        
+        element.classList.add('blockExpanded');
     
         element = element.nextElementSibling;
       }

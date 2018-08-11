@@ -10,8 +10,7 @@
   background-color: #292929;
   position: relative;
   width: calc(100vw - 30px);
-  height: auto;
-  min-height: 2.5vh;
+  min-height: 10px;
   max-height: 125vh;
   font-family: Oxygen;
   font-size: calc(10px + 0.5vw + 1vh);
@@ -22,11 +21,6 @@
   padding: 8px 15px;
   border: 0px;
   margin: 0px;
-}
-
-.blockCollapsed
-{
-  display: none;
 }
 
 .block:focus, .block:hover
@@ -72,7 +66,28 @@
   color: #FFFFFF;
   width: auto;
   height: auto;
-  border: 1px white solid;
+}
+
+.blockDescription
+{
+  color: #878787;
+  white-space: pre-line;
+  writing-mode: horizontal-tb;
+  max-block-size: 35vh;
+  width: 100%;
+}
+
+.blockIcon
+{
+  align-self: center;
+  background-color: transparent;
+  background-size: 100% auto;
+  background-repeat: no-repeat;
+  background-position: center;
+  fill: white;
+  stroke: white;
+  width: calc(22px + 1vw + 0.5vh);
+  height: auto;
 }
 
 .blockLeft
@@ -120,29 +135,6 @@
   font-weight: 700;
 }
 
-.blockDescription
-{
-  color: #878787;
-  white-space: pre-line;
-  writing-mode: horizontal-tb;
-  max-block-size: 35vh;
-  width: 100%;
-}
-
-.blockIcon
-{
-  align-self: center;
-  background-color: transparent;
-  background-size: 100% auto;
-  background-repeat: no-repeat;
-  background-position: center;
-  fill: white;
-  stroke: white;
-  width: calc(22px + 1vw + 0.5vh);
-  height: auto;
-  border: 1px white solid;
-}
-
 /* spacing between the title and icons horizontally */
 
 .blockTitle + .blockIcon,
@@ -158,4 +150,56 @@ excluding line breaks and the last element of a block */
 {
   margin-top: 2px;
   margin-bottom: 2px;
+}
+
+.blockCollapsed
+{
+  animation: blockCollapsed 0.4s ease-in;
+  animation-fill-mode: forwards;
+}
+
+.blockExpanded
+{
+  animation: blockExpanded 0.4s ease-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes blockCollapsed
+{
+  70%
+  {
+    opacity: 0;
+  }
+
+  99%
+  {
+    position: relative;
+  }
+
+  100%
+  {
+    opacity: 0;
+    transform: translateX(100%);
+    position: absolute;
+  }
+}
+
+@keyframes blockExpanded
+{
+  0%
+  {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  20%
+  {
+    opacity: 0;
+  }
+
+  100%
+  {
+    opacity: 1;
+    transform: translateX(0%);
+  }
 }

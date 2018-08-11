@@ -14,9 +14,10 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-// TODO collapse expand animation
-
 // TODO appendText should have options to choose from Text or Button
+
+// TODO Install/Delete extensions from the npm registry
+// TODO Show popular extensions from the npm registry
 
 // TODO apps
 // TODO check for updates and download packages (if on AppImages, Windows or DMG)
@@ -139,6 +140,16 @@ function appendExtensionControlPanel(extension, action, callback)
 
   // append the control panel block to body
   ext.appendChild(block);
+  
+  setTimeout(() =>
+  {
+    block.collapse();
+  }, 1000);
+
+  setTimeout(() =>
+  {
+    block.expand();
+  }, 2000);
 }
 
 // api.onSearchBarInput((value) =>
