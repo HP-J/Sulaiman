@@ -274,7 +274,7 @@ export default class Card
       // add the collapsed class to the card
       this.domElement.classList.add('cardCollapsed');
 
-      // add the collapsed class to all the card children
+      // loop to all the children after the line break
       element = element.nextElementSibling;
       
       // loop until there is no more childs
@@ -284,6 +284,7 @@ export default class Card
         if (element.classList.contains('cardChildExpanded'))
           element.classList.remove('cardChildExpanded');
         
+        // add the collapsed class to all the card children
         element.classList.add('cardChildCollapsed');
         
         // switch to the next child
@@ -316,23 +317,23 @@ export default class Card
         '--cardY',
         cardRect.height + 'px');
 
-      // if the card has the expanded class, remove it
+      // if the card has the collapsed class, remove it
       if (this.domElement.classList.contains('cardCollapsed'))
         this.domElement.classList.remove('cardCollapsed');
         
-      // add the collapsed class to the card
+      // add the expanded class to the card
       this.domElement.classList.add('cardExpanded');
 
-      // add the collapsed class to all the card children
+      // loop to all the children after the line break
       element = element.nextElementSibling;
       
-      // loop until there is no more childs
       while (element)
       {
-        // if the child has the expanded class, remove it
+        // if the child has the collapsed class, remove it
         if (element.classList.contains('cardChildCollapsed'))
           element.classList.remove('cardChildCollapsed');
         
+        // add the expanded class to all the card children
         element.classList.add('cardChildExpanded');
         
         // switch to the next child

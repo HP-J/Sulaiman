@@ -6,22 +6,21 @@ import { loadExtensionsDir, emitCallbacks, loadedExtensions, PackageMeta } from 
 
 import * as ext from './extension.js';
 
-import * as api from './extension.js';
 import Card from './card.js';
+
+import { remove } from 'fs-extra';
 import { join } from 'path';
 
 export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-// TODO appendText should have options to choose from Text or Button
-
-// TODO Install/Delete extensions from the npm registry
-// TODO Show popular extensions from the npm registry
-
 // TODO apps
-// TODO check for updates and download packages (if on AppImages, Windows or DMG)
+// TODO build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
+// TODO check for updates and download packages (if on AppImages, MIS or DMG)
 // TODO auto-start
+
+// TODO Show popular extensions from the npm registry
 
 // calculator
 // google
@@ -104,16 +103,17 @@ loadExtensionsDir();
 
 for (const extension in loadedExtensions)
 {
-  appendExtensionControlPanel(loadedExtensions[extension], 'Install');
+  appendExtensionControlPanel(loadedExtensions[extension], extension, 'Install');
 
   break;
 }
 
 /** @param { PackageMeta } extension
-* @param { string } action
+* @param { string } directory
+* @param { "Delete" | "Install" } action
 * @param { () => void } callback
 */
-function appendExtensionControlPanel(extension, action, callback)
+function appendExtensionControlPanel(extension, directory, action)
 {
   const card = new Card(
     {
@@ -143,23 +143,42 @@ function appendExtensionControlPanel(extension, action, callback)
   // button section
 
   const button = new Card();
-
-  button.appendText(action, { align: 'Center', style: 'Bold' });
-    
+  
   card.appendChild(button);
+  
+  const text = button.appendText(action, { align: 'Center', style: 'Bold' });
+
+  if (action === 'Delete')
+  {
+    button.events.onclick = () =>
+    {
+      text.innerText = 'Deleting';
+  
+      button.events.onclick = undefined;
+  
+      remove(join(__dirname, '../extensions', directory)).catch(() =>
+      {
+        reload();
+      }).then(() =>
+      {
+        text.innerText = 'Reload';
+  
+        button.events.onclick = reload;
+      });
+    };
+  }
+  else
+  {
+    button.events.onclick = () =>
+    {
+      text.innerText = 'Installing';
+  
+      button.events.onclick = undefined;
+    }
+  }
 
   // append the control panel card to body
   ext.appendChild(card);
-  
-  setTimeout(() =>
-  {
-    card.collapse();
-  }, 1000);
-
-  setTimeout(() =>
-  {
-    card.expand();
-  }, 3000);
 }
 
 // api.onSearchBarInput((value) =>

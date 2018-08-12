@@ -54,15 +54,16 @@ export function loadExtensionsDir()
       continue;
 
     // load the extension
-    loadExtension(extensionPath, JSON.parse(readFileSync(packagePath)));
+    loadExtension(extensionPath, extensions[i], JSON.parse(readFileSync(packagePath)));
   }
 }
 
 /** creates a new NodeVM for an extension and runs its index.js
 * @param { string } extensionPath
+* @param { string } extensionDirName
 * @param { PackageMeta } packageMeta
 */
-function loadExtension(extensionPath, packageMeta)
+function loadExtension(extensionPath, extensionDirName, packageMeta)
 {
   const { sandbox, mock } = handelPermissions(packageMeta.sulaiman.permissions);
 
@@ -91,7 +92,7 @@ function loadExtension(extensionPath, packageMeta)
   vm.run(readFileSync(extensionPath).toString(), extensionPath);
 
   // append the extension that just loaded to the loaded extensions array
-  loadedExtensions[packageMeta.name] = packageMeta;
+  loadedExtensions[extensionDirName] = packageMeta;
 }
 
 /** handle permissions to use global variables and mockups
