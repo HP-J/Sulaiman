@@ -3,9 +3,9 @@ import { isDOMReady } from './renderer.js';
 /** A class containing functions and variables to append
 * html elements to the body and control them
 */
-export default class Block
+export default class Card
 {
-  /** @typedef { Object } AutoBlockOptions
+  /** @typedef { Object } AutoCardOptions
   * @property { string } [title]
   * @property { string } [description]
   * @property { HTMLElement } [extensionIcon]
@@ -97,13 +97,13 @@ export default class Block
   */
 
   /**
-  * @param { AutoBlockOptions } options
+  * @param { AutoCardOptions } options
   */
   constructor(options)
   {
-    /** the block's main html element
+    /** the card's main html element
     * (some functions are broken due to issues with the sandbox module,
-    * please use the alterative block functions if available instead)
+    * please use the alterative card functions if available instead)
     * @type { HTMLDivElement }
     */
     this.domElement = document.createElement('div');
@@ -125,7 +125,7 @@ export default class Block
       }
     };
 
-    /** the css stylesheet of the block
+    /** the css stylesheet of the card
     * @type { CSSStyleDeclaration }
     */
     this.style = new Proxy({}, styleHandler);
@@ -150,11 +150,11 @@ export default class Block
     */
     this.events = new Proxy({}, eventHandler);
 
-    // adds the block classes and apply some options if defined
+    // adds the card classes and apply some options if defined
     this.auto(options);
   }
 
-  /** reset the block
+  /** reset the card
   */
   reset()
   {
@@ -196,12 +196,20 @@ export default class Block
     this.setAttribute('id', id);
   }
 
-  /** add a block or a html element to the block
-  * @param { Block | HTMLElement } child
+  /** add another card or a html element to this card
+  * @param { Card | HTMLElement } child
   */
   appendChild(child)
   {
     this.domElement.appendChild(child.domElement || child);
+  }
+  
+  /** remove another card or a html element from this card
+  * @param { Card | HTMLElement } child
+  */
+  removeChild(child)
+  {
+    this.domElement.removeChild(child.domElement || child);
   }
 
   /**
@@ -222,10 +230,10 @@ export default class Block
 
     textElem.setAttribute(
       'class',
-      'block' + options.type +
-      ' block' + options.align +
-      ' block' + options.size +
-      ' block' + options.style
+      'card' + options.type +
+      ' card' + options.align +
+      ' card' + options.size +
+      ' card' + options.style
     );
 
     textElem.innerText = text;
@@ -238,15 +246,47 @@ export default class Block
   {
     isDOMReady(() =>
     {
-      let element = this.domElement.querySelector('.blockLineBreak').nextElementSibling;
+      // get the first line break element in the card
+      let element = this.domElement.querySelector('.cardLineBreak');
 
+      // if there is no line breaks in the card
+      // we can't collapse it
+      if (!element)
+        return;
+      
+      // get the rect of the card and the line break
+      const lineBreakRect = element.getBoundingClientRect();
+      const cardRect = this.domElement.getBoundingClientRect();
+
+      // get where the collapse should stop at
+      this.domElement.style.setProperty(
+        '--cardX',
+        lineBreakRect.left - cardRect.left + 'px');
+
+      this.domElement.style.setProperty(
+        '--cardY',
+        lineBreakRect.top - cardRect.top + 'px');
+
+      // if the card has the expanded class, remove it
+      if (this.domElement.classList.contains('cardExpanded'))
+        this.domElement.classList.remove('cardExpanded');
+        
+      // add the collapsed class to the card
+      this.domElement.classList.add('cardCollapsed');
+
+      // add the collapsed class to all the card children
+      element = element.nextElementSibling;
+      
+      // loop until there is no more childs
       while (element)
       {
-        if (element.classList.contains('blockExpanded'))
-          element.classList.remove('blockExpanded');
-
-        element.classList.add('blockCollapsed');
-  
+        // if the child has the expanded class, remove it
+        if (element.classList.contains('cardChildExpanded'))
+          element.classList.remove('cardChildExpanded');
+        
+        element.classList.add('cardChildCollapsed');
+        
+        // switch to the next child
         element = element.nextElementSibling;
       }
     });
@@ -256,15 +296,46 @@ export default class Block
   {
     isDOMReady(() =>
     {
-      let element = this.domElement.querySelector('.blockLineBreak').nextElementSibling;
+      // get the first line break element in the card
+      let element = this.domElement.querySelector('.cardLineBreak');
 
+      // if there is no line breaks in the card
+      // we can't expand it
+      if (!element)
+        return;
+
+      // get the rect of the card
+      const cardRect = this.domElement.getBoundingClientRect();
+
+      // get where the expand should start from
+      this.domElement.style.setProperty(
+        '--cardX',
+        cardRect.width + 'px');
+
+      this.domElement.style.setProperty(
+        '--cardY',
+        cardRect.height + 'px');
+
+      // if the card has the expanded class, remove it
+      if (this.domElement.classList.contains('cardCollapsed'))
+        this.domElement.classList.remove('cardCollapsed');
+        
+      // add the collapsed class to the card
+      this.domElement.classList.add('cardExpanded');
+
+      // add the collapsed class to all the card children
+      element = element.nextElementSibling;
+      
+      // loop until there is no more childs
       while (element)
       {
-        if (element.classList.contains('blockCollapsed'))
-          element.classList.remove('blockCollapsed');
+        // if the child has the expanded class, remove it
+        if (element.classList.contains('cardChildCollapsed'))
+          element.classList.remove('cardChildCollapsed');
         
-        element.classList.add('blockExpanded');
-    
+        element.classList.add('cardChildExpanded');
+        
+        // switch to the next child
         element = element.nextElementSibling;
       }
     });
@@ -276,19 +347,19 @@ export default class Block
   */
   appendIcon(icon)
   {
-    icon.setAttribute('class', 'blockIcon');
+    icon.setAttribute('class', 'cardIcon');
 
     this.domElement.appendChild(icon);
 
     return icon;
   }
 
-  /** adds a new line break to the block
+  /** adds a new line break to the card
   */
   appendLineBreak()
   {
     const lineElem = document.createElement('null');
-    lineElem.setAttribute('class', 'blockLineBreak');
+    lineElem.setAttribute('class', 'cardLineBreak');
 
     this.domElement.appendChild(lineElem);
   }
@@ -298,13 +369,13 @@ export default class Block
   appendLineSeparator()
   {
     const lineElem = document.createElement('null');
-    lineElem.setAttribute('class', 'blockLineSeparator');
+    lineElem.setAttribute('class', 'cardLineSeparator');
 
     this.domElement.appendChild(lineElem);
   }
 
-  /** [Recommended] customize the block with different options that follow the app user's css themes
-  * @param { AutoBlockOptions } options
+  /** [Recommended] customize the card with different options that follow the app user's css themes
+  * @param { AutoCardOptions } options
   */
   auto(options)
   {
@@ -313,7 +384,7 @@ export default class Block
 
     this.reset();
 
-    this.setClass('block');
+    this.setClass('card');
 
     if (options.title && options.title.length > 0)
       this.appendText(options.title);

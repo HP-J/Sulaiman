@@ -1,4 +1,13 @@
-.searchBar
+body
+{
+  overflow-x: hidden;
+  overflow-y: scroll;
+  background-color: #292929;
+  width: 100vw;
+  height: 100vh;
+}
+
+#searchBar
 {
   z-index: 1;
   outline: none;
@@ -20,7 +29,18 @@
   margin: 0px;
 }
 
-.searchBar::placeholder
+#searchBar::placeholder
 {
   color: #878787;
+}
+
+::-webkit-scrollbar
+{
+  background: transparent;
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb
+{
+  background: rgba(0, 0, 0, 0.4);
 }

@@ -1,6 +1,6 @@
-/* blocks inside of a the main body */
+/* cards inside of a the main body */
 
-.block
+.card
 {
   display: flex;
   flex-flow: wrap;
@@ -23,39 +23,39 @@
   margin: 0px;
 }
 
-.block:focus, .block:hover
+.card:focus, .card:hover
 {
   background-color: #4F4F4F;
 }
 
-/* blocks inside of a parent block */
+/* cards inside of a parent card */
 
-.block > .block
+.card > .card
 {
   background-color: transparent;
   padding: 3px 5px;
 }
 
-.block > .block:hover
+.card > .card:hover
 {
   outline-offset: -1px;
   outline: #FFFFFF solid 1px;
 }
 
-.blockLineBreak
+.cardLineBreak
 {
   flex-basis: 100%;
   width: 0px;
   height: 0px;
 }
 
-.blockLineSeparator
+.cardLineSeparator
 {
   flex-basis: 100%;
   width: 0px;
 }
 
-.blockTitle, .blockDescription
+.cardTitle, .cardDescription
 {
   display: flex;
   align-items: center;
@@ -68,16 +68,16 @@
   height: auto;
 }
 
-.blockDescription
+.cardDescription
 {
   color: #878787;
   white-space: pre-line;
   writing-mode: horizontal-tb;
-  max-block-size: 35vh;
+  max-card-size: 35vh;
   width: 100%;
 }
 
-.blockIcon
+.cardIcon
 {
   align-self: center;
   background-color: transparent;
@@ -90,116 +90,169 @@
   height: auto;
 }
 
-.blockLeft
+.cardLeft
 {
   justify-content: flex-start;
 }
 
-.blockRight
+.cardRight
 {
   justify-content: flex-end;
 }
 
-.blockCenter
+.cardCenter
 {
   justify-content: center;
 }
 
-.blockMedium
+.cardMedium
 {
   font-size: calc(10px + 0.5vw + 1vh);
 }
 
-.blockSmall
+.cardSmall
 {
   font-size: calc(8px + 0.5vw + 1vh);
 }
 
-.blockSmaller
+.cardSmaller
 {
   font-size: calc(8px + 0.5vw + 0.8vh);
 }
 
-.blockNormal
+.cardNormal
 {
   font-weight: 400;
 }
 
-.blockLight
+.cardLight
 {
   font-weight: 100;
 }
 
-.blockBold
+.cardBold
 {
   font-weight: 700;
 }
 
 /* spacing between the title and icons horizontally */
 
-.blockTitle + .blockIcon,
-.blockIcon + .blockIcon
+.cardTitle + .cardIcon,
+.cardIcon + .cardIcon
 {
   margin-left: 5px;
 }
 
 /* spacing between elements vertically
-excluding line breaks and the last element of a block */
+excluding line breaks and the last element of a card */
 
-.block > *:not(.blockLineBreak)
+.card > *:not(.cardLineBreak)
 {
   margin-top: 2px;
   margin-bottom: 2px;
 }
 
-.blockCollapsed
+.cardCollapsed
 {
-  animation: blockCollapsed 0.4s ease-in;
-  animation-fill-mode: forwards;
+  animation: cardCollapsed 1s ease;
 }
 
-.blockExpanded
+@keyframes cardCollapsed
 {
-  animation: blockExpanded 0.4s ease-out;
-  animation-fill-mode: forwards;
-}
-
-@keyframes blockCollapsed
-{
-  70%
+  20%
   {
-    opacity: 0;
+    border-bottom-left-radius: 15%;
+    border-bottom-right-radius: 15%;
   }
 
-  99%
+  50%
   {
+    max-height: var(--cardY);
+  }
+
+  100%
+  {
+    border-bottom-left-radius: 0%;
+    border-bottom-right-radius: 0%;
+  }
+}
+
+.cardChildCollapsed
+{
+  animation: cardChildCollapsed 1s ease;
+  animation-fill-mode: forwards;
+}
+
+@keyframes cardChildCollapsed
+{
+  49%
+  {
+    opacity: 1;
     position: relative;
+  }
+
+  50%
+  {
+    opacity: 0;
+    position: absolute;
   }
 
   100%
   {
     opacity: 0;
-    transform: translateX(100%);
     position: absolute;
   }
 }
 
-@keyframes blockExpanded
+.cardExpanded
+{
+  animation: cardExpanded 1s ease;
+}
+
+@keyframes cardExpanded
 {
   0%
   {
-    opacity: 0;
-    transform: translateX(100%);
+    max-height: var(--cardY);
   }
 
   20%
   {
-    opacity: 0;
+    border-bottom-left-radius: 15%;
+    border-bottom-right-radius: 15%;
+    max-height: var(--cardY);
   }
 
   100%
   {
+    border-bottom-left-radius: 0%;
+    border-bottom-right-radius: 0%;
+    max-height: 125vh;
+  }
+}
+
+.cardChildExpanded
+{
+  animation: cardChildExpanded 1s ease;
+}
+
+@keyframes cardChildExpanded
+{
+  0%
+  {
+    opacity: 0;
+    position: absolute;
+  }
+
+  19%
+  {
+    opacity: 0;
+    position: absolute;
+  }
+
+  20%
+  {
     opacity: 1;
-    transform: translateX(0%);
+    position: relative;
   }
 }

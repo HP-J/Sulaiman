@@ -6,11 +6,13 @@ import { splash } from './renderer.js';
 
 import { registerCallback } from './registry.js';
 
-import Block from './block.js';
+import { cardSpace } from './elements.js';
 
-export { Block };
+import Card from './card.js';
 
-export { setPlaceholder } from './searchBar.js';
+export { Card };
+
+export { setPlaceholder } from './elements.js';
 
 /** [needs a registry permission]
 * access to read & write to clipboard
@@ -205,27 +207,27 @@ export function appendStyleDir(dir, callback)
       }));
 }
 
-/** add a block or a html element to the body
-* @param { Block | HTMLElement } child
+/** add a card or a html element to the body
+* @param { Card | HTMLElement } child
 */
 export function appendChild(child)
 {
   document.body.appendChild(child.domElement || child);
 }
 
-/** remove a block or a html element from the body
-* @param { Block | HTMLElement } child
+/** remove a card or a html element from the body
+* @param { Card | HTMLElement } child
 */
-export function remove(child)
+export function removeChild(child)
 {
   document.body.removeChild(child.domElement || child);
 }
 
-/** if the body contains a block or a html element
-* @param { Block | HTMLElement } child
+/** if the body contains a card or a html element
+* @param { Card | HTMLElement } child
 * @returns { boolean }
 */
-export function contains(child)
+export function containsChild(child)
 {
   return document.body.contains(child.domElement || child);
 }
@@ -238,7 +240,7 @@ export function onSearchBarInput(callback)
   registerCallback('onSearchBarInput', callback);
 }
 
-/** emits every time sulaiman regain focus
+/** emits every time the sulaiman app regain focus
 * @param { () => void } callback the callback function
 */
 export function onFocus(callback)
@@ -246,7 +248,7 @@ export function onFocus(callback)
   registerCallback('onFocus', callback);
 }
 
-/** emits every time sulaiman loses focus
+/** emits every time the sulaiman app loses focus
 * @param { () => void } callback the callback function
 */
 export function onBlur(callback)

@@ -13,11 +13,11 @@
   "nyc": {
     "include": [
       "**/main.js",
-      "**/block.js",
+      "**/card.js",
+      "**/elements.js",
       "**/extension.js",
       "**/registry.js",
-      "**/renderer.js",
-      "**/searchBar.js"
+      "**/renderer.js"
     ]
   },
   "repository": {

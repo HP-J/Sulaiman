@@ -6,13 +6,13 @@ import { join } from 'path';
 
 // TODO allow local modules under the sandbox
 
-let block;
+let card;
 
 function onload()
 {
-  block = new ext.Block();
+  card = new ext.Card();
 
-  // block.button(
+  // card.button(
   //   'hello',
   //   'world',
   //   // undefined,
@@ -20,26 +20,26 @@ function onload()
   //   ext.getIcon(join(__dirname, './icons/expand.svg'))
   // );
   
-  // block.dialogue('title',
+  // card.dialogue('title',
   //   `there are few words that do justice to this villainy,
   //   and I think it can only hasten that regime's departure.`,
   //   '1', '2', '3');
 
-  // block.notification('title',
+  // card.notification('title',
   //   `once I knew a Devil,
   //   He was really good to me,
   //   No one has ever been good to me,
   //   God have sent me to Haven, I hate God.`,
   //   'ok');
   
-  // block.domElement.style.backgroundColor = 'red';
+  // card.domElement.style.backgroundColor = 'red';
 
-  block.events.onclick = (ev) =>
+  card.events.onclick = (ev) =>
   {
     console.log(ev.ctrlKey);
   };
 
-  ext.appendChild(block);
+  ext.appendChild(card);
 
   // ext.appendStyle(join(__dirname, './style.css'));
   // ext.removeStyle(join(__dirname, './style.css'));

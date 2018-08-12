@@ -1,13 +1,13 @@
 import { remote } from 'electron';
 
-import * as searchBar from './searchBar.js';
+import * as searchBar from './elements.js';
 
 import { loadExtensionsDir, emitCallbacks, loadedExtensions, PackageMeta } from './registry.js';
 
 import * as ext from './extension.js';
 
 import * as api from './extension.js';
-import Block from './block.js';
+import Card from './card.js';
 import { join } from 'path';
 
 export const splash = document.body.children[0];
@@ -27,6 +27,9 @@ export const mainWindow = remote.getCurrentWindow();
 // google
 // files
 
+/** executes the callback when the DOM has completed any running operations
+* @param { () => void } callback
+*/
 export function isDOMReady(callback)
 {
   if (document.readyState === 'complete')
@@ -36,6 +39,13 @@ export function isDOMReady(callback)
     {
       isDOMReady(callback);
     }, 100);
+}
+
+/** reloads the electron browser window
+*/
+export function reload()
+{
+  mainWindow.reload();
 }
 
 function registerEvents()
@@ -83,7 +93,7 @@ function onblur()
   emitCallbacks('onBlur');
 }
 
-// create and append search bar block
+// create and append the search bar
 searchBar.append();
     
 // register elements events and track key presses
@@ -105,7 +115,7 @@ for (const extension in loadedExtensions)
 */
 function appendExtensionControlPanel(extension, action, callback)
 {
-  const block = new Block(
+  const card = new Card(
     {
       title: extension.sulaiman.displayName,
       description: extension.description,
@@ -114,55 +124,55 @@ function appendExtensionControlPanel(extension, action, callback)
 
   // permissions section
 
-  block.appendLineSeparator();
+  card.appendLineSeparator();
 
   const permissions = extension.sulaiman.permissions.join('\n');
   
-  block.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
-  block.appendText(permissions, { type: 'Description', size: 'Smaller' });
+  card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
+  card.appendText(permissions, { type: 'Description', size: 'Smaller' });
 
   // modules section
 
   const modules = extension.sulaiman.modules.join('\n');
 
-  block.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
-  block.appendText(modules, { type: 'Description', size: 'Smaller' });
+  card.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
+  card.appendText(modules, { type: 'Description', size: 'Smaller' });
 
-  block.appendLineSeparator();
+  card.appendLineSeparator();
 
   // button section
 
-  const button = new Block();
+  const button = new Card();
 
   button.appendText(action, { align: 'Center', style: 'Bold' });
     
-  block.appendChild(button);
+  card.appendChild(button);
 
-  // append the control panel block to body
-  ext.appendChild(block);
+  // append the control panel card to body
+  ext.appendChild(card);
   
   setTimeout(() =>
   {
-    block.collapse();
+    card.collapse();
   }, 1000);
 
   setTimeout(() =>
   {
-    block.expand();
-  }, 2000);
+    card.expand();
+  }, 3000);
 }
 
 // api.onSearchBarInput((value) =>
 // {
 //   if (value.startsWith('ext'))
 //   {
-//     if (!ext.contains(installedBlock))
-//       ext.append(installedBlock);
+//     if (!ext.contains(installedCard))
+//       ext.append(installedCard);
 //   }
 //   else
 //   {
-//     if (ext.contains(installedBlock))
-//       ext.remove(installedBlock);
+//     if (ext.contains(installedCard))
+//       ext.remove(installedCard);
 //   }
 // });
 

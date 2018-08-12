@@ -5,12 +5,12 @@ import { onFocus, onBlur } from './extension.js';
 */
 export let input;
 
-/** create and append search bar elements
+/** create and append the search bar and card-space
 */
 export function append()
 {
   input = document.createElement('input');
-  input.setAttribute('class', 'searchBar');
+  input.setAttribute('id', 'searchBar');
   document.body.appendChild(input);
 
   onFocus(sulaimanOnFocus);
