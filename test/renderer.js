@@ -8,7 +8,7 @@ import { exec } from 'child_process';
 
 import { connect, Browser, Page } from 'puppeteer';
 
-import rp from 'request-promise';
+import rp from 'request-promise-native';
 
 import pti from 'puppeteer-to-istanbul';
 

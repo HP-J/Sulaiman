@@ -54,16 +54,15 @@ export function loadExtensionsDir()
       continue;
 
     // load the extension
-    loadExtension(extensionPath, extensions[i], JSON.parse(readFileSync(packagePath)));
+    loadExtension(extensionPath, JSON.parse(readFileSync(packagePath)));
   }
 }
 
 /** creates a new NodeVM for an extension and runs its index.js
 * @param { string } extensionPath
-* @param { string } extensionDirName
 * @param { PackageMeta } packageMeta
 */
-function loadExtension(extensionPath, extensionDirName, packageMeta)
+function loadExtension(extensionPath, packageMeta)
 {
   const { sandbox, mock } = handelPermissions(packageMeta.sulaiman.permissions);
 
@@ -92,7 +91,7 @@ function loadExtension(extensionPath, extensionDirName, packageMeta)
   vm.run(readFileSync(extensionPath).toString(), extensionPath);
 
   // append the extension that just loaded to the loaded extensions array
-  loadedExtensions[extensionDirName] = packageMeta;
+  loadedExtensions[packageMeta.name] = packageMeta;
 }
 
 /** handle permissions to use global variables and mockups
@@ -114,7 +113,7 @@ function handelPermissions(registryPermissions)
   // override specific apis from any module
   const mock =
   {
-    sulaiman: require('./extension.js')
+    sulaiman: require('./api.js')
   };
 
   for (let i = 0; i < registryPermissions.length; i++)

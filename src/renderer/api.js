@@ -6,13 +6,13 @@ import { splash } from './renderer.js';
 
 import { registerCallback } from './registry.js';
 
-import { cardSpace } from './elements.js';
+import { cardSpace } from './searchBar.js';
 
 import Card from './card.js';
 
 export { Card };
 
-export { setPlaceholder } from './elements.js';
+export { setPlaceholder } from './searchBar.js';
 
 /** [needs a registry permission]
 * access to read & write to clipboard

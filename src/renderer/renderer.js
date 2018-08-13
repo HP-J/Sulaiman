@@ -1,19 +1,14 @@
 import { remote } from 'electron';
 
-import * as searchBar from './elements.js';
+import * as searchBar from './searchBar.js';
 
-import { loadExtensionsDir, emitCallbacks, loadedExtensions, PackageMeta } from './registry.js';
-
-import * as ext from './extension.js';
-
-import Card from './card.js';
-
-import { remove } from 'fs-extra';
-import { join } from 'path';
+import { loadExtensionsDir, emitCallbacks, loadedExtensions } from './registry.js';
 
 export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
+
+import { appendExtensionCard } from './control.js';
 
 // TODO apps
 // TODO build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
@@ -103,82 +98,9 @@ loadExtensionsDir();
 
 for (const extension in loadedExtensions)
 {
-  appendExtensionControlPanel(loadedExtensions[extension], extension, 'Install');
+  appendExtensionCard(loadedExtensions[extension], 'Install');
 
   break;
-}
-
-/** @param { PackageMeta } extension
-* @param { string } directory
-* @param { "Delete" | "Install" } action
-* @param { () => void } callback
-*/
-function appendExtensionControlPanel(extension, directory, action)
-{
-  const card = new Card(
-    {
-      title: extension.sulaiman.displayName,
-      description: extension.description,
-      actionIcon: ext.getIcon('expand')
-    });
-
-  // permissions section
-
-  card.appendLineSeparator();
-
-  const permissions = extension.sulaiman.permissions.join('\n');
-  
-  card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
-  card.appendText(permissions, { type: 'Description', size: 'Smaller' });
-
-  // modules section
-
-  const modules = extension.sulaiman.modules.join('\n');
-
-  card.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
-  card.appendText(modules, { type: 'Description', size: 'Smaller' });
-
-  card.appendLineSeparator();
-
-  // button section
-
-  const button = new Card();
-  
-  card.appendChild(button);
-  
-  const text = button.appendText(action, { align: 'Center', style: 'Bold' });
-
-  if (action === 'Delete')
-  {
-    button.events.onclick = () =>
-    {
-      text.innerText = 'Deleting';
-  
-      button.events.onclick = undefined;
-  
-      remove(join(__dirname, '../extensions', directory)).catch(() =>
-      {
-        reload();
-      }).then(() =>
-      {
-        text.innerText = 'Reload';
-  
-        button.events.onclick = reload;
-      });
-    };
-  }
-  else
-  {
-    button.events.onclick = () =>
-    {
-      text.innerText = 'Installing';
-  
-      button.events.onclick = undefined;
-    }
-  }
-
-  // append the control panel card to body
-  ext.appendChild(card);
 }
 
 // api.onSearchBarInput((value) =>

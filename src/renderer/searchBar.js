@@ -1,5 +1,5 @@
 import { emitCallbacks } from './registry.js';
-import { onFocus, onBlur } from './extension.js';
+import { onFocus, onBlur } from './api.js';
 
 /** @type { HTMLInputElement }
 */
