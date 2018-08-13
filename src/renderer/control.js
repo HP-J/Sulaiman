@@ -82,15 +82,22 @@ function deleteExtension(button, text, extension)
   
   button.events.onclick = undefined;
 
-  remove(join(__dirname, '../extensions/' + extension.name))
-    .catch(() =>
-    {
-      reload();
-    })
+  deleteDir(extension.name)
     .then(() =>
     {
       success(button, text);
+    })
+    .catch(() =>
+    {
+      reload();
     });
+}
+
+/** @param { string } name
+*/
+function deleteDir(name)
+{
+  return remove(join(__dirname, '../extensions/' + name));
 }
 
 /** install an extension package from the npm registry
@@ -100,176 +107,183 @@ function deleteExtension(button, text, extension)
 */
 function installExtension(button, text, name)
 {
-  text.innerText = 'Installing';
+  text.innerText = 'Requesting URL';
   
   button.events.onclick = undefined;
 
-  getExtensionNPMData(name, (err, url, version) =>
-  {
-    downloadExtension(url, version, () =>
+  getExtensionNPMData(name)
+    .then(({ url, version }) =>
     {
-      console.log('downloaded');
-
-      installExtensionDependencies(name);
-    });
-  });
-}
-
-/** @param { string } name
-* @returns { (err: Error, url: string, version: string) => void }
-*/
-function getExtensionNPMData(name, callback)
-{
-  npm.load((err) =>
-  {
-    if (err)
-    {
-      callback(err);
-
-      return;
-    }
-
-    npm.commands.view([ name, 'dist.tarball' ], (err, data) =>
-    {
-      if (err)
-      {
-        callback(err);
-
-        return;
-      }
-
-      const version = Object.keys(data)[0];
-      
-      const url = data[version]['dist.tarball'];
-      
-      callback(undefined, url, version);
-    });
-  });
-}
-
-/** @param { string } url
-* @param { string } version
-* @param { (err: Error) => void } callback
-*/
-function downloadExtension(url, version, callback)
-{
-  const filename = basename(url);
-  const dirname = filename.replace('-' + version + '.tgz', '');
-
-  const tmpDir = tmpdir() + '/sulaiman/' + Date.now();
-
-  const tmpCompressed = join(tmpdir(), filename);
-  const tmpDecompressed = join(tmpDir, dirname);
-
-  const output = join(__dirname, '../extensions/' + dirname);
-
-  wget(url,
-    {
-      // onProgress: (progress) =>
-      // {
-      //   console.log(progress.percentage * 100);
-      // },
-      output: tmpCompressed
-    })
-    .catch((err) =>
-    {
-      callback(err);
+      return downloadExtension(text, url, version);
     })
     .then(() =>
     {
-      const extract = inly(tmpCompressed, tmpDecompressed);
-
-      // extract.on('progress', (percentage) =>
-      // {
-      //   console.log(percentage);
-      // });
-
-      extract.on('error', (err) =>
+      return installExtensionDependencies(text, name);
+    })
+    .then(() =>
+    {
+      success(button, text);
+    })
+    .catch(() =>
+    {
+      function failed()
       {
-        callback(err);
-      });
-
-      extract.on('end', () =>
-      {
-        move(tmpDecompressed + '/package', output, { overwrite: true }).then(() =>
+        text.innerText = 'Failed (Try Again)';
+  
+        button.events.onclick = () =>
         {
-          callback();
-        });
-      });
+          installExtension(button, text, name)
+        };
+      }
+
+      deleteDir(name).then(failed).catch(failed);
     });
 }
 
 /** @param { string } name
-* @returns { (err: Error) => void }
+* @returns { Promise<{ url: string, version: string }> }
 */
-function installExtensionDependencies(name, callback)
+function getExtensionNPMData(name)
 {
-  const dir = join(__dirname, '../extensions/' + name);
-
-  const orgPrefix = npm.prefix;
-
-  npm.prefix = dir;
-
-  readFile(dir + '/package.json')
-    .catch((err) =>
-    {
-      console.log(err);
-    })
-    .then((data) =>
-    {
-      const packageMeta = JSON.parse(data);
-
-      const dependencies = [];
-
-      for (const mod in packageMeta.dependencies)
+  return new Promise((resolve, reject) =>
+  {
+    npm.load((err) =>
+    {      
+      if (err)
       {
-        dependencies.push(mod + '@' + packageMeta.dependencies[mod]);
+        reject(err);
+        return;
       }
-
-      npm.load({ prefix: dir, loaded: false }, (err) =>
+  
+      npm.commands.view([ name, 'dist.tarball' ], (err, data) =>
       {
         if (err)
         {
-          // callback(err);
-          console.log(err);
-
+          reject(err);
           return;
         }
+  
+        const version = Object.keys(data)[0];
+        
+        const url = data[version]['dist.tarball'];
+        
+        resolve({ url, version });
+      });
+    });
+  });
+}
 
-        // npmConfig.set('prefix', dir);
+/** @param { HTMLElement } text
+* @param { string } url
+* @param { string } version
+* @returns { Promise<void> }
+*/
+function downloadExtension(text, url, version)
+{
+  return new Promise((resolve, reject) =>
+  {
+    const filename = basename(url);
+    const dirname = filename.replace('-' + version + '.tgz', '');
+  
+    const tmpDir = tmpdir() + '/sulaiman/' + Date.now();
+  
+    const tmpCompressed = join(tmpdir(), filename);
+    const tmpDecompressed = join(tmpDir, dirname);
+  
+    const output = join(__dirname, '../extensions/' + dirname);
 
-        npm.commands.prefix([ dir ], (err) =>
+    wget(url,
+      {
+        onProgress: (progress) =>
+        {
+          text.innerText = 'Downloading ' + (progress.percentage * 100).toFixed(0) + '%';
+        },
+        output: tmpCompressed
+      })
+      .then(() =>
+      {
+        const extract = inly(tmpCompressed, tmpDecompressed);
+  
+        extract.on('progress', (percentage) =>
+        {
+          text.innerText = 'Decompressing ' + percentage + '%';
+        });
+  
+        extract.on('error', (err) =>
+        {
+          reject(err);
+        });
+  
+        extract.on('end', () =>
+        {
+          move(tmpDecompressed + '/package', output, { overwrite: true }).then(() =>
+          {
+            resolve();
+          });
+        });
+      })
+      .catch((err) =>
+      {
+        reject(err);
+      });
+  });
+}
+
+/** @param { HTMLElement } text
+* @param { string } name
+* @returns { Promise<void> }
+*/
+function installExtensionDependencies(text, name)
+{
+  return new Promise((resolve, reject) =>
+  {
+    text.innerText = 'Installing Dependencies';
+
+    const dir = join(__dirname, '../extensions/' + name);
+
+    const orgPrefix = npm.prefix;
+  
+    npm.prefix = dir;
+  
+    readFile(dir + '/package.json')
+      .then((data) =>
+      {
+        const packageMeta = JSON.parse(data);
+  
+        const dependencies = [];
+  
+        for (const mod in packageMeta.dependencies)
+        {
+          dependencies.push(mod + '@' + packageMeta.dependencies[mod]);
+        }
+  
+        npm.load((err) =>
         {
           if (err)
           {
-            // callback(err);
-            console.log(err);
-  
+            reject(err);
             return;
           }
-
+  
           npm.commands.install(dependencies, (err) =>
           {
             if (err)
             {
-              // callback(err);
-              console.log(err);
-          
+              reject(err);
               return;
             }
   
             npm.prefix = orgPrefix;
 
-            console.log('done');
+            resolve();
           });
         });
-
-        npm.on('log', (msg) =>
-        {
-          console.log(msg);
-        });
+      })
+      .catch((err) =>
+      {
+        reject(err);
       });
-    });
+  });
 }
 
 /** @param { Card } button
