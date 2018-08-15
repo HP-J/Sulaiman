@@ -73,19 +73,19 @@
   color: #878787;
   white-space: pre-line;
   writing-mode: horizontal-tb;
-  max-card-size: 35vh;
+  max-block-size: 35vh;
   width: 100%;
 }
 
 .cardIcon
 {
   align-self: center;
+  fill: white;
+  stroke: white;
   background-color: transparent;
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center;
-  fill: white;
-  stroke: white;
   width: calc(22px + 1vw + 0.5vh);
   height: auto;
 }

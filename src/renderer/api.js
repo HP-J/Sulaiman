@@ -1,12 +1,8 @@
-import { readFileSync, readdirSync } from 'fs';
+import { readdirSync } from 'fs';
 
 import { join } from 'path';
 
-import { splash } from './renderer.js';
-
 import { registerCallback } from './registry.js';
-
-import { cardSpace } from './searchBar.js';
 
 import Card from './card.js';
 
@@ -30,6 +26,8 @@ const storedIcons = {};
 */
 const appendedStyles = {};
 
+const iconStyles = [];
+
 /** add an icon to store
 * @param { string } path a full path to the icon
 * @param { string } iconName give the icon a name that will be used later to pull it from store
@@ -40,14 +38,15 @@ export function storeIcon(path, iconName)
   if (storedIcons[iconName] !== undefined)
     throw 'an icon with that name already exists';
 
-  let icon;
+  if (!path.endsWith('.svg'))
+    throw 'sulaiman only supports SVG icons';
 
-  if (path.endsWith('.svg'))
-    icon = svg(path);
-  else if (path.endsWith('.png'))
-    icon = image(path);
-  else
-    throw 'icon format not supported, supported formats are [ png, svg ]';
+  const icon = document.createElement('object');
+
+  icon.type = 'image/svg+xml';
+  icon.data = path;
+
+  icon.className = 'cardIcon';
 
   // cache the icon with the required name
   storedIcons[iconName] = icon;
@@ -61,72 +60,30 @@ export function getIcon(iconName)
 {
   // check if an icon exists in store and returns it
   if (storedIcons[iconName] !== undefined)
-    return storedIcons[iconName].cloneNode(true);
+  {
+    const icon = storedIcons[iconName].cloneNode(true);
+
+    icon.onload = () =>
+    {
+      const svgDocument = icon.contentDocument;
+      const svgElem = svgDocument.querySelector('svg');
+
+      for (let i = 0; i < iconStyles.length; i++)
+      {
+        const style = svgDocument.createElementNS('http://www.w3.org/2000/svg', 'style');
+      
+        svgElem.setAttribute('class', 'cardIcon');
+
+        style.textContent = '@import url("' + iconStyles[i] + '");';
+
+        svgElem.insertBefore(style, svgElem.firstChild);
+      }
+    };
+
+    return icon;
+  }
   else
     return undefined;
-}
-
-/** returns a list with all names of the available stored icons
-* @returns { string[] } a list with the names of the stored icons
-*/
-export function getAllStoredIconsNames()
-{
-  const names = [];
-
-  for (const name in storedIcons)
-  {
-    names.append(name);
-  }
-
-  return names;
-}
-
-/** reads a svg file and returns an svg element with the right attributes
-* @param { string } path
-*/
-function svg(path)
-{
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-
-  const content = readFileSync(path).toString();
-
-  const match = content.match(/<svg([^>]+)+>([\s\S]+)<\/svg>/i);
-
-  let attrs = {};
-
-  if (match)
-  {
-    attrs = match[1];
-
-    if (attrs)
-    {
-      attrs = attrs.match(/([\w-:]+)(=)?("[^<>"]*"|'[^<>']*'|[\w-:]+)/g)
-        .reduce((obj, attr) =>
-        {
-          const split = attr.split('=');
-
-          if (split && split[1])
-            svg.setAttribute(split[0], split[1].replace(/['"]/g, ''));
-
-        }, {});
-    }
-
-    svg.innerHTML = match[2].replace(/\n/g, ' ').trim() || '';
-  }
-
-  return svg;
-}
-
-/** returns a div element with background image url
-* @param { string } path
-*/
-function image(path)
-{
-  const img = document.createElement('div');
-
-  img.style.backgroundImage = 'url(' + path + ')';
-
-  return img;
 }
 
 /** append a stylesheet files to the DOM [async]
@@ -205,6 +162,14 @@ export function appendStyleDir(dir, callback)
       {
         return join(dir, x);
       }));
+}
+
+/** if you have a class that you added to an svg, the file that has this class in it has to be added through this function
+* since svg rendering with css styling is super weird for some reason
+*/
+export function addIconStyle(...files)
+{
+  iconStyles.push(...files);
 }
 
 /** add a card or a html element to the body

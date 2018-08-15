@@ -4,8 +4,6 @@
 import * as ext from 'sulaiman';
 import { join } from 'path';
 
-// TODO allow local modules under the sandbox
-
 let card;
 
 function onload()

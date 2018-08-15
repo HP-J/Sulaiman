@@ -342,19 +342,6 @@ export default class Card
     });
   }
 
-  /**
-  * @param { HTMLElement } icon
-  * @returns { HTMLElement } the line break html element
-  */
-  appendIcon(icon)
-  {
-    icon.setAttribute('class', 'cardIcon');
-
-    this.domElement.appendChild(icon);
-
-    return icon;
-  }
-
   /** adds a new line break to the card
   */
   appendLineBreak()
@@ -391,10 +378,10 @@ export default class Card
       this.appendText(options.title);
 
     if (options.extensionIcon !== undefined)
-      this.appendIcon(options.extensionIcon);
+      this.appendChild(options.extensionIcon);
    
     if (options.actionIcon !== undefined)
-      this.appendIcon(options.actionIcon);
+      this.appendChild(options.actionIcon);
 
     if (options.description && options.description.length > 0)
       this.appendText(options.description, { type: 'Description' });

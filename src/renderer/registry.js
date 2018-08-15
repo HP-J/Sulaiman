@@ -29,7 +29,7 @@ const extEvents = {};
 
 /** load and start all extensions
 */
-export function loadExtensionsDir()
+export function loadExtensions()
 {
   const root = join(__dirname, '../extensions/');
 

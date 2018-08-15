@@ -1,6 +1,6 @@
-# cache:
-#   paths:
-#   - node_modules/
+cache:
+  paths:
+  - node_modules
 
 stages:
   # - test
@@ -21,11 +21,9 @@ stages:
 
 deploy:
   stage: deploy
-  # image: node:slim
+  image: node:slim
   script:
     - echo "hello world"
   only:
     - release
     - preview
-  # tags:
-  #   - docker

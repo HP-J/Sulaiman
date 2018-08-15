@@ -24,7 +24,7 @@ export function appendExtensionCard(extension, action)
     {
       title: extension.sulaiman.displayName,
       description: extension.description,
-      actionIcon: ext.getIcon('expand')
+      actionIcon: ext.getIcon('arrow')
     });
 
   // permissions section
@@ -132,7 +132,7 @@ function installExtension(button, text, name)
   
         button.events.onclick = () =>
         {
-          installExtension(button, text, name)
+          installExtension(button, text, name);
         };
       }
 
@@ -148,7 +148,7 @@ function getExtensionNPMData(name)
   return new Promise((resolve, reject) =>
   {
     npm.load((err) =>
-    {      
+    {
       if (err)
       {
         reject(err);

@@ -2,24 +2,14 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensionsDir, emitCallbacks, loadedExtensions } from './registry.js';
+import { loadExtensions, emitCallbacks, loadedExtensions } from './registry.js';
 
 export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
 import { appendExtensionCard } from './control.js';
-
-// TODO apps
-// TODO build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
-// TODO check for updates and download packages (if on AppImages, MIS or DMG)
-// TODO auto-start
-
-// TODO Show popular extensions from the npm registry
-
-// calculator
-// google
-// files
+import { Card, appendChild, getIcon } from './api.js';
 
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
@@ -94,14 +84,43 @@ searchBar.append();
 registerEvents();
 
 // load all extensions
-loadExtensionsDir();
+loadExtensions();
 
-for (const extension in loadedExtensions)
+//
+
+const parent = new Card();
+
+const progressBar = new Card();
+
+parent.appendChild(progressBar);
+
+appendChild(parent);
+
+let progress = 0;
+
+function setProgress()
 {
-  appendExtensionCard(loadedExtensions[extension], 'Install');
+  progressBar.auto({ title: progress + '%' });
 
-  break;
+  progressBar.style.background = 'linear-gradient(90deg, rgba(18,18,190,1) ' + progress + '%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%)';
+
+  if (progress < 100)
+    setTimeout(() =>
+    {
+      setProgress(progress++);
+    }, 50);
 }
+
+setProgress();
+
+//
+
+// for (const extension in loadedExtensions)
+// {
+//   appendExtensionCard(loadedExtensions[extension], 'Delete');
+
+//   break;
+// }
 
 // api.onSearchBarInput((value) =>
 // {
