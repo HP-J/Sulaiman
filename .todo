@@ -1,11 +1,7 @@
 graphics:
-  ☐ try to do install progress bars using background gradient @today
+  ☐ append collapsed, find a way to skip any animations or transactions @today 
 
-  ☐ disabled cards (or cards > cards) @today
-
-  ☐ append collapsed, find a way to skip any animations or transactions
-
-  ☐ extension control's install card should try to search
+  ☐ extension control's install card should try to search @today 
   for the name of the package using npms.io api
   if it finds it, try to fetch its package.json,
   then check the json for a sulaiman key, if found

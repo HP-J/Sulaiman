@@ -86,55 +86,25 @@ registerEvents();
 // load all extensions
 loadExtensions();
 
-//
+const f = new Card({
+  title: 'Hello',
+  description: 'World',
+  extensionIcon: getIcon('search'),
+  actionIcon: getIcon('arrow')
+});
 
-const parent = new Card();
+const g = new Card({
+  title: 'Hello',
+  description: 'World',
+  extensionIcon: getIcon('search'),
+  actionIcon: getIcon('arrow')
+});
 
-const progressBar = new Card();
-
-parent.appendChild(progressBar);
-
-appendChild(parent);
-
-let progress = 0;
-
-function setProgress()
-{
-  progressBar.auto({ title: progress + '%' });
-
-  progressBar.style.background = 'linear-gradient(90deg, rgba(18,18,190,1) ' + progress + '%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%)';
-
-  if (progress < 100)
-    setTimeout(() =>
-    {
-      setProgress(progress++);
-    }, 50);
-}
-
-setProgress();
-
-//
-
-// for (const extension in loadedExtensions)
-// {
-//   appendExtensionCard(loadedExtensions[extension], 'Delete');
-
-//   break;
-// }
-
-// api.onSearchBarInput((value) =>
-// {
-//   if (value.startsWith('ext'))
-//   {
-//     if (!ext.contains(installedCard))
-//       ext.append(installedCard);
-//   }
-//   else
-//   {
-//     if (ext.contains(installedCard))
-//       ext.remove(installedCard);
-//   }
-// });
+g.disable();
+g.progressBar(50);
+// g.disable();
+appendChild(f);
+f.appendChild(g);
 
 // reset focus
 onfocus();

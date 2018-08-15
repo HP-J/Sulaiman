@@ -1,5 +1,4 @@
 /* cards inside of a the main body */
-
 .card
 {
   display: flex;
@@ -7,7 +6,7 @@
   outline: none;
   overflow: hidden;
   cursor: pointer;
-  background-color: #292929;
+  background: transparent;
   position: relative;
   width: calc(100vw - 30px);
   min-height: 10px;
@@ -25,14 +24,18 @@
 
 .card:focus, .card:hover
 {
-  background-color: #4F4F4F;
+  background: #4F4F4F;
 }
 
 /* cards inside of a parent card */
 
 .card > .card
 {
-  background-color: transparent;
+  padding: 3px 5px;
+}
+
+.card > .card
+{
   padding: 3px 5px;
 }
 
@@ -150,4 +153,30 @@ excluding line breaks and the last element of a card */
 {
   margin-top: 2px;
   margin-bottom: 2px;
+}
+
+.cardProgressBar, .card:hover > .cardProgressBar
+{
+  background: linear-gradient(90deg, #3C3C3C var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+}
+
+/** if the card is child, not show the progress unless the parent is hovered on **/
+
+.card > .cardProgressBar
+{
+  background: transparent;
+}
+
+/** only change the card if it's not a child **/
+
+body > .cardDisabled
+{
+  background: #141414;
+}
+
+.cardDisabled
+{
+  font-style: italic;
+  cursor: default;
+  pointer-events: none;
 }

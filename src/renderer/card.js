@@ -108,8 +108,6 @@ export default class Card
     */
     this.domElement = document.createElement('div');
 
-    this.domElement.tabIndex = 1;
-
     const styleHandler =
     {
       style: this.domElement.style,
@@ -165,7 +163,10 @@ export default class Card
     }
 
     // remove all classes
-    this.setClass('');
+    this.domElement.className = '';
+
+    // remove id
+    this.domElement.id = '';
 
     // remove the style
     this.domElement.style.cssText = '';
@@ -180,12 +181,22 @@ export default class Card
     this.domElement.setAttribute(qualifiedName, value);
   }
 
-  /** set the html element class
+  /** add a class from the element
   * @param { string } className string of the class name
   */
-  setClass(className)
+  addClass(className)
   {
-    this.setAttribute('class', className);
+    if (!this.domElement.classList.contains(className))
+      this.domElement.classList.add(className);
+  }
+
+  /** remove a class from the element
+  * @param { string } className string of the class name
+  */
+  removeClass(className)
+  {
+    if (this.domElement.classList.contains(className))
+      this.domElement.classList.remove(className);
   }
 
   /** set the html element id
@@ -240,6 +251,35 @@ export default class Card
     this.domElement.appendChild(textElem);
 
     return textElem;
+  }
+
+  progressBar(percentage)
+  {
+    if (percentage < 1 && percentage > 100)
+    {
+      // remove class
+      this.removeClass('cardProgressBar');
+
+      return;
+    }
+
+    this.addClass('cardProgressBar');
+
+    this.domElement.style.setProperty('--cardProgress', percentage + '%');
+  }
+
+  /** disable the card
+  */
+  disable()
+  {
+    this.addClass('cardDisabled');
+  }
+
+  /** enable the card
+  */
+  enable()
+  {
+    this.removeChild('cardDisabled');
   }
 
   collapse()
@@ -372,7 +412,7 @@ export default class Card
 
     this.reset();
 
-    this.setClass('card');
+    this.addClass('card');
 
     if (options.title && options.title.length > 0)
       this.appendText(options.title);
