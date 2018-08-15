@@ -279,7 +279,7 @@ export default class Card
   */
   enable()
   {
-    this.removeChild('cardDisabled');
+    this.removeClass('cardDisabled');
   }
 
   collapse()

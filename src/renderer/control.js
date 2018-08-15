@@ -1,6 +1,6 @@
 import { PackageMeta } from './registry.js';
 
-import * as ext from './api.js';
+import * as api from './api.js';
 import Card from './card.js';
 
 import { reload } from './renderer.js';
@@ -24,7 +24,7 @@ export function appendExtensionCard(extension, action)
     {
       title: extension.sulaiman.displayName,
       description: extension.description,
-      actionIcon: ext.getIcon('arrow')
+      actionIcon: api.getIcon('arrow')
     });
 
   // permissions section
@@ -69,7 +69,7 @@ export function appendExtensionCard(extension, action)
   }
 
   // append the control panel card to body
-  ext.appendChild(card);
+  api.appendChild(card);
 }
 
 /** @param { Card } button
@@ -78,9 +78,9 @@ export function appendExtensionCard(extension, action)
 */
 function deleteExtension(button, text, extension)
 {
+  button.disable();
+
   text.innerText = 'Deleting';
-  
-  button.events.onclick = undefined;
 
   deleteDir(extension.name)
     .then(() =>
@@ -107,14 +107,14 @@ function deleteDir(name)
 */
 function installExtension(button, text, name)
 {
-  text.innerText = 'Requesting URL';
+  button.disable();
   
-  button.events.onclick = undefined;
+  text.innerText = 'Requesting URL';
 
   getExtensionNPMData(name)
     .then(({ url, version }) =>
     {
-      return downloadExtension(text, url, version);
+      return downloadExtension(button, text, url, version);
     })
     .then(() =>
     {
@@ -129,11 +129,6 @@ function installExtension(button, text, name)
       function failed()
       {
         text.innerText = 'Failed (Try Again)';
-  
-        button.events.onclick = () =>
-        {
-          installExtension(button, text, name);
-        };
       }
 
       deleteDir(name).then(failed).catch(failed);
@@ -173,12 +168,13 @@ function getExtensionNPMData(name)
   });
 }
 
-/** @param { HTMLElement } text
+/** @param { Card } button
+* @param { HTMLElement } text
 * @param { string } url
 * @param { string } version
 * @returns { Promise<void> }
 */
-function downloadExtension(text, url, version)
+function downloadExtension(button, text, url, version)
 {
   return new Promise((resolve, reject) =>
   {
@@ -196,7 +192,11 @@ function downloadExtension(text, url, version)
       {
         onProgress: (progress) =>
         {
-          text.innerText = 'Downloading ' + (progress.percentage * 100).toFixed(0) + '%';
+          const percentage = (progress.percentage * 100).toFixed(0);
+
+          button.progressBar(percentage);
+          
+          text.innerText = 'Downloading ' + percentage + '%';
         },
         output: tmpCompressed
       })
@@ -206,6 +206,8 @@ function downloadExtension(text, url, version)
   
         extract.on('progress', (percentage) =>
         {
+          button.progressBar(percentage);
+          
           text.innerText = 'Decompressing ' + percentage + '%';
         });
   
@@ -216,6 +218,8 @@ function downloadExtension(text, url, version)
   
         extract.on('end', () =>
         {
+          button.progressBar(0);
+
           move(tmpDecompressed + '/package', output, { overwrite: true }).then(() =>
           {
             resolve();
@@ -291,7 +295,8 @@ function installExtensionDependencies(text, name)
 */
 function success(button, text)
 {
-  text.innerText = 'Reload';
-
+  button.enable();
   button.events.onclick = reload;
+  
+  text.innerText = 'Reload';
 }

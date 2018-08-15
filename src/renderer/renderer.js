@@ -86,25 +86,12 @@ registerEvents();
 // load all extensions
 loadExtensions();
 
-const f = new Card({
-  title: 'Hello',
-  description: 'World',
-  extensionIcon: getIcon('search'),
-  actionIcon: getIcon('arrow')
-});
-
-const g = new Card({
-  title: 'Hello',
-  description: 'World',
-  extensionIcon: getIcon('search'),
-  actionIcon: getIcon('arrow')
-});
-
-g.disable();
-g.progressBar(50);
-// g.disable();
-appendChild(f);
-f.appendChild(g);
+for (const extension in loadedExtensions)
+{
+  appendExtensionCard(loadedExtensions[extension], 'Install');
+  
+  break;
+}
 
 // reset focus
 onfocus();

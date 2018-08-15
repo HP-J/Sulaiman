@@ -1,14 +1,14 @@
 // ! this is a extension to DEBUG and TRY the API
 // ! IT SHOULD BE EXCLUDED FROM ANY PACKAGE
 
-import * as ext from 'sulaiman';
+import * as api from 'sulaiman';
 import { join } from 'path';
 
 let card;
 
 function onload()
 {
-  card = new ext.Card();
+  card = new api.Card();
 
   // card.button(
   //   'hello',
@@ -37,7 +37,7 @@ function onload()
     console.log(ev.ctrlKey);
   };
 
-  ext.appendChild(card);
+  api.appendChild(card);
 
   // ext.appendStyle(join(__dirname, './style.css'));
   // ext.removeStyle(join(__dirname, './style.css'));
