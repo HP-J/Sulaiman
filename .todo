@@ -1,4 +1,7 @@
 graphics:
+
+  ☐ show progress on install (disable the card and show progress bar) @today 
+
   ☐ append collapsed, find a way to skip any animations or transactions @today 
 
   ☐ extension control's install card should try to search @today 

@@ -1,8 +1,17 @@
+:root
+{
+  --color-lighter: #8B8A8A;
+  --color-light: #505050;
+  --color-medium: #414141;
+  --color-dark: #292929;
+  --color-darkest: #111111;
+}
+
 body
 {
   overflow-x: hidden;
   overflow-y: scroll;
-  background-color: #292929;
+  background-color: var(--color-dark);
   width: 100vw;
   height: 100vh;
 }
@@ -13,7 +22,7 @@ body
   outline: none;
   overflow: hidden;
   position: sticky;
-  background-color: #4F4F4F;
+  background-color: var(--color-medium);
   color: #FFFFFF;
   top: 0;
   left: 0;
@@ -31,7 +40,7 @@ body
 
 #searchBar::placeholder
 {
-  color: #878787;
+  color: var(--color-lighter);
 }
 
 ::-webkit-scrollbar

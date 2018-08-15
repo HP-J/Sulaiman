@@ -24,7 +24,7 @@
 
 .card:focus, .card:hover
 {
-  background: #4F4F4F;
+  background: var(--color-medium);
 }
 
 /* cards inside of a parent card */
@@ -73,7 +73,7 @@
 
 .cardDescription
 {
-  color: #878787;
+  color: var(--color-lighter);
   white-space: pre-line;
   writing-mode: horizontal-tb;
   max-block-size: 35vh;
@@ -83,8 +83,8 @@
 .cardIcon
 {
   align-self: center;
-  fill: white;
-  stroke: white;
+  fill: #FFFFFF;
+  stroke: #FFFFFF;
   background-color: transparent;
   background-size: 100% auto;
   background-repeat: no-repeat;
@@ -157,7 +157,7 @@ excluding line breaks and the last element of a card */
 
 .cardProgressBar, .card:hover > .cardProgressBar
 {
-  background: linear-gradient(90deg, #3C3C3C var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+  background: linear-gradient(90deg, var(--color-light) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
 }
 
 /** if the card is child, not show the progress unless the parent is hovered on **/
@@ -171,7 +171,7 @@ excluding line breaks and the last element of a card */
 
 body > .cardDisabled
 {
-  background: #141414;
+  background: var(--color-darkest);
 }
 
 .cardDisabled
