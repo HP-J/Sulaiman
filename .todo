@@ -12,11 +12,14 @@ registry:
   ☐ allow local modules under the sandbox
 
 technical:
+  ☐ create new package.json sulaiman entries (credits - platform) -> (registry.js) wise
   ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases @high
   ☐ there also should be a json with commit date with a fixed url @high
 
 extensions:
-  ☐ apps @today 
+  ☐ apps - linux @finalize @create-extension @create-api
+  ☐ apps - mac
+  ☐ apps - windows
   ☐ check for updates and download packages (if on AppImages, MIS or DMG) @high
   ☐ auto-start 
   ☐ calculator

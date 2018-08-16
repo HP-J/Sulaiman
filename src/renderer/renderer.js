@@ -1,4 +1,4 @@
-import { remote } from 'electron';
+import { remote, shell, app } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
@@ -10,6 +10,11 @@ export const mainWindow = remote.getCurrentWindow();
 
 import { extensionDeleteCard, getExtensionInstallCard, extensionInstallCard } from './control.js';
 import { onSearchBarInput, removeChild, appendChild, Card } from './api.js';
+
+import { readdir, existsSync, readFileSync } from 'fs-extra';
+import { parse } from 'path';
+import { homedir } from 'os';
+import { exec } from 'child_process';
 
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
@@ -108,11 +113,105 @@ loadExtensions();
 //   }
 // });
 
-const card = new Card();
+const appDirectories = [ '/usr/share/applications/', '/usr/local/share/applications/', homedir + '/.local/share/applications/' ];
 
-extensionInstallCard(card, 'sulaiman');
+const appExtension = '.desktop';
 
-appendChild(card);
+/**
+* @param { string[] } appDirectories
+* @param { string } appExtension
+*/
+function getAppList(appDirectories, appExtension)
+{
+  return new Promise((resolve, reject) =>
+  {
+    const funcs = [];
+
+    for (let i = 0; i < appDirectories.length; i++)
+    {
+      funcs.push(new Promise((resolve, reject) =>
+      {
+        if (existsSync(appDirectories[i]))
+        {
+          readdir(appDirectories[i])
+            .then((files) =>
+            {
+              const apps = [];
+
+              files.forEach((file) =>
+              {
+                if (file.endsWith(appExtension))
+                {
+                  const fileParsed = {};
+                  
+                  file = readFileSync(appDirectories[i] + file).toString().split('\n');
+
+                  for (let i = 0; i < file.length; i++)
+                  {
+                    const splitIndex = file[i].indexOf('=');
+
+                    const key = file[i].substring(0, splitIndex);
+                    const value = file[i].substring(splitIndex + 1);
+
+                    if (key.length > 0 && value.length > 0)
+                      fileParsed[key] = value;
+                  }
+
+                  apps.push(fileParsed);
+                }
+              });
+
+              resolve(apps);
+            })
+            .catch((err) =>
+            {
+              reject(err);
+            });
+        }
+        else
+        {
+          resolve(undefined);
+        }
+      }));
+    }
+  
+    const apps = [];
+  
+    Promise.all(funcs)
+      .then((directories) =>
+      {
+        directories.forEach((value) =>
+        {
+          if (value)
+            apps.push(...value);
+        });
+    
+        resolve(apps);
+      })
+      .catch((err) =>
+      {
+        reject(err);
+      });
+  });
+}
+
+// getAppList(appDirectories, appExtension).then((apps) =>
+// {
+//   // WIndows, Mac
+//   // hell.openItem(app));
+
+//   // Linux
+//   // if NoDisplay is true don't show  the app on search
+//   // Replace %u and other % arguments in exec script
+//   // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
+//   // exec(apps[0].Exec.replace(/%./g, ''));
+// });
+
+// const card = new Card();
+
+// extensionInstallCard(card, 'sulaiman');
+
+// appendChild(card);
 
 // reset focus
 onfocus();
