@@ -15,6 +15,15 @@ import inly from 'inly';
 
 const npm = require('npm');
 
+export function initNPM()
+{
+  npm.load((err) =>
+  {
+    if (err)
+      throw err;
+  });
+}
+
 /** @param { Card } card
 * @param { PackageMeta } extension
 */
@@ -48,22 +57,43 @@ export function extensionDeleteCard(card, extension)
 export function extensionInstallCard(card, name)
 {
   card.auto({ title: name, description: 'Requesting Package Data...' });
-
+  
   card.disable();
 
   request('https://registry.npmjs.org/'+ name + '/latest', { json: true })
     .then((value) =>
     {
-      console.log(value.dist.tarball);
-      console.log(value.sulaiman);
-      console.log(value);
+      if (!value.sulaiman)
+        throw 'not a sulaiman extension';
+
+      if (!value.sulaiman.displayName)
+        throw 'invalid package information: display name';
+
+      const { button, text } = extensionCard(card, value);
+      
+      text.innerText = 'Install';
+
+      button.events.onclick = () =>
+      {
+        downloadExtension(button, text, value.name, value.dist.tarball)
+          .then(() =>
+          {
+            return installExtensionDependencies(text, value.name);
+          })
+          .then(() =>
+          {
+            success(button, text);
+          })
+          .catch(() =>
+          {
+            failedToInstall(card, name);
+          });
+      };
     })
     .catch((err) =>
     {
-      console.log(err);
+      failedToInstall(card, name, err);
     });
-
-  // const { card, button, text } = extensionCard(extension);
 }
 
 /** @param { Card } card
@@ -84,17 +114,23 @@ function extensionCard(card, extension)
 
   card.appendLineSeparator();
 
-  const permissions = extension.sulaiman.permissions.join('\n');
+  if (extension.sulaiman.permissions && extension.sulaiman.permissions.length > 0)
+  {
+    const permissions = extension.sulaiman.permissions.join('\n');
+
+    card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
+    card.appendText(permissions, { type: 'Description', size: 'Smaller' });
+  }
   
-  card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
-  card.appendText(permissions, { type: 'Description', size: 'Smaller' });
-
   // modules section3
+  
+  if (extension.sulaiman.modules && extension.sulaiman.modules.length > 0)
+  {
+    const modules = extension.sulaiman.modules.join('\n');
 
-  const modules = extension.sulaiman.modules.join('\n');
-
-  card.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
-  card.appendText(modules, { type: 'Description', size: 'Smaller' });
+    card.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
+    card.appendText(modules, { type: 'Description', size: 'Smaller' });
+  }
 
   card.appendLineSeparator();
 
@@ -116,53 +152,18 @@ function deleteDir(name)
   return remove(join(__dirname, '../extensions/' + name));
 }
 
-/** install an extension package from the npm registry
-* @param { Card } button
-* @param { HTMLElement } text
-* @param { string } name
-*/
-function installExtension(button, text, name)
-{
-  button.disable();
-  
-  text.innerText = 'Requesting URL';
-
-  // getExtensionNPMData(name)
-  //   .then(({ url, version }) =>
-  //   {
-  //     return downloadExtension(button, text, url, version);
-  //   })
-  //   .then(() =>
-  //   {
-  //     return installExtensionDependencies(text, name);
-  //   })
-  //   .then(() =>
-  //   {
-  //     success(button, text);
-  //   })
-  //   .catch(() =>
-  //   {
-  //     function failed()
-  //     {
-  //       text.innerText = 'Failed (Try Again)';
-  //     }
-
-  //     deleteDir(name).then(failed).catch(failed);
-  //   });
-}
-
 /** @param { Card } button
 * @param { HTMLElement } text
+* @param { string } name
 * @param { string } url
-* @param { string } version
 * @returns { Promise<void> }
 */
-function downloadExtension(button, text, url, version)
+function downloadExtension(button, text, name, url)
 {
   return new Promise((resolve, reject) =>
   {
     const filename = basename(url);
-    const dirname = filename.replace('-' + version + '.tgz', '');
+    const dirname = name;
   
     const tmpDir = tmpdir() + '/sulaiman/' + Date.now();
   
@@ -244,26 +245,18 @@ function installExtensionDependencies(text, name)
           dependencies.push(mod + '@' + packageMeta.dependencies[mod]);
         }
   
-        npm.load((err) =>
+        npm.commands.install(dependencies, (err) =>
         {
+          npm.prefix = orgPrefix;
+
           if (err)
           {
             reject(err);
+            
             return;
           }
-  
-          npm.commands.install(dependencies, (err) =>
-          {
-            if (err)
-            {
-              reject(err);
-              return;
-            }
-  
-            npm.prefix = orgPrefix;
 
-            resolve();
-          });
+          resolve();
         });
       })
       .catch((err) =>
@@ -282,4 +275,29 @@ function success(button, text)
   button.events.onclick = reload;
   
   text.innerText = 'Reload';
+}
+
+/** @param { Card } card
+/** @param { string } name
+/** @param { string } err
+*/
+function failedToInstall(card, name, err)
+{
+  deleteDir(name).then(() =>
+  {
+    card.auto({ title: name, description: 'Failed to Install' + ((err) ? '\n' + err : '') });
+
+    const button = new Card();
+  
+    card.appendLineSeparator();
+
+    card.appendChild(button);
+    
+    button.appendText('Try Again', { align: 'Center', style: 'Bold' });
+    
+    button.events.onclick = () =>
+    {
+      extensionInstallCard(card, name);
+    };
+  });
 }

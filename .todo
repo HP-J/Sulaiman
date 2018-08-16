@@ -1,10 +1,5 @@
 graphics:
-  ☐ extension control's install card should try to search @today   
-  for the name of the package using npms.io api
-  if it finds it, try to fetch its package.json,
-  then check the json for a sulaiman key, if found
-  display an install card with its modules and permissions,
-  if not display a card with an error message
+  ☐ better fast-forwarding (it takes time to collapse extension cards when first appended to dom) @critical 
 
   ☐ show popular extensions from the npm registry
 
@@ -12,16 +7,17 @@ registry:
   ☐ allow local modules under the sandbox
 
 technical:
-  ☐ create new package.json sulaiman entries (credits - platform) -> (registry.js) wise
+  ☐ create new package.json sulaiman entries (credits - platform) -> (registry.js) wise @high 
   ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases @high
   ☐ there also should be a json with commit date with a fixed url @high
 
 extensions:
-  ☐ apps - linux @finalize @create-extension @create-api
+  ✔ apps - linux @done (8/16/2018, 6:42:26 PM)
   ☐ apps - mac
   ☐ apps - windows
-  ☐ check for updates and download packages (if on AppImages, MIS or DMG) @high
-  ☐ auto-start 
+  ☐ check for updates and download packages (if on AppImages, MIS or DMG) (https://www.npmjs.com/package/node-wget-promise)
+  ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
   ☐ calculator
   ☐ google
   ☐ files
+  ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)

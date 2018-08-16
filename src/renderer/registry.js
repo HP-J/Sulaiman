@@ -18,13 +18,15 @@ const extEvents = {};
 * @property { string } name
 * @property { string } version
 * @property { string } description
-* @property { Registry } sulaiman
+* @property { Sulaiman } sulaiman
 */
 
-/** @typedef { Object } Registry
+/** @typedef { Object } Sulaiman
 * @property { string } displayName
+* @property { string[] } platform
 * @property { string[] } permissions
 * @property { string[] } modules
+* @property { Object.<string, string> } credits
 */
 
 /** load and start all extensions
@@ -116,13 +118,16 @@ function handelPermissions(registryPermissions)
     sulaiman: require('./api.js')
   };
 
-  for (let i = 0; i < registryPermissions.length; i++)
+  if (registryPermissions)
   {
-    if (registryPermissions[i] === 'body')
-      sandbox.document['body'] = document.body;
-    
-    else if (registryPermissions[i] === 'clipboard')
-      mock.sulaiman.clipboard = require('electron').clipboard;
+    for (let i = 0; i < registryPermissions.length; i++)
+    {
+      if (registryPermissions[i] === 'body')
+        sandbox.document['body'] = document.body;
+      
+      else if (registryPermissions[i] === 'clipboard')
+        mock.sulaiman.clipboard = require('electron').clipboard;
+    }
   }
 
   return { sandbox, mock };
@@ -136,12 +141,15 @@ function handelSeparation(registryModules)
 {
   const builtin = [], external = [];
 
-  // loop through all the modules requests
-  for (let i = 0; i < registryModules.length; i++)
+  if (registryModules)
   {
-    // checks if a module is a node builtin module or an external
-    // and add them to two separate arrays
-    (isBuiltin(registryModules[i]) ? builtin : external).push(registryModules[i]);
+    // loop through all the modules requests
+    for (let i = 0; i < registryModules.length; i++)
+    {
+      // checks if a module is a node builtin module or an external
+      // and add them to two separate arrays
+      (isBuiltin(registryModules[i]) ? builtin : external).push(registryModules[i]);
+    }
   }
 
   return { builtin, external };

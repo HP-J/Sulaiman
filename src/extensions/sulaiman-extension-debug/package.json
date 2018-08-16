@@ -16,11 +16,7 @@
   },
   "author": "Herp Project",
   "license": "UNLICENSED",
-  "dependencies": {
-    "@meltwater/fetch-favicon": "^1.0.4",
-    "node-wget-promise": "^0.1.6"
-  },
   "devDependencies": {
-    "sulaiman": "0.1.0"
+    "sulaiman": "0.1.0-2"
   }
 }
