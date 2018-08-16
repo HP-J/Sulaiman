@@ -253,7 +253,21 @@ export default class Card
     return textElem;
   }
 
-  progressBar(percentage)
+  /** fast-forward mode is supposed to skip through transitions and animations
+  */
+  enableFastForward()
+  {
+    this.addClass('cardFastForward');
+  }
+
+  /** fast-forward mode is supposed to skip through transitions and animations
+  */
+  disableFastForward()
+  {
+    this.removeClass('cardFastForward');
+  }
+
+  setProgressBar(percentage)
   {
     if (percentage < 1 && percentage > 100)
     {
@@ -293,7 +307,7 @@ export default class Card
       // we can't collapse it
       if (!element)
         return;
-      
+  
       // get the rect of the card and the line break
       const lineBreakRect = element.getBoundingClientRect();
       const cardRect = this.domElement.getBoundingClientRect();
@@ -310,23 +324,23 @@ export default class Card
       // if the card has the expanded class, remove it
       if (this.domElement.classList.contains('cardExpanded'))
         this.domElement.classList.remove('cardExpanded');
-        
+    
       // add the collapsed class to the card
       this.domElement.classList.add('cardCollapsed');
 
       // loop to all the children after the line break
       element = element.nextElementSibling;
-      
+  
       // loop until there is no more childs
       while (element)
       {
         // if the child has the expanded class, remove it
         if (element.classList.contains('cardChildExpanded'))
           element.classList.remove('cardChildExpanded');
-        
+    
         // add the collapsed class to all the card children
         element.classList.add('cardChildCollapsed');
-        
+    
         // switch to the next child
         element = element.nextElementSibling;
       }
@@ -423,9 +437,10 @@ export default class Card
     if (options.actionIcon !== undefined)
       this.appendChild(options.actionIcon);
 
+    this.appendLineBreak();
+
     if (options.description && options.description.length > 0)
       this.appendText(options.description, { type: 'Description' });
       
-    this.appendLineBreak();
   }
 }

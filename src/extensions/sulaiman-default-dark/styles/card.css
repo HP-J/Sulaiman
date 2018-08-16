@@ -180,3 +180,9 @@ body > .cardDisabled
   cursor: default;
   pointer-events: none;
 }
+
+.cardFastForward
+{
+  transition: none;
+  animation: none;
+}

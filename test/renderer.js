@@ -8,7 +8,7 @@ import { exec } from 'child_process';
 
 import { connect, Browser, Page } from 'puppeteer';
 
-import rp from 'request-promise-native';
+import request from 'request-promise-native';
 
 import pti from 'puppeteer-to-istanbul';
 
@@ -43,7 +43,7 @@ describe('Application launch', function()
 
   async function getDebuggerUrl()
   {
-    const respond = await rp('http://localhost:9222/json/version', { json: true });
+    const respond = await request('http://localhost:9222/json/version', { json: true });
 
     return respond.webSocketDebuggerUrl;
   }

@@ -9,23 +9,76 @@ import { tmpdir } from 'os';
 import { remove, move, readFile } from 'fs-extra';
 import { join, basename } from 'path';
 
+import request from 'request-promise-native';
 import wget from 'node-wget-promise';
 import inly from 'inly';
 
 const npm = require('npm');
 
-/** @param { PackageMeta } extension
-* @param { "Delete" | "Install" } action
-* @param { () => void } callback
+/** @param { Card } card
+* @param { PackageMeta } extension
 */
-export function appendExtensionCard(extension, action)
+export function extensionDeleteCard(card, extension)
 {
-  const card = new Card(
+  const { button, text } = extensionCard(card, extension);
+
+  text.innerText = 'Delete';
+
+  button.events.onclick = () =>
+  {
+    button.disable();
+
+    text.innerText = 'Deleting';
+  
+    deleteDir(extension.name)
+      .then(() =>
+      {
+        success(button, text);
+      })
+      .catch(() =>
+      {
+        reload();
+      });
+  };
+}
+
+/** @param { Card } card
+* @param { string } name
+*/
+export function extensionInstallCard(card, name)
+{
+  card.auto({ title: name, description: 'Requesting Package Data...' });
+
+  card.disable();
+
+  request('https://registry.npmjs.org/'+ name + '/latest', { json: true })
+    .then((value) =>
     {
-      title: extension.sulaiman.displayName,
-      description: extension.description,
-      actionIcon: api.getIcon('arrow')
+      console.log(value.dist.tarball);
+      console.log(value.sulaiman);
+      console.log(value);
+    })
+    .catch((err) =>
+    {
+      console.log(err);
     });
+
+  // const { card, button, text } = extensionCard(extension);
+}
+
+/** @param { Card } card
+* @param { PackageMeta } extension
+* @returns { { button: Card, text: HTMLElement } }
+*/
+function extensionCard(card, extension)
+{
+  card.reset();
+
+  card.auto({
+    title: extension.sulaiman.displayName,
+    description: extension.description,
+    actionIcon: api.getIcon('arrow')
+  });
 
   // permissions section
 
@@ -36,7 +89,7 @@ export function appendExtensionCard(extension, action)
   card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
   card.appendText(permissions, { type: 'Description', size: 'Smaller' });
 
-  // modules section
+  // modules section3
 
   const modules = extension.sulaiman.modules.join('\n');
 
@@ -51,46 +104,9 @@ export function appendExtensionCard(extension, action)
   
   card.appendChild(button);
   
-  const text = button.appendText(action, { align: 'Center', style: 'Bold' });
+  const text = button.appendText('', { align: 'Center', style: 'Bold' });
 
-  if (action === 'Delete')
-  {
-    button.events.onclick = () =>
-    {
-      deleteExtension(button, text, extension);
-    };
-  }
-  else
-  {
-    button.events.onclick = () =>
-    {
-      installExtension(button, text, 'request');
-    };
-  }
-
-  // append the control panel card to body
-  api.appendChild(card);
-}
-
-/** @param { Card } button
-* @param { HTMLElement } text
-* @param { PackageMeta } extension
-*/
-function deleteExtension(button, text, extension)
-{
-  button.disable();
-
-  text.innerText = 'Deleting';
-
-  deleteDir(extension.name)
-    .then(() =>
-    {
-      success(button, text);
-    })
-    .catch(() =>
-    {
-      reload();
-    });
+  return { button, text };
 }
 
 /** @param { string } name
@@ -111,61 +127,28 @@ function installExtension(button, text, name)
   
   text.innerText = 'Requesting URL';
 
-  getExtensionNPMData(name)
-    .then(({ url, version }) =>
-    {
-      return downloadExtension(button, text, url, version);
-    })
-    .then(() =>
-    {
-      return installExtensionDependencies(text, name);
-    })
-    .then(() =>
-    {
-      success(button, text);
-    })
-    .catch(() =>
-    {
-      function failed()
-      {
-        text.innerText = 'Failed (Try Again)';
-      }
+  // getExtensionNPMData(name)
+  //   .then(({ url, version }) =>
+  //   {
+  //     return downloadExtension(button, text, url, version);
+  //   })
+  //   .then(() =>
+  //   {
+  //     return installExtensionDependencies(text, name);
+  //   })
+  //   .then(() =>
+  //   {
+  //     success(button, text);
+  //   })
+  //   .catch(() =>
+  //   {
+  //     function failed()
+  //     {
+  //       text.innerText = 'Failed (Try Again)';
+  //     }
 
-      deleteDir(name).then(failed).catch(failed);
-    });
-}
-
-/** @param { string } name
-* @returns { Promise<{ url: string, version: string }> }
-*/
-function getExtensionNPMData(name)
-{
-  return new Promise((resolve, reject) =>
-  {
-    npm.load((err) =>
-    {
-      if (err)
-      {
-        reject(err);
-        return;
-      }
-  
-      npm.commands.view([ name, 'dist.tarball' ], (err, data) =>
-      {
-        if (err)
-        {
-          reject(err);
-          return;
-        }
-  
-        const version = Object.keys(data)[0];
-        
-        const url = data[version]['dist.tarball'];
-        
-        resolve({ url, version });
-      });
-    });
-  });
+  //     deleteDir(name).then(failed).catch(failed);
+  //   });
 }
 
 /** @param { Card } button
@@ -194,7 +177,7 @@ function downloadExtension(button, text, url, version)
         {
           const percentage = (progress.percentage * 100).toFixed(0);
 
-          button.progressBar(percentage);
+          button.setProgressBar(percentage);
           
           text.innerText = 'Downloading ' + percentage + '%';
         },
@@ -206,7 +189,7 @@ function downloadExtension(button, text, url, version)
   
         extract.on('progress', (percentage) =>
         {
-          button.progressBar(percentage);
+          button.setProgressBar(percentage);
           
           text.innerText = 'Decompressing ' + percentage + '%';
         });
@@ -218,7 +201,7 @@ function downloadExtension(button, text, url, version)
   
         extract.on('end', () =>
         {
-          button.progressBar(0);
+          button.setProgressBar(0);
 
           move(tmpDecompressed + '/package', output, { overwrite: true }).then(() =>
           {

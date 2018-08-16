@@ -18,6 +18,8 @@
 
   100%
   {
+    max-height: var(--cardY);
+
     border-bottom-left-radius: 0%;
     border-bottom-right-radius: 0%;
   }

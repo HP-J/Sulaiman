@@ -1,7 +1,5 @@
 graphics:
-  ☐ append collapsed, find a way to skip any animations or transactions @today 
-
-  ☐ extension control's install card should try to search @today 
+  ☐ extension control's install card should try to search @today   
   for the name of the package using npms.io api
   if it finds it, try to fetch its package.json,
   then check the json for a sulaiman key, if found
@@ -14,11 +12,12 @@ registry:
   ☐ allow local modules under the sandbox
 
 technical:
-  ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases 
+  ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases @high
+  ☐ there also should be a json with commit date with a fixed url @high
 
 extensions:
   ☐ apps @today 
-  ☐ check for updates and download packages (if on AppImages, MIS or DMG) 
+  ☐ check for updates and download packages (if on AppImages, MIS or DMG) @high
   ☐ auto-start 
   ☐ calculator
   ☐ google

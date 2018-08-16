@@ -8,8 +8,8 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-import { appendExtensionCard } from './control.js';
-import { Card, appendChild, getIcon } from './api.js';
+import { extensionDeleteCard, getExtensionInstallCard, extensionInstallCard } from './control.js';
+import { onSearchBarInput, removeChild, appendChild, Card } from './api.js';
 
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
@@ -86,12 +86,33 @@ registerEvents();
 // load all extensions
 loadExtensions();
 
-for (const extension in loadedExtensions)
-{
-  appendExtensionCard(loadedExtensions[extension], 'Install');
-  
-  break;
-}
+// const cards = [];
+
+// onSearchBarInput((value) =>
+// {
+//   if (value === 'ext')
+//   {
+//     for (const extension in loadedExtensions)
+//     {
+//       cards.push(appendExtensionCard(loadedExtensions[extension], 'Delete'));
+//     }
+//   }
+//   else
+//   {
+//     for (let i = 0; i < cards.length; i++)
+//     {
+//       removeChild(cards[i]);
+//     }
+
+//     cards.length = 0;
+//   }
+// });
+
+const card = new Card();
+
+extensionInstallCard(card, 'sulaiman');
+
+appendChild(card);
 
 // reset focus
 onfocus();
