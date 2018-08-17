@@ -1,6 +1,4 @@
 graphics:
-  ☐ better fast-forwarding (it takes time to collapse extension cards when first appended to dom) @critical 
-
   ☐ show popular extensions from the npm registry
 
 registry:

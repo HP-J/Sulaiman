@@ -1,4 +1,4 @@
-.cardCollapsed
+.cardCollapsed:not(.cardFastForward)
 {
   animation: cardCollapsed 1s ease;
 }
@@ -25,10 +25,15 @@
   }
 }
 
-.cardChildCollapsed
+:not(.cardFastForward) > .cardChildCollapsed
 {
   animation: cardChildCollapsed 1s ease;
   animation-fill-mode: forwards;
+}
+
+.cardFastForward > .cardChildCollapsed 
+{
+  display: none;
 }
 
 @keyframes cardChildCollapsed
@@ -52,7 +57,7 @@
   }
 }
 
-.cardExpanded
+.cardExpanded:not(.cardFastForward)
 {
   animation: cardExpanded 1s ease;
 }
@@ -79,7 +84,7 @@
   }
 }
 
-.cardChildExpanded
+:not(.cardFastForward) > .cardChildExpanded
 {
   animation: cardChildExpanded 1s ease;
 }

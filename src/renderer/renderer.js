@@ -95,33 +95,36 @@ loadExtensions();
 // load npm
 initNPM();
 
-// const cards = [];
+const cards = [];
 
-// onSearchBarInput((value) =>
-// {
-//   if (value === 'ext')
-//   {
-//     for (const extension in loadedExtensions)
-//     {
-//       const card = new Card();
+onSearchBarInput((value) =>
+{
+  if (value === 'ext')
+  {
+    for (const extension in loadedExtensions)
+    {
+      const card = new Card();
 
-//       extensionDeleteCard(card, loadedExtensions[extension]);
+      extensionDeleteCard(card, loadedExtensions[extension]);
 
-//       appendChild(card);
+      appendChild(card);
 
-//       cards.push(card);
-//     }
-//   }
-//   else
-//   {
-//     for (let i = 0; i < cards.length; i++)
-//     {
-//       removeChild(cards[i]);
-//     }
+      card.enableFastForward();
+      card.collapse();
 
-//     cards.length = 0;
-//   }
-// });
+      cards.push(card);
+    }
+  }
+  else
+  {
+    for (let i = 0; i < cards.length; i++)
+    {
+      removeChild(cards[i]);
+    }
+
+    cards.length = 0;
+  }
+});
 
 // const appDirectories = [ '/usr/share/applications/', '/usr/local/share/applications/', homedir + '/.local/share/applications/' ];
 

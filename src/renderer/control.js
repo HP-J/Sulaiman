@@ -112,9 +112,13 @@ function extensionCard(card, extension)
 
   // permissions section
 
-  card.appendLineSeparator();
+  const showPermissions = extension.sulaiman.permissions && extension.sulaiman.permissions.length > 0;
+  const showModules = extension.sulaiman.modules && extension.sulaiman.modules.length > 0;
 
-  if (extension.sulaiman.permissions && extension.sulaiman.permissions.length > 0)
+  if (showPermissions || showModules)
+    card.appendLineSeparator();
+
+  if (showPermissions)
   {
     const permissions = extension.sulaiman.permissions.join('\n');
 
@@ -124,7 +128,7 @@ function extensionCard(card, extension)
   
   // modules section3
   
-  if (extension.sulaiman.modules && extension.sulaiman.modules.length > 0)
+  if (showModules)
   {
     const modules = extension.sulaiman.modules.join('\n');
 
