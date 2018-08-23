@@ -15,8 +15,8 @@
       "**/main.js",
       "**/api.js",
       "**/card.js",
-      "**/control.js",
-      "**/registry.js",
+      "**/loader.js",
+      "**/manager.js",
       "**/renderer.js",
       "**/searchBar.js"
     ]

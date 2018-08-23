@@ -1,4 +1,4 @@
-import { emitCallbacks } from './registry.js';
+import { emitCallbacks } from './loader.js';
 import { onFocus, onBlur } from './api.js';
 
 /** @type { HTMLInputElement }

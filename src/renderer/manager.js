@@ -1,11 +1,11 @@
-import { PackageMeta } from './registry.js';
+import { tmpdir } from 'os';
 
 import * as api from './api.js';
 import Card from './card.js';
 
+import { PackageData, loadedExtensions } from './loader.js';
 import { reload } from './renderer.js';
 
-import { tmpdir } from 'os';
 import { remove, move, readFile } from 'fs-extra';
 import { join, basename } from 'path';
 
@@ -15,7 +15,9 @@ import inly from 'inly';
 
 const npm = require('npm');
 
-export function initNPM()
+const cards = [];
+
+export function loadNPM()
 {
   npm.load((err) =>
   {
@@ -24,8 +26,65 @@ export function initNPM()
   });
 }
 
+export function checkForExtensionsUpdates()
+{
+  for (const extension in loadedExtensions)
+  {
+    const local = loadedExtensions[extension];
+
+    getPackageData(local.name)
+      .then((remote) =>
+      {
+        if (local.version !== remote.version)
+        {
+          const card = new Card();
+
+          if (extensionUpdateCard(card, local, remote, remote.name))
+          {
+            card.enableFastForward();
+            card.collapse();
+
+            api.appendChild(card);
+          }
+        }
+      });
+  }
+}
+
+export function showInstalledExtensions()
+{
+  api.onSearchBarInput((value) =>
+  {
+    if (value === 'ext')
+    {
+      for (const extension in loadedExtensions)
+      {
+        const card = new Card();
+
+        extensionDeleteCard(card, loadedExtensions[extension]);
+
+        card.enableFastForward();
+        card.collapse();
+      
+        api.appendChild(card);
+
+        cards.push(card);
+      }
+    }
+    else
+    {
+      for (let i = 0; i < cards.length; i++)
+      {
+        api.removeChild(cards[i]);
+      }
+
+      cards.length = 0;
+    }
+  });
+}
+
 /** @param { Card } card
-* @param { PackageMeta } extension
+* @param { PackageData } extension
 */
 export function extensionDeleteCard(card, extension)
 {
@@ -60,25 +119,26 @@ export function extensionInstallCard(card, name)
   
   card.disable();
 
-  request('https://registry.npmjs.org/'+ name + '/latest', { json: true })
-    .then((value) =>
+  getPackageData(name)
+    .then((data) =>
     {
-      if (!value.sulaiman)
-        throw 'not a sulaiman extension';
+      const validated = validateExtension(data);
 
-      if (!value.sulaiman.displayName)
-        throw 'invalid package information: display name';
+      if (validated)
+        throw validated;
 
-      const { button, text } = extensionCard(card, value);
-      
+      const { button, text } = extensionCard(card, data);
+    
       text.innerText = 'Install';
 
       button.events.onclick = () =>
       {
-        downloadExtension(button, text, value.name, value.dist.tarball)
+        button.disable();
+
+        downloadExtension(button, text, data.name, data.dist.tarball)
           .then(() =>
           {
-            return installExtensionDependencies(text, value.name);
+            return installExtensionDependencies(text, data.name);
           })
           .then(() =>
           {
@@ -97,42 +157,111 @@ export function extensionInstallCard(card, name)
 }
 
 /** @param { Card } card
-* @param { PackageMeta } extension
+* @param { PackageData } local
+* @param { PackageData } remote
+* @param { string } name
+*/
+export function extensionUpdateCard(card, local, remote, name)
+{
+  if (validateExtension(remote))
+    return false;
+
+  const { button, text } = extensionCard(card, remote, local);
+
+  text.innerText = 'Update';
+
+  button.events.onclick = () =>
+  {
+    button.disable();
+
+    downloadExtension(button, text, remote.name, remote.dist.tarball)
+      .then(() =>
+      {
+        return installExtensionDependencies(text, remote.name);
+      })
+      .then(() =>
+      {
+        success(button, text);
+      })
+      .catch(() =>
+      {
+        failedToInstall(card, name);
+      });
+  };
+
+  return true;
+}
+
+/** @param { string } name
+*/
+export function getPackageData(name)
+{
+  return new Promise((resolve, reject) =>
+  {
+    request('https://registry.npmjs.org/'+ name + '/latest', { json: true })
+      .then((value) =>
+      {
+        resolve(value);
+      })
+      .catch((err) =>
+      {
+        reject(err);
+      });
+  });
+}
+
+/** @param { Card } card
+* @param { PackageData } data
+* @param { PackageData } oldData
 * @returns { { button: Card, text: HTMLElement } }
 */
-function extensionCard(card, extension)
+function extensionCard(card, data, oldData)
 {
   card.reset();
 
   card.auto({
-    title: extension.sulaiman.displayName,
-    description: extension.description,
+    title: data.sulaiman.displayName,
+    description: data.description,
     actionIcon: api.getIcon('arrow')
   });
 
-  // permissions section
+  let permissions, modules;
 
-  const showPermissions = extension.sulaiman.permissions && extension.sulaiman.permissions.length > 0;
-  const showModules = extension.sulaiman.modules && extension.sulaiman.modules.length > 0;
+  if (data.sulaiman.permissions)
+  {
+    permissions = data.sulaiman.permissions;
+
+    if (oldData && oldData.sulaiman.permissions)
+      permissions = data.sulaiman.permissions.filter(x => !oldData.sulaiman.permissions.includes(x));
+
+    permissions = permissions.join('\n');
+  }
+
+  if (data.sulaiman.modules)
+  {
+    modules = data.sulaiman.modules;
+
+    if (oldData && oldData.sulaiman.modules)
+      modules = data.sulaiman.modules.filter(x => !oldData.sulaiman.modules.includes(x));
+
+    modules = modules.join('\n');
+  }
+
+  const showPermissions = permissions && permissions.length > 0;
+  const showModules = modules && modules.length > 0;
 
   if (showPermissions || showModules)
     card.appendLineSeparator();
 
   if (showPermissions)
   {
-    const permissions = extension.sulaiman.permissions.join('\n');
-
-    card.appendText('PERMISSIONS', { size: 'Smaller', style: 'Bold' });
+    card.appendText(((oldData) ? 'ADDED ' : '') + 'PERMISSIONS', { size: 'Smaller', style: 'Bold' });
     card.appendText(permissions, { type: 'Description', size: 'Smaller' });
   }
   
-  // modules section3
-  
   if (showModules)
   {
-    const modules = extension.sulaiman.modules.join('\n');
-
-    card.appendText('MODULES', { size: 'Smaller', style: 'Bold' });
+    card.appendText(((oldData) ? 'ADDED ' : '') + 'MODULES', { size: 'Smaller', style: 'Bold' });
     card.appendText(modules, { type: 'Description', size: 'Smaller' });
   }
 
@@ -154,6 +283,22 @@ function extensionCard(card, extension)
 function deleteDir(name)
 {
   return remove(join(__dirname, '../extensions/' + name));
+}
+
+/** @param { PackageData } data
+*/
+function validateExtension(data)
+{
+  if (!data.sulaiman)
+    return 'package is not a sulaiman extension';
+
+  if (!data.sulaiman.displayName)
+    return 'invalid package information: display name';
+
+  if (data.sulaiman.platform && !data.sulaiman.platform.includes(process.platform.toString()))
+    return 'this platform is not supported by the extension';
+
+  return undefined;
 }
 
 /** @param { Card } button
@@ -238,15 +383,15 @@ function installExtensionDependencies(text, name)
     npm.prefix = dir;
   
     readFile(dir + '/package.json')
-      .then((data) =>
+      .then((file) =>
       {
-        const packageMeta = JSON.parse(data);
+        const data = JSON.parse(file);
   
         const dependencies = [];
   
-        for (const mod in packageMeta.dependencies)
+        for (const mod in data.dependencies)
         {
-          dependencies.push(mod + '@' + packageMeta.dependencies[mod]);
+          dependencies.push(mod + '@' + data.dependencies[mod]);
         }
   
         npm.commands.install(dependencies, (err) =>

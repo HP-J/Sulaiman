@@ -2,9 +2,9 @@ import { remote, shell } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensions, emitCallbacks, loadedExtensions } from './registry.js';
+import { loadExtensions, emitCallbacks } from './loader.js';
 
-import { extensionDeleteCard, getExtensionInstallCard, extensionInstallCard, initNPM } from './control.js';
+import { extensionDeleteCard, getExtensionInstallCard, extensionInstallCard, loadNPM, showInstalledExtensions , checkForExtensionsUpdates } from './manager.js';
 import { onSearchBarInput, removeChild, appendChild, Card } from './api.js';
 
 import { readdir, existsSync, readFileSync } from 'fs-extra';
@@ -93,38 +93,7 @@ registerEvents();
 loadExtensions();
 
 // load npm
-initNPM();
-
-const cards = [];
-
-onSearchBarInput((value) =>
-{
-  if (value === 'ext')
-  {
-    for (const extension in loadedExtensions)
-    {
-      const card = new Card();
-
-      extensionDeleteCard(card, loadedExtensions[extension]);
-
-      appendChild(card);
-
-      card.enableFastForward();
-      card.collapse();
-
-      cards.push(card);
-    }
-  }
-  else
-  {
-    for (let i = 0; i < cards.length; i++)
-    {
-      removeChild(cards[i]);
-    }
-
-    cards.length = 0;
-  }
-});
+loadNPM();
 
 // const appDirectories = [ '/usr/share/applications/', '/usr/local/share/applications/', homedir + '/.local/share/applications/' ];
 

@@ -2,7 +2,7 @@ import { readdirSync } from 'fs';
 
 import { join } from 'path';
 
-import { registerCallback } from './registry.js';
+import { registerCallback } from './loader.js';
 
 import Card from './card.js';
 
@@ -10,7 +10,7 @@ export { Card };
 
 export { setPlaceholder } from './searchBar.js';
 
-/** [needs a registry permission]
+/** [needs a permission]
 * access to read & write to clipboard
 * @type { Electron.clipboard }
 */

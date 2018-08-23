@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "The default dark theme for Sulaiman",
   "main": "index.js",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"

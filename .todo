@@ -1,21 +1,25 @@
 graphics:
   ☐ show popular extensions from the npm registry
 
-registry:
+manager:
   ☐ allow local modules under the sandbox
 
 technical:
-  ☐ create new package.json sulaiman entries (credits - platform) -> (registry.js) wise @high 
-  ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases @high
-  ☐ there also should be a json with commit date with a fixed url @high
+  ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
+  ☐ there also should be a json with commit date with a fixed url
 
 extensions:
+  ☐ create a working extension to search apps 
   ✔ apps - linux @done (8/16/2018, 6:42:26 PM)
-  ☐ apps - mac
+  ☐ apps - mac 
   ☐ apps - windows
-  ☐ check for updates and download packages (if on AppImages, MIS or DMG) (https://www.npmjs.com/package/node-wget-promise)
+  
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
+
+  ☐ check for updates and download packages (if on AppImages, MIS or DMG) (https://www.npmjs.com/package/node-wget-promise)
+
   ☐ calculator
-  ☐ google
-  ☐ files
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
+  ☐ files
+
+  ☐ google

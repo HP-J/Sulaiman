@@ -4,8 +4,11 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
 
+import { getPackageData, extensionUpdateCard } from './manager.js';
+import { Card, appendChild } from './api.js';
+
 /** an array of all the extensions that loaded
-* @type { Object.<string, PackageMeta> } }
+* @type { Object.<string, PackageData> } }
 */
 export const loadedExtensions = {};
 
@@ -14,7 +17,7 @@ export const loadedExtensions = {};
 */
 const extEvents = {};
 
-/** @typedef { Object } PackageMeta
+/** @typedef { Object } PackageData
 * @property { string } name
 * @property { string } version
 * @property { string } description
@@ -62,14 +65,14 @@ export function loadExtensions()
 
 /** creates a new NodeVM for an extension and runs its index.js
 * @param { string } extensionPath
-* @param { PackageMeta } packageMeta
+* @param { PackageData } data
 */
-function loadExtension(extensionPath, packageMeta)
+function loadExtension(extensionPath, data)
 {
-  const { sandbox, mock } = handelPermissions(packageMeta.sulaiman.permissions);
+  const { sandbox, mock } = handelPermissions(data.sulaiman.permissions);
 
   // separate node builtin modules from the external modules
-  const { builtin, external } = handelSeparation(packageMeta.sulaiman.modules);
+  const { builtin, external } = handelSeparation(data.sulaiman.modules);
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -89,11 +92,11 @@ function loadExtension(extensionPath, packageMeta)
     }
   });
 
+  // append the extension that just loaded to the loaded extensions array
+  loadedExtensions[data.name] = data;
+
   // run the extension index script
   vm.run(readFileSync(extensionPath).toString(), extensionPath);
-
-  // append the extension that just loaded to the loaded extensions array
-  loadedExtensions[packageMeta.name] = packageMeta;
 }
 
 /** handle permissions to use global variables and mockups
