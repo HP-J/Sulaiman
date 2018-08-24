@@ -1,18 +1,21 @@
 graphics:
   ☐ show popular extensions from the npm registry
+  ☐ create a card to change the global shortcut accelerator
 
 manager:
   ☐ allow local modules under the sandbox
+  ☐ allow some electron features through the permissions system (shell, current window)
+  ☐ allow extensions to change the value of the search bar input element 
 
 technical:
   ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
   ☐ there also should be a json with commit date with a fixed url
 
 extensions:
-  ☐ create a working extension to search apps 
   ✔ apps - linux @done (8/16/2018, 6:42:26 PM)
-  ☐ apps - mac 
   ☐ apps - windows
+  ☐ apps - mac 
+  ☐ create a search function for apps
   
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
 

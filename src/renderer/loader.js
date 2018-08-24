@@ -4,8 +4,7 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
 
-import { getPackageData, extensionUpdateCard } from './manager.js';
-import { Card, appendChild } from './api.js';
+const electron = require('electron');
 
 /** an array of all the extensions that loaded
 * @type { Object.<string, PackageData> } }
@@ -79,9 +78,9 @@ function loadExtension(extensionPath, data)
     sandbox: sandbox,
     require:
     {
-      // accepted registry request node builtin modules
+      // node builtin modules
       builtin: builtin,
-      // accepted registry request modules
+      // external modules
       external: external,
       // limit externals to this path, so extensions can't require any local modules outside of their directory
       root: 'none',
@@ -100,10 +99,10 @@ function loadExtension(extensionPath, data)
 }
 
 /** handle permissions to use global variables and mockups
-* @param { [] } registryPermissions
+* @param { [] } requiredPermissions
 * @returns { { sandbox: {} } }
 */
-function handelPermissions(registryPermissions)
+function handelPermissions(requiredPermissions)
 {
   // allow access to global objects
   const sandbox =
@@ -112,7 +111,8 @@ function handelPermissions(registryPermissions)
     {
       createElement: document.createElement,
       createElementNS: document.createElementNS
-    }
+    },
+    process: process
   };
 
   // override specific apis from any module
@@ -121,15 +121,23 @@ function handelPermissions(registryPermissions)
     sulaiman: require('./api.js')
   };
 
-  if (registryPermissions)
+  if (requiredPermissions)
   {
-    for (let i = 0; i < registryPermissions.length; i++)
+    for (let i = 0; i < requiredPermissions.length; i++)
     {
-      if (registryPermissions[i] === 'body')
-        sandbox.document['body'] = document.body;
+      // global
+      if (requiredPermissions[i] === 'document')
+        sandbox.document = document;
       
-      else if (registryPermissions[i] === 'clipboard')
-        mock.sulaiman.clipboard = require('electron').clipboard;
+      // sulaiman
+      else if (requiredPermissions[i] === 'window')
+        mock.sulaiman.window = electron.remote.getCurrentWindow();
+      else if (requiredPermissions[i] === 'clipboard')
+        mock.sulaiman.clipboard = electron.clipboard;
+      else if (requiredPermissions[i] === 'shell')
+        mock.sulaiman.shell = electron.shell;
+      else if (requiredPermissions[i] === 'dialog')
+        mock.sulaiman.dialog = electron.dialog;
     }
   }
 
@@ -137,21 +145,21 @@ function handelPermissions(registryPermissions)
 }
 
 /** separate node builtin modules from the external modules
-* @param { [] } registryModules the modules requests array from the registry object
+* @param { [] } requiredModules the modules array from the extension package data
 * @returns { { builtin: [], external: [] } }
 */
-function handelSeparation(registryModules)
+function handelSeparation(requiredModules)
 {
   const builtin = [], external = [];
 
-  if (registryModules)
+  if (requiredModules)
   {
-    // loop through all the modules requests
-    for (let i = 0; i < registryModules.length; i++)
+    // loop through all the listed modules
+    for (let i = 0; i < requiredModules.length; i++)
     {
       // checks if a module is a node builtin module or an external
       // and add them to two separate arrays
-      (isBuiltin(registryModules[i]) ? builtin : external).push(registryModules[i]);
+      (isBuiltin(requiredModules[i]) ? builtin : external).push(requiredModules[i]);
     }
   }
 
@@ -181,7 +189,7 @@ function isBuiltin(moduleName)
 */
 export function registerCallback(eventName, callback)
 {
-  // if the event is not initialized yet in the global events registry then create a new parameter for it
+  // if the event is not initialized yet, create a new parameter for it
   if (extEvents[eventName] === undefined)
     extEvents[eventName] = [];
 

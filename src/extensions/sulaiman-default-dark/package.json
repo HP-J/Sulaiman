@@ -11,13 +11,6 @@
   "sulaiman": {
     "displayName": "Default Dark"
   },
-  "keywords": [
-    "sulaiman",
-    "sulaiman-theme",
-    "sulaiman-default-theme",
-    "sulaiman-default-dark-theme",
-    "sulaiman-dark-theme"
-  ],
   "author": "Herp Project",
   "license": "MIT",
   "devDependencies": {

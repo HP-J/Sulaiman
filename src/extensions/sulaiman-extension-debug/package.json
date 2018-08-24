@@ -7,7 +7,7 @@
   "sulaiman": {
     "displayName": "Extension Debug",
     "permissions": [
-      "body",
+      "document",
       "clipboard"
     ],
     "modules": [

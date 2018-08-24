@@ -1,16 +1,10 @@
-import { remote, shell } from 'electron';
+import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
 import { loadExtensions, emitCallbacks } from './loader.js';
 
-import { extensionDeleteCard, getExtensionInstallCard, extensionInstallCard, loadNPM, showInstalledExtensions , checkForExtensionsUpdates } from './manager.js';
-import { onSearchBarInput, removeChild, appendChild, Card } from './api.js';
-
-import { readdir, existsSync, readFileSync } from 'fs-extra';
-import { parse } from 'path';
-import { homedir } from 'os';
-import { exec } from 'child_process';
+import { loadNPM } from './manager.js';
 
 export const splash = document.body.children[0];
 
@@ -94,100 +88,6 @@ loadExtensions();
 
 // load npm
 loadNPM();
-
-// const appDirectories = [ '/usr/share/applications/', '/usr/local/share/applications/', homedir + '/.local/share/applications/' ];
-
-// const appExtension = '.desktop';
-
-// /**
-// * @param { string[] } appDirectories
-// * @param { string } appExtension
-// */
-// function getAppList(appDirectories, appExtension)
-// {
-//   return new Promise((resolve, reject) =>
-//   {
-//     const funcs = [];
-
-//     for (let i = 0; i < appDirectories.length; i++)
-//     {
-//       funcs.push(new Promise((resolve, reject) =>
-//       {
-//         if (existsSync(appDirectories[i]))
-//         {
-//           readdir(appDirectories[i])
-//             .then((files) =>
-//             {
-//               const apps = [];
-
-//               files.forEach((file) =>
-//               {
-//                 if (file.endsWith(appExtension))
-//                 {
-//                   const fileParsed = {};
-                  
-//                   file = readFileSync(appDirectories[i] + file).toString().split('\n');
-
-//                   for (let i = 0; i < file.length; i++)
-//                   {
-//                     const splitIndex = file[i].indexOf('=');
-
-//                     const key = file[i].substring(0, splitIndex);
-//                     const value = file[i].substring(splitIndex + 1);
-
-//                     if (key.length > 0 && value.length > 0)
-//                       fileParsed[key] = value;
-//                   }
-
-//                   apps.push(fileParsed);
-//                 }
-//               });
-
-//               resolve(apps);
-//             })
-//             .catch((err) =>
-//             {
-//               reject(err);
-//             });
-//         }
-//         else
-//         {
-//           resolve(undefined);
-//         }
-//       }));
-//     }
-  
-//     const apps = [];
-  
-//     Promise.all(funcs)
-//       .then((directories) =>
-//       {
-//         directories.forEach((value) =>
-//         {
-//           if (value)
-//             apps.push(...value);
-//         });
-    
-//         resolve(apps);
-//       })
-//       .catch((err) =>
-//       {
-//         reject(err);
-//       });
-//   });
-// }
-
-// getAppList(appDirectories, appExtension).then((apps) =>
-// {
-//   // WIndows, Mac
-//   // hell.openItem(app));
-
-//   // Linux
-//   // if NoDisplay is true don't show  the app on search
-//   // Replace %u and other % arguments in exec script
-//   // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
-//   // exec(apps[0].Exec.replace(/%./g, ''));
-// });
 
 // reset focus
 onfocus();
