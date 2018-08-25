@@ -3,4 +3,5 @@
 /.nyc_output
 /coverage
 
-/public
+/compiled
+/dist

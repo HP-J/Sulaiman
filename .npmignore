@@ -1,15 +1,9 @@
-.gitignore
-.babelrc
-.eslintrc.json
+*.
 
-*.html
-*.svg
-*.png
-
-/.vscode
-/.nyc_output
-/coverage
-/public
 /test
+/coverage
+
+/compiled
+/dist
 
 /src/extensions

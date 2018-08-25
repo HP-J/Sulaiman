@@ -1,14 +1,19 @@
 {
   "name": "sulaiman",
   "version": "0.1.0-2",
-  "description": "In no way, shape, or form is this the package you need to create sulaiman extensions",
+  "description": "A keyboard launcher with no features",
   "main": "index.js",
   "private": true,
   "scripts": {
-    "dev": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files --watch",
-    "compile": "npx babel src --out-dir public --ignore node_modules --source-maps --copy-files",
-    "clean": "rm -r ./public/",
+    "dev": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files --watch",
+    "compile": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files",
+    "clean": "rm -r ./compiled/",
     "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill"
+  },
+  "build": {
+    "appId": "com.herpproject.sulaiman",
+    "asar": false,
+    "files": [ "!.*", "!src", "!test", "!coverage" ]
   },
   "nyc": {
     "include": [
@@ -21,6 +26,7 @@
       "**/searchBar.js"
     ]
   },
+  "homepage": "https://gitlab.com/herpproject/Sulaiman",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/Sulaiman.git"
@@ -28,11 +34,10 @@
   "author": "Herp Project",
   "license": "MIT",
   "dependencies": {
-    "electron": "^3.0.0-nightly.20180821",
     "fs-extra": "^7.0.0",
     "inly": "^2.0.2",
     "node-wget-promise": "^0.1.6",
-    "npm": "^6.3.0",
+    "npm": "^6.4.0",
     "request-promise-native": "^1.0.5",
     "vm2": "^3.6.3"
   },
@@ -42,7 +47,9 @@
     "babel-eslint": "^8.2.6",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
-    "eslint": "^5.3.0",
+    "electron": "^3.0.0-beta.7",
+    "electron-builder": "^20.28.2",
+    "eslint": "^5.4.0",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
     "pidtree": "^0.3.0",

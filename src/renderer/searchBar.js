@@ -32,10 +32,7 @@ function sulaimanOnFocus()
 function sulaimanOnBlur()
 {
   // empty the search bar
-  input.value = '';
-
-  // setting input value manually doesn't call the event
-  oninput();
+  setSearchBarInput('');
 }
 
 /** gets called when the user changes the input value
@@ -43,6 +40,16 @@ function sulaimanOnBlur()
 function oninput()
 {
   emitCallbacks('onSearchBarInput', input.value);
+}
+
+/** set the text in the search bar
+* @param { string } text
+*/
+export function setSearchBarInput(text)
+{
+  input.value = text;
+
+  oninput();
 }
 
 /** set the text in the search bar (if the search bar is empty)

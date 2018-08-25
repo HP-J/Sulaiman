@@ -21,13 +21,15 @@
     ],
     "platform": [
       "linux",
-      "win32",
-      "darwin"
-    ]
+      "win32"
+    ],
+    "credits": {
+      "KELiON\nfor his already established work on figuring this out": "https://github.com/KELiON/cerebro-basic-apps"
+    }
   },
   "author": "Herp Project",
   "license": "MIT",
   "devDependencies": {
-    "sulaiman": "0.1.0-2"
+    "sulaiman": "latest"
   }
 }

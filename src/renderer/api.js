@@ -11,10 +11,26 @@ export { Card };
 export { setPlaceholder } from './searchBar.js';
 
 /** [needs a permission]
+* the main window of the app
+* @type { Electron.BrowserWindow }
+*/
+export const window = undefined;
+
+/** [needs a permission]
 * access to read & write to clipboard
-* @type { Electron.clipboard }
+* @type { Electron.Clipboard }
 */
 export const clipboard = undefined;
+
+/** [needs a permission]
+* @type { Electron.Shell }
+*/
+export const shell = undefined;
+
+/** [needs a permission]
+* @type { Electron.Dialog }
+*/
+export const dialog = undefined;
 
 /** when a new icon is loaded it gets cached in this
 * object so it can be cloned if requested again
@@ -87,10 +103,10 @@ export function getIcon(iconName)
 }
 
 /** append a stylesheet files to the DOM [async]
+ * @param { string[] } files paths to the stylesheets (css) files to want to append to DOM
 * @param { () => void } callback gets called when all the styles are loaded
-* @param { string[] } files paths to the stylesheets (css) files to want to append to DOM
 */
-export function appendStyle(callback, ...files)
+export function appendStyle(files, callback)
 {
   let length = 0;
 
@@ -128,7 +144,7 @@ export function appendStyle(callback, ...files)
 /** remove a list of stylesheet files from the DOM
 * @param { string[] } files paths to the stylesheets (css) files to want to remove from DOM
 */
-export function removeStyle(...files)
+export function removeStyle(files)
 {
   for (let i = 0; i < files.length; i++)
   {
@@ -145,31 +161,31 @@ export function removeStyle(...files)
 }
 
 /** append all the stylesheet files from a directory to the DOM [async]
-* @param { string } dir the stylesheet directory
+* @param { string } directory the stylesheet directory
 * @param { () => void } callback gets called when all the styles are loaded
 */
-export function appendStyleDir(dir, callback)
+export function appendStyleDir(directory, callback)
 {
-  appendStyle(callback,
-    ...readdirSync(dir)
-      // get only .css files
-      .filter((x) =>
-      {
-        return x.endsWith('.css');
-      })
-      // get the full path of the files
-      .map((x) =>
-      {
-        return join(dir, x);
-      }));
+  appendStyle(readdirSync(directory)
+    // get only .css files
+    .filter((x) =>
+    {
+      return x.endsWith('.css');
+    })
+    // get the full path of the files
+    .map((x) =>
+    {
+      return join(directory, x);
+    }), callback);
 }
 
 /** if you have a class that you added to an svg, the file that has this class in it has to be added through this function
-* since svg rendering with css styling is super weird for some reason
+* since rendering files from files with css styling is super weird for some reason
+* @param { string | string[] } files paths to the stylesheets (css) files to want to append to icons
 */
-export function addIconStyle(...files)
+export function addIconStyle(files)
 {
-  iconStyles.push(...files);
+  iconStyles.push(files);
 }
 
 /** add a card or a html element to the body
@@ -198,7 +214,7 @@ export function containsChild(child)
 }
 
 /** emits every time the user writes something into the search bar
-* @param { (value: string) => void } callback the callback function
+* @param { (text: string) => void } callback the callback function
 */
 export function onSearchBarInput(callback)
 {

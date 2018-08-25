@@ -38,8 +38,8 @@ describe('Application launch', function()
   */
   let electron;
 
-  if (!existsSync(join(__dirname, '../public')))
-    throw 'public directory does not exists';
+  if (!existsSync(join(__dirname, '../compiled')))
+    throw 'compiled directory does not exists';
 
   async function getDebuggerUrl()
   {
@@ -50,7 +50,7 @@ describe('Application launch', function()
 
   before(async() =>
   {
-    electron = exec('./node_modules/.bin/electron ./public/main/main.js --remote-debugging-port=9222');
+    electron = exec('./node_modules/.bin/electron . --remote-debugging-port=9222');
 
     let browserWSEndpoint;
     const sleepTimeout = 1500;

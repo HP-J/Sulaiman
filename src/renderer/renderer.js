@@ -10,7 +10,6 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
 */

@@ -1,25 +1,27 @@
 graphics:
+  ☐ create a card to change the global shortcut accelerator @today 
   ☐ show popular extensions from the npm registry
-  ☐ create a card to change the global shortcut accelerator
 
 manager:
+  ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
   ☐ allow local modules under the sandbox
-  ☐ allow some electron features through the permissions system (shell, current window)
-  ☐ allow extensions to change the value of the search bar input element 
 
 technical:
-  ☐ build (AppImages, MSI or DMG) using gitlab CLI and upload them to the gitlab releases
-  ☐ there also should be a json with commit date with a fixed url
+  ☐ create good search functions @today 
+  
+  ☐ build AppImages
+
+  ☐ build MSI
+  ☐ build DMG @need-help
 
 extensions:
-  ✔ apps - linux @done (8/16/2018, 6:42:26 PM)
-  ☐ apps - windows
-  ☐ apps - mac 
-  ☐ create a search function for apps
+  ☐ finish the app launch extension by adding searching
+
+  ☐ check for updates and download packages (https://www.npmjs.com/package/node-wget-promise)
   
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
-
-  ☐ check for updates and download packages (if on AppImages, MIS or DMG) (https://www.npmjs.com/package/node-wget-promise)
+  
+  ☐ apps - mac @need-help 
 
   ☐ calculator
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)

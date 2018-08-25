@@ -54,18 +54,6 @@ function linuxAppList()
   });
 }
 
-// const { APPDATA, ProgramData } = process.env;
-
-// // directories where usually shortcut, links or the apps themselves exists
-// const appDirectories =
-// [
-//   join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
-//   join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
-// ];
-
-// // the usual extensions for the apps in this os
-// const appExtension = '.lnk';
-
 function windowsAppList()
 {
   const { APPDATA, ProgramData } = process.env;
