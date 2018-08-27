@@ -26,4 +26,3 @@ deploy:
     - echo "hello world"
   only:
     - release
-    - preview

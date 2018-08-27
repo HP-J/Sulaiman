@@ -68,6 +68,11 @@
 </body>
 
 <script>
+  window.onerror = function(message, url, line, column, error)
+  {
+    require('electron').ipcRenderer.send('rendererError', error.stack || error);
+  };
+
   require('./renderer/renderer.js');
 </script>
 

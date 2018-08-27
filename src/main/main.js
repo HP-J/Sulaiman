@@ -1,4 +1,4 @@
-import { BrowserWindow, app, screen, globalShortcut } from 'electron';
+import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog } from 'electron';
 
 import path from 'path';
 import url from 'url';
@@ -9,40 +9,8 @@ import url from 'url';
 */
 let mainWindow;
 
-let autoHide = true;
-let frame = false;
-let skipTaskbar = true;
-let resizable = false;
-
-const accelerator = 'Control+Space';
-
 function createWindow()
 {
-  // debug settings
-  if (process.env.DEBUG)
-  {
-    autoHide = false;
-    frame = true;
-    skipTaskbar = false;
-    resizable = true;
-  }
-  // register global shortcut to restore the app
-  // window when it's auto-hidden
-  else
-  {
-    if (!globalShortcut.isRegistered(accelerator))
-    {
-      globalShortcut.register('Control+Space', focus);
-    }
-    else
-    {
-      // the window can't be restored by a shortcut
-      // therefor it must be visible all the time
-      autoHide = false;
-      skipTaskbar = false;
-    }
-  }
-
   const screenSize = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -59,10 +27,10 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
-      show: !autoHide,
-      frame: frame,
-      skipTaskbar: skipTaskbar,
-      resizable: resizable,
+      show: false,
+      frame: false,
+      skipTaskbar: true,
+      resizable: false,
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
@@ -91,35 +59,7 @@ function createWindow()
     // when you should delete the corresponding element.
     mainWindow = null;
   });
-
-  mainWindow.on('blur', onblur);
 }
-
-function onblur()
-{
-  if (autoHide)
-    mainWindow.hide();
-}
-
-function focus()
-{
-  mainWindow.restore();
-
-  mainWindow.show();
-  
-  mainWindow.setSkipTaskbar(skipTaskbar);
-
-  mainWindow.focus();
-}
-
-// if the user tried to open a new instance while a one is already open
-// and the new instance is not inside a debug environment
-// then quit the new instance and focus on the opened instance
-app.on('second-instance', () =>
-{
-  if (mainWindow)
-    focus();
-});
 
 if (!process.env.DEBUG && !app.requestSingleInstanceLock())
 {
@@ -134,6 +74,14 @@ else
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   app.on('ready', createWindow);
+
+  // handle any errors at the renderer process
+  ipcMain.on('rendererError', (event, data) =>
+  {
+    dialog.showErrorBox('A Javascript error occurred in the renderer process', data);
+    
+    app.quit();
+  });
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () =>

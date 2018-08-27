@@ -10,7 +10,7 @@ import { isDOMReady } from './renderer.js';
 /** @typedef { Object } TextOptions
 * @property { "Title" | "Description" } [type=Title]
 * @property { "Left" | "Right" | "Center" } [align=Left]
-* @property { "Medium" | "Small" | "Smaller" } [size=Medium]
+* @property { "Medium" | "Small" | "Smaller" | "Big" | "Bigger" } [size=Medium]
 * @property { "Normal" | "Bold" | "Light" } [style=Normal]
 */
 
@@ -267,6 +267,8 @@ export default class Card
     this.removeClass('cardFastForward');
   }
 
+  /** @param { number } percentage any number between 0 and 100
+  */
   setProgressBar(percentage)
   {
     if (percentage < 1 && percentage > 100)
@@ -397,6 +399,7 @@ export default class Card
   }
 
   /** adds a new line break to the card
+  * @returns { HTMLElement }
   */
   appendLineBreak()
   {
@@ -404,9 +407,12 @@ export default class Card
     lineElem.setAttribute('class', 'cardLineBreak');
 
     this.domElement.appendChild(lineElem);
+
+    return lineElem;
   }
 
   /** adds new empty space between lines
+  * @returns { HTMLElement }
   */
   appendLineSeparator()
   {
@@ -414,6 +420,8 @@ export default class Card
     lineElem.setAttribute('class', 'cardLineSeparator');
 
     this.domElement.appendChild(lineElem);
+
+    return lineElem;
   }
 
   /** [Recommended] customize the card with different options that follow the app user's css themes

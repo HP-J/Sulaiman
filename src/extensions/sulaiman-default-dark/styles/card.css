@@ -16,7 +16,6 @@
   font-weight: 400;
   user-select: none;
   white-space: nowrap;
-  text-transform: capitalize;
   padding: 8px 15px;
   border: 0px;
   margin: 0px;
@@ -28,11 +27,6 @@
 }
 
 /* cards inside of a parent card */
-
-.card > .card
-{
-  padding: 3px 5px;
-}
 
 .card > .card
 {
@@ -123,6 +117,16 @@
   font-size: calc(8px + 0.5vw + 0.8vh);
 }
 
+.cardBig
+{
+  font-size: calc(12px + 0.5vw + 1.5vh);
+}
+
+.cardBigger
+{
+  font-size: calc(16px + 0.5vw + 1.5vh);
+}
+
 .cardNormal
 {
   font-weight: 400;
@@ -167,6 +171,12 @@ excluding line breaks and the last element of a card */
   background: transparent;
 }
 
+.cardDisabled
+{
+  cursor: default;
+  pointer-events: none;
+}
+
 /** only change the card if it's not a child **/
 
 body > .cardDisabled
@@ -174,9 +184,9 @@ body > .cardDisabled
   background: var(--color-darkest);
 }
 
-.cardDisabled
+/** only change the card if it is a child **/
+
+.card > .cardDisabled > *
 {
-  font-style: italic;
-  cursor: default;
-  pointer-events: none;
+  color: var(--color-lighter);
 }

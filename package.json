@@ -1,6 +1,6 @@
 {
   "name": "sulaiman",
-  "version": "0.1.0-2",
+  "version": "0.1.0",
   "description": "A keyboard launcher with no features",
   "main": "index.js",
   "private": true,
@@ -8,12 +8,19 @@
     "dev": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files --watch",
     "compile": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files",
     "clean": "rm -r ./compiled/",
-    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill"
+    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill",
+    "publish": "npm version patch",
+    "preversion": "npm run clean && npm run compile"
   },
   "build": {
     "appId": "com.herpproject.sulaiman",
     "asar": false,
-    "files": [ "!.*", "!src", "!test", "!coverage" ]
+    "files": [
+      "!.*", "!src", "!test", "!coverage"
+    ],
+    "directories": {
+      "output": "public"
+    }
   },
   "nyc": {
     "include": [

@@ -155,7 +155,7 @@ export function removeStyle(files)
       document.head.removeChild(appendedStyles[files[i]]);
 
       // remove it from the list of loaded styles
-      appendedStyles[files[i]] = undefined;
+      delete appendedStyles[files[i]];
     }
   }
 }

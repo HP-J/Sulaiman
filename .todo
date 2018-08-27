@@ -1,18 +1,22 @@
 graphics:
-  ☐ create a card to change the global shortcut accelerator @today 
   ☐ show popular extensions from the npm registry
 
 manager:
-  ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
   ☐ allow local modules under the sandbox
-
-technical:
+  
+  technical:
+    ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
   ☐ create good search functions @today 
   
-  ☐ build AppImages
-
+  ✔ build AppImage @done (8/27/2018, 7:21:39 PM)
   ☐ build MSI
+
   ☐ build DMG @need-help
+
+CI/CD:
+  ☐ build and upload AppImage and MSI
+  ☐ upload a version.json containing date and commit id
+  ☐ publish a new version to npm
 
 extensions:
   ☐ finish the app launch extension by adding searching
