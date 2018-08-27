@@ -1,6 +1,6 @@
 {
   "name": "sulaiman",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A keyboard launcher with no features",
   "main": "index.js",
   "private": true,
@@ -16,7 +16,10 @@
     "appId": "com.herpproject.sulaiman",
     "asar": false,
     "files": [
-      "!.*", "!src", "!test", "!coverage"
+      "!.*",
+      "!src",
+      "!test",
+      "!coverage"
     ],
     "directories": {
       "output": "public"
