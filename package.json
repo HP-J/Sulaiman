@@ -1,16 +1,16 @@
 {
   "name": "sulaiman",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "A keyboard launcher with no features",
   "main": "index.js",
   "private": true,
   "scripts": {
     "dev": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files --watch",
     "compile": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files",
-    "clean": "rm -r ./compiled/",
-    "test": "eslint ./src ./test && nyc mocha --require babel-core/register --require babel-polyfill",
-    "publish": "npm version patch",
-    "preversion": "npm run clean && npm run compile"
+    "clean": "rm -r compiled",
+    "test": "eslint src test && nyc mocha --require babel-core/register --require babel-polyfill",
+    "pre-release": "npm version patch && npm run clean && npm run compile",
+    "release": "npm run pre-release && npm publish && git push origin development:release"
   },
   "build": {
     "appId": "com.herpproject.sulaiman",
@@ -47,21 +47,21 @@
     "fs-extra": "^7.0.0",
     "inly": "^2.0.2",
     "node-wget-promise": "^0.1.6",
-    "npm": "^6.4.0",
+    "npm": "^6.4.1",
     "request-promise-native": "^1.0.5",
     "vm2": "^3.6.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.6",
+    "babel-eslint": "^9.0.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "electron": "^3.0.0-beta.7",
-    "electron-builder": "^20.28.2",
+    "electron-builder": "^20.28.3",
     "eslint": "^5.4.0",
     "mocha": "^5.2.0",
-    "nyc": "^12.0.2",
+    "nyc": "^13.0.1",
     "pidtree": "^0.3.0",
     "puppeteer": "^1.2.0",
     "puppeteer-to-istanbul": "^1.2.2"

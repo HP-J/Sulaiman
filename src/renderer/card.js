@@ -253,6 +253,13 @@ export default class Card
     return textElem;
   }
 
+  /** returns true if fast-forward mode is enabled or false if disabled
+  */
+  get isFastForward()
+  {
+    return this.domElement.classList.contains('cardFastForward');
+  }
+
   /** fast-forward mode is supposed to skip through transitions and animations
   */
   enableFastForward()
@@ -300,7 +307,7 @@ export default class Card
 
   collapse()
   {
-    isDOMReady(() =>
+    function collapse()
     {
       // get the first line break element in the card
       let element = this.domElement.querySelector('.cardLineBreak');
@@ -309,7 +316,7 @@ export default class Card
       // we can't collapse it
       if (!element)
         return;
-  
+
       // get the rect of the card and the line break
       const lineBreakRect = element.getBoundingClientRect();
       const cardRect = this.domElement.getBoundingClientRect();
@@ -326,32 +333,37 @@ export default class Card
       // if the card has the expanded class, remove it
       if (this.domElement.classList.contains('cardExpanded'))
         this.domElement.classList.remove('cardExpanded');
-    
+
       // add the collapsed class to the card
       this.domElement.classList.add('cardCollapsed');
 
       // loop to all the children after the line break
       element = element.nextElementSibling;
-  
+
       // loop until there is no more childs
       while (element)
       {
         // if the child has the expanded class, remove it
         if (element.classList.contains('cardChildExpanded'))
           element.classList.remove('cardChildExpanded');
-    
+
         // add the collapsed class to all the card children
         element.classList.add('cardChildCollapsed');
-    
+
         // switch to the next child
         element = element.nextElementSibling;
       }
-    });
+    }
+
+    if (this.isFastForward)
+      collapse();
+    else
+      isDOMReady(collapse);
   }
 
   expand()
   {
-    isDOMReady(() =>
+    function expand()
     {
       // get the first line break element in the card
       let element = this.domElement.querySelector('.cardLineBreak');
@@ -376,26 +388,31 @@ export default class Card
       // if the card has the collapsed class, remove it
       if (this.domElement.classList.contains('cardCollapsed'))
         this.domElement.classList.remove('cardCollapsed');
-        
+  
       // add the expanded class to the card
       this.domElement.classList.add('cardExpanded');
 
       // loop to all the children after the line break
       element = element.nextElementSibling;
-      
+
       while (element)
       {
         // if the child has the collapsed class, remove it
         if (element.classList.contains('cardChildCollapsed'))
           element.classList.remove('cardChildCollapsed');
-        
+  
         // add the expanded class to all the card children
         element.classList.add('cardChildExpanded');
-        
+  
         // switch to the next child
         element = element.nextElementSibling;
       }
-    });
+    }
+
+    if (this.isFastForward)
+      expand();
+    else
+      isDOMReady(expand);
   }
 
   /** adds a new line break to the card

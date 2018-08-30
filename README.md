@@ -1,7 +1,9 @@
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
 
-## *the app is in early stages of development => be aware that everything you see might be subjected to change => your feedback is highly encouraged*
+*The app is in early stages of development*
+
+*Your feedback is highly encourage*
 
 - It can't and won't boost your productivity.
 - It's NOT a cross-platform application.

@@ -11,9 +11,46 @@ export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
-const app = remote.app;
+export const menuTemplate =
+[
+  {
+    label: 'window',
+    submenu:
+  [
+    {
+      label: 'reload', accelerator: 'CmdOrCtrl+R', click()
+      {
+        reload();
+      }
+    },
+    {
+      label: 'zoom in', accelerator: 'CmdOrCtrl+=', role: 'zoomin'
+    },
+    {
+      label: 'zoom out', accelerator: 'CmdOrCtrl+-', role: 'zoomout'
+    },
+    {
+      label: 'reset zoom', accelerator: 'CmdOrCtrl+Shift+=', role: 'resetzoom'
+    },
+    {
+      label: 'developer tools', accelerator: 'CmdOrCtrl+Shift+I', click()
+      {
+        mainWindow.webContents.toggleDevTools();
+      }
+    },
+    {
+      label: 'quit', accelerator: 'CmdOrCtrl+Q', click()
+      {
+        app.quit();
+      }
+    },
+  ]
+  }
+];
 
-let autoHide = false;
+export const app = remote.app;
+
+export let autoHide = false;
 
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
@@ -36,6 +73,156 @@ export function reload()
   mainWindow.reload();
 }
 
+/**
+* @param { Electron.Accelerator } accelerator
+*/
+function checkGlobalShortcut(accelerator)
+{
+  try
+  {
+    if (remote.globalShortcut.isRegistered(accelerator))
+      return false;
+    else
+      return true;
+  }
+  catch (err)
+  {
+    return false;
+  }
+}
+
+/** @param { Electron.MenuItemConstructorOptions[] } template
+*/
+function updateMenu(template)
+{
+  remote.Menu.setApplicationMenu(remote.Menu.buildFromTemplate(template));
+}
+
+/** make the card apply to capture key downs and turns them to accelerators
+* @param { Card } card
+* @param { (Electron.Accelerator) => {} } callback
+*/
+function captureKey(card, callback)
+{
+  const keys = [];
+
+  const keysElem = card.appendText('', { size: 'Big', style: 'Bold' });
+
+  card.appendLineSeparator();
+
+  const setButtonCard = new Card();
+  const setButton = setButtonCard.appendText('Set', { align: 'Center' });
+  card.appendChild(setButtonCard);
+
+  const cancelButtonCard = new Card();
+  cancelButtonCard.appendText('Cancel', { align: 'Center' });
+  card.appendChild(cancelButtonCard);
+
+  keysElem.style.display = 'none';
+  cancelButtonCard.style.display = 'none';
+
+  /** @param {KeyboardEvent} event
+  */
+  const keyCapture = (event) =>
+  {
+    keys.length = 0;
+
+    if (event.ctrlKey)
+      keys.push('Control');
+
+    if (event.altKey)
+      keys.push('Alt');
+
+    if (event.shiftKey)
+      keys.push('Shift');
+
+    let code = event.key;
+
+    if (code === ' ')
+      code = 'Space';
+      
+    if (code === 'Meta')
+      code = 'Alt';
+
+    if (code === '+')
+      code = 'Plus';
+
+    if (!(/^[a-z]*$/).test(code) && event.code.startsWith('Key'))
+      code = event.code.replace('Key', '');
+      
+    code = code[0].toUpperCase() + code.substring(1);
+
+    if (!keys.includes(code))
+      keys.push(code);
+
+    keysElem.innerText = keys.join(' + ');
+
+    if (checkGlobalShortcut(keys.join('+')))
+      setButtonCard.enable();
+    else
+      setButtonCard.disable();
+  };
+
+  const cancelKeyCapture = () =>
+  {
+    keysElem.style.display = 'none';
+    cancelButtonCard.style.display = 'none';
+
+    setButton.innerText = 'Set';
+
+    setButtonCard.events.onclick = startKeyCapture;
+    setButtonCard.enable();
+
+    window.removeEventListener('keydown', keyCapture);
+  };
+
+  const startKeyCapture = () =>
+  {
+    keysElem.style.cssText = '';
+    cancelButtonCard.style.cssText = '';
+      
+    keysElem.innerText = 'Press The Keys';
+    setButton.innerText = 'Apply';
+
+    setButtonCard.events.onclick = () =>
+    {
+      callback(keys.join('+'));
+
+      cancelKeyCapture();
+    };
+
+    setButtonCard.disable();
+
+    window.addEventListener('keydown', keyCapture);
+  };
+
+  setButtonCard.events.onclick = startKeyCapture;
+  cancelButtonCard.events.onclick = cancelKeyCapture;
+}
+
+/** shows/hides the main window
+* @param { boolean } showInTaskbar
+*/
+function showHide(showInTaskbar)
+{
+  if (!mainWindow.isVisible() || !mainWindow.isFocused())
+  {
+    mainWindow.restore();
+
+    mainWindow.show();
+  
+    mainWindow.setSkipTaskbar(!showInTaskbar);
+    
+    mainWindow.focus();
+  }
+  else
+  {
+    mainWindow.hide();
+  }
+}
+
+/** register to several events the app uses
+*/
 function registerEvents()
 {
   mainWindow.on('focus', onfocus);
@@ -43,7 +230,7 @@ function registerEvents()
 
   app.on('second-instance', () =>
   {
-    show();
+    showHide();
   });
 
   window.addEventListener('keydown', (event) =>
@@ -53,15 +240,63 @@ function registerEvents()
   });
 }
 
-function show(showInTaskbar)
+/** make sure the user has a show hide shortcut key
+*/
+function registerShowHideKey()
 {
-  mainWindow.restore();
+  function register(key)
+  {
+    remote.globalShortcut.register(key, showHide);
 
-  mainWindow.show();
+    localStorage.setItem('showHideKey', key);
 
-  mainWindow.setSkipTaskbar(!showInTaskbar);
-  
-  mainWindow.focus();
+    autoHide = true;
+  }
+
+  const savedAccelerator = localStorage.getItem('showHideKey');
+
+  if (!savedAccelerator)
+  {
+    const card = new Card(
+      {
+        title: 'Hello There,',
+        description: 'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.'
+      });
+    
+    captureKey(card, (key) =>
+    {
+      register(key);
+
+      removeChild(card);
+    });
+
+    appendChild(card);
+
+    showHide(true);
+  }
+  else if (!checkGlobalShortcut(savedAccelerator))
+  {
+    const card = new Card(
+      {
+        title: 'Sorry, It looks like',
+        description: 'A different application is using the shortcut you selected for summoning Sulaiman; we recommend to setting a new one.'
+      });
+
+    captureKey(card, (key) =>
+    {
+      register(key);
+
+      removeChild(card);
+    });
+
+    appendChild(card);
+
+    showHide(true);
+  }
+  else
+  {
+    register(savedAccelerator);
+  }
 }
 
 /** gets called when the application gets focus
@@ -78,7 +313,7 @@ function onblur()
 {
   if (autoHide)
     mainWindow.hide();
-
+  
   // emits the event to extensions
   emitCallbacks('onBlur');
 }
@@ -86,8 +321,14 @@ function onblur()
 // create and append the search bar
 searchBar.append();
     
-// register elements events and track key presses
+// register to several events the app uses
 registerEvents();
+
+// replace the default application menu
+updateMenu(menuTemplate);
+
+// make sure the user has a show hide shortcut key
+registerShowHideKey();
 
 // load all extensions
 loadExtensions();
@@ -97,106 +338,6 @@ loadNPM();
 
 // reset focus
 onfocus();
-
-function registerGlobalShortcut(key, callback)
-{
-  // if (!remote.globalShortcut.isRegistered(key))
-  // {
-  //   remote.globalShortcut.register(key, callback);
-  // }
-  // else
-  // {
-  //   return false;
-  // }
-
-  return false;
-}
-
-function onceForAll(key, busyKey)
-{
-  if (!key)
-  {
-    const mainCard = new Card({
-      title: (!busyKey) ?
-        'Hello There,' :
-        'Sorry, It looks like',
-      description: (!busyKey) ?
-        'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.' :
-        'A different application is using the shortcut you selected for summoning Sulaiman; we recommend to setting a new one.',
-    });
-    
-    const buttonCard = new Card();
-    
-    const keys = mainCard.appendText('', { size: 'Big', style: 'Bold' });
-    keys.style.display = 'none';
-
-    mainCard.appendLineSeparator();
-    
-    const button = buttonCard.appendText('Set', { align: 'Center' });
-    
-    mainCard.appendChild(buttonCard);
-    
-    appendChild(mainCard);
-
-    /** @param {KeyboardEvent} event
-     */
-    const keyCapture = (event) =>
-    {
-      keys.innerText = '';
-
-      if (event.ctrlKey)
-        keys.innerText += 'Control+';
-
-      if (event.altKey)
-        keys.innerText += 'Alt+';
-
-      if (event.shiftKey)
-        keys.innerText += 'Shift+';
-
-      if (!keys.innerText.includes(event.key) && !keys.innerText.includes(event.code))
-        keys.innerText += event.key.toUpperCase();
-    };
-
-    const endKeyCapture = () =>
-    {
-    };
-
-    const startKeyCapture = () =>
-    {
-      buttonCard.disable();
-      
-      keys.style.cssText = '';
-      keys.innerText = 'Press Any Key';
-      
-      button.innerText = 'Apply';
-
-      window.addEventListener('keydown', keyCapture);
-      window.addEventListener('keyup', endKeyCapture);
-    };
-
-    buttonCard.events.onclick = startKeyCapture;
-
-    show();
-  }
-  else
-  {
-    if (registerGlobalShortcut(key, show))
-    {
-      autoHide = true;
-
-      // window.onkeydown = (event) =>
-      // {
-
-      // };
-    }
-    else
-    {
-      onceForAll(undefined, key);
-    }
-  }
-}
-
-onceForAll(localStorage.getItem('showHideKey'));
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

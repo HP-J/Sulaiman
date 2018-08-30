@@ -5,12 +5,12 @@ manager:
   ☐ allow local modules under the sandbox
   
   technical:
-    ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
-  ☐ create good search functions @today 
-  
-  ✔ build AppImage @done (8/27/2018, 7:21:39 PM)
+  ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
+  ☐ create good search functions @today @critical
+  ☐ add search phrases for extension controls, app launch and show/hide settings @today 
+    
+  ✔ build AppImage @done (8/28/2018, 1:05:22 AM)
   ☐ build MSI
-
   ☐ build DMG @need-help
 
 CI/CD:
@@ -25,10 +25,8 @@ extensions:
   
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
   
-  ☐ apps - mac @need-help 
-
   ☐ calculator
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
   ☐ files
-
   ☐ google
+  ☐ apps (mac) @need-help 
