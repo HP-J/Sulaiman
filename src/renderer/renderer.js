@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensions, emitCallbacks } from './loader.js';
+import { loadExtensions, emit } from './loader.js';
 
 import { loadNPM } from './manager.js';
 import { Card, appendChild, removeChild } from './api.js';
@@ -52,6 +52,8 @@ export const app = remote.app;
 
 export let autoHide = false;
 
+export let session;
+
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
 */
@@ -70,6 +72,8 @@ export function isDOMReady(callback)
 */
 export function reload()
 {
+  storeSession();
+
   mainWindow.reload();
 }
 
@@ -89,6 +93,31 @@ function checkGlobalShortcut(accelerator)
   {
     return false;
   }
+}
+
+/** store a session, so it can be restored later
+*/
+function storeSession()
+{
+  localStorage.setItem('session', JSON.stringify(
+    {
+      visible: mainWindow.isVisible()
+    }
+  ));
+}
+
+/** restores any stored session
+*/
+function restoreSession()
+{
+  session = localStorage.getItem('session');
+
+  if (session)
+    session = JSON.parse(session);
+  else
+    session = {};
+
+  localStorage.removeItem('session');
 }
 
 /** @param { Electron.MenuItemConstructorOptions[] } template
@@ -205,7 +234,11 @@ function captureKey(card, callback)
 */
 function showHide(showInTaskbar)
 {
-  if (!mainWindow.isVisible() || !mainWindow.isFocused())
+  if (session.visible)
+  {
+    delete session.visible;
+  }
+  else if (!mainWindow.isVisible() || !mainWindow.isFocused())
   {
     mainWindow.restore();
 
@@ -226,6 +259,7 @@ function showHide(showInTaskbar)
 function registerEvents()
 {
   mainWindow.on('focus', onfocus);
+  mainWindow.on('blur', onblur);
   mainWindow.on('blur', onblur);
 
   app.on('second-instance', () =>
@@ -293,6 +327,10 @@ function registerShowHideKey()
 
     showHide(true);
   }
+  else if (process.env.DEBUG)
+  {
+    showHide(true);
+  }
   else
   {
     register(savedAccelerator);
@@ -303,8 +341,7 @@ function registerShowHideKey()
 */
 function onfocus()
 {
-  // emits the event to extensions
-  emitCallbacks('onFocus');
+  emit.focus();
 }
 
 /** gets called when the application gets unfocused
@@ -314,9 +351,11 @@ function onblur()
   if (autoHide)
     mainWindow.hide();
   
-  // emits the event to extensions
-  emitCallbacks('onBlur');
+  emit.blur();
 }
+
+// if there is a stored session, restore it
+restoreSession();
 
 // create and append the search bar
 searchBar.append();
@@ -338,6 +377,34 @@ loadNPM();
 
 // reset focus
 onfocus();
+
+const phrases =
+[
+  'extension test'.toLowerCase(),
+  'extension'.toLowerCase()
+];
+
+const query = 'ext'.toLowerCase();
+
+function searchFor(query)
+{
+  for (let i = 0; i < phrases.length; i++)
+  {
+    const phrase = phrases[i];
+  
+    let probability = 0;
+  
+    if (phrase.includes(query))
+      probability = 100 - ((100 * query.length) / phrase.length);
+
+    // setTimeout(() =>
+    // {
+    //   console.log(phrase);
+    // }, probability);
+  }
+}
+
+searchFor(query);
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

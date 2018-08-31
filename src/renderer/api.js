@@ -2,13 +2,13 @@ import { readdirSync } from 'fs';
 
 import { join } from 'path';
 
-import { registerCallback } from './loader.js';
-
 import Card from './card.js';
 
 export { Card };
 
 export { setPlaceholder } from './searchBar.js';
+
+export { on, off } from './loader.js';
 
 /** [needs a permission]
 * the main window of the app
@@ -211,28 +211,4 @@ export function removeChild(child)
 export function containsChild(child)
 {
   return document.body.contains(child.domElement || child);
-}
-
-/** emits every time the user writes something into the search bar
-* @param { (text: string) => void } callback the callback function
-*/
-export function onSearchBarInput(callback)
-{
-  registerCallback('onSearchBarInput', callback);
-}
-
-/** emits every time the sulaiman app regain focus
-* @param { () => void } callback the callback function
-*/
-export function onFocus(callback)
-{
-  registerCallback('onFocus', callback);
-}
-
-/** emits every time the sulaiman app loses focus
-* @param { () => void } callback the callback function
-*/
-export function onBlur(callback)
-{
-  registerCallback('onBlur', callback);
 }

@@ -1,5 +1,4 @@
-import { emitCallbacks } from './loader.js';
-import { onFocus, onBlur } from './api.js';
+import { on, emit } from './loader.js';
 
 /** @type { HTMLInputElement }
 */
@@ -13,15 +12,15 @@ export function append()
   input.setAttribute('id', 'searchBar');
   document.body.appendChild(input);
 
-  onFocus(sulaimanOnFocus);
-  onBlur(sulaimanOnBlur);
+  on.focus(onfocus);
+  on.blur(onblur);
 
   input.oninput = oninput;
 }
 
 /** gets called every time sulaiman regain focus
 */
-function sulaimanOnFocus()
+function onfocus()
 {
   // empty the search bar every time the sulaiman regain focus
   input.focus();
@@ -29,23 +28,23 @@ function sulaimanOnFocus()
 
 /** gets called every time sulaiman regain focus
 */
-function sulaimanOnBlur()
+function onblur()
 {
   // empty the search bar
-  setSearchBarInput('');
+  setInput('');
 }
 
 /** gets called when the user changes the input value
 */
 function oninput()
 {
-  emitCallbacks('onSearchBarInput', input.value);
+  emit.input(input.value);
 }
 
 /** set the text in the search bar
 * @param { string } text
 */
-export function setSearchBarInput(text)
+export function setInput(text)
 {
   input.value = text;
 

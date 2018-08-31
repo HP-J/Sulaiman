@@ -27,22 +27,17 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
+      title: 'Sulaiman',
       show: false,
-      frame: false,
+      frame: (process.env.DEBUG !== undefined),
       skipTaskbar: true,
-      resizable: false,
+      resizable: (process.env.DEBUG !== undefined),
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
       y: Math.round((screenSize.height - height) / 2)
     }
   );
-
-  // reminder that the open instance of the app is
-  // inside is a debug instance and not meant for normal use
-  mainWindow.setTitle((process.env.DEBUG) ?
-    '[ DEBUG ENVIRONMENT ] Sulaiman' :
-    'Sulaiman');
 
   // and load the index.html of the app
   mainWindow.loadURL(url.format({

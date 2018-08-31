@@ -3,6 +3,7 @@ import { NodeVM } from 'vm2';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
+import { EventEmitter } from 'events';
 
 const electron = require('electron');
 
@@ -183,34 +184,45 @@ function isBuiltin(moduleName)
   }
 }
 
-/** register an extension callback on an event
-* @param { string } eventName
-* @param { Function } callback
-*/
-export function registerCallback(eventName, callback)
+export const eventTarget = new EventEmitter();
+
+export const on =
 {
-  // if the event is not initialized yet, create a new parameter for it
-  if (extEvents[eventName] === undefined)
-    extEvents[eventName] = [];
+  /** emits every time the user writes something into the search bar
+  * @param { (text: string) => void } callback the callback function
+  */
+  input: (callback) => eventTarget.addListener('input', callback),
+  /** emits every time the sulaiman app regain focus
+  * @param { () => void } callback the callback function
+  */
+  focus: (callback) => eventTarget.addListener('focus', callback),
+  /** emits every time the sulaiman app loses focus
+  * @param { () => void } callback the callback function
+  */
+  blur: (callback) => eventTarget.addListener('blur', callback)
+};
 
-  // add the extension's extensionPath and callback in the event's array
-  extEvents[eventName].push(callback);
-}
-
-/** emits an event's callbacks
-* @param { string } eventName
-* @param { any[] } args
-*/
-export function emitCallbacks(eventName, ...args)
+export const off =
 {
-  // check if (any) extension has registered for the event
-  if (extEvents[eventName] === undefined)
-    return;
+  /** emits every time the user writes something into the search bar
+  * @param { (text: string) => void } callback the callback function
+  */
+  input: (callback) => eventTarget.removeListener('input', callback),
+  /** emits every time the sulaiman app regain focus
+  * @param { () => void } callback the callback function
+  */
+  focus: (callback) => eventTarget.removeListener('focus', callback),
+  /** emits every time the sulaiman app loses focus
+  * @param { () => void } callback the callback function
+  */
+  blur: (callback) => eventTarget.removeListener('blur', callback)
+};
 
-  // loop though all the extensions in the event
-  for (let i = 0; i < extEvents[eventName].length; i++)
-  {
-    // emit the callback
-    extEvents[eventName][i](...args);
-  }
+export const emit =
+{
+  /** @param { string } text
+  */
+  input: (text) => eventTarget.emit('input', text),
+  focus: () => eventTarget.emit('focus'),
+  blur: () => eventTarget.emit('blur')
 }

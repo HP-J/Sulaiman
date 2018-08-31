@@ -9,7 +9,7 @@
     "compile": "npx babel src --out-dir compiled --ignore node_modules --source-maps --copy-files",
     "clean": "rm -r compiled",
     "test": "eslint src test && nyc mocha --require babel-core/register --require babel-polyfill",
-    "pre-release": "npm version patch && npm run clean && npm run compile",
+    "pre-release": "npm version patch --no-git-tag-version && npm run clean && npm run compile",
     "release": "npm run pre-release && npm publish && git push origin development:release"
   },
   "build": {

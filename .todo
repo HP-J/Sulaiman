@@ -5,9 +5,8 @@ manager:
   ☐ allow local modules under the sandbox
   
   technical:
-  ✔ allow extensions to change the value of the search bar input element @today @done (8/25/2018, 12:46:49 AM)
   ☐ create good search functions @today @critical
-  ☐ add search phrases for extension controls, app launch and show/hide settings @today 
+  ☐ add search phrases for [ extension controls, app launch and show/hide settings ] @today 
     
   ✔ build AppImage @done (8/28/2018, 1:05:22 AM)
   ☐ build MSI
@@ -19,8 +18,6 @@ CI/CD:
   ☐ publish a new version to npm
 
 extensions:
-  ☐ finish the app launch extension by adding searching
-
   ☐ check for updates and download packages (https://www.npmjs.com/package/node-wget-promise)
   
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
