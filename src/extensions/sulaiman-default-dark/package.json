@@ -12,8 +12,5 @@
     "displayName": "Default Dark"
   },
   "author": "Herp Project",
-  "license": "MIT",
-  "devDependencies": {
-    "sulaiman": "latest"
-  }
+  "license": "MIT"
 }

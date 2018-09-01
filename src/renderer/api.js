@@ -2,9 +2,9 @@ import { readdirSync } from 'fs';
 
 import { join } from 'path';
 
-import Card from './card.js';
+import Card, { createCard } from './card.js';
 
-export { Card };
+export { Card, createCard };
 
 export { setPlaceholder } from './searchBar.js';
 

@@ -1,9 +1,9 @@
 *.
 
-/test
 /coverage
 
-/compiled
-/dist
-
 /src/extensions
+
+/compiled
+/public
+/test

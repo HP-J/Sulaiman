@@ -5,18 +5,6 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { EventEmitter } from 'events';
 
-const electron = require('electron');
-
-/** an array of all the extensions that loaded
-* @type { Object.<string, PackageData> } }
-*/
-export const loadedExtensions = {};
-
-/** the sulaiman events extensions are registered in
-* @type { Object.<string, Function[]> }
-*/
-const extEvents = {};
-
 /** @typedef { Object } PackageData
 * @property { string } name
 * @property { string } version
@@ -31,6 +19,15 @@ const extEvents = {};
 * @property { string[] } modules
 * @property { Object.<string, string> } credits
 */
+
+const electron = require('electron');
+
+/** an array of all the extensions that loaded
+* @type { Object.<string, PackageData> } }
+*/
+export const loadedExtensions = {};
+
+export const eventTarget = new EventEmitter();
 
 /** load and start all extensions
 */
@@ -58,9 +55,79 @@ export function loadExtensions()
     if (!existsSync(extensionPath))
       continue;
 
-    // load the extension
-    loadExtension(extensionPath, JSON.parse(readFileSync(packagePath)));
+    const data = JSON.parse(readFileSync(packagePath));
+
+    // if there isn't a loaded extension with the same name
+    if (!loadedExtensions[data.name])
+    {
+      // load the extension
+      loadExtension(extensionPath, data);
+
+      // append the extension that just loaded to the loaded extensions array
+      loadedExtensions[data.name] = data;
+    }
   }
+}
+
+
+export const on =
+{
+  /** emits every time the user writes something into the search bar
+  * @param { (text: string) => void } callback the callback function
+  */
+  input: (callback) => eventTarget.addListener('input', callback),
+  /** emits every time the sulaiman app regain focus
+  * @param { () => void } callback the callback function
+  */
+  focus: (callback) => eventTarget.addListener('focus', callback),
+  /** emits every time the sulaiman app loses focus
+  * @param { () => void } callback the callback function
+  */
+  blur: (callback) => eventTarget.addListener('blur', callback)
+};
+
+export const off =
+{
+  /** emits every time the user writes something into the search bar
+  * @param { (text: string) => void } callback the callback function
+  */
+  input: (callback) => eventTarget.removeListener('input', callback),
+  /** emits every time the sulaiman app regain focus
+  * @param { () => void } callback the callback function
+  */
+  focus: (callback) => eventTarget.removeListener('focus', callback),
+  /** emits every time the sulaiman app loses focus
+  * @param { () => void } callback the callback function
+  */
+  blur: (callback) => eventTarget.removeListener('blur', callback)
+};
+
+export const emit =
+{
+  /** @param { string } text
+  */
+  input: (text) => eventTarget.emit('input', text),
+  focus: () => eventTarget.emit('focus'),
+  blur: () => eventTarget.emit('blur')
+};
+
+export function getCaller()
+{
+  const err = new Error();
+  const original = Error.prepareStackTrace;
+
+  Error.prepareStackTrace = (err, stack) => stack;
+
+  err.stack.shift();
+  err.stack.shift();
+  const stack = err.stack.shift();
+
+  const file = stack.getFileName();
+  const functionName = stack.getFunctionName();
+
+  Error.prepareStackTrace = original;
+
+  return { file, functionName };
 }
 
 /** creates a new NodeVM for an extension and runs its index.js
@@ -91,9 +158,6 @@ function loadExtension(extensionPath, data)
       context: 'host'
     }
   });
-
-  // append the extension that just loaded to the loaded extensions array
-  loadedExtensions[data.name] = data;
 
   // run the extension index script
   vm.run(readFileSync(extensionPath).toString(), extensionPath);
@@ -182,47 +246,4 @@ function isBuiltin(moduleName)
   {
     return false;
   }
-}
-
-export const eventTarget = new EventEmitter();
-
-export const on =
-{
-  /** emits every time the user writes something into the search bar
-  * @param { (text: string) => void } callback the callback function
-  */
-  input: (callback) => eventTarget.addListener('input', callback),
-  /** emits every time the sulaiman app regain focus
-  * @param { () => void } callback the callback function
-  */
-  focus: (callback) => eventTarget.addListener('focus', callback),
-  /** emits every time the sulaiman app loses focus
-  * @param { () => void } callback the callback function
-  */
-  blur: (callback) => eventTarget.addListener('blur', callback)
-};
-
-export const off =
-{
-  /** emits every time the user writes something into the search bar
-  * @param { (text: string) => void } callback the callback function
-  */
-  input: (callback) => eventTarget.removeListener('input', callback),
-  /** emits every time the sulaiman app regain focus
-  * @param { () => void } callback the callback function
-  */
-  focus: (callback) => eventTarget.removeListener('focus', callback),
-  /** emits every time the sulaiman app loses focus
-  * @param { () => void } callback the callback function
-  */
-  blur: (callback) => eventTarget.removeListener('blur', callback)
-};
-
-export const emit =
-{
-  /** @param { string } text
-  */
-  input: (text) => eventTarget.emit('input', text),
-  focus: () => eventTarget.emit('focus'),
-  blur: () => eventTarget.emit('blur')
 }

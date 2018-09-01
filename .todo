@@ -5,7 +5,8 @@ manager:
   ☐ allow local modules under the sandbox
   
   technical:
-  ☐ create good search functions @today @critical
+  ☐ a system to verify caller extension
+  ☐ create good search functions @today 
   ☐ add search phrases for [ extension controls, app launch and show/hide settings ] @today 
     
   ✔ build AppImage @done (8/28/2018, 1:05:22 AM)

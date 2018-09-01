@@ -1,5 +1,7 @@
 import { on, emit } from './loader.js';
 
+import Card from './card.js';
+
 /** @type { HTMLInputElement }
 */
 export let input;
@@ -38,7 +40,49 @@ function onblur()
 */
 function oninput()
 {
+  // clear all cards connected ti phrases system
+
   emit.input(input.value);
+}
+
+const registeredPhrases = {};
+
+// /**
+//  * @type { Object.<string, Card[]> }
+//  */
+// const phrases = {
+
+// };
+
+/** @param { string } phrase
+* @param { Proxy } callback
+*/
+export function register(phrase, callback)
+{
+  if (!registeredPhrases[phrase])
+    registeredPhrases[phrase] = callback;
+  else
+    throw new Error('The phrase is already registered');
+}
+
+/** @param { string } phrase
+*/
+export function isRegistered(phrase)
+{
+  return (registeredPhrases[phrase] !== undefined);
+}
+
+/** @param { string } phrase
+* @param { Proxy } callback
+*/
+export function unregister(phrase, callback)
+{
+  const registered = registeredPhrases[phrase];
+
+  if (registered === callback)
+    delete registeredPhrases[phrase];
+  else if (registered)
+    throw new Error('You cannot unregister what is not yours');
 }
 
 /** set the text in the search bar

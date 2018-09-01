@@ -15,8 +15,5 @@
     ]
   },
   "author": "Herp Project",
-  "license": "UNLICENSED",
-  "devDependencies": {
-    "sulaiman": "latest"
-  }
+  "license": "UNLICENSED"
 }

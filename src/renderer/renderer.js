@@ -129,7 +129,7 @@ function updateMenu(template)
 
 /** make the card apply to capture key downs and turns them to accelerators
 * @param { Card } card
-* @param { (Electron.Accelerator) => {} } callback
+* @param { (Electron.Accelerator) => void } callback
 */
 function captureKey(card, callback)
 {
@@ -378,33 +378,41 @@ loadNPM();
 // reset focus
 onfocus();
 
-const phrases =
-[
-  'extension test'.toLowerCase(),
-  'extension'.toLowerCase()
-];
+// const phrases =
+// [
+//   'extension test'.toLowerCase(),
+//   'extension'.toLowerCase()
+// ];
 
-const query = 'ext'.toLowerCase();
+// const query = 'ext'.toLowerCase();
 
-function searchFor(query)
-{
-  for (let i = 0; i < phrases.length; i++)
-  {
-    const phrase = phrases[i];
+// function searchFor(query)
+// {
+//   for (let i = 0; i < phrases.length; i++)
+//   {
+//     const phrase = phrases[i];
   
-    let probability = 0;
+//     let probability = 0;
   
-    if (phrase.includes(query))
-      probability = 100 - ((100 * query.length) / phrase.length);
+//     if (phrase.includes(query))
+//       probability = 100 - ((100 * query.length) / phrase.length);
 
-    // setTimeout(() =>
-    // {
-    //   console.log(phrase);
-    // }, probability);
-  }
-}
+//     setTimeout(() =>
+//     {
+//       console.log(phrase);
+//     }, probability);
+//   }
+// }
 
-searchFor(query);
+// searchFor(query);
+
+// searchBar.addPhrase('aa', a);
+// searchBar.removePhrase('aa', a);
+
+// function a()
+// {
+//   console.log('aa');
+// }
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>
