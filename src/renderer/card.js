@@ -52,26 +52,6 @@ export default class Card
     this.auto(options);
   }
 
-  /** reset the card
-  */
-  reset()
-  {
-    // remove all children
-    while (this.domElement.hasChildNodes())
-    {
-      this.domElement.removeChild(this.domElement.lastChild);
-    }
-
-    // remove all classes
-    this.domElement.className = '';
-
-    // remove id
-    this.domElement.id = '';
-
-    // remove the style
-    this.domElement.style.cssText = '';
-  }
-
   /** set an attribute
   * @param { string } qualifiedName
   * @param { * } value
@@ -86,8 +66,7 @@ export default class Card
   */
   addClass(className)
   {
-    if (!this.domElement.classList.contains(className))
-      this.domElement.classList.add(className);
+    this.domElement.classList.add(className);
   }
 
   /** remove a class from the element
@@ -95,8 +74,7 @@ export default class Card
   */
   removeClass(className)
   {
-    if (this.domElement.classList.contains(className))
-      this.domElement.classList.remove(className);
+    this.domElement.classList.remove(className);
   }
 
   /** set the html element id
@@ -346,25 +324,80 @@ export default class Card
   */
   auto(options)
   {
-    // undefined protection
     options = options || {};
-
-    this.reset();
-
+    
     this.addClass('card');
 
+    let titleElem = this.domElement.querySelector('.cardAuto.cardTitle');
+    let extensionIconElem = this.domElement.querySelector('.cardAuto.cardIcon.cardExtensionIcon');
+    let actionIconElem = this.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon');
+    let descriptionElem = this.domElement.querySelector('.cardAuto.cardDescription');
+
+    let lineBreakElem = this.domElement.querySelector('.cardAuto.cardLineBreak');
+
+    if (!lineBreakElem)
+    {
+      lineBreakElem = this.appendLineBreak();
+
+      lineBreakElem.classList.add('cardAuto');
+    }
+
     if (options.title && options.title.length > 0)
-      this.appendText(options.title);
+    {
+      if (titleElem)
+      {
+        titleElem.innerText = options.title;
+      }
+      else
+      {
+        titleElem = this.appendText(options.title);
+        titleElem.classList.add('cardAuto');
+      }
+
+      this.domElement.insertBefore(titleElem, lineBreakElem);
+    }
 
     if (options.extensionIcon !== undefined)
-      this.appendChild(options.extensionIcon);
+    {
+      options.extensionIcon.classList.add('cardAuto', 'cardExtensionIcon');
+
+      if (extensionIconElem)
+        this.domElement.replaceChild(options.extensionIcon, extensionIconElem);
+      else
+        this.appendChild(options.extensionIcon);
+
+      extensionIconElem = options.extensionIcon;
+
+      this.domElement.insertBefore(extensionIconElem, lineBreakElem);
+    }
    
     if (options.actionIcon !== undefined)
-      this.appendChild(options.actionIcon);
+    {
+      options.actionIcon.classList.add('cardAuto', 'cardActionIcon');
 
-    this.appendLineBreak();
+      if (actionIconElem)
+        this.domElement.replaceChild(options.actionIcon, actionIconElem);
+      else
+        this.appendChild(options.actionIcon);
+      
+      actionIconElem = options.actionIcon;
+
+      this.domElement.insertBefore(actionIconElem, lineBreakElem);
+    }
 
     if (options.description && options.description.length > 0)
-      this.appendText(options.description, { type: 'Description' });
+    {
+      if (descriptionElem)
+      {
+        descriptionElem.innerText = options.description;
+      }
+      else
+      {
+        descriptionElem = this.appendText(options.description, { type: 'Description' });
+        descriptionElem.classList.add('cardAuto');
+      }
+
+      this.domElement.insertBefore(descriptionElem, lineBreakElem);
+    }
   }
 }

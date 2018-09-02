@@ -1,14 +1,13 @@
+import { join } from 'path';
 import { readdirSync } from 'fs';
 
-import { join } from 'path';
+import Card from './card.js';
 
-import Card, { createCard } from './card.js';
-
-export { Card, createCard };
-
+export { createCard } from './card.js';
 export { setPlaceholder } from './searchBar.js';
-
 export { on, off } from './loader.js';
+
+export { Card };
 
 /** [needs a permission]
 * the main window of the app

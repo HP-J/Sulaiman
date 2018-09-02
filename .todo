@@ -1,4 +1,5 @@
 graphics:
+  ☐ api.getIcon() won't work if theme extensions don't load first
   ☐ show popular extensions from the npm registry
 
 manager:
