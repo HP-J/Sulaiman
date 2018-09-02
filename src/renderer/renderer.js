@@ -5,7 +5,7 @@ import * as searchBar from './searchBar.js';
 import { loadExtensions, emit } from './loader.js';
 
 import { loadNPM } from './manager.js';
-import { Card, appendChild, removeChild } from './api.js';
+import { Card, appendCard, removeCard } from './api.js';
 
 export const splash = document.body.children[0];
 
@@ -51,6 +51,8 @@ export const menuTemplate =
 export const app = remote.app;
 
 export let autoHide = false;
+
+export let readyState = false;
 
 export let session;
 
@@ -301,10 +303,10 @@ function registerShowHideKey()
     {
       register(key);
 
-      removeChild(card);
+      removeCard(card);
     });
 
-    appendChild(card);
+    appendCard(card);
 
     showHide(true);
   }
@@ -320,10 +322,10 @@ function registerShowHideKey()
     {
       register(key);
 
-      removeChild(card);
+      removeCard(card);
     });
 
-    appendChild(card);
+    appendCard(card);
 
     showHide(true);
   }
@@ -377,6 +379,11 @@ loadNPM();
 
 // reset focus
 onfocus();
+
+// mark the app as ready
+readyState = true;
+
+emit.ready();
 
 // const phrases =
 // [

@@ -1,4 +1,4 @@
-import { isDOMReady } from './renderer.js';
+import { isDOMReady, readyState } from './renderer.js';
 import { getCaller } from './loader.js';
 
 /** @typedef { Object } AutoCardOptions
@@ -20,6 +20,9 @@ import { getCaller } from './loader.js';
 */
 export function createCard(options)
 {
+  if (!readyState)
+    throw new Error('the app is not fully loaded yet, use the on.ready event');
+  
   const card = new Card(options);
 
   return card;

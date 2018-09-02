@@ -44,7 +44,7 @@ export function checkForExtensionsUpdates()
             card.enableFastForward();
             card.collapse();
 
-            api.appendChild(card);
+            api.appendCard(card);
           }
         }
       });
@@ -66,7 +66,7 @@ export function showInstalledExtensions()
         card.enableFastForward();
         card.collapse();
       
-        api.appendChild(card);
+        api.appendCard(card);
 
         cards.push(card);
       }
@@ -75,7 +75,7 @@ export function showInstalledExtensions()
     {
       for (let i = 0; i < cards.length; i++)
       {
-        api.removeChild(cards[i]);
+        api.removeCard(cards[i]);
       }
 
       cards.length = 0;

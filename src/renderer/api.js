@@ -187,27 +187,24 @@ export function addIconStyle(files)
   iconStyles.push(files);
 }
 
-/** add a card or a html element to the body
-* @param { Card | HTMLElement } child
+/** add the card to the body
+* @param { Card } card
 */
-export function appendChild(child)
+export function appendCard(card)
 {
-  document.body.appendChild(child.domElement || child);
+  if (card instanceof Card)
+    document.body.appendChild(card.domElement);
+  else
+    throw TypeError('card is not an instance of Card');
 }
 
-/** remove a card or a html element from the body
-* @param { Card | HTMLElement } child
+/** remove the card from the body
+* @param { Card } card
 */
-export function removeChild(child)
+export function removeCard(card)
 {
-  document.body.removeChild(child.domElement || child);
-}
-
-/** if the body contains a card or a html element
-* @param { Card | HTMLElement } child
-* @returns { boolean }
-*/
-export function containsChild(child)
-{
-  return document.body.contains(child.domElement || child);
+  if (card instanceof Card)
+    document.body.removeChild(card.domElement);
+  else
+    throw TypeError('card is not an instance of Card');
 }

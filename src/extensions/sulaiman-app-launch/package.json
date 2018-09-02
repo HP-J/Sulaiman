@@ -11,6 +11,7 @@
   "sulaiman": {
     "displayName": "Apps",
     "permissions": [
+      "process",
       "shell"
     ],
     "modules": [

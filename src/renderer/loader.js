@@ -69,9 +69,12 @@ export function loadExtensions()
   }
 }
 
-
 export const on =
 {
+  /** emits when the app is fully loaded and ready to use
+  * @param { (text: string) => void } callback the callback function
+  */
+  ready: (callback) => eventTarget.addListener('ready', callback),
   /** emits every time the user writes something into the search bar
   * @param { (text: string) => void } callback the callback function
   */
@@ -88,6 +91,10 @@ export const on =
 
 export const off =
 {
+  /** emits when the app is fully loaded and ready to use
+  * @param { (text: string) => void } callback the callback function
+  */
+  ready: (callback) => eventTarget.removeListener('ready', callback),
   /** emits every time the user writes something into the search bar
   * @param { (text: string) => void } callback the callback function
   */
@@ -104,6 +111,7 @@ export const off =
 
 export const emit =
 {
+  ready: () => eventTarget.emit('ready'),
   /** @param { string } text
   */
   input: (text) => eventTarget.emit('input', text),
@@ -169,15 +177,14 @@ function loadExtension(extensionPath, data)
 */
 function handelPermissions(requiredPermissions)
 {
-  // allow access to global objects
+  // // allow access to global objects
   const sandbox =
   {
     document:
     {
       createElement: document.createElement,
       createElementNS: document.createElementNS
-    },
-    process: process
+    }
   };
 
   // override specific apis from any module
@@ -193,6 +200,8 @@ function handelPermissions(requiredPermissions)
       // global
       if (requiredPermissions[i] === 'document')
         sandbox.document = document;
+      if (requiredPermissions[i] === 'process')
+        sandbox.process = process;
       
       // sulaiman
       else if (requiredPermissions[i] === 'window')
