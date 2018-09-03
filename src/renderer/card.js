@@ -38,7 +38,7 @@ export default class Card
   */
   constructor(options)
   {
-    const { file, functionName } = getCaller();
+    const { file, functionName } = getCaller(3);
 
     if (file !== __filename || functionName !== createCard.name)
       throw new TypeError('Illegal Constructor');

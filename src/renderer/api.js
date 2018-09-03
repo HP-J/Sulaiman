@@ -2,6 +2,7 @@ import { join } from 'path';
 import { readdirSync } from 'fs';
 
 import Card from './card.js';
+import { getCaller } from './loader.js';
 
 export { createCard } from './card.js';
 export { setPlaceholder } from './searchBar.js';
@@ -208,3 +209,9 @@ export function removeCard(card)
   else
     throw TypeError('card is not an instance of Card');
 }
+
+export let createElement = document.createElement;
+createElement = createElement.bind(document);
+
+export let createElementNS = document.createElementNS;
+createElementNS = createElement.bind(document);

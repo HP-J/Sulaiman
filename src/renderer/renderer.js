@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensions, emit } from './loader.js';
+import { loadExtensions, emit, on } from './loader.js';
 
 import { loadNPM } from './manager.js';
 import { Card, appendCard, removeCard } from './api.js';
@@ -385,41 +385,11 @@ readyState = true;
 
 emit.ready();
 
-// const phrases =
-// [
-//   'extension test'.toLowerCase(),
-//   'extension'.toLowerCase()
-// ];
-
-// const query = 'ext'.toLowerCase();
-
-// function searchFor(query)
-// {
-//   for (let i = 0; i < phrases.length; i++)
-//   {
-//     const phrase = phrases[i];
-  
-//     let probability = 0;
-  
-//     if (phrase.includes(query))
-//       probability = 100 - ((100 * query.length) / phrase.length);
-
-//     setTimeout(() =>
-//     {
-//       console.log(phrase);
-//     }, probability);
-//   }
-// }
-
-// searchFor(query);
-
-// searchBar.addPhrase('aa', a);
-// searchBar.removePhrase('aa', a);
-
-// function a()
-// {
-//   console.log('aa');
-// }
+on.phrase('ext', (text, probability) =>
+{
+  console.log(text);
+  console.log(probability);
+});
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

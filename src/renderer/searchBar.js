@@ -1,4 +1,4 @@
-import { on, emit } from './loader.js';
+import { on, emit, registeredPhrases } from './loader.js';
 
 import Card from './card.js';
 
@@ -40,49 +40,26 @@ function onblur()
 */
 function oninput()
 {
-  // clear all cards connected ti phrases system
-
   emit.input(input.value);
-}
 
-const registeredPhrases = {};
+  const query = input.value.toLowerCase();
 
-// /**
-//  * @type { Object.<string, Card[]> }
-//  */
-// const phrases = {
-
-// };
-
-/** @param { string } phrase
-* @param { Proxy } callback
-*/
-export function register(phrase, callback)
-{
-  if (!registeredPhrases[phrase])
-    registeredPhrases[phrase] = callback;
-  else
-    throw new Error('The phrase is already registered');
-}
-
-/** @param { string } phrase
-*/
-export function isRegistered(phrase)
-{
-  return (registeredPhrases[phrase] !== undefined);
-}
-
-/** @param { string } phrase
-* @param { Proxy } callback
-*/
-export function unregister(phrase, callback)
-{
-  const registered = registeredPhrases[phrase];
-
-  if (registered === callback)
-    delete registeredPhrases[phrase];
-  else if (registered)
-    throw new Error('You cannot unregister what is not yours');
+  for (const phrase in registeredPhrases)
+  {
+    let probability = 0;
+    
+    // if the phrase is taller check the phrase for query
+    if (phrase.length >= query.length && phrase.includes(query))
+      probability = ((100 * query.length) / phrase.length);
+    // if the query is taller check the query for phrase
+    else if (query.length > phrase.length && query.includes(phrase))
+      probability = ((100 * phrase.length) / query.length);
+    
+    setTimeout(() =>
+    {
+      emit.phrase(phrase, input.value, probability);
+    }, 100 - probability);
+  }
 }
 
 /** set the text in the search bar

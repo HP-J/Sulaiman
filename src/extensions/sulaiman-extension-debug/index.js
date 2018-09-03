@@ -1,7 +1,8 @@
 // ! this is a extension to DEBUG and TRY the API
 // ! IT SHOULD BE EXCLUDED FROM ANY PACKAGE
 
-// import * as sulaiman from 'sulaiman';
+import * as sulaiman from 'sulaiman';
+// import * as sulaiman from '../../../';
 
 // import { join } from 'path';
 

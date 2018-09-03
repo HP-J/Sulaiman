@@ -5,22 +5,18 @@ manager:
   ☐ allow local modules under the sandbox
   
   technical:
-  ☐ a system to verify caller extension
-  ☐ create good search functions @today 
-  ☐ add search phrases for [ extension controls, app launch and show/hide settings ] @today 
-    
-  ✔ build AppImage @done (8/28/2018, 1:05:22 AM)
-  ☐ build MSI
-  ☐ build DMG @need-help
+  ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
+  ☐ build & test MSI @today 
+
+  ☐ build & test DMG @need-help
 
 CI/CD:
-  ☐ build and upload AppImage and MSI
-  ☐ upload a version.json containing date and commit id
+  ☐ build and upload AppImage and MSI @today 
+  ☐ upload a version.json containing date, commit, build number @today 
   ☐ publish a new version to npm
 
 extensions:
   ☐ check for updates and download packages (https://www.npmjs.com/package/node-wget-promise)
-  
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
   
   ☐ calculator

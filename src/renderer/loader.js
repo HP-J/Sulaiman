@@ -5,6 +5,8 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { EventEmitter } from 'events';
 
+import { readyState } from './renderer.js';
+
 /** @typedef { Object } PackageData
 * @property { string } name
 * @property { string } version
@@ -22,12 +24,14 @@ import { EventEmitter } from 'events';
 
 const electron = require('electron');
 
+const eventTarget = new EventEmitter();
+
 /** an array of all the extensions that loaded
 * @type { Object.<string, PackageData> } }
 */
 export const loadedExtensions = {};
 
-export const eventTarget = new EventEmitter();
+export const registeredPhrases = {};
 
 /** load and start all extensions
 */
@@ -60,8 +64,11 @@ export function loadExtensions()
     // if there isn't a loaded extension with the same name
     if (!loadedExtensions[data.name])
     {
-      // load the extension
-      loadExtension(extensionPath, data);
+      // create a vm for the extension
+      const vm = createVM(data);
+
+      // run the extension index script
+      vm.run(readFileSync(extensionPath).toString(), extensionPath);
 
       // append the extension that just loaded to the loaded extensions array
       loadedExtensions[data.name] = data;
@@ -79,6 +86,20 @@ export const on =
   * @param { (text: string) => void } callback the callback function
   */
   input: (callback) => eventTarget.addListener('input', callback),
+  /** emits every time the user writes something into the search bar with
+  * the string-matching probability(0-100) of it being your selected phrase
+  * @param { string } phrase
+  * @param { (text: string, probability: number) } callback
+  */
+  phrase: (phrase, callback) =>
+  {
+    phrase = phrase.toLowerCase();
+
+    if (!registeredPhrases[phrase])
+      registeredPhrases[phrase] = callback;
+    else
+      throw new Error('The phrase is already registered');
+  },
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -99,6 +120,22 @@ export const off =
   * @param { (text: string) => void } callback the callback function
   */
   input: (callback) => eventTarget.removeListener('input', callback),
+  /** emits every time the user writes something into the search bar with
+  * the string-matching probability(0-100) of it being your selected phrase
+  * @param { string } phrase
+  * @param { (text: string, probability: number) } callback
+  */
+  phrase: (phrase, callback) =>
+  {
+    phrase = phrase.toLowerCase();
+
+    const registered = registeredPhrases[phrase];
+
+    if (registered === callback)
+      delete registeredPhrases[phrase];
+    else if (registered)
+      throw new Error('You cannot unregister what is not yours');
+  },
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -109,26 +146,51 @@ export const off =
   blur: (callback) => eventTarget.removeListener('blur', callback)
 };
 
+export const is =
+{
+  /** returns true when the app is fully loaded and ready to use
+  */
+  ready: () => readyState,
+  /** returns true if the phrase selected is registered before
+  * @param { string } phrase
+  */
+  registeredPhrase: (phrase) => (registeredPhrases[phrase.toLowerCase()] !== undefined)
+};
+
 export const emit =
 {
   ready: () => eventTarget.emit('ready'),
   /** @param { string } text
   */
   input: (text) => eventTarget.emit('input', text),
+  /** @param { string } phrase
+  * @param { string } text
+  * @param { number } probability
+  */
+  phrase: (phrase, text, probability) =>
+  {
+    if (is.registeredPhrase(phrase))
+      registeredPhrases[phrase](text, probability);
+  },
   focus: () => eventTarget.emit('focus'),
   blur: () => eventTarget.emit('blur')
 };
 
-export function getCaller()
+export function getCaller(length)
 {
   const err = new Error();
   const original = Error.prepareStackTrace;
 
+  /** @type { NodeJS.CallSite }
+  */
+  let stack;
+
   Error.prepareStackTrace = (err, stack) => stack;
 
-  err.stack.shift();
-  err.stack.shift();
-  const stack = err.stack.shift();
+  for (let i = 0; i < length; i++)
+  {
+    stack = err.stack.shift();
+  }
 
   const file = stack.getFileName();
   const functionName = stack.getFunctionName();
@@ -138,11 +200,11 @@ export function getCaller()
   return { file, functionName };
 }
 
-/** creates a new NodeVM for an extension and runs its index.js
+/** creates a new NodeVM for an extension
 * @param { string } extensionPath
 * @param { PackageData } data
 */
-function loadExtension(extensionPath, data)
+function createVM(data)
 {
   const { sandbox, mock } = handelPermissions(data.sulaiman.permissions);
 
@@ -167,8 +229,7 @@ function loadExtension(extensionPath, data)
     }
   });
 
-  // run the extension index script
-  vm.run(readFileSync(extensionPath).toString(), extensionPath);
+  return vm;
 }
 
 /** handle permissions to use global variables and mockups
@@ -177,17 +238,13 @@ function loadExtension(extensionPath, data)
 */
 function handelPermissions(requiredPermissions)
 {
-  // // allow access to global objects
+  // allow access to global objects
   const sandbox =
   {
-    document:
-    {
-      createElement: document.createElement,
-      createElementNS: document.createElementNS
-    }
+
   };
 
-  // override specific apis from any module
+  // override specific apis from any module or the entire module
   const mock =
   {
     sulaiman: require('./api.js')
