@@ -31,6 +31,9 @@ const eventTarget = new EventEmitter();
 */
 export const loadedExtensions = {};
 
+/**
+ * @type { Object.<string, { isSynonym: boolean, callback: (text: string, probability: number) => void, phrase: string, synonym: string } }
+ */
 export const registeredPhrases = {};
 
 /** load and start all extensions
@@ -88,17 +91,40 @@ export const on =
   input: (callback) => eventTarget.addListener('input', callback),
   /** emits every time the user writes something into the search bar with
   * the string-matching probability(0-100) of it being your selected phrase
-  * @param { string } phrase
-  * @param { (text: string, probability: number) } callback
+  * @param { string } phrase every phrase can only be registered once, check if it's registered first to avoid errors
+  * @param { (text: string, probability: number) => void } callback
+  * @param { string } [synonym] you are allowed to have one synonym per phrase, the same phrase rules apply to synonyms
   */
-  phrase: (phrase, callback) =>
+  phrase: (phrase, callback, synonym) =>
   {
+    if (!callback)
+      throw new TypeError('You need a callback to register a phrase');
+
     phrase = phrase.toLowerCase();
 
-    if (!registeredPhrases[phrase])
-      registeredPhrases[phrase] = callback;
+    if (synonym)
+      synonym = synonym.toLowerCase();
+
+    if (!registeredPhrases[phrase] && (!synonym || !registeredPhrases[synonym]))
+    {
+      registeredPhrases[phrase] =
+      {
+        callback: callback,
+        synonym: synonym
+      };
+
+      if (synonym)
+      {
+        registeredPhrases[synonym] =
+        {
+          isSynonym: true,
+          callback: callback,
+          phrase: phrase
+        };
+      }
+    }
     else
-      throw new Error('The phrase is already registered');
+      throw new Error('The phrase/synonym is already registered');
   },
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
@@ -122,8 +148,8 @@ export const off =
   input: (callback) => eventTarget.removeListener('input', callback),
   /** emits every time the user writes something into the search bar with
   * the string-matching probability(0-100) of it being your selected phrase
-  * @param { string } phrase
-  * @param { (text: string, probability: number) } callback
+  * @param { string } phrase you can also just unregister synonyms without deleting there phrases
+  * @param { (text: string, probability: number) => void } callback
   */
   phrase: (phrase, callback) =>
   {
@@ -131,10 +157,20 @@ export const off =
 
     const registered = registeredPhrases[phrase];
 
-    if (registered === callback)
+    if (!registered)
+      throw new Error(phrase + ' is not registered, Therefore cannot be unregistered');
+
+    if (registered.callback === callback)
+    {
       delete registeredPhrases[phrase];
-    else if (registered)
-      throw new Error('You cannot unregister what is not yours');
+
+      if (registered.synonym)
+        delete registeredPhrases[registered.synonym];
+    }
+    else
+    {
+      throw new Error('You need the callback used with the phrase to be able to unregister it');
+    }
   },
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
@@ -167,11 +203,7 @@ export const emit =
   * @param { string } text
   * @param { number } probability
   */
-  phrase: (phrase, text, probability) =>
-  {
-    if (is.registeredPhrase(phrase))
-      registeredPhrases[phrase](text, probability);
-  },
+  phrase: (phrase, text, probability) => registeredPhrases[phrase].callback(text, probability),
   focus: () => eventTarget.emit('focus'),
   blur: () => eventTarget.emit('blur')
 };

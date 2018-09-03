@@ -46,20 +46,41 @@ function oninput()
 
   for (const phrase in registeredPhrases)
   {
-    let probability = 0;
-    
-    // if the phrase is taller check the phrase for query
-    if (phrase.length >= query.length && phrase.includes(query))
-      probability = ((100 * query.length) / phrase.length);
-    // if the query is taller check the query for phrase
-    else if (query.length > phrase.length && query.includes(phrase))
-      probability = ((100 * phrase.length) / query.length);
+    const registered = registeredPhrases[phrase];
+
+    if (registered.isSynonym)
+      continue;
+
+    let probability = getProbability(phrase, query);
+
+    if (registered.synonym)
+    {
+      const synonymProbability = getProbability(registered.synonym, query);
+
+      if (synonymProbability > probability)
+        probability = synonymProbability;
+    }
     
     setTimeout(() =>
     {
       emit.phrase(phrase, input.value, probability);
     }, 100 - probability);
   }
+}
+
+/** @param { string } phrase
+* @param { string } query
+*/
+function getProbability(phrase, query)
+{
+  // if the phrase is taller check the phrase for query
+  if (phrase.length >= query.length && phrase.includes(query))
+    return ((100 * query.length) / phrase.length);
+  // if the query is taller check the query for phrase
+  else if (query.length > phrase.length && query.includes(phrase))
+    return ((100 * phrase.length) / query.length);
+  else
+    return 0;
 }
 
 /** set the text in the search bar

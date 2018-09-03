@@ -161,7 +161,7 @@ export function extensionInstallCard(card, name)
 * @param { PackageData } remote
 * @param { string } name
 */
-export function extensionUpdateCard(card, local, remote, name)
+function extensionUpdateCard(card, local, remote, name)
 {
   if (validateExtension(remote))
     return false;
@@ -194,7 +194,7 @@ export function extensionUpdateCard(card, local, remote, name)
 
 /** @param { string } name
 */
-export function getPackageData(name)
+function getPackageData(name)
 {
   return new Promise((resolve, reject) =>
   {

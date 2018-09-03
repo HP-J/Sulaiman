@@ -2,7 +2,6 @@ import { join } from 'path';
 import { readdirSync } from 'fs';
 
 import Card from './card.js';
-import { getCaller } from './loader.js';
 
 export { createCard } from './card.js';
 export { setPlaceholder } from './searchBar.js';
@@ -206,6 +205,17 @@ export function removeCard(card)
 {
   if (card instanceof Card)
     document.body.removeChild(card.domElement);
+  else
+    throw TypeError('card is not an instance of Card');
+}
+
+/** if the body contains the card
+* @param { Card } card
+*/
+export function containsCard(card)
+{
+  if (card instanceof Card)
+    return document.body.contains(card.domElement);
   else
     throw TypeError('card is not an instance of Card');
 }
