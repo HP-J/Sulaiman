@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import * as searchBar from './searchBar.js';
 
-import { loadExtensions, emit, on, off } from './loader.js';
+import { loadExtensions, emit, on } from './loader.js';
 
 import { loadNPM } from './manager.js';
 import { Card, appendCard, removeCard } from './api.js';

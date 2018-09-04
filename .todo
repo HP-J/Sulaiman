@@ -23,4 +23,5 @@ extensions:
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
   ☐ files
   ☐ google
-  ☐ apps (mac) @need-help 
+  ☐ progressive web apps
+  ☐ app-launch (mac) @need-help 
