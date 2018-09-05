@@ -4,33 +4,33 @@ import Card from './card.js';
 
 /** @type { HTMLInputElement }
 */
-export let input;
+export let inputElem;
 
 /** create and append the search bar and card-space
 */
-export function append()
+export function appendSearchBar()
 {
-  input = document.createElement('input');
-  input.setAttribute('id', 'searchBar');
-  document.body.appendChild(input);
+  inputElem = document.createElement('input');
+  inputElem.setAttribute('id', 'searchBar');
+  document.body.appendChild(inputElem);
 
-  on.focus(onfocus);
-  on.blur(onblur);
+  on.focus(focus);
+  on.blur(blur);
 
-  input.oninput = oninput;
+  inputElem.oninput = oninput;
 }
 
 /** gets called every time sulaiman regain focus
 */
-function onfocus()
+function focus()
 {
   // empty the search bar every time the sulaiman regain focus
-  input.focus();
+  inputElem.focus();
 }
 
 /** gets called every time sulaiman regain focus
 */
-function onblur()
+function blur()
 {
   // empty the search bar
   setInput('');
@@ -40,47 +40,60 @@ function onblur()
 */
 function oninput()
 {
-  emit.input(input.value);
+  let input = standard(inputElem.value);
 
-  const query = input.value.toLowerCase();
+  emit.input(input);
 
-  for (const phrase in registeredPhrases)
+  // split to array of words
+  input = input.split(/\s/);
+  
+  for (let phrase in registeredPhrases)
   {
-    const registered = registeredPhrases[phrase];
+  // split to array of words
+    phrase = phrase.split(/\s/);
 
-    if (registered.isSynonym)
-      continue;
+    // array of the arguments passed the the phrase
+    const args = input.slice(phrase.length);
 
-    let probability = getProbability(phrase, query);
+    // array of input words that match the number of words in the phrase
+    const query = input.slice(0,  phrase.length);
 
-    if (registered.synonym)
+    let overallPercentage = 0;
+
+    for (let i = 0; i < query.length; i++)
     {
-      const synonymProbability = getProbability(registered.synonym, query);
+      if (phrase[i].startsWith(query[i]))
+      {
+        const percentage = (((100 * query[i].length) / phrase[i].length) / phrase.length);
 
-      if (synonymProbability > probability)
-        probability = synonymProbability;
+        overallPercentage += percentage;
+      }
     }
-    
+
     setTimeout(() =>
     {
-      emit.phrase(phrase, input.value, probability);
-    }, 100 - probability);
+      // add to auto-complete highlight the input from the phrase
+      // emit a callback if exists with the args (if the phrase is fully written)
+      
+      console.log(phrase + ': ' + overallPercentage);
+    }, 100 - overallPercentage);
   }
 }
 
-/** @param { string } phrase
-* @param { string } query
+/** update a string to be the standard the app uses for searching
+* @param { string } s the string you want to update
 */
-function getProbability(phrase, query)
+export function standard(s)
 {
-  // if the phrase is taller check the phrase for query
-  if (phrase.length >= query.length && phrase.includes(query))
-    return ((100 * query.length) / phrase.length);
-  // if the query is taller check the query for phrase
-  else if (query.length > phrase.length && query.includes(phrase))
-    return ((100 * phrase.length) / query.length);
-  else
-    return 0;
+  // to lower case, we don't want any trouble with case insensitivity
+
+  // replace any newlines or extra whitespace with only one space,
+  // so we can split words correctly
+
+  // remove any whitespace from the beginning and the ending of the string,
+  // just to make sure to get the expected result
+
+  return s.toLowerCase().replace(/\s+|\n/g, ' ').trim();
 }
 
 /** set the text in the search bar
@@ -88,7 +101,7 @@ function getProbability(phrase, query)
 */
 export function setInput(text)
 {
-  input.value = text;
+  inputElem.value = text;
 
   oninput();
 }
@@ -98,5 +111,5 @@ export function setInput(text)
 */
 export function setPlaceholder(text)
 {
-  input.placeholder = text;
+  inputElem.placeholder = text;
 }

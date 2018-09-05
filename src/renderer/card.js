@@ -93,7 +93,10 @@ export default class Card
   */
   appendChild(child)
   {
-    this.domElement.appendChild(child.domElement || child);
+    if (child.isPhrased)
+      throw new Error('the card is controlled by the phrase search system');
+    else
+      this.domElement.appendChild(child.domElement || child);
   }
   
   /** remove another card or a html element from this card
@@ -101,7 +104,10 @@ export default class Card
   */
   removeChild(child)
   {
-    this.domElement.removeChild(child.domElement || child);
+    if (child.isPhrased)
+      throw new Error('the card is controlled by the phrase search system');
+    else
+      this.domElement.removeChild(child.domElement || child);
   }
 
   /**

@@ -1,4 +1,7 @@
 graphics:
+  ☐ show auto-complete overlay over the cards under the search bar
+    that shows up when you start typing and gets hidden after you stop
+    if you want to choose you can use the arrow keys to select or esc to hide it
   ☐ show popular extensions from the npm registry
 
 manager:
@@ -7,6 +10,12 @@ manager:
   technical:
   ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
   ☐ build & test MSI @today 
+
+  ☐ a theme extension has to define it self as a theme extension
+   to get permissions to use style apis, only one theme extension can have access
+   if another extension tries to define it self, show a warning conflict card
+
+  ☐ an icon on the left the search bar that can only be changed by the phrase search system
 
   ☐ build & test DMG @need-help
 
@@ -19,9 +28,10 @@ extensions:
   ☐ check for updates and download packages (https://www.npmjs.com/package/node-wget-promise)
   ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
   
+  ☐ files
   ☐ calculator
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
-  ☐ files
   ☐ google
+  
   ☐ progressive web apps
   ☐ app-launch (mac) @need-help 

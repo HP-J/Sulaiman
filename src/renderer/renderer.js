@@ -1,8 +1,8 @@
 import { remote } from 'electron';
 
-import * as searchBar from './searchBar.js';
+import { appendSearchBar, standard } from './searchBar.js';
 
-import { loadExtensions, emit, on } from './loader.js';
+import { loadExtensions, emit, on, off } from './loader.js';
 
 import { loadNPM } from './manager.js';
 import { Card, appendCard, removeCard } from './api.js';
@@ -360,7 +360,7 @@ function onblur()
 restoreSession();
 
 // create and append the search bar
-searchBar.append();
+appendSearchBar();
     
 // register to several events the app uses
 registerEvents();
@@ -389,11 +389,7 @@ emit.ready();
 // search app list
 // change the show/hide key
 
-on.phrase('extension', (text, probability) =>
-{
-  console.log(text);
-  console.log(probability);
-}, 'ext');
+on.phrase('extension install');
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

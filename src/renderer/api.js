@@ -192,10 +192,12 @@ export function addIconStyle(files)
 */
 export function appendCard(card)
 {
-  if (card instanceof Card)
-    document.body.appendChild(card.domElement);
+  if (!(card instanceof Card))
+    throw new TypeError('card is not an instance of Card');
+  if (card.isPhrased)
+    throw new Error('the card is controlled by the phrase search system');
   else
-    throw TypeError('card is not an instance of Card');
+    document.body.appendChild(card.domElement);
 }
 
 /** remove the card from the body
@@ -203,10 +205,12 @@ export function appendCard(card)
 */
 export function removeCard(card)
 {
-  if (card instanceof Card)
-    document.body.removeChild(card.domElement);
+  if (!(card instanceof Card))
+    throw new TypeError('card is not an instance of Card');
+  if (card.isPhrased)
+    throw new Error('the card is controlled by the phrase search system');
   else
-    throw TypeError('card is not an instance of Card');
+    document.body.removeChild(card.domElement);
 }
 
 /** if the body contains the card

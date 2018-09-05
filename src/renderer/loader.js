@@ -5,7 +5,9 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { EventEmitter } from 'events';
 
+import { standard } from './searchBar.js';
 import { readyState } from './renderer.js';
+import { Card, createCard } from './api.js';
 
 /** @typedef { Object } PackageData
 * @property { string } name
@@ -32,7 +34,7 @@ const eventTarget = new EventEmitter();
 export const loadedExtensions = {};
 
 /**
- * @type { Object.<string, { isSynonym: boolean, callback: (text: string, probability: number) => void, phrase: string, synonym: string } }
+ * @type { Object.<string, { card: Card, callback: Function, percentage: number} > }
  */
 export const registeredPhrases = {};
 
@@ -89,42 +91,41 @@ export const on =
   * @param { (text: string) => void } callback the callback function
   */
   input: (callback) => eventTarget.addListener('input', callback),
-  /** emits every time the user writes something into the search bar with
-  * the string-matching probability(0-100) of it being your selected phrase
-  * @param { string } phrase every phrase can only be registered once, check if it's registered first to avoid errors
-  * @param { (text: string, probability: number) => void } callback
-  * @param { string } [synonym] you are allowed to have one synonym per phrase, the same phrase rules apply to synonyms
+  /** returns a card that is shown and hidden automatically
+  * when the user search for a certain phrase
+  * @param { string } phrase
+  * @param { (...args: string[]) => void } [callback] if defined will be called every time the card is shown with any arguments following the chosen phrase
+  * @returns { Card }
   */
-  phrase: (phrase, callback, synonym) =>
+  phrase: (phrase, callback) =>
   {
-    if (!callback)
-      throw new TypeError('You need a callback to register a phrase');
+    phrase = standard(phrase);
 
-    phrase = phrase.toLowerCase();
+    if (phrase.length <= 0)
+      throw new Error('you can\'t register empty phrases');
 
-    if (synonym)
-      synonym = synonym.toLowerCase();
-
-    if (!registeredPhrases[phrase] && (!synonym || !registeredPhrases[synonym]))
+    // each phrase can only be registered once
+    if (!registeredPhrases[phrase])
     {
-      registeredPhrases[phrase] =
-      {
-        callback: callback,
-        synonym: synonym
-      };
+      const card = createCard();
 
-      if (synonym)
-      {
-        registeredPhrases[synonym] =
+      // we want to have 100% control over when cards are shown
+      // and removed from the dom, by setting a read-only property
+      // that is checked by all append and remove apis, we can accomplish that
+      Object.defineProperty(card, 'isPhrased',
         {
-          isSynonym: true,
-          callback: callback,
-          phrase: phrase
-        };
-      }
+          value: phrase,
+          writable: false
+        });
+      
+      registeredPhrases[phrase] = { card: card, callback: callback };
+
+      return card;
     }
     else
-      throw new Error('The phrase/synonym is already registered');
+    {
+      throw new Error('The phrase is already registered');
+    }
   },
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
@@ -146,30 +147,24 @@ export const off =
   * @param { (text: string) => void } callback the callback function
   */
   input: (callback) => eventTarget.removeListener('input', callback),
-  /** emits every time the user writes something into the search bar with
-  * the string-matching probability(0-100) of it being your selected phrase
-  * @param { string } phrase you can also just unregister synonyms without deleting there phrases
-  * @param { (text: string, probability: number) => void } callback
+  /** removes a phrase and returns a card controlled by you
+  * @param { Card } card the card previously given you by registering a phrase
   */
-  phrase: (phrase, callback) =>
+  phrase: (card) =>
   {
-    phrase = phrase.toLowerCase();
-
-    const registered = registeredPhrases[phrase];
-
-    if (!registered)
-      throw new Error(phrase + ' is not registered, Therefore cannot be unregistered');
-
-    if (registered.callback === callback)
+    if (card.isPhrased && registeredPhrases[card.isPhrased])
     {
-      delete registeredPhrases[phrase];
+      // delete it from the registered phrases array
+      delete registeredPhrases[card.isPhrased];
 
-      if (registered.synonym)
-        delete registeredPhrases[registered.synonym];
+      // clone card to remove isPhrased property
+      const clone = Object.assign(createCard(), card, { isPhrased: undefined });
+
+      return clone;
     }
     else
     {
-      throw new Error('You need the callback used with the phrase to be able to unregister it');
+      throw new Error('the card is not registered to any phrases');
     }
   },
   /** emits every time the sulaiman app regain focus
@@ -187,10 +182,10 @@ export const is =
   /** returns true when the app is fully loaded and ready to use
   */
   ready: () => readyState,
-  /** returns true if the phrase selected is registered before
+  /** returns true if a phrase is already registered
   * @param { string } phrase
   */
-  registeredPhrase: (phrase) => (registeredPhrases[phrase.toLowerCase()] !== undefined)
+  registeredPhrase: (phrase) => (registeredPhrases[standard(phrase)] !== undefined)
 };
 
 export const emit =
@@ -200,10 +195,9 @@ export const emit =
   */
   input: (text) => eventTarget.emit('input', text),
   /** @param { string } phrase
-  * @param { string } text
-  * @param { number } probability
+  * @param { string[] } args
   */
-  phrase: (phrase, text, probability) => registeredPhrases[phrase].callback(text, probability),
+  phrase: (phrase, ...args) => registeredPhrases[phrase].callback(...args),
   focus: () => eventTarget.emit('focus'),
   blur: () => eventTarget.emit('blur')
 };

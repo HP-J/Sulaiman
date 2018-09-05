@@ -1,7 +1,7 @@
 # Welcome to Sulaiman
 #### A keyboard launcher with no features
 
-*The app is in early stages of development*
+*The app is in early stages of development, we still have a lot in the bag, stick around*
 
 *Your feedback is highly encourage*
 
