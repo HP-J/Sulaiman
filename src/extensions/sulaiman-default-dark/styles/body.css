@@ -1,0 +1,28 @@
+:root
+{
+  --color-lighter: #6B6A6A;
+  --color-light: #505050;
+  --color-medium: #414141;
+  --color-dark: #272626;
+  --color-darkest: #111111;
+}
+
+body
+{
+  overflow-x: hidden;
+  overflow-y: scroll;
+  background-color: var(--color-dark);
+  width: 100vw;
+  height: 100vh;
+}
+
+::-webkit-scrollbar
+{
+  background: transparent;
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb
+{
+  background: rgba(0, 0, 0, 0.4);
+}

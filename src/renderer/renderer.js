@@ -1,8 +1,8 @@
 import { remote } from 'electron';
 
-import { appendSearchBar, standard } from './searchBar.js';
+import { appendSearchBar } from './searchBar.js';
 
-import { loadExtensions, emit, on, off } from './loader.js';
+import { loadExtensions, emit, on } from './loader.js';
 
 import { loadNPM } from './manager.js';
 import { Card, appendCard, removeCard } from './api.js';
@@ -389,7 +389,9 @@ emit.ready();
 // search app list
 // change the show/hide key
 
+on.phrase('extension');
 on.phrase('extension install');
+on.phrase('extension delete');
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

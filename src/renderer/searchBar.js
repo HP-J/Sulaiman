@@ -1,23 +1,36 @@
-import { on, emit, registeredPhrases } from './loader.js';
+import { on, emit } from './loader.js';
 
-import Card from './card.js';
+import Card, { createCard } from './card.js';
 
 /** @type { HTMLInputElement }
 */
-export let inputElem;
+export let inputElement;
+
+/** @type { HTMLInputElement }
+*/
+export let autoCompleteElement;
+
+/**
+* @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
+*/
+const registeredPhrases = {};
 
 /** create and append the search bar and card-space
 */
 export function appendSearchBar()
 {
-  inputElem = document.createElement('input');
-  inputElem.setAttribute('id', 'searchBar');
-  document.body.appendChild(inputElem);
+  inputElement = document.createElement('input');
+  inputElement.setAttribute('id', 'searchBar');
+  document.body.appendChild(inputElement);
+
+  autoCompleteElement = document.createElement('div');
+  autoCompleteElement.setAttribute('id', 'autoComplete');
+  document.body.appendChild(autoCompleteElement);
 
   on.focus(focus);
   on.blur(blur);
 
-  inputElem.oninput = oninput;
+  inputElement.oninput = oninput;
 }
 
 /** gets called every time sulaiman regain focus
@@ -25,7 +38,7 @@ export function appendSearchBar()
 function focus()
 {
   // empty the search bar every time the sulaiman regain focus
-  inputElem.focus();
+  inputElement.focus();
 }
 
 /** gets called every time sulaiman regain focus
@@ -40,44 +53,150 @@ function blur()
 */
 function oninput()
 {
-  let input = standard(inputElem.value);
+  const input = standard(inputElement.value);
 
   emit.input(input);
 
-  // split to array of words
-  input = input.split(/\s/);
-  
-  for (let phrase in registeredPhrases)
+  const autoCompleteData = handlePhrases(input);
+
+  handleAutoComplete(autoCompleteData);
+}
+
+function handlePhrases(input)
+{
+  const inputWords = input.split(/\s/);
+
+  const autoCompleteData = [];
+
+  for (const phrase in registeredPhrases)
   {
-  // split to array of words
-    phrase = phrase.split(/\s/);
-
+    // split to array of words
+    const phraseWords = phrase.split(/\s/);
+  
     // array of the arguments passed the the phrase
-    const args = input.slice(phrase.length);
-
-    // array of input words that match the number of words in the phrase
-    const query = input.slice(0,  phrase.length);
-
-    let overallPercentage = 0;
-
-    for (let i = 0; i < query.length; i++)
+    const args = inputWords.slice(phraseWords.length);
+  
+    const { percentage, comparedOutput } = comparePhrase(phraseWords, inputWords);
+  
+    if (percentage > 0)
     {
-      if (phrase[i].startsWith(query[i]))
-      {
-        const percentage = (((100 * query[i].length) / phrase[i].length) / phrase.length);
-
-        overallPercentage += percentage;
-      }
+      // // if percentage is 100% show the card
+      // if (percentage >= 100)
+      // {
+      //   // TODO emit a callback if exists with the args (if the phrase percentage is fully written 100%)
+  
+      //   console.log('ping: ' + phrase);
+      // }
+      // // if percentage is less than 100% hide the card
+      // else
+      // {
+      //   console.log('ping: ' + phrase);
+      // }
+  
+      autoCompleteData.push(
+        {
+          phrase: phrase,
+          autoCompleteWords: comparedOutput,
+          percentage:
+            // if input words count is higher the the phrase words count, damage the percentage
+            percentage / Math.max(((inputWords.length + 1) - phraseWords.length), 1)
+        });
     }
-
-    setTimeout(() =>
+    else
     {
-      // add to auto-complete highlight the input from the phrase
-      // emit a callback if exists with the args (if the phrase is fully written)
-      
-      console.log(phrase + ': ' + overallPercentage);
-    }, 100 - overallPercentage);
+      // if percentage is 0%, hide the item
+      removeAutoCompleteItem(registeredPhrases[phrase].element);
+    }
   }
+
+  return autoCompleteData;
+}
+
+/** @param { { phrase: string, autoCompleteWords: string[], percentage: number }[] } data
+*/
+function handleAutoComplete(data)
+{
+  sort(
+    data,
+    (a, b) =>
+    {
+      if (a.percentage > b.percentage)
+        return 1;
+      else if (a.percentage < b.percentage)
+        return -1;
+      else
+        return 0;
+    })
+    .then(() =>
+    {
+      for (let i = 0; i < data.length; i++)
+      {
+        const element = registeredPhrases[data[i].phrase].element;
+  
+        for (let x = 0; x < data[i].autoCompleteWords.length; x++)
+        {
+          const word = data[i].autoCompleteWords[x];
+          
+          element.children[x].innerText = word;
+        }
+    
+        addAutoCompleteElement(element);
+      }
+    });
+}
+
+function comparePhrase(phraseWords, inputWords)
+{
+  let percentage = 0;
+  const comparedOutput = [];
+
+  for (let i = 0; i < phraseWords.length; i++)
+  {
+    if (phraseWords[i].startsWith(inputWords[i]))
+    {
+      // if it's not the first word add a space
+      comparedOutput.push(((i > 0) ? ' ' : '') + inputWords[i]);
+  
+      // calculate similarity
+      percentage += Math.floor(
+        ((100 * inputWords[i].length) / phraseWords[i].length) / phraseWords.length
+      );
+    }
+    else
+    {
+      // if it's not the first word add a space
+      comparedOutput.push((i > 0) ? ' ' : '');
+    }
+  
+    // add the rest of the word that is not included
+    comparedOutput.push(phraseWords[i].replace(inputWords[i], ''));
+  }
+
+  return { percentage, comparedOutput };
+}
+
+/** @param { any[] } array
+* @param { (a, b) => number } array
+*/
+function sort(array, compare)
+{
+  return new Promise((resolve) =>
+  {
+    array.sort(compare);
+
+    resolve();
+  });
+}
+
+function addAutoCompleteElement(element)
+{
+  autoCompleteElement.insertBefore(element, autoCompleteElement.firstChild);
+}
+
+function removeAutoCompleteItem(element)
+{
+  if (autoCompleteElement.contains(element))
+    autoCompleteElement.removeChild(element);
 }
 
 /** update a string to be the standard the app uses for searching
@@ -96,12 +215,104 @@ export function standard(s)
   return s.toLowerCase().replace(/\s+|\n/g, ' ').trim();
 }
 
+/** @param { string } phrase
+* @param { (...args: string[]) => void } [callback]
+* @returns { Card }
+*/
+export function registerPhrase(phrase, callback)
+{
+  phrase = standard(phrase);
+
+  if (phrase.length <= 0)
+    throw new Error('you can\'t register empty phrases');
+
+  // each phrase can only be registered once
+  if (!registeredPhrases[phrase])
+  {
+    const card = createCard();
+
+    // we want to have 100% control over when cards are shown
+    // and removed from the dom, by setting a read-only property
+    // that is checked by all append and remove apis, we can accomplish that
+    Object.defineProperty(card, 'isPhrased',
+      {
+        value: phrase,
+        writable: false
+      });
+
+    const element = document.createElement('div');
+    const phraseWords = phrase.split(/\s/);
+    
+    element.setAttribute('class', 'autoCompleteItem');
+
+    for (let i = 0; i < phraseWords.length; i++)
+    {
+      const highlighterElement = document.createElement('span');
+      highlighterElement.setAttribute('class', 'autoCompleteItemHighlighter');
+
+      element.appendChild(highlighterElement);
+      element.appendChild(document.createElement('span'));
+    }
+
+    registeredPhrases[phrase] =
+    {
+      card: card,
+      callback: callback,
+      element: element
+    };
+
+    return card;
+  }
+  else
+  {
+    throw new Error('The phrase is already registered');
+  }
+}
+
+/** @param { Card } card
+*/
+export function unregisterPhrase(card)
+{
+  if (card.isPhrased && registeredPhrases[card.isPhrased])
+  {
+    // remove the auto-complete item
+    removeAutoCompleteItem(registeredPhrases[card.isPhrased].element);
+    
+    // delete it from the registered phrases array
+    delete registeredPhrases[card.isPhrased];
+
+    // clone card with a removed isPhrased property
+    const clone = Object.assign(createCard(), card, { isPhrased: undefined });
+
+    return clone;
+  }
+  else
+  {
+    throw new Error('the card is not registered to any phrases');
+  }
+}
+
+/** @param { string } phrase
+*/
+export function isRegisteredPhrase(phrase)
+{
+  return (registeredPhrases[standard(phrase)] !== undefined);
+}
+
+/** @param { string } phrase
+* @param { string[] } args
+*/
+export function emitPhraseCallback(phrase, ...args)
+{
+  registeredPhrases[phrase].callback(...args);
+}
+
 /** set the text in the search bar
 * @param { string } text
 */
 export function setInput(text)
 {
-  inputElem.value = text;
+  inputElement.value = text;
 
   oninput();
 }
@@ -111,5 +322,5 @@ export function setInput(text)
 */
 export function setPlaceholder(text)
 {
-  inputElem.placeholder = text;
+  inputElement.placeholder = text;
 }

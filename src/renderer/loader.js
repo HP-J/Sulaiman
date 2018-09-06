@@ -5,9 +5,9 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { EventEmitter } from 'events';
 
-import { standard } from './searchBar.js';
+import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './searchBar.js';
 import { readyState } from './renderer.js';
-import { Card, createCard } from './api.js';
+import { Card } from './api.js';
 
 /** @typedef { Object } PackageData
 * @property { string } name
@@ -32,11 +32,6 @@ const eventTarget = new EventEmitter();
 * @type { Object.<string, PackageData> } }
 */
 export const loadedExtensions = {};
-
-/**
- * @type { Object.<string, { card: Card, callback: Function, percentage: number} > }
- */
-export const registeredPhrases = {};
 
 /** load and start all extensions
 */
@@ -97,36 +92,7 @@ export const on =
   * @param { (...args: string[]) => void } [callback] if defined will be called every time the card is shown with any arguments following the chosen phrase
   * @returns { Card }
   */
-  phrase: (phrase, callback) =>
-  {
-    phrase = standard(phrase);
-
-    if (phrase.length <= 0)
-      throw new Error('you can\'t register empty phrases');
-
-    // each phrase can only be registered once
-    if (!registeredPhrases[phrase])
-    {
-      const card = createCard();
-
-      // we want to have 100% control over when cards are shown
-      // and removed from the dom, by setting a read-only property
-      // that is checked by all append and remove apis, we can accomplish that
-      Object.defineProperty(card, 'isPhrased',
-        {
-          value: phrase,
-          writable: false
-        });
-      
-      registeredPhrases[phrase] = { card: card, callback: callback };
-
-      return card;
-    }
-    else
-    {
-      throw new Error('The phrase is already registered');
-    }
-  },
+  phrase: (phrase, callback) => registerPhrase(phrase, callback),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -150,23 +116,7 @@ export const off =
   /** removes a phrase and returns a card controlled by you
   * @param { Card } card the card previously given you by registering a phrase
   */
-  phrase: (card) =>
-  {
-    if (card.isPhrased && registeredPhrases[card.isPhrased])
-    {
-      // delete it from the registered phrases array
-      delete registeredPhrases[card.isPhrased];
-
-      // clone card to remove isPhrased property
-      const clone = Object.assign(createCard(), card, { isPhrased: undefined });
-
-      return clone;
-    }
-    else
-    {
-      throw new Error('the card is not registered to any phrases');
-    }
-  },
+  phrase: (card) => unregisterPhrase(card),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -185,7 +135,7 @@ export const is =
   /** returns true if a phrase is already registered
   * @param { string } phrase
   */
-  registeredPhrase: (phrase) => (registeredPhrases[standard(phrase)] !== undefined)
+  registeredPhrase: (phrase) => isRegisteredPhrase(phrase)
 };
 
 export const emit =
@@ -194,10 +144,6 @@ export const emit =
   /** @param { string } text
   */
   input: (text) => eventTarget.emit('input', text),
-  /** @param { string } phrase
-  * @param { string[] } args
-  */
-  phrase: (phrase, ...args) => registeredPhrases[phrase].callback(...args),
   focus: () => eventTarget.emit('focus'),
   blur: () => eventTarget.emit('blur')
 };

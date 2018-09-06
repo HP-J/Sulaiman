@@ -1,5 +1,5 @@
 graphics:
-  ☐ show auto-complete overlay over the cards under the search bar
+  ☐ show auto-complete overlay over the cards under the search bar @today 
     that shows up when you start typing and gets hidden after you stop
     if you want to choose you can use the arrow keys to select or esc to hide it
   ☐ show popular extensions from the npm registry
@@ -9,9 +9,9 @@ manager:
   
   technical:
   ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
-  ☐ build & test MSI @today 
+  ☐ build & test MSI 
 
-  ☐ a theme extension has to define it self as a theme extension
+  ☐ a theme extension has to define it self as a theme extension @today 
    to get permissions to use style apis, only one theme extension can have access
    if another extension tries to define it self, show a warning conflict card
 
@@ -20,8 +20,8 @@ manager:
   ☐ build & test DMG @need-help
 
 CI/CD:
-  ☐ build and upload AppImage and MSI @today 
-  ☐ upload a version.json containing date, commit, build number @today 
+  ☐ build and upload AppImage and MSI 
+  ☐ upload a version.json containing date, commit, build number 
   ☐ publish a new version to npm
 
 extensions:
