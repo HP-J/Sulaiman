@@ -150,26 +150,31 @@ function comparePhrase(phraseWords, inputWords)
   let percentage = 0;
   const comparedOutput = [];
 
-  for (let i = 0; i < phraseWords.length; i++)
+  for (let pi = 0, i = 0; pi < phraseWords.length; pi++, i++)
   {
-    if (phraseWords[i].startsWith(inputWords[i]))
+    if (phraseWords[pi].startsWith(inputWords[i]))
     {
-      // if it's not the first word add a space
-      comparedOutput.push(((i > 0) ? ' ' : '') + inputWords[i]);
-  
       // calculate similarity
       percentage += Math.floor(
-        ((100 * inputWords[i].length) / phraseWords[i].length) / phraseWords.length
+        ((100 * inputWords[i].length) / phraseWords[pi].length) / phraseWords.length
       );
+      // if it's not the first word add a space
+      comparedOutput.push(((pi > 0) ? ' ' : '') + inputWords[i]);
+
+      // add the rest of the word that is not included
+      comparedOutput.push(phraseWords[pi].replace(inputWords[i], ''));
     }
     else
     {
       // if it's not the first word add a space
-      comparedOutput.push((i > 0) ? ' ' : '');
-    }
+      comparedOutput.push((pi > 0) ? ' ' : '');
   
-    // add the rest of the word that is not included
-    comparedOutput.push(phraseWords[i].replace(inputWords[i], ''));
+      // add the phrase
+      comparedOutput.push(phraseWords[pi]);
+
+      // go through the other phrase words with current input word
+      i -= 1;
+    }
   }
 
   return { percentage, comparedOutput };
