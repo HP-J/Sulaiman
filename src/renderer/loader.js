@@ -19,14 +19,20 @@ import { Card } from './api.js';
 /** @typedef { Object } Sulaiman
 * @property { string } displayName
 * @property { string[] } platform
+* @property { boolean } theme
 * @property { string[] } permissions
 * @property { string[] } modules
 * @property { Object.<string, string> } credits
 */
 
-const electron = require('electron');
-
 const eventTarget = new EventEmitter();
+
+const extensionsDirectory = join(__dirname, '../extensions/');
+
+/** the name of the extension that defined it self as a theme
+* @type { string }
+*/
+let themeExtension = undefined;
 
 /** an array of all the extensions that loaded
 * @type { Object.<string, PackageData> } }
@@ -37,19 +43,17 @@ export const loadedExtensions = {};
 */
 export function loadExtensions()
 {
-  const root = join(__dirname, '../extensions/');
-
   let extensionPath = undefined, packagePath = undefined;
 
-  const extensions = readdirSync(root);
+  const extensions = readdirSync(extensionsDirectory);
 
   for (let i = 0; i < extensions.length; i++)
   {
     // the required extension index script
-    extensionPath = root + extensions[i] + '/index.js';
+    extensionPath = extensionsDirectory + extensions[i] + '/index.js';
 
     // the required package json
-    packagePath = root + extensions[i] + '/package.json';
+    packagePath = extensionsDirectory + extensions[i] + '/package.json';
 
     // if the package.json file doesn't exists
     if (!existsSync(packagePath))
@@ -178,10 +182,20 @@ export function getCaller(length)
 */
 function createVM(data)
 {
-  const { sandbox, mock } = handelPermissions(data.sulaiman.permissions);
+  if (data.sulaiman.theme)
+  {
+    if (!themeExtension)
+      themeExtension = data.name;
+    else
+      throw new Error(
+        'conflicting themes, more that one extension wants theme permissions, ' +
+        themeExtension + ' & ' + data.name);
+  }
+
+  const { sandbox, mock } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
 
   // separate node builtin modules from the external modules
-  const { builtin, external } = handelSeparation(data.sulaiman.modules);
+  const { builtin, external } = handelModules(data.sulaiman.modules);
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -205,42 +219,62 @@ function createVM(data)
 }
 
 /** handle permissions to use global variables and mockups
-* @param { [] } requiredPermissions
+* @param { string } extensionName
+* @param { string[] } requiredPermissions
+* @param { boolean } theme
 * @returns { { sandbox: {} } }
 */
-function handelPermissions(requiredPermissions)
+function handelMockups(requiredPermissions, theme)
 {
+  requiredPermissions = requiredPermissions || [];
+
   // allow access to global objects
   const sandbox =
   {
-
+    document: document,
+    process: process
   };
 
   // override specific apis from any module or the entire module
   const mock =
   {
-    sulaiman: require('./api.js')
+    sulaiman: { ...require('./api.js') }
   };
 
-  if (requiredPermissions)
+  const permissions =
   {
-    for (let i = 0; i < requiredPermissions.length; i++)
+    // global
+    document: true,
+    process: true,
+
+    // sulaiman
+    window: true,
+    clipboard: true,
+    shell: true,
+    dialog: true,
+
+    // sulaiman theme
+    appendStyle: !theme,
+    removeStyle: !theme,
+    appendStyleDir: !theme,
+    addIconStyle: !theme
+  };
+
+  for (let i = 0; i < requiredPermissions.length; i++)
+  {
+    if (permissions[requiredPermissions[i]])
+      permissions[requiredPermissions[i]] = false;
+  }
+
+  for (const key in permissions)
+  {
+    if (permissions[key])
     {
-      // global
-      if (requiredPermissions[i] === 'document')
-        sandbox.document = document;
-      if (requiredPermissions[i] === 'process')
-        sandbox.process = process;
+      if (sandbox[key])
+        sandbox[key] = undefined;
       
-      // sulaiman
-      else if (requiredPermissions[i] === 'window')
-        mock.sulaiman.window = electron.remote.getCurrentWindow();
-      else if (requiredPermissions[i] === 'clipboard')
-        mock.sulaiman.clipboard = electron.clipboard;
-      else if (requiredPermissions[i] === 'shell')
-        mock.sulaiman.shell = electron.shell;
-      else if (requiredPermissions[i] === 'dialog')
-        mock.sulaiman.dialog = electron.dialog;
+      else if (mock.sulaiman[key])
+        mock.sulaiman[key] = undefined;
     }
   }
 
@@ -248,12 +282,17 @@ function handelPermissions(requiredPermissions)
 }
 
 /** separate node builtin modules from the external modules
+* and adds modules that are allowed to have by default
 * @param { [] } requiredModules the modules array from the extension package data
 * @returns { { builtin: [], external: [] } }
 */
-function handelSeparation(requiredModules)
+function handelModules(requiredModules)
 {
-  const builtin = [], external = [];
+  const builtin = []
+  const external = [];
+
+  // allowed by default
+  builtin.push('path');
 
   if (requiredModules)
   {

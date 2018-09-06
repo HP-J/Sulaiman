@@ -6,6 +6,7 @@ graphics:
     ☐ auto-hide @today 
     ☐ navigation @today 
 
+  ☐ conflicting themes card
   ☐ show popular extensions from the npm registry
 
 manager:
@@ -14,10 +15,6 @@ manager:
   technical:
   ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
   ☐ build & test MSI 
-
-  ☐ a theme extension has to define it self as a theme extension 
-   to get permissions to use style apis, only one theme extension can have access
-   if another extension tries to define it self, show a warning conflict card
 
   ☐ an icon on the left the search bar that can only be changed by the phrase search system
 

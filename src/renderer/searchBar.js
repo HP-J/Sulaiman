@@ -46,7 +46,9 @@ function focus()
 function blur()
 {
   // empty the search bar
-  setInput('');
+  inputElement.value = '';
+
+  oninput();
 }
 
 /** gets called when the user changes the input value
@@ -96,7 +98,7 @@ function handlePhrases(input)
       autoCompleteData.push(
         {
           phrase: phrase,
-          autoCompleteWords: comparedOutput,
+          comparedOutput: comparedOutput,
           percentage:
             // if input words count is higher the the phrase words count, damage the percentage
             percentage / Math.max(((inputWords.length + 1) - phraseWords.length), 1)
@@ -112,7 +114,7 @@ function handlePhrases(input)
   return autoCompleteData;
 }
 
-/** @param { { phrase: string, autoCompleteWords: string[], percentage: number }[] } data
+/** @param { { phrase: string, comparedOutput: string[], percentage: number }[] } data
 */
 function handleAutoComplete(data)
 {
@@ -133,9 +135,9 @@ function handleAutoComplete(data)
       {
         const element = registeredPhrases[data[i].phrase].element;
   
-        for (let x = 0; x < data[i].autoCompleteWords.length; x++)
+        for (let x = 0; x < data[i].comparedOutput.length; x++)
         {
-          const word = data[i].autoCompleteWords[x];
+          const word = data[i].comparedOutput[x];
           
           element.children[x].innerText = word;
         }
@@ -150,19 +152,19 @@ function comparePhrase(phraseWords, inputWords)
   let percentage = 0;
   const comparedOutput = [];
 
-  for (let pi = 0, i = 0; pi < phraseWords.length; pi++, i++)
+  for (let pi = 0, xi = 0; pi < phraseWords.length; pi++, xi++)
   {
-    if (phraseWords[pi].startsWith(inputWords[i]))
+    if (phraseWords[pi].startsWith(inputWords[xi]))
     {
       // calculate similarity
       percentage += Math.floor(
-        ((100 * inputWords[i].length) / phraseWords[pi].length) / phraseWords.length
+        ((100 * inputWords[xi].length) / phraseWords[pi].length) / phraseWords.length
       );
       // if it's not the first word add a space
-      comparedOutput.push(((pi > 0) ? ' ' : '') + inputWords[i]);
+      comparedOutput.push(((pi > 0) ? ' ' : '') + inputWords[xi]);
 
       // add the rest of the word that is not included
-      comparedOutput.push(phraseWords[pi].replace(inputWords[i], ''));
+      comparedOutput.push(phraseWords[pi].replace(inputWords[xi], ''));
     }
     else
     {
@@ -173,7 +175,7 @@ function comparePhrase(phraseWords, inputWords)
       comparedOutput.push(phraseWords[pi]);
 
       // go through the other phrase words with current input word
-      i -= 1;
+      xi -= 1;
     }
   }
 
@@ -310,16 +312,6 @@ export function isRegisteredPhrase(phrase)
 export function emitPhraseCallback(phrase, ...args)
 {
   registeredPhrases[phrase].callback(...args);
-}
-
-/** set the text in the search bar
-* @param { string } text
-*/
-export function setInput(text)
-{
-  inputElement.value = text;
-
-  oninput();
 }
 
 /** set the text in the search bar (if the search bar is empty)

@@ -149,16 +149,9 @@ export default class Card
 
   /** fast-forward mode is supposed to skip through transitions and animations
   */
-  enableFastForward()
+  toggleFastForward()
   {
-    this.addClass('cardFastForward');
-  }
-
-  /** fast-forward mode is supposed to skip through transitions and animations
-  */
-  disableFastForward()
-  {
-    this.removeClass('cardFastForward');
+    this.domElement.classList.toggle('cardFastForward');
   }
 
   /** @param { number } percentage any number between 0 and 100

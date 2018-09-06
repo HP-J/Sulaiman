@@ -1,5 +1,6 @@
 import { join } from 'path';
 import { readdirSync } from 'fs';
+import { remote } from 'electron';
 
 import Card from './card.js';
 
@@ -9,27 +10,23 @@ export { on, off } from './loader.js';
 
 export { Card };
 
-/** [needs a permission]
+/** [needs the 'window' permission]
 * the main window of the app
-* @type { Electron.BrowserWindow }
 */
-export const window = undefined;
+export const window = remote.getCurrentWindow();
 
-/** [needs a permission]
+/** [needs the 'clipboard' permission]
 * access to read & write to clipboard
-* @type { Electron.Clipboard }
 */
-export const clipboard = undefined;
+export const clipboard = remote.clipboard;
 
-/** [needs a permission]
-* @type { Electron.Shell }
+/** [needs the 'shell' permission]
 */
-export const shell = undefined;
+export const shell = remote.shell;
 
-/** [needs a permission]
-* @type { Electron.Dialog }
+/** [needs the 'dialog' permission]
 */
-export const dialog = undefined;
+export const dialog = remote.dialog;
 
 /** when a new icon is loaded it gets cached in this
 * object so it can be cloned if requested again
@@ -68,7 +65,7 @@ export function storeIcon(path, iconName)
 }
 
 /** pull a copy of an icon from store
-* @param { string } iconName the icon name
+* @param { "arrow" | "browser" | "clipboard" | "files" | "image" | "internet" | "more" | "open" | "quit" | "text" | "unknown" | "video" } iconName the icon name
 * @returns { HTMLElement } the icon wrapped in a html element
 */
 export function getIcon(iconName)

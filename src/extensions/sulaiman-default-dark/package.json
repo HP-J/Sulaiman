@@ -9,7 +9,8 @@
     "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"
   },
   "sulaiman": {
-    "displayName": "Default Dark"
+    "displayName": "Default Dark",
+    "theme": true
   },
   "author": "Herp Project",
   "license": "MIT"
