@@ -1,7 +1,7 @@
 import { tmpdir } from 'os';
 
 import * as api from './api.js';
-import Card from './card.js';
+import Card, { createCard } from './card.js';
 
 import { PackageData, loadedExtensions } from './loader.js';
 import { reload } from './renderer.js';
@@ -37,7 +37,7 @@ export function checkForExtensionsUpdates()
       {
         if (local.version !== remote.version)
         {
-          const card = new Card();
+          const card = createCard();
 
           if (extensionUpdateCard(card, local, remote, remote.name))
           {
@@ -53,34 +53,19 @@ export function checkForExtensionsUpdates()
 
 export function showInstalledExtensions()
 {
-  api.onSearchBarInput((value) =>
+  for (const extension in loadedExtensions)
   {
-    if (value === 'ext')
-    {
-      for (const extension in loadedExtensions)
-      {
-        const card = new Card();
+    const card = createCard();
 
-        extensionDeleteCard(card, loadedExtensions[extension]);
+    extensionDeleteCard(card, loadedExtensions[extension]);
 
-        card.enableFastForward();
-        card.collapse();
-      
-        api.appendCard(card);
+    card.toggleFastForward();
+    card.collapse();
+  
+    api.appendCard(card);
 
-        cards.push(card);
-      }
-    }
-    else
-    {
-      for (let i = 0; i < cards.length; i++)
-      {
-        api.removeCard(cards[i]);
-      }
-
-      cards.length = 0;
-    }
-  });
+    cards.push(card);
+  }
 }
 
 /** @param { Card } card
@@ -92,7 +77,7 @@ export function extensionDeleteCard(card, extension)
 
   text.innerText = 'Delete';
 
-  button.events.onclick = () =>
+  button.domElement.onclick = () =>
   {
     button.disable();
 
@@ -217,8 +202,6 @@ function getPackageData(name)
 */
 function extensionCard(card, data, oldData)
 {
-  card.reset();
-
   card.auto({
     title: data.sulaiman.displayName,
     description: data.description,
@@ -269,7 +252,7 @@ function extensionCard(card, data, oldData)
 
   // button section
 
-  const button = new Card();
+  const button = createCard();
   
   card.appendChild(button);
   
@@ -436,7 +419,7 @@ function failedToInstall(card, name, err)
   {
     card.auto({ title: name, description: 'Failed to Install' + ((err) ? '\n' + err : '') });
 
-    const button = new Card();
+    const button = createCard();
   
     card.appendLineSeparator();
 

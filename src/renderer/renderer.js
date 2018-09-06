@@ -4,8 +4,9 @@ import { appendSearchBar } from './searchBar.js';
 
 import { loadExtensions, emit, on } from './loader.js';
 
-import { loadNPM } from './manager.js';
+import { loadNPM, showInstalledExtensions } from './manager.js';
 import { Card, appendCard, removeCard } from './api.js';
+import { createCard } from './card.js';
 
 export const splash = document.body.children[0];
 
@@ -141,16 +142,16 @@ function captureKey(card, callback)
 
   card.appendLineSeparator();
 
-  const setButtonCard = new Card();
+  const setButtonCard = createCard();
   const setButton = setButtonCard.appendText('Set', { align: 'Center' });
   card.appendChild(setButtonCard);
 
-  const cancelButtonCard = new Card();
+  const cancelButtonCard = createCard();
   cancelButtonCard.appendText('Cancel', { align: 'Center' });
   card.appendChild(cancelButtonCard);
 
   keysElem.style.display = 'none';
-  cancelButtonCard.style.display = 'none';
+  cancelButtonCard.domElement.style.display = 'none';
 
   /** @param {KeyboardEvent} event
   */
@@ -197,11 +198,11 @@ function captureKey(card, callback)
   const cancelKeyCapture = () =>
   {
     keysElem.style.display = 'none';
-    cancelButtonCard.style.display = 'none';
+    cancelButtonCard.domElement.style.display = 'none';
 
     setButton.innerText = 'Set';
 
-    setButtonCard.events.onclick = startKeyCapture;
+    setButtonCard.domElement.onclick = startKeyCapture;
     setButtonCard.enable();
 
     window.removeEventListener('keydown', keyCapture);
@@ -210,12 +211,12 @@ function captureKey(card, callback)
   const startKeyCapture = () =>
   {
     keysElem.style.cssText = '';
-    cancelButtonCard.style.cssText = '';
+    cancelButtonCard.domElement.style.cssText = '';
       
     keysElem.innerText = 'Press The Keys';
     setButton.innerText = 'Apply';
 
-    setButtonCard.events.onclick = () =>
+    setButtonCard.domElement.onclick = () =>
     {
       callback(keys.join('+'));
 
@@ -227,8 +228,8 @@ function captureKey(card, callback)
     window.addEventListener('keydown', keyCapture);
   };
 
-  setButtonCard.events.onclick = startKeyCapture;
-  cancelButtonCard.events.onclick = cancelKeyCapture;
+  setButtonCard.domElement.onclick = startKeyCapture;
+  cancelButtonCard.domElement.onclick = cancelKeyCapture;
 }
 
 /** shows/hides the main window
@@ -291,9 +292,13 @@ function registerShowHideKey()
 
   const savedAccelerator = localStorage.getItem('showHideKey');
 
-  if (!savedAccelerator)
+  if (process.env.DEBUG)
   {
-    const card = new Card(
+    showHide(true);
+  }
+  else if (!savedAccelerator)
+  {
+    const card = createCard(
       {
         title: 'Hello There,',
         description: 'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.'
@@ -312,7 +317,7 @@ function registerShowHideKey()
   }
   else if (!checkGlobalShortcut(savedAccelerator))
   {
-    const card = new Card(
+    const card = createCard(
       {
         title: 'Sorry, It looks like',
         description: 'A different application is using the shortcut you selected for summoning Sulaiman; we recommend to setting a new one.'
@@ -327,10 +332,6 @@ function registerShowHideKey()
 
     appendCard(card);
 
-    showHide(true);
-  }
-  else if (process.env.DEBUG)
-  {
     showHide(true);
   }
   else
@@ -368,9 +369,6 @@ registerEvents();
 // replace the default application menu
 updateMenu(menuTemplate);
 
-// make sure the user has a show hide shortcut key
-registerShowHideKey();
-
 // load all extensions
 loadExtensions();
 
@@ -385,13 +383,19 @@ readyState = true;
 
 emit.ready();
 
+// make sure the user has a show hide shortcut key
+registerShowHideKey();
+
 // extensions / extensions install / extension delete
 // search app list
 // change the show/hide key
 
-on.phrase('extension');
-on.phrase('extension install');
-on.phrase('extension delete');
+
+// on.phrase('extension');
+// on.phrase('extension install');
+// on.phrase('extension delete');
+
+
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>

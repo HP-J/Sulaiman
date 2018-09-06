@@ -30,6 +30,8 @@
 
 .card > .card
 {
+  flex-grow: 1;
+  width: auto;
   padding: 3px 5px;
 }
 

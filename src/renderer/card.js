@@ -187,10 +187,12 @@ export default class Card
 
   collapse()
   {
-    function collapse()
+    /** @param { Card } card
+    */
+    function collapse(card)
     {
       // get the first line break element in the card
-      let element = this.domElement.querySelector('.cardLineBreak');
+      let element = card.domElement.querySelector('.cardLineBreak');
 
       // if there is no line breaks in the card
       // we can't collapse it
@@ -199,23 +201,23 @@ export default class Card
 
       // get the rect of the card and the line break
       const lineBreakRect = element.getBoundingClientRect();
-      const cardRect = this.domElement.getBoundingClientRect();
+      const cardRect = card.domElement.getBoundingClientRect();
 
       // get where the collapse should stop at
-      this.domElement.style.setProperty(
+      card.domElement.style.setProperty(
         '--cardX',
         lineBreakRect.left - cardRect.left + 'px');
 
-      this.domElement.style.setProperty(
+      card.domElement.style.setProperty(
         '--cardY',
         lineBreakRect.top - cardRect.top + 'px');
 
       // if the card has the expanded class, remove it
-      if (this.domElement.classList.contains('cardExpanded'))
-        this.domElement.classList.remove('cardExpanded');
+      if (card.domElement.classList.contains('cardExpanded'))
+        card.domElement.classList.remove('cardExpanded');
 
       // add the collapsed class to the card
-      this.domElement.classList.add('cardCollapsed');
+      card.domElement.classList.add('cardCollapsed');
 
       // loop to all the children after the line break
       element = element.nextElementSibling;
@@ -236,17 +238,19 @@ export default class Card
     }
 
     if (this.isFastForward)
-      collapse();
+      collapse(this);
     else
-      isDOMReady(collapse);
+      isDOMReady(() => collapse(this));
   }
 
   expand()
   {
-    function expand()
+    /** @param { Card } card
+    */
+    function expand(card)
     {
       // get the first line break element in the card
-      let element = this.domElement.querySelector('.cardLineBreak');
+      let element = card.domElement.querySelector('.cardLineBreak');
 
       // if there is no line breaks in the card
       // we can't expand it
@@ -254,23 +258,23 @@ export default class Card
         return;
 
       // get the rect of the card
-      const cardRect = this.domElement.getBoundingClientRect();
+      const cardRect = card.domElement.getBoundingClientRect();
 
       // get where the expand should start from
-      this.domElement.style.setProperty(
+      card.domElement.style.setProperty(
         '--cardX',
         cardRect.width + 'px');
 
-      this.domElement.style.setProperty(
+      card.domElement.style.setProperty(
         '--cardY',
         cardRect.height + 'px');
 
       // if the card has the collapsed class, remove it
-      if (this.domElement.classList.contains('cardCollapsed'))
-        this.domElement.classList.remove('cardCollapsed');
+      if (card.domElement.classList.contains('cardCollapsed'))
+        card.domElement.classList.remove('cardCollapsed');
   
       // add the expanded class to the card
-      this.domElement.classList.add('cardExpanded');
+      card.domElement.classList.add('cardExpanded');
 
       // loop to all the children after the line break
       element = element.nextElementSibling;
@@ -290,9 +294,9 @@ export default class Card
     }
 
     if (this.isFastForward)
-      expand();
+      expand(this);
     else
-      isDOMReady(expand);
+      isDOMReady(() => expand(this));
   }
 
   /** adds a new line break to the card
