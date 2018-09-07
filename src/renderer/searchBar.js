@@ -8,29 +8,37 @@ export let inputElement;
 
 /** @type { HTMLInputElement }
 */
-export let autoCompleteElement;
+export let suggestionsElement;
 
 /**
 * @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
 */
 const registeredPhrases = {};
 
+// /** @type { NodeJS.Timer }
+// */
+// let suggestionsTimer = undefined;
+
+let suggestionsIndex = 0;
+
 /** create and append the search bar and card-space
 */
 export function appendSearchBar()
 {
   inputElement = document.createElement('input');
-  inputElement.setAttribute('id', 'searchBar');
+  inputElement.setAttribute('class', 'searchBar');
   document.body.appendChild(inputElement);
 
-  autoCompleteElement = document.createElement('div');
-  autoCompleteElement.setAttribute('id', 'autoComplete');
-  document.body.appendChild(autoCompleteElement);
+  suggestionsElement = document.createElement('div');
+  suggestionsElement.setAttribute('class', 'suggestions');
+  document.body.appendChild(suggestionsElement);
+
+  inputElement.oninput = oninput;
+  inputElement.onkeydown = onkeydown;
 
   on.focus(focus);
   on.blur(blur);
-
-  inputElement.oninput = oninput;
+  on.ready(oninput);
 }
 
 /** gets called every time sulaiman regain focus
@@ -46,9 +54,12 @@ function focus()
 function blur()
 {
   // empty the search bar
-  inputElement.value = '';
+  if (!process.env.DEBUG)
+  {
+    inputElement.value = '';
 
-  oninput();
+    oninput();
+  }
 }
 
 /** gets called when the user changes the input value
@@ -57,74 +68,142 @@ function oninput()
 {
   const input = standard(inputElement.value);
 
-  emit.input(input);
+  console.log('----------');
+  console.log(input);
 
-  const autoCompleteData = handlePhrases(input);
+  suggestionsIndex = 0;
 
-  handleAutoComplete(autoCompleteData);
+  const suggestionsData = handlePhrases(input);
+
+  handleSuggestions(suggestionsData);
+
+  // refreshSuggestionsTimer();
+}
+
+/** @param { KeyboardEvent } event
+*/
+function onkeydown(event)
+{
+  // if (suggestionsElement.children.length <= 0)
+  //   return;
+
+  // if (event.key === 'ArrowUp')
+  // {
+  //   suggestionsIndex = Math.min(Math.max(suggestionsIndex - 1, 0), suggestionsElement.children.length - 1);
+  // }
+  // else if (event.key === 'ArrowDown')
+  // {
+  //   suggestionsIndex = Math.min(Math.max(suggestionsIndex + 1, 0), suggestionsElement.children.length - 1);
+  // }
+
+  // const rect = suggestionsElement.children[suggestionsIndex].getBoundingClientRect();
+
+  // suggestionsElement.children[suggestionsIndex].scrollIntoView(
+  //   {
+  //     behavior: 'smooth',
+  //     block: 'center',
+  //     inline: 'nearest'
+  //   });
+
+  // console.log(suggestionsIndex);
+}
+
+function refreshSuggestionsTimer()
+{
+  // clearTimeout(suggestionsTimer);
+
+  // showsuggestions();
+
+  // suggestionsTimer = setTimeout(hidesuggestions, 650);
+}
+
+function showSuggestions()
+{
+  // if (!suggestionsElement.classList.contains('suggestionsActive'))
+  //   suggestionsElement.classList.add('suggestionsActive');
+}
+
+function hideSuggestions()
+{
+  // suggestionsElement.classList.remove('suggestionsActive');
 }
 
 function handlePhrases(input)
 {
   const inputWords = input.split(/\s/);
 
-  const autoCompleteData = [];
+  const suggestionsData = [];
 
   for (const phrase in registeredPhrases)
   {
     // split to array of words
     const phraseWords = phrase.split(/\s/);
-  
+
     // array of the arguments passed the the phrase
     const args = inputWords.slice(phraseWords.length);
-  
-    const { percentage, comparedOutput } = comparePhrase(phraseWords, inputWords);
-  
-    if (percentage > 0)
+
+    const { similarity, words } = comparePhrase(phraseWords, inputWords);
+
+    // // if input equals phrase show the card
+    // if (input === phrase)
+    // {
+    //   // TODO emit a callback if exists with the args (if the phrase similarity is fully written 100%)
+
+    //   console.log('ping: ' + phrase);
+    // }
+    // // else hide it
+    // else
+    // {
+    //   console.log('ping: ' + phrase);
+    // }
+
+    // // if the search bar is empty
+    // if (input.length <= 0)
+    // {
+    //   // sort by most recently used
+    //   // sort by most frequently used
+
+    //   removeSuggestionsElement(registeredPhrases[phrase].element);
+    // }
+
+    // if there is no chance the input is similar to the phrase
+    if (similarity <= 0)
     {
-      // // if percentage is 100% show the card
-      // if (percentage >= 100)
-      // {
-      //   // TODO emit a callback if exists with the args (if the phrase percentage is fully written 100%)
-  
-      //   console.log('ping: ' + phrase);
-      // }
-      // // if percentage is less than 100% hide the card
-      // else
-      // {
-      //   console.log('ping: ' + phrase);
-      // }
-  
-      autoCompleteData.push(
-        {
-          phrase: phrase,
-          comparedOutput: comparedOutput,
-          percentage:
-            // if input words count is higher the the phrase words count, damage the percentage
-            percentage / Math.max(((inputWords.length + 1) - phraseWords.length), 1)
-        });
+      removeSuggestionsElement(registeredPhrases[phrase].element);
     }
+    // if there IS a chance that the input is similar to the phrase
     else
     {
-      // if percentage is 0%, hide the item
-      removeAutoCompleteItem(registeredPhrases[phrase].element);
+      // const damagedsimilarity =  similarity / Math.max(((inputWords.length + 1) - phraseWords.length), 1);
+
+      console.log(similarity + '% ' + phrase);
+
+      suggestionsData.push(
+        {
+          phrase: phrase,
+          words: words,
+          similarity: similarity
+        });
     }
   }
 
-  return autoCompleteData;
+  return suggestionsData;
 }
 
-/** @param { { phrase: string, comparedOutput: string[], percentage: number }[] } data
+/** sorts data based on similarity then takes the sorted data
+* and use it to sort the suggestions element's items
+* @param { { phrase: string, words: { highlighted: string, normal: string }[], similarity: number }[] } data
 */
-function handleAutoComplete(data)
+function handleSuggestions(data)
 {
+  // sorts
   sort(
     data,
     (a, b) =>
     {
-      if (a.percentage > b.percentage)
+      if (a.similarity > b.similarity)
         return 1;
-      else if (a.percentage < b.percentage)
+      else if (a.similarity < b.similarity)
         return -1;
       else
         return 0;
@@ -134,52 +213,73 @@ function handleAutoComplete(data)
       for (let i = 0; i < data.length; i++)
       {
         const element = registeredPhrases[data[i].phrase].element;
-  
-        for (let x = 0; x < data[i].comparedOutput.length; x++)
+
+        while (element.firstChild)
+          element.removeChild(element.firstChild);
+
+        for (let x = 0; x < data[i].words.length; x++)
         {
-          const word = data[i].comparedOutput[x];
+          const word = data[i].words[x];
           
-          element.children[x].innerText = word;
+          const highlighter = document.createElement('span');
+          const normal = document.createElement('span');
+          
+          highlighter.innerText = word.highlighted;
+          normal.innerText = word.normal + ' ';
+          
+          highlighter.setAttribute('class', 'suggestionsItemHighlighter');
+
+          element.appendChild(highlighter);
+          element.appendChild(normal);
         }
-    
-        addAutoCompleteElement(element);
+
+        addSuggestionsElement(element);
       }
     });
 }
 
+/** @param { string[] } phraseWords
+* @param { string[] } inputWords
+* @returns { { similarity: number, words: { highlighted: string, normal: string }[] } }
+*/
 function comparePhrase(phraseWords, inputWords)
 {
-  let percentage = 0;
-  const comparedOutput = [];
+  let similarity = 0;
+  const words = [];
 
   for (let pi = 0, xi = 0; pi < phraseWords.length; pi++, xi++)
   {
     if (phraseWords[pi].startsWith(inputWords[xi]))
     {
       // calculate similarity
-      percentage += Math.floor(
+      similarity +=
+      
+      Math.floor(
         ((100 * inputWords[xi].length) / phraseWords[pi].length) / phraseWords.length
       );
-      // if it's not the first word add a space
-      comparedOutput.push(((pi > 0) ? ' ' : '') + inputWords[xi]);
 
-      // add the rest of the word that is not included
-      comparedOutput.push(phraseWords[pi].replace(inputWords[xi], ''));
+      // add the highlighted part, add the rest of the word that is not highlighted
+      words.push(
+        {
+          highlighted: inputWords[xi],
+          normal: phraseWords[pi].replace(inputWords[xi], '')
+        });
     }
     else
     {
-      // if it's not the first word add a space
-      comparedOutput.push((pi > 0) ? ' ' : '');
-  
-      // add the phrase
-      comparedOutput.push(phraseWords[pi]);
+      // nothing is highlighted just add the phrase
+      words.push(
+        {
+          highlighted: '',
+          normal: phraseWords[pi]
+        });
 
       // go through the other phrase words with current input word
       xi -= 1;
     }
   }
 
-  return { percentage, comparedOutput };
+  return { similarity: similarity, words: words };
 }
 
 /** @param { any[] } array
@@ -195,15 +295,15 @@ function sort(array, compare)
   });
 }
 
-function addAutoCompleteElement(element)
+function addSuggestionsElement(element)
 {
-  autoCompleteElement.insertBefore(element, autoCompleteElement.firstChild);
+  suggestionsElement.insertBefore(element, suggestionsElement.firstChild);
 }
 
-function removeAutoCompleteItem(element)
+function removeSuggestionsElement(element)
 {
-  if (autoCompleteElement.contains(element))
-    autoCompleteElement.removeChild(element);
+  if (suggestionsElement.contains(element))
+    suggestionsElement.removeChild(element);
 }
 
 /** update a string to be the standard the app uses for searching
@@ -238,7 +338,7 @@ export function registerPhrase(phrase, callback)
   {
     const card = createCard();
 
-    // we want to have 100% control over when cards are shown
+    // we want to have control over when cards are shown
     // and removed from the dom, by setting a read-only property
     // that is checked by all append and remove apis, we can accomplish that
     Object.defineProperty(card, 'isPhrased',
@@ -248,18 +348,8 @@ export function registerPhrase(phrase, callback)
       });
 
     const element = document.createElement('div');
-    const phraseWords = phrase.split(/\s/);
-    
-    element.setAttribute('class', 'autoCompleteItem');
 
-    for (let i = 0; i < phraseWords.length; i++)
-    {
-      const highlighterElement = document.createElement('span');
-      highlighterElement.setAttribute('class', 'autoCompleteItemHighlighter');
-
-      element.appendChild(highlighterElement);
-      element.appendChild(document.createElement('span'));
-    }
+    element.setAttribute('class', 'suggestionsItem');
 
     registeredPhrases[phrase] =
     {
@@ -283,8 +373,8 @@ export function unregisterPhrase(card)
   if (card.isPhrased && registeredPhrases[card.isPhrased])
   {
     // remove the auto-complete item
-    removeAutoCompleteItem(registeredPhrases[card.isPhrased].element);
-    
+    removeSuggestionsElement(registeredPhrases[card.isPhrased].element);
+
     // delete it from the registered phrases array
     delete registeredPhrases[card.isPhrased];
 

@@ -9,11 +9,11 @@
 
 body
 {
-  overflow-x: hidden;
-  overflow-y: scroll;
   background-color: var(--color-dark);
   width: 100vw;
   height: 100vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 ::-webkit-scrollbar

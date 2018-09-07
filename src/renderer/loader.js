@@ -83,13 +83,9 @@ export function loadExtensions()
 export const on =
 {
   /** emits when the app is fully loaded and ready to use
-  * @param { (text: string) => void } callback the callback function
+  * @param { () => void } callback the callback function
   */
   ready: (callback) => eventTarget.addListener('ready', callback),
-  /** emits every time the user writes something into the search bar
-  * @param { (text: string) => void } callback the callback function
-  */
-  input: (callback) => eventTarget.addListener('input', callback),
   /** returns a card that is shown and hidden automatically
   * when the user search for a certain phrase
   * @param { string } phrase
@@ -113,10 +109,6 @@ export const off =
   * @param { (text: string) => void } callback the callback function
   */
   ready: (callback) => eventTarget.removeListener('ready', callback),
-  /** emits every time the user writes something into the search bar
-  * @param { (text: string) => void } callback the callback function
-  */
-  input: (callback) => eventTarget.removeListener('input', callback),
   /** removes a phrase and returns a card controlled by you
   * @param { Card } card the card previously given you by registering a phrase
   */
@@ -145,9 +137,6 @@ export const is =
 export const emit =
 {
   ready: () => eventTarget.emit('ready'),
-  /** @param { string } text
-  */
-  input: (text) => eventTarget.emit('input', text),
   focus: () => eventTarget.emit('focus'),
   blur: () => eventTarget.emit('blur')
 };
@@ -288,7 +277,7 @@ function handelMockups(requiredPermissions, theme)
 */
 function handelModules(requiredModules)
 {
-  const builtin = []
+  const builtin = [];
   const external = [];
 
   // allowed by default

@@ -272,7 +272,7 @@ function registerEvents()
 
   window.addEventListener('keydown', (event) =>
   {
-    if (event.code === 'Tab')
+    if (event.key === 'Tab')
       event.preventDefault();
   });
 }
@@ -381,6 +381,13 @@ onfocus();
 // mark the app as ready
 readyState = true;
 
+// on.phrase('extension');
+// on.phrase('extension install');
+// on.phrase('extension delete');
+on.phrase('extension 2');
+on.phrase('extension 2 install');
+// on.phrase('extension 2 delete');
+
 emit.ready();
 
 // make sure the user has a show hide shortcut key
@@ -389,13 +396,6 @@ registerShowHideKey();
 // extensions / extensions install / extension delete
 // search app list
 // change the show/hide key
-
-
-// on.phrase('extension');
-// on.phrase('extension install');
-// on.phrase('extension delete');
-
-
 
 // hide the splash screen when the dom is ready
 isDOMReady(() =>
