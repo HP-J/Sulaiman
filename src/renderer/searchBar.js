@@ -140,7 +140,7 @@ function handlePhrases(input)
     const phraseWords = phrase.split(/\s/);
 
     // array of the arguments passed the the phrase
-    const args = inputWords.slice(phraseWords.length);
+    // const args = inputWords.slice(phraseWords.length);
 
     const { similarity, words } = comparePhrase(phraseWords, inputWords);
 
@@ -166,25 +166,12 @@ function handlePhrases(input)
     //   removeSuggestionsElement(registeredPhrases[phrase].element);
     // }
 
-    // if there is no chance the input is similar to the phrase
-    if (similarity <= 0)
-    {
-      removeSuggestionsElement(registeredPhrases[phrase].element);
-    }
-    // if there IS a chance that the input is similar to the phrase
-    else
-    {
-      // const damagedsimilarity =  similarity / Math.max(((inputWords.length + 1) - phraseWords.length), 1);
-
-      console.log(similarity + '% ' + phrase);
-
-      suggestionsData.push(
-        {
-          phrase: phrase,
-          words: words,
-          similarity: similarity
-        });
-    }
+    suggestionsData.push(
+      {
+        phrase: phrase,
+        words: words,
+        similarity: similarity
+      });
   }
 
   return suggestionsData;
@@ -214,28 +201,53 @@ function handleSuggestions(data)
       {
         const element = registeredPhrases[data[i].phrase].element;
 
-        while (element.firstChild)
-          element.removeChild(element.firstChild);
+        // if there is no chance the input is similar to the phrase
+        if (data[i].similarity <= 0)
+        {
+          removeSuggestionsElement(element);
 
-        for (let x = 0; x < data[i].words.length; x++)
+          continue;
+        }
+
+        for (let x = 0, y = 0; x < data[i].words.length; x++, y += 2)
         {
           const word = data[i].words[x];
           
-          const highlighter = document.createElement('span');
-          const normal = document.createElement('span');
-          
-          highlighter.innerText = word.highlighted;
-          normal.innerText = word.normal + ' ';
-          
-          highlighter.setAttribute('class', 'suggestionsItemHighlighter');
-
-          element.appendChild(highlighter);
-          element.appendChild(normal);
+          setSuggestionItemText(element, word.highlighted, word.normal, y);
         }
 
-        addSuggestionsElement(element);
+        reorderSuggestionsElement(element);
       }
     });
+}
+
+/** @param { HTMLElement } element
+ * @param { string } highlighted
+ * @param { string } normal
+ * @param { number } i
+*/
+function setSuggestionItemText(element, highlighted, normal, i)
+{
+  let highlightedElement, normalElement;
+
+  if (element.children.length <= i)
+  {
+    highlightedElement = document.createElement('span');
+    normalElement = document.createElement('span');
+              
+    highlightedElement.setAttribute('class', 'suggestionsItemHighlighter');
+
+    element.appendChild(highlightedElement);
+    element.appendChild(normalElement);
+  }
+  else
+  {
+    highlightedElement = element.children[i];
+    normalElement = element.children[i + 1];
+  }
+
+  highlightedElement.innerText = highlighted;
+  normalElement.innerText = normal + ' ';
 }
 
 /** @param { string[] } phraseWords
@@ -249,15 +261,19 @@ function comparePhrase(phraseWords, inputWords)
 
   for (let pi = 0, xi = 0; pi < phraseWords.length; pi++, xi++)
   {
-    if (phraseWords[pi].startsWith(inputWords[xi]))
+    const input = inputWords[xi];
+    const phrase = phraseWords[pi];
+
+    if (phrase.startsWith(input))
     {
       // calculate similarity
       similarity +=
       
       Math.floor(
-        ((100 * inputWords[xi].length) / phraseWords[pi].length) / phraseWords.length
+        (((100 * input.length) / phrase.length) / phraseWords.length) +
+        (100 * (phrase.length - (phrase.length - input.length)))
       );
-
+      
       // add the highlighted part, add the rest of the word that is not highlighted
       words.push(
         {
@@ -295,11 +311,15 @@ function sort(array, compare)
   });
 }
 
-function addSuggestionsElement(element)
+/** @param { HTMLDivElement } element
+*/
+function reorderSuggestionsElement(element)
 {
   suggestionsElement.insertBefore(element, suggestionsElement.firstChild);
 }
 
+/** @param { HTMLDivElement } element
+*/
 function removeSuggestionsElement(element)
 {
   if (suggestionsElement.contains(element))
