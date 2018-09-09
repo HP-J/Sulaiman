@@ -8,9 +8,6 @@ sulaiman.setPlaceholder('Search');
 // append the theme stylesheets
 sulaiman.appendStyleDir(join(__dirname, 'styles'));
 
-// set the icon style files;
-sulaiman.addIconStyle(join(__dirname, '/styles/card.css'));
-
 // store the default icon set
 sulaiman.storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
 sulaiman.storeIcon(join(__dirname, '/icons/browser.svg'), 'browser');

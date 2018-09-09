@@ -1,21 +1,25 @@
-/* cards inside of a the main body */
 .card
 {
   display: flex;
   flex-flow: wrap;
+
   outline: none;
   overflow: hidden;
   cursor: pointer;
-  background: transparent;
+
+  background-color: var(--color-dark);
+
   position: relative;
   width: calc(100vw - 30px);
   min-height: 10px;
   max-height: 125vh;
+
   font-family: Oxygen;
   font-size: calc(10px + 0.5vw + 1vh);
   font-weight: 400;
   user-select: none;
   white-space: nowrap;
+  
   padding: 8px 15px;
   border: 0px;
   margin: 0px;
@@ -31,6 +35,8 @@
 .card > .card
 {
   flex-grow: 1;
+  background-color: transparent;
+  
   width: auto;
   padding: 3px 5px;
 }
@@ -56,13 +62,16 @@
 
 .cardTitle, .cardDescription
 {
+  overflow: hidden;
+
   display: flex;
-  align-items: center;
   flex-grow: 1;
   flex-basis: auto;
-  overflow: hidden;
+  align-items: center;
+
   background-color: transparent;
   color: #FFFFFF;
+
   width: auto;
   height: auto;
 }
@@ -70,21 +79,23 @@
 .cardDescription
 {
   color: var(--color-lighter);
+
   white-space: pre-line;
   writing-mode: horizontal-tb;
   max-block-size: 35vh;
+
   width: 100%;
 }
 
 .cardIcon
 {
   align-self: center;
-  fill: #FFFFFF;
-  stroke: #FFFFFF;
+
   background-color: transparent;
   background-size: 100% auto;
   background-repeat: no-repeat;
   background-position: center;
+
   width: calc(22px + 1vw + 0.5vh);
   height: auto;
 }

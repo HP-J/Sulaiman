@@ -38,8 +38,6 @@ const storedIcons = {};
 */
 const appendedStyles = {};
 
-const iconStyles = [];
-
 /** add an icon to store
 * @param { string } path a full path to the icon
 * @param { string } iconName give the icon a name that will be used later to pull it from store
@@ -58,8 +56,6 @@ export function storeIcon(path, iconName)
   icon.type = 'image/svg+xml';
   icon.data = path;
 
-  icon.className = 'cardIcon';
-
   // cache the icon with the required name
   storedIcons[iconName] = icon;
 }
@@ -72,28 +68,7 @@ export function getIcon(iconName)
 {
   // check if an icon exists in store and returns it
   if (storedIcons[iconName] !== undefined)
-  {
-    const icon = storedIcons[iconName].cloneNode(true);
-
-    icon.onload = () =>
-    {
-      const svgDocument = icon.contentDocument;
-      const svgElem = svgDocument.querySelector('svg');
-
-      for (let i = 0; i < iconStyles.length; i++)
-      {
-        const style = svgDocument.createElementNS('http://www.w3.org/2000/svg', 'style');
-      
-        svgElem.setAttribute('class', 'cardIcon');
-
-        style.textContent = '@import url("' + iconStyles[i] + '");';
-
-        svgElem.insertBefore(style, svgElem.firstChild);
-      }
-    };
-
-    return icon;
-  }
+    return (storedIcons[iconName].cloneNode(true));
   else
     return undefined;
 }
@@ -173,15 +148,6 @@ export function appendStyleDir(directory, callback)
     {
       return join(directory, x);
     }), callback);
-}
-
-/** if you have a class that you added to an svg, the file that has this class in it has to be added through this function
-* since rendering files from files with css styling is super weird for some reason
-* @param { string | string[] } files paths to the stylesheets (css) files to want to append to icons
-*/
-export function addIconStyle(files)
-{
-  iconStyles.push(files);
 }
 
 /** add the card to the body

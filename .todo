@@ -16,8 +16,6 @@ manager:
   ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
   ☐ build & test MSI 
 
-  ☐ an icon on the left the search bar that can only be changed by the phrase search system
-
   ☐ build & test DMG @need-help
 
 CI/CD:

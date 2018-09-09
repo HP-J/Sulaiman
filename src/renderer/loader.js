@@ -245,8 +245,7 @@ function handelMockups(requiredPermissions, theme)
     // sulaiman theme
     appendStyle: !theme,
     removeStyle: !theme,
-    appendStyleDir: !theme,
-    addIconStyle: !theme
+    appendStyleDir: !theme
   };
 
   for (let i = 0; i < requiredPermissions.length; i++)

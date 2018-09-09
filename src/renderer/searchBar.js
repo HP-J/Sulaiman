@@ -1,25 +1,27 @@
-import { on, emit } from './loader.js';
+import { on } from './loader.js';
 
 import Card, { createCard } from './card.js';
 
 /** @type { HTMLInputElement }
 */
-export let inputElement;
+let inputElement;
 
-/** @type { HTMLInputElement }
+/** @type { HTMLDivElement }
 */
-export let suggestionsElement;
+let suggestionsElement;
 
 /**
 * @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
 */
 const registeredPhrases = {};
 
-// /** @type { NodeJS.Timer }
-// */
-// let suggestionsTimer = undefined;
-
 let suggestionsIndex = 0;
+
+let lastInput = '';
+
+/** @type { HTMLDivElement }
+*/
+let lastSuggestionItemSelected = undefined;
 
 /** create and append the search bar and card-space
 */
@@ -35,7 +37,7 @@ export function appendSearchBar()
 
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
-
+  inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
   on.focus(focus);
   on.blur(blur);
   on.ready(oninput);
@@ -45,11 +47,10 @@ export function appendSearchBar()
 */
 function focus()
 {
-  // empty the search bar every time the sulaiman regain focus
   inputElement.focus();
 }
 
-/** gets called every time sulaiman regain focus
+/** gets called every time sulaiman loses focus
 */
 function blur()
 {
@@ -68,64 +69,53 @@ function oninput()
 {
   const input = standard(inputElement.value);
 
-  console.log('----------');
-  console.log(input);
+  if (input === lastInput)
+    return;
 
-  suggestionsIndex = 0;
+  lastInput = input;
+
+  if (input.length <= 0)
+  {
+    updateSuggestionsCount(0);
+
+    return;
+  }
+
+  // window.scrollTo({
+  //   behavior: 'smooth',
+  //   top: 0,
+  //   left: 0
+  // });
+
+  // suggestionsIndex = 0;
+  // lastSuggestionItemSelected = undefined;
+  // selectSuggestionItem(0);
+  // selectSuggestionItem(0);
+
+  // suggestionsElement.scrollTop = suggestionsElement.scrollLeft = 0;
+
+  // lastSuggestionItemSelected = undefined;
+
+  // suggestionsElement.scroll({ behavior: 'instant', top: 0, left: 0 });
+
+  // lastSuggestionItemSelected = undefined;
 
   const suggestionsData = handlePhrases(input);
 
   handleSuggestions(suggestionsData);
-
-  // refreshSuggestionsTimer();
 }
 
-/** @param { KeyboardEvent } event
+/** gets called on key downs while the search bar is focused
+* @param { KeyboardEvent } event
 */
 function onkeydown(event)
 {
-  // if (suggestionsElement.children.length <= 0)
-  //   return;
+  if (event.key === 'ArrowUp')
+    suggestionsIndex = Math.min(Math.max(suggestionsIndex - 1, 0), suggestionsElement.children.length - 1);
+  else if (event.key === 'ArrowDown')
+    suggestionsIndex = Math.min(Math.max(suggestionsIndex + 1, 0), suggestionsElement.children.length - 1);
 
-  // if (event.key === 'ArrowUp')
-  // {
-  //   suggestionsIndex = Math.min(Math.max(suggestionsIndex - 1, 0), suggestionsElement.children.length - 1);
-  // }
-  // else if (event.key === 'ArrowDown')
-  // {
-  //   suggestionsIndex = Math.min(Math.max(suggestionsIndex + 1, 0), suggestionsElement.children.length - 1);
-  // }
-
-  // const rect = suggestionsElement.children[suggestionsIndex].getBoundingClientRect();
-
-  // suggestionsElement.children[suggestionsIndex].scrollIntoView(
-  //   {
-  //     behavior: 'smooth',
-  //     block: 'center',
-  //     inline: 'nearest'
-  //   });
-
-  // console.log(suggestionsIndex);
-}
-
-function refreshSuggestionsTimer()
-{
-  // clearTimeout(suggestionsTimer);
-
-  // showsuggestions();
-
-  // suggestionsTimer = setTimeout(hidesuggestions, 650);
-}
-
-function showSuggestions()
-{
-  // if (!suggestionsElement.classList.contains('suggestionsActive'))
-  //   suggestionsElement.classList.add('suggestionsActive');
-}
-
-function hideSuggestions()
-{
-  // suggestionsElement.classList.remove('suggestionsActive');
+  selectSuggestionItem(suggestionsIndex);
 }
 
 function handlePhrases(input)
@@ -218,7 +208,14 @@ function handleSuggestions(data)
 
         reorderSuggestionsElement(element);
       }
+
+      updateSuggestionsCount(suggestionsElement.children.length);
     });
+}
+
+function toggleSuggestionElement()
+{
+  suggestionsElement.classList.toggle('suggestionsActive');
 }
 
 /** @param { HTMLElement } element
@@ -232,10 +229,10 @@ function setSuggestionItemText(element, highlighted, normal, i)
 
   if (element.children.length <= i)
   {
-    highlightedElement = document.createElement('span');
-    normalElement = document.createElement('span');
+    highlightedElement = document.createElement('div');
+    normalElement = document.createElement('div');
               
-    highlightedElement.setAttribute('class', 'suggestionsItemHighlighter');
+    highlightedElement.setAttribute('class', 'suggestionsItemHighlightedText');
 
     element.appendChild(highlightedElement);
     element.appendChild(normalElement);
@@ -311,6 +308,63 @@ function sort(array, compare)
   });
 }
 
+/** @param { number } index
+*/
+function selectSuggestionItem(index)
+{
+  // requestAnimationFrame(() =>
+  // {
+    if (suggestionsElement.children.length <= 0)
+      return;
+
+    if (lastSuggestionItemSelected)
+    // {
+    //   lastSuggestionItemSelected.scrollIntoView(
+    //     {
+    //       behavior: 'instant',
+    //       block: 'nearest',
+    //       inline: 'nearest'
+    //     });
+  
+      lastSuggestionItemSelected.classList.remove('suggestionsItemSelected');
+    // }
+  
+    const item = suggestionsElement.children[index];
+  
+    // if (window.scrollY > 0)
+    // {
+    //   window.scrollTo(
+    //     {
+    //       behavior: 'smooth',
+    //       top: 0,
+    //       left: 0
+    //     });
+
+    //   item.scrollIntoView(
+    //     {
+    //       behavior: 'instant',
+    //       block: 'nearest',
+    //       inline: 'nearest'
+    //     });
+    // }
+    // else
+    // {
+
+    // }
+
+    item.scrollIntoView(
+      {
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest'
+      });
+    
+    item.classList.add('suggestionsItemSelected');
+    
+    lastSuggestionItemSelected = item;
+  // });
+}
+
 /** @param { HTMLDivElement } element
 */
 function reorderSuggestionsElement(element)
@@ -324,6 +378,18 @@ function removeSuggestionsElement(element)
 {
   if (suggestionsElement.contains(element))
     suggestionsElement.removeChild(element);
+}
+
+/** @param { number } count
+*/
+function updateSuggestionsCount(count)
+{
+  const max = getComputedStyle(suggestionsElement).getPropertyValue('--max-suggestions-count');
+
+  if (max)
+    count = Math.min(max, count);
+
+  suggestionsElement.style.setProperty('--suggestions-count', count);
 }
 
 /** update a string to be the standard the app uses for searching

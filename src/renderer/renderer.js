@@ -4,43 +4,41 @@ import { appendSearchBar } from './searchBar.js';
 
 import { loadExtensions, emit, on } from './loader.js';
 
-import { loadNPM, showInstalledExtensions } from './manager.js';
-import { Card, appendCard, removeCard } from './api.js';
+import { loadNPM } from './manager.js';
+import { Card, appendCard, removeCard, getIcon } from './api.js';
 import { createCard } from './card.js';
-
-export const splash = document.body.children[0];
 
 export const mainWindow = remote.getCurrentWindow();
 
 export const menuTemplate =
 [
   {
-    label: 'window',
+    label: 'Window',
     submenu:
   [
     {
-      label: 'reload', accelerator: 'CmdOrCtrl+R', click()
+      label: 'Reload', accelerator: 'CmdOrCtrl+R', click()
       {
         reload();
       }
     },
     {
-      label: 'zoom in', accelerator: 'CmdOrCtrl+=', role: 'zoomin'
+      label: 'Zoom In', accelerator: 'CmdOrCtrl+=', role: 'zoomin'
     },
     {
-      label: 'zoom out', accelerator: 'CmdOrCtrl+-', role: 'zoomout'
+      label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', role: 'zoomout'
     },
     {
-      label: 'reset zoom', accelerator: 'CmdOrCtrl+Shift+=', role: 'resetzoom'
+      label: 'Reset Zoom', accelerator: 'CmdOrCtrl+Shift+=', role: 'resetzoom'
     },
     {
-      label: 'developer tools', accelerator: 'CmdOrCtrl+Shift+I', click()
+      label: 'Developer Tools', accelerator: 'CmdOrCtrl+Shift+I', click()
       {
         mainWindow.webContents.toggleDevTools();
       }
     },
     {
-      label: 'quit', accelerator: 'CmdOrCtrl+Q', click()
+      label: 'Quit', accelerator: 'CmdOrCtrl+Q', click()
       {
         app.quit();
       }
@@ -56,6 +54,8 @@ export let autoHide = false;
 export let readyState = false;
 
 export let session;
+
+const splash = document.body.children[0];
 
 /** executes the callback when the DOM has completed any running operations
 * @param { () => void } callback
@@ -78,24 +78,6 @@ export function reload()
   storeSession();
 
   mainWindow.reload();
-}
-
-/**
-* @param { Electron.Accelerator } accelerator
-*/
-function checkGlobalShortcut(accelerator)
-{
-  try
-  {
-    if (remote.globalShortcut.isRegistered(accelerator))
-      return false;
-    else
-      return true;
-  }
-  catch (err)
-  {
-    return false;
-  }
 }
 
 /** store a session, so it can be restored later
@@ -121,6 +103,24 @@ function restoreSession()
     session = {};
 
   localStorage.removeItem('session');
+}
+
+/**
+* @param { Electron.Accelerator } accelerator
+*/
+function checkGlobalShortcut(accelerator)
+{
+  try
+  {
+    if (remote.globalShortcut.isRegistered(accelerator))
+      return false;
+    else
+      return true;
+  }
+  catch (err)
+  {
+    return false;
+  }
 }
 
 /** @param { Electron.MenuItemConstructorOptions[] } template
@@ -375,20 +375,17 @@ loadExtensions();
 // load npm
 loadNPM();
 
-// reset focus
-onfocus();
-
 // mark the app as ready
 readyState = true;
 
-// on.phrase('extension');
-// on.phrase('extension install');
-// on.phrase('extension delete');
+emit.ready();
+
+on.phrase('extension');
+on.phrase('extension install');
+on.phrase('extension delete');
 on.phrase('extension 2');
 on.phrase('extension 2 install');
-// on.phrase('extension 2 delete');
-
-emit.ready();
+on.phrase('extension 2 delete');
 
 // make sure the user has a show hide shortcut key
 registerShowHideKey();
@@ -397,8 +394,15 @@ registerShowHideKey();
 // search app list
 // change the show/hide key
 
-// hide the splash screen when the dom is ready
+const element = createCard({ title: 'Hello', extensionIcon: getIcon('arrow') });
+
+appendCard(element);
+
+// remove the splash screen when the dom is ready
 isDOMReady(() =>
 {
-  splash.style.display = 'none';
+  document.body.removeChild(splash);
+
+  // reset focus
+  onfocus();
 });

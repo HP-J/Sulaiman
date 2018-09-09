@@ -50,6 +50,14 @@ export default class Card
     */
     const domElement = document.createElement('div');
 
+    // make tabIndex a read-only property, it's not
+    // recommended that extensions modify default behavior
+    Object.defineProperty(domElement, 'tabIndex',
+      {
+        value: -1,
+        writable: false
+      });
+
     this.domElement = domElement;
 
     this.auto(options);
@@ -365,7 +373,7 @@ export default class Card
 
     if (options.extensionIcon !== undefined)
     {
-      options.extensionIcon.classList.add('cardAuto', 'cardExtensionIcon');
+      options.extensionIcon.classList.add('cardAuto', 'cardIcon', 'cardExtensionIcon');
 
       if (extensionIconElem)
         this.domElement.replaceChild(options.extensionIcon, extensionIconElem);
@@ -379,7 +387,7 @@ export default class Card
    
     if (options.actionIcon !== undefined)
     {
-      options.actionIcon.classList.add('cardAuto', 'cardActionIcon');
+      options.actionIcon.classList.add('cardAuto', 'cardIcon', 'cardActionIcon');
 
       if (actionIconElem)
         this.domElement.replaceChild(options.actionIcon, actionIconElem);
