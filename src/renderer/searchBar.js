@@ -10,8 +10,7 @@ let inputElement;
 */
 let suggestionsElement;
 
-/**
-* @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
+/** @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
 */
 const registeredPhrases = {};
 
@@ -116,6 +115,10 @@ function onkeydown(event)
   }
 }
 
+/** handle phrases their cards and callbacks, then compares them with
+* the input and returns an array with all the data
+* @param { string } input aka the text in the search bar
+*/
 function handlePhrases(input)
 {
   const inputWords = input.split(/\s/);
@@ -130,6 +133,7 @@ function handlePhrases(input)
     // array of the arguments passed the the phrase
     // const args = inputWords.slice(phraseWords.length);
 
+    // compare the phrase with the input
     const { similarity, words } = comparePhrase(phraseWords, inputWords);
 
     // // if input equals phrase show the card
@@ -154,6 +158,7 @@ function handlePhrases(input)
     //   removeSuggestionsElement(registeredPhrases[phrase].element);
     // }
 
+    // push the data we got about the two compared string to the data array
     suggestionsData.push(
       {
         phrase: phrase,
@@ -162,6 +167,7 @@ function handlePhrases(input)
       });
   }
 
+  // finally return the data array
   return suggestionsData;
 }
 
@@ -171,7 +177,7 @@ function handlePhrases(input)
 */
 function handleSuggestions(data)
 {
-  // sorts
+  // sorts the data by similarity, which puts the higher on top of the list
   sort(
     data,
     (a, b) =>
@@ -183,32 +189,44 @@ function handleSuggestions(data)
       else
         return 0;
     })
+    // after the sorting is done
     .then(() =>
     {
+      // the number of suggestion on the list, before we reorder or remove any of them
       const lastSuggestionCount = suggestionsElement.children.length;
       
+      // loop through the sorted data from the lowest to the highest
       for (let i = 0; i < data.length; i++)
       {
+        // the suggestion element belonging to the phrase
         const element = registeredPhrases[data[i].phrase].element;
 
-        // if there is no chance the input is similar to the phrase
+        // if the input is similar in any way to the phrase
         if (data[i].similarity > 0)
         {
+          // loop through the compared words
           for (let x = 0, y = 0; x < data[i].words.length; x++, y += 2)
           {
             const word = data[i].words[x];
             
-            setSuggestionItemText(element, word.highlighted, word.normal, y);
+            // set the word in the element
+            setSuggestionItemWord(element, word.highlighted, word.normal, y);
           }
           
+          // moves the suggestion element to the top of the list
           reorderSuggestionsElement(element);
         }
+        // if there is no chance the input is similar to the phrase
         else
         {
+          // remove the suggestion element from the list
           removeSuggestionsElement(element);
         }
       }
 
+      // if the last suggestion count was 0 the current the higher than 0
+      // if the last selected suggestion item still exists on the list then
+      // selected it again and scroll to it
       if (lastSuggestionCount <= 0 && suggestionsElement.children.length > 0 && suggestionsElement.contains(lastSuggestionItemSelected))
       {
         const index = Array.prototype.indexOf.call(suggestionsElement.children, lastSuggestionItemSelected);
@@ -218,6 +236,7 @@ function handleSuggestions(data)
         scrollToSuggestionItem(lastSuggestionItemSelected, lastSuggestionItemSelected);
         selectSuggestionItem(lastSuggestionItemSelected, lastSuggestionItemSelected);
       }
+      // else reset the selected suggestion item to the first on the list and scroll to it
       else if (suggestionsElement.children.length > 0)
       {
         resetSelectedSuggestionItem();
@@ -229,21 +248,25 @@ function handleSuggestions(data)
         lastSuggestionItemSelected = element;
       }
 
+      // updates the css property that belongs to the suggestions count
       updateSuggestionsCount(suggestionsElement.children.length);
     });
 }
 
+/** toggle the css class 'suggestionsActive' on the suggestions list element
+ */
 function toggleSuggestionElement()
 {
   suggestionsElement.classList.toggle('suggestionsActive');
 }
 
-/** @param { HTMLElement } element
- * @param { string } highlighted
- * @param { string } normal
- * @param { number } i
+/** sets a word in a suggestion item
+* @param { HTMLElement } element the suggestion element
+* @param { string } highlighted the part that should be highlighted
+* @param { string } normal the part that should not be highlighted
+* @param { number } i the word index
 */
-function setSuggestionItemText(element, highlighted, normal, i)
+function setSuggestionItemWord(element, highlighted, normal, i)
 {
   let highlightedElement, normalElement;
 
@@ -267,7 +290,8 @@ function setSuggestionItemText(element, highlighted, normal, i)
   normalElement.innerText = normal + ' ';
 }
 
-/** @param { string[] } phraseWords
+/** compares two strings are returns their similarity and which parts of then should be highlighted
+* @param { string[] } phraseWords
 * @param { string[] } inputWords
 * @returns { { similarity: number, words: { highlighted: string, normal: string }[] } }
 */
@@ -328,7 +352,8 @@ function sort(array, compare)
   });
 }
 
-/** @param { HTMLElement } element
+/** selects a suggestion element
+* @param { HTMLElement } element
 * @param { HTMLElement } lastElement
 */
 function selectSuggestionItem(element, lastElement)
@@ -339,7 +364,8 @@ function selectSuggestionItem(element, lastElement)
   element.classList.add('suggestionsItemSelected');
 }
 
-/** @param { HTMLElement } element
+/** scrolls to a suggestion element to make it visible
+* @param { HTMLElement } element
 * @param { HTMLElement } lastElement
 */
 function scrollToSuggestionItem(element, lastElement)
@@ -361,6 +387,8 @@ function scrollToSuggestionItem(element, lastElement)
   });
 }
 
+/** resets the selected suggestion item to the first on the list
+*/
 function resetSelectedSuggestionItem()
 {
   requestAnimationFrame(() =>
@@ -375,14 +403,16 @@ function resetSelectedSuggestionItem()
   suggestionsIndex = 0;
 }
 
-/** @param { HTMLDivElement } element
+/** puts a suggestion element on top of the list
+* @param { HTMLDivElement } element
 */
 function reorderSuggestionsElement(element)
 {
   suggestionsElement.insertBefore(element, suggestionsElement.firstChild);
 }
 
-/** @param { HTMLDivElement } element
+/** removes a suggestion element from the list
+* @param { HTMLDivElement } element
 */
 function removeSuggestionsElement(element)
 {
@@ -390,10 +420,12 @@ function removeSuggestionsElement(element)
     suggestionsElement.removeChild(element);
 }
 
-/** @param { number } count
+/** sets the css property '--suggestions-count'
+* @param { number } count
 */
 function updateSuggestionsCount(count)
 {
+  // if there's a '--max-suggestions-count' property, then use it to limit the outcome of '--suggestions-count'
   const max = getComputedStyle(suggestionsElement).getPropertyValue('--max-suggestions-count');
 
   if (max)
