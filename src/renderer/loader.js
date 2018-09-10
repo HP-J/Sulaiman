@@ -88,11 +88,13 @@ export const on =
   ready: (callback) => eventTarget.addListener('ready', callback),
   /** returns a card that is shown and hidden automatically
   * when the user search for a certain phrase
-  * @param { string } phrase
-  * @param { (...args: string[]) => void } [callback] if defined will be called every time the card is shown with any arguments following the chosen phrase
+  * @param { string } phrase one word phrase
+  * @param { string[] } [args] arguments available for the phrase
+  * @param { (argument: string) => void } [callback] emits when the user
+  * inputs the phrase with an argument to the search bar
   * @returns { Card }
   */
-  phrase: (phrase, callback) => registerPhrase(phrase, callback),
+  phrase: (phrase, args, callback) => registerPhrase(phrase, args, callback),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */

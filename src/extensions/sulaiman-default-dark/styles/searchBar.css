@@ -6,7 +6,7 @@ html
   --max-suggestions-count: 3;
 }
 
-.searchBar, .searchBarPreview
+.searchBar
 {
   z-index: 1;
   outline: none;
@@ -29,11 +29,6 @@ html
   border: 0px;
   padding: 10px;
   margin: 0px;
-}
-
-.searchBar::placeholder
-{
-  color: var(--color-lighter);
 }
 
 .searchBarPreview

@@ -10,9 +10,13 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object.<string, { card: Card, callback: Function, element: HTMLDivElement } > }
+/** @type { Object.<string, { card: Card, args: string[], callback: Function }> }
 */
 const registeredPhrases = {};
+
+/** @type { Object.<string, element: HTMLDivElement> }
+*/
+const searchables = {};
 
 let suggestionsIndex = 0;
 
@@ -100,9 +104,24 @@ function oninput()
 function onkeydown(event)
 {
   if (event.key === 'ArrowUp')
+  {
+    event.preventDefault();
     suggestionsIndex = Math.min(Math.max(suggestionsIndex - 1, 0), suggestionsElement.children.length - 1);
+  }
   else if (event.key === 'ArrowDown')
+  {
     suggestionsIndex = Math.min(Math.max(suggestionsIndex + 1, 0), suggestionsElement.children.length - 1);
+  }
+  else if (event.key === 'ArrowRight' && lastSuggestionItemSelected)
+  {
+    inputElement.value = lastSuggestionItemSelected.searchable;
+
+    oninput();
+  }
+  else if (event.key === 'Escape')
+  {
+    inputElement.blur();
+  }
 
   if (suggestionsElement.children.length > 0)
   {
@@ -125,16 +144,16 @@ function handlePhrases(input)
 
   const suggestionsData = [];
 
-  for (const phrase in registeredPhrases)
+  for (const searchable in searchables)
   {
     // split to array of words
-    const phraseWords = phrase.split(/\s/);
+    const searchableWords = searchable.split(/\s/);
 
     // array of the arguments passed the the phrase
     // const args = inputWords.slice(phraseWords.length);
 
-    // compare the phrase with the input
-    const { similarity, words } = comparePhrase(phraseWords, inputWords);
+    // compare the searchable with the input
+    const { similarity, words } = compareStrings(searchableWords, inputWords);
 
     // // if input equals phrase show the card
     // if (input === phrase)
@@ -161,7 +180,7 @@ function handlePhrases(input)
     // push the data we got about the two compared string to the data array
     suggestionsData.push(
       {
-        phrase: phrase,
+        searchable: searchable,
         words: words,
         similarity: similarity
       });
@@ -173,7 +192,7 @@ function handlePhrases(input)
 
 /** sorts data based on similarity then takes the sorted data
 * and use it to sort the suggestions element's items
-* @param { { phrase: string, words: { highlighted: string, normal: string }[], similarity: number }[] } data
+* @param { { searchable: string, words: { highlighted: string, normal: string }[], similarity: number }[] } data
 */
 function handleSuggestions(data)
 {
@@ -198,10 +217,10 @@ function handleSuggestions(data)
       // loop through the sorted data from the lowest to the highest
       for (let i = 0; i < data.length; i++)
       {
-        // the suggestion element belonging to the phrase
-        const element = registeredPhrases[data[i].phrase].element;
+        // the suggestion element belonging to the searchable
+        const element = searchables[data[i].searchable];
 
-        // if the input is similar in any way to the phrase
+        // if the input is similar in any way to the searchable
         if (data[i].similarity > 0)
         {
           // loop through the compared words
@@ -291,35 +310,35 @@ function setSuggestionItemWord(element, highlighted, normal, i)
 }
 
 /** compares two strings are returns their similarity and which parts of then should be highlighted
-* @param { string[] } phraseWords
+* @param { string[] } searchableWords
 * @param { string[] } inputWords
 * @returns { { similarity: number, words: { highlighted: string, normal: string }[] } }
 */
-function comparePhrase(phraseWords, inputWords)
+function compareStrings(searchableWords, inputWords)
 {
   let similarity = 0;
   const words = [];
 
-  for (let pi = 0, xi = 0; pi < phraseWords.length; pi++, xi++)
+  for (let pi = 0, xi = 0; pi < searchableWords.length; pi++, xi++)
   {
-    const input = inputWords[xi];
-    const phrase = phraseWords[pi];
+    const one = inputWords[xi];
+    const two = searchableWords[pi];
 
-    if (phrase.startsWith(input))
+    if (two.startsWith(one))
     {
       // calculate similarity
       similarity +=
       
       Math.floor(
-        (((100 * input.length) / phrase.length) / phraseWords.length) +
-        (100 * (phrase.length - (phrase.length - input.length)))
+        (((100 * one.length) / two.length) / searchableWords.length) +
+        (100 * (two.length - (two.length - one.length)))
       );
       
       // add the highlighted part, add the rest of the word that is not highlighted
       words.push(
         {
           highlighted: inputWords[xi],
-          normal: phraseWords[pi].replace(inputWords[xi], '')
+          normal: searchableWords[pi].replace(inputWords[xi], '')
         });
     }
     else
@@ -328,7 +347,7 @@ function comparePhrase(phraseWords, inputWords)
       words.push(
         {
           highlighted: '',
-          normal: phraseWords[pi]
+          normal: searchableWords[pi]
         });
 
       // go through the other phrase words with current input word
@@ -451,60 +470,77 @@ export function standard(s)
 }
 
 /** @param { string } phrase
-* @param { (...args: string[]) => void } [callback]
+* @param { string[] } [args]
+* @param { (argument: string) => void } [callback]
 * @returns { Card }
 */
-export function registerPhrase(phrase, callback)
+export function registerPhrase(phrase, args, callback)
 {
   phrase = standard(phrase);
 
-  if (phrase.length <= 0)
-    throw new Error('you can\'t register empty phrases');
+  if (phrase.split(/\s/).length > 1)
+    throw new Error('The phrase can only have one word, additional words can be set as arguments');
 
-  // each phrase can only be registered once
-  if (!registeredPhrases[phrase])
+  if (registeredPhrases[phrase])
+    throw new Error('The phrase is already registered');
+
+  if (!args || args.length <= 0)
+    args = [ '' ];
+
+  const card = createCard();
+
+  // we want to have control over when cards are shown
+  // and removed from the dom, by setting a read-only property
+  // that is checked by all append and remove apis, we can accomplish that
+  Object.defineProperty(card, 'isPhrased',
+    {
+      value: phrase,
+      writable: false
+    });
+
+  for (let i = 0; i < args.length; i++)
   {
-    const card = createCard();
+    const argument = standard(phrase + ' ' + args[i]);
 
-    // we want to have control over when cards are shown
-    // and removed from the dom, by setting a read-only property
-    // that is checked by all append and remove apis, we can accomplish that
-    Object.defineProperty(card, 'isPhrased',
-      {
-        value: phrase,
-        writable: false
-      });
+    args[i] = argument;
 
     const element = document.createElement('div');
 
     element.setAttribute('class', 'suggestionsItem');
+    element.searchable = argument;
 
-    registeredPhrases[phrase] =
-    {
-      card: card,
-      callback: callback,
-      element: element
-    };
-
-    return card;
+    searchables[argument] = element;
   }
-  else
+
+  registeredPhrases[phrase] =
   {
-    throw new Error('The phrase is already registered');
-  }
+    card: card,
+    args: args,
+    callback: callback
+  };
+
+  return card;
 }
 
 /** @param { Card } card
+* @returns { Card }
 */
 export function unregisterPhrase(card)
 {
   if (card.isPhrased && registeredPhrases[card.isPhrased])
   {
-    // remove the auto-complete item
-    removeSuggestionsElement(registeredPhrases[card.isPhrased].element);
+    const phrase = card.isPhrased;
+    const phraseObj = registeredPhrases[phrase];
+
+    // remove all suggestion element that belongs to the args
+    for (let i = 0; i < phraseObj.args.length; i++)
+    {
+      // remove the suggestion element
+      removeSuggestionsElement(searchables[phraseObj.args[i]].element);
+    }
 
     // delete it from the registered phrases array
-    delete registeredPhrases[card.isPhrased];
+    delete registeredPhrases[phrase];
 
     // clone card with a removed isPhrased property
     const clone = Object.assign(createCard(), card, { isPhrased: undefined });
