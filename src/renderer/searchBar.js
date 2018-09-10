@@ -10,7 +10,7 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object.<string, { card: Card, args: string[], callback: Function }> }
+/** @type { Object.<string, { card: Card, active: boolean, args: string[], callback: Function }> }
 */
 const registeredPhrases = {};
 
@@ -149,33 +149,28 @@ function handlePhrases(input)
     // split to array of words
     const searchableWords = searchable.split(/\s/);
 
-    // array of the arguments passed the the phrase
-    // const args = inputWords.slice(phraseWords.length);
-
     // compare the searchable with the input
     const { similarity, words } = compareStrings(searchableWords, inputWords);
 
-    // // if input equals phrase show the card
-    // if (input === phrase)
-    // {
-    //   // TODO emit a callback if exists with the args (if the phrase similarity is fully written 100%)
+    const phrase = searchableWords[0];
+    const phraseObj = registeredPhrases[phrase];
 
-    //   console.log('ping: ' + phrase);
-    // }
-    // // else hide it
-    // else
-    // {
-    //   console.log('ping: ' + phrase);
-    // }
+    // if input equals phrase show the card and emit the callback
+    if (input === searchable)
+    {
+      if (phraseObj.callback)
+        phraseObj.callback(standard(searchable.replace(phrase, '')));
 
-    // // if the search bar is empty
-    // if (input.length <= 0)
-    // {
-    //   // sort by most recently used
-    //   // sort by most frequently used
+      document.body.appendChild(phraseObj.card.domElement);
 
-    //   removeSuggestionsElement(registeredPhrases[phrase].element);
-    // }
+      phraseObj.active = true;
+    }
+    else if (phraseObj.active)
+    {
+      document.body.removeChild(phraseObj.card.domElement);
+
+      phraseObj.active = false;
+    }
 
     // push the data we got about the two compared string to the data array
     suggestionsData.push(

@@ -380,10 +380,14 @@ readyState = true;
 
 emit.ready();
 
-on.phrase('extension', [
-  'delete',
-  'install'
-]);
+on.phrase('extension',
+  [
+    'delete',
+    'install'
+  ], (argument) =>
+  {
+    console.log(argument);
+  });
 
 // make sure the user has a show hide shortcut key
 registerShowHideKey();
