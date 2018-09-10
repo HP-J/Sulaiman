@@ -38,6 +38,7 @@ export function appendSearchBar()
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
   inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
+
   on.focus(focus);
   on.blur(blur);
   on.ready(oninput);
@@ -80,25 +81,22 @@ function oninput()
 
     return;
   }
+  else
+  {
+    window.scroll({
+      behavior: 'smooth',
+      left: 0,
+      top: 0
+    });
 
-  // window.scrollTo({
-  //   behavior: 'smooth',
-  //   top: 0,
-  //   left: 0
-  // });
+    suggestionsElement.scroll({
+      behavior: 'smooth',
+      left: 0,
+      top: 0
+    });
 
-  // suggestionsIndex = 0;
-  // lastSuggestionItemSelected = undefined;
-  // selectSuggestionItem(0);
-  // selectSuggestionItem(0);
-
-  // suggestionsElement.scrollTop = suggestionsElement.scrollLeft = 0;
-
-  // lastSuggestionItemSelected = undefined;
-
-  // suggestionsElement.scroll({ behavior: 'instant', top: 0, left: 0 });
-
-  // lastSuggestionItemSelected = undefined;
+    suggestionsIndex = 0;
+  }
 
   const suggestionsData = handlePhrases(input);
 
@@ -115,7 +113,15 @@ function onkeydown(event)
   else if (event.key === 'ArrowDown')
     suggestionsIndex = Math.min(Math.max(suggestionsIndex + 1, 0), suggestionsElement.children.length - 1);
 
-  selectSuggestionItem(suggestionsIndex);
+  if (suggestionsElement.children.length > 0)
+  {
+    const element = suggestionsElement.children[suggestionsIndex];
+
+    scrollToSuggestionItem(element, lastSuggestionItemSelected);
+    selectSuggestionItem(element, lastSuggestionItemSelected);
+
+    lastSuggestionItemSelected = element;
+  }
 }
 
 function handlePhrases(input)
@@ -210,6 +216,15 @@ function handleSuggestions(data)
       }
 
       updateSuggestionsCount(suggestionsElement.children.length);
+
+      if (suggestionsElement.children.length > 0)
+      {
+        const element = suggestionsElement.children[suggestionsIndex];
+
+        selectSuggestionItem(element, lastSuggestionItemSelected);
+
+        lastSuggestionItemSelected = element;
+      }
     });
 }
 
@@ -308,61 +323,34 @@ function sort(array, compare)
   });
 }
 
-/** @param { number } index
+/** @param { HTMLElement } element
+* @param { HTMLElement } lastElement
 */
-function selectSuggestionItem(index)
+function selectSuggestionItem(element, lastElement)
 {
-  // requestAnimationFrame(() =>
-  // {
-    if (suggestionsElement.children.length <= 0)
-      return;
-
-    if (lastSuggestionItemSelected)
-    // {
-    //   lastSuggestionItemSelected.scrollIntoView(
-    //     {
-    //       behavior: 'instant',
-    //       block: 'nearest',
-    //       inline: 'nearest'
-    //     });
+  if (lastElement)
+    lastElement.classList.remove('suggestionsItemSelected');
   
-      lastSuggestionItemSelected.classList.remove('suggestionsItemSelected');
-    // }
-  
-    const item = suggestionsElement.children[index];
-  
-    // if (window.scrollY > 0)
-    // {
-    //   window.scrollTo(
-    //     {
-    //       behavior: 'smooth',
-    //       top: 0,
-    //       left: 0
-    //     });
+  element.classList.add('suggestionsItemSelected');
+}
 
-    //   item.scrollIntoView(
-    //     {
-    //       behavior: 'instant',
-    //       block: 'nearest',
-    //       inline: 'nearest'
-    //     });
-    // }
-    // else
-    // {
+/** @param { HTMLElement } element
+* @param { HTMLElement } lastElement
+*/
+function scrollToSuggestionItem(element, lastElement)
+{
+  if (lastElement)
+    lastElement.scrollIntoView({
+      behavior: 'instant',
+      inline: 'nearest',
+      block: 'nearest'
+    });
 
-    // }
-
-    item.scrollIntoView(
-      {
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest'
-      });
-    
-    item.classList.add('suggestionsItemSelected');
-    
-    lastSuggestionItemSelected = item;
-  // });
+  element.scrollIntoView({
+    behavior: 'smooth',
+    inline: 'nearest',
+    block: 'nearest'
+  });
 }
 
 /** @param { HTMLDivElement } element
