@@ -35,6 +35,8 @@ export function appendSearchBar()
   suggestionsElement.setAttribute('class', 'suggestions');
   document.body.appendChild(suggestionsElement);
 
+  updateSuggestionsCount(0);
+
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
   inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
@@ -73,13 +75,9 @@ function oninput()
   if (input === lastInput)
     return;
 
-  lastInput = input;
-
   if (input.length <= 0)
   {
     updateSuggestionsCount(0);
-
-    return;
   }
   else
   {
@@ -90,17 +88,19 @@ function oninput()
     });
 
     suggestionsElement.scroll({
-      behavior: 'smooth',
+      behavior: (lastInput.length <= 0) ? 'instant' : 'smooth',
       left: 0,
       top: 0
     });
-
+  
     suggestionsIndex = 0;
+
+    const suggestionsData = handlePhrases(input);
+
+    handleSuggestions(suggestionsData, input);
   }
 
-  const suggestionsData = handlePhrases(input);
-
-  handleSuggestions(suggestionsData);
+  lastInput = input;
 }
 
 /** gets called on key downs while the search bar is focused
@@ -198,21 +198,21 @@ function handleSuggestions(data)
         const element = registeredPhrases[data[i].phrase].element;
 
         // if there is no chance the input is similar to the phrase
-        if (data[i].similarity <= 0)
+        if (data[i].similarity > 0)
+        {
+          for (let x = 0, y = 0; x < data[i].words.length; x++, y += 2)
+          {
+            const word = data[i].words[x];
+            
+            setSuggestionItemText(element, word.highlighted, word.normal, y);
+          }
+          
+          reorderSuggestionsElement(element);
+        }
+        else
         {
           removeSuggestionsElement(element);
-
-          continue;
         }
-
-        for (let x = 0, y = 0; x < data[i].words.length; x++, y += 2)
-        {
-          const word = data[i].words[x];
-          
-          setSuggestionItemText(element, word.highlighted, word.normal, y);
-        }
-
-        reorderSuggestionsElement(element);
       }
 
       updateSuggestionsCount(suggestionsElement.children.length);

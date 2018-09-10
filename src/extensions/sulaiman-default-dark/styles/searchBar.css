@@ -1,7 +1,13 @@
-.searchBar, .searchBarPreview
+html
 {
   --searchBar-height: (25px + 3vh + 0.5vw);
+  --suggestion-item-height: (25px + 2.5vh + 0.5vw);
 
+  --max-suggestions-count: 3;
+}
+
+.searchBar, .searchBarPreview
+{
   z-index: 1;
   outline: none;
   color: #FFFFFF;
@@ -42,9 +48,6 @@
 
 .suggestions
 {
-  --max-suggestions-count: 3;
-  --item-height: (25px + 2.5vh + 0.5vw);
-
   z-index: -1;
   overflow: hidden;
 
@@ -55,14 +58,15 @@
   left: 0;
 
   width: 100vw;
-  max-height: calc(var(--item-height) * var(--suggestions-count));
+  max-height: 0;
+
 
   transition: max-height 0.1s ease-in-out;
 }
 
 .suggestionsActive
 {
-  /* max-height: 0; */
+  max-height: calc(var(--suggestion-item-height) * var(--suggestions-count));
 }
 
 .suggestionsItem
@@ -74,7 +78,7 @@
 
   position: relative;
   width: 100vw;
-  height: calc(var(--item-height));
+  height: calc(var(--suggestion-item-height));
 
   white-space: pre-wrap;
   user-select: none;
