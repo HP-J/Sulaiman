@@ -87,17 +87,9 @@ function oninput()
       top: 0
     });
 
-    suggestionsElement.scroll({
-      behavior: (lastInput.length <= 0) ? 'instant' : 'smooth',
-      left: 0,
-      top: 0
-    });
-  
-    suggestionsIndex = 0;
-
     const suggestionsData = handlePhrases(input);
 
-    handleSuggestions(suggestionsData, input);
+    handleSuggestions(suggestionsData);
   }
 
   lastInput = input;
@@ -193,6 +185,8 @@ function handleSuggestions(data)
     })
     .then(() =>
     {
+      const lastSuggestionCount = suggestionsElement.children.length;
+      
       for (let i = 0; i < data.length; i++)
       {
         const element = registeredPhrases[data[i].phrase].element;
@@ -215,16 +209,27 @@ function handleSuggestions(data)
         }
       }
 
-      updateSuggestionsCount(suggestionsElement.children.length);
-
-      if (suggestionsElement.children.length > 0)
+      if (lastSuggestionCount <= 0 && suggestionsElement.children.length > 0 && suggestionsElement.contains(lastSuggestionItemSelected))
       {
-        const element = suggestionsElement.children[suggestionsIndex];
+        const index = Array.prototype.indexOf.call(suggestionsElement.children, lastSuggestionItemSelected);
 
+        suggestionsIndex = index;
+
+        scrollToSuggestionItem(lastSuggestionItemSelected, lastSuggestionItemSelected);
+        selectSuggestionItem(lastSuggestionItemSelected, lastSuggestionItemSelected);
+      }
+      else if (suggestionsElement.children.length > 0)
+      {
+        resetSelectedSuggestionItem();
+
+        const element = suggestionsElement.children[suggestionsIndex];
+  
         selectSuggestionItem(element, lastSuggestionItemSelected);
 
         lastSuggestionItemSelected = element;
       }
+
+      updateSuggestionsCount(suggestionsElement.children.length);
     });
 }
 
@@ -339,18 +344,35 @@ function selectSuggestionItem(element, lastElement)
 */
 function scrollToSuggestionItem(element, lastElement)
 {
-  if (lastElement)
-    lastElement.scrollIntoView({
-      behavior: 'instant',
+  requestAnimationFrame(() =>
+  {
+    if (lastElement)
+      lastElement.scrollIntoView({
+        behavior: 'instant',
+        inline: 'nearest',
+        block: 'nearest'
+      });
+
+    element.scrollIntoView({
+      behavior: 'smooth',
       inline: 'nearest',
       block: 'nearest'
     });
-
-  element.scrollIntoView({
-    behavior: 'smooth',
-    inline: 'nearest',
-    block: 'nearest'
   });
+}
+
+function resetSelectedSuggestionItem()
+{
+  requestAnimationFrame(() =>
+  {
+    suggestionsElement.scroll({
+      behavior: (lastInput.length <= 0) ? 'instant' : 'smooth',
+      left: 0,
+      top: 0
+    });
+  });
+
+  suggestionsIndex = 0;
 }
 
 /** @param { HTMLDivElement } element
