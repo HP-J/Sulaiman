@@ -90,7 +90,7 @@ export const on =
   * when the user search for a certain phrase
   * @param { string } phrase one word phrase
   * @param { string[] } [args] arguments available for the phrase
-  * @param { (argument: string) => void } [callback] emits when the user
+  * @param { (argument: string, value: string) => void } [callback] emits when the user
   * inputs the phrase with an argument to the search bar
   * @returns { Card }
   */

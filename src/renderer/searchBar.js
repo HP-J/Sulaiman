@@ -156,10 +156,12 @@ function handlePhrases(input)
     const phraseObj = registeredPhrases[phrase];
 
     // if input equals phrase show the card and emit the callback
-    if (input === searchable)
+    if (input.startsWith(searchable))
     {
       if (phraseObj.callback)
-        phraseObj.callback(standard(searchable.replace(phrase, '')));
+        phraseObj.callback(
+          searchable.replace(phrase, '').trim(),
+          input.replace(searchable, '').trim());
 
       document.body.appendChild(phraseObj.card.domElement);
 
@@ -466,7 +468,7 @@ export function standard(s)
 
 /** @param { string } phrase
 * @param { string[] } [args]
-* @param { (argument: string) => void } [callback]
+* @param { (argument: string, value: string) => void } [callback]
 * @returns { Card }
 */
 export function registerPhrase(phrase, args, callback)

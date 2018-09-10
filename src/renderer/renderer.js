@@ -384,9 +384,9 @@ on.phrase('extension',
   [
     'delete',
     'install'
-  ], (argument) =>
+  ], (argument, value) =>
   {
-    console.log(argument);
+    console.log(argument.length + ' = ' + value.length);
   });
 
 // make sure the user has a show hide shortcut key
