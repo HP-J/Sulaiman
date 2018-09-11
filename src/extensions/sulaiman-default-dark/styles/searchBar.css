@@ -31,16 +31,6 @@ html
   margin: 0px;
 }
 
-.searchBarPreview
-{
-  display: flex;
-  align-items: center;
-
-  background-color: red;
-
-  position: absolute;
-}
-
 .suggestions
 {
   z-index: -1;
@@ -54,7 +44,6 @@ html
 
   width: 100vw;
   max-height: 0;
-
 
   transition: max-height 0.1s ease-in-out;
 }

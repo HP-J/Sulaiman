@@ -10,13 +10,15 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object.<string, { card: Card, active: boolean, args: string[], callback: Function }> }
+/** @type { Object.<string, { card: Card, args: string[], shown: Function, entered: Function }> }
 */
 const registeredPhrases = {};
 
-/** @type { Object.<string, element: HTMLDivElement> }
+/** @type { Object.<string, HTMLDivElement> }
 */
 const searchables = {};
+
+let activePhrase = '';
 
 let suggestionsIndex = 0;
 
@@ -56,17 +58,22 @@ function focus()
   inputElement.focus();
 }
 
+/** clear the search bar
+*/
+function clear()
+{
+  inputElement.value = '';
+
+  oninput();
+}
+
 /** gets called every time sulaiman loses focus
 */
 function blur()
 {
-  // empty the search bar
+  // clear the search bar on sulaiman blur
   if (!process.env.DEBUG)
-  {
-    inputElement.value = '';
-
-    oninput();
-  }
+    clear();
 }
 
 /** gets called when the user changes the input value
@@ -77,6 +84,15 @@ function oninput()
 
   if (input === lastInput)
     return;
+
+  lastInput = input;
+
+  if (activePhrase)
+  {
+    document.body.removeChild(registeredPhrases[activePhrase].card.domElement);
+
+    activePhrase = '';
+  }
 
   if (input.length <= 0)
   {
@@ -94,8 +110,6 @@ function oninput()
 
     handleSuggestions(suggestionsData);
   }
-
-  lastInput = input;
 }
 
 /** gets called on key downs while the search bar is focused
@@ -117,6 +131,14 @@ function onkeydown(event)
     inputElement.value = lastSuggestionItemSelected.searchable;
 
     oninput();
+  }
+  else if (event.key === 'Enter')
+  {
+    if (activePhrase)
+    {
+      if (registeredPhrases[activePhrase].entered())
+        clear();
+    }
   }
   else if (event.key === 'Escape')
   {
@@ -161,17 +183,12 @@ function handlePhrases(input)
       if (phraseObj.callback)
         phraseObj.callback(
           searchable.replace(phrase, '').trim(),
-          input.replace(searchable, '').trim());
+          input.replace(searchable, '').trim()
+        );
 
       document.body.appendChild(phraseObj.card.domElement);
 
-      phraseObj.active = true;
-    }
-    else if (phraseObj.active)
-    {
-      document.body.removeChild(phraseObj.card.domElement);
-
-      phraseObj.active = false;
+      activePhrase = phrase;
     }
 
     // push the data we got about the two compared string to the data array
@@ -276,36 +293,6 @@ function toggleSuggestionElement()
   suggestionsElement.classList.toggle('suggestionsActive');
 }
 
-/** sets a word in a suggestion item
-* @param { HTMLElement } element the suggestion element
-* @param { string } highlighted the part that should be highlighted
-* @param { string } normal the part that should not be highlighted
-* @param { number } i the word index
-*/
-function setSuggestionItemWord(element, highlighted, normal, i)
-{
-  let highlightedElement, normalElement;
-
-  if (element.children.length <= i)
-  {
-    highlightedElement = document.createElement('div');
-    normalElement = document.createElement('div');
-              
-    highlightedElement.setAttribute('class', 'suggestionsItemHighlightedText');
-
-    element.appendChild(highlightedElement);
-    element.appendChild(normalElement);
-  }
-  else
-  {
-    highlightedElement = element.children[i];
-    normalElement = element.children[i + 1];
-  }
-
-  highlightedElement.innerText = highlighted;
-  normalElement.innerText = normal + ' ';
-}
-
 /** compares two strings are returns their similarity and which parts of then should be highlighted
 * @param { string[] } searchableWords
 * @param { string[] } inputWords
@@ -366,6 +353,36 @@ function sort(array, compare)
 
     resolve();
   });
+}
+
+/** sets a word in a suggestion item
+* @param { HTMLElement } element the suggestion element
+* @param { string } highlighted the part that should be highlighted
+* @param { string } normal the part that should not be highlighted
+* @param { number } i the word index
+*/
+function setSuggestionItemWord(element, highlighted, normal, i)
+{
+  let highlightedElement, normalElement;
+
+  if (element.children.length <= i)
+  {
+    highlightedElement = document.createElement('div');
+    normalElement = document.createElement('div');
+              
+    highlightedElement.setAttribute('class', 'suggestionsItemHighlightedText');
+
+    element.appendChild(highlightedElement);
+    element.appendChild(normalElement);
+  }
+  else
+  {
+    highlightedElement = element.children[i];
+    normalElement = element.children[i + 1];
+  }
+
+  highlightedElement.innerText = highlighted;
+  normalElement.innerText = normal + ' ';
 }
 
 /** selects a suggestion element
@@ -468,10 +485,11 @@ export function standard(s)
 
 /** @param { string } phrase
 * @param { string[] } [args]
-* @param { (argument: string, value: string) => void } [callback]
+* @param { (argument: string, value: string) => void } [shown]
+* @param { () => boolean } [entered]
 * @returns { Card }
 */
-export function registerPhrase(phrase, args, callback)
+export function registerPhrase(phrase, args, shown, entered)
 {
   phrase = standard(phrase);
 
@@ -499,6 +517,12 @@ export function registerPhrase(phrase, args, callback)
   {
     const argument = standard(phrase + ' ' + args[i]);
 
+    if (argument === phrase && args.length > 1)
+      throw new Error('Empty argument phrases can\'t have more than the empty argument');
+      
+    if (searchables[argument])
+      continue;
+
     args[i] = argument;
 
     const element = document.createElement('div');
@@ -513,7 +537,8 @@ export function registerPhrase(phrase, args, callback)
   {
     card: card,
     args: args,
-    callback: callback
+    shown: shown,
+    entered: entered
   };
 
   return card;

@@ -380,15 +380,6 @@ readyState = true;
 
 emit.ready();
 
-on.phrase('extension',
-  [
-    'delete',
-    'install'
-  ], (argument, value) =>
-  {
-    console.log(argument.length + ' = ' + value.length);
-  });
-
 // make sure the user has a show hide shortcut key
 registerShowHideKey();
 
@@ -396,9 +387,20 @@ registerShowHideKey();
 // search app list
 // change the show/hide key
 
-const element = createCard({ title: 'Hello', extensionIcon: getIcon('arrow') });
+on.phrase('extension',
+  [
+    'delete',
+    'install',
+    'running'
+  ], (argument, value) =>
+  {
+    console.log(argument.length + ' = ' + value.length);
+  }, () =>
+  {
+    console.log('entered');
 
-appendCard(element);
+    return true;
+  });
 
 // remove the splash screen when the dom is ready
 isDOMReady(() =>

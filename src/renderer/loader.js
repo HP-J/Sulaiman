@@ -25,7 +25,7 @@ import { Card } from './api.js';
 * @property { Object.<string, string> } credits
 */
 
-const eventTarget = new EventEmitter();
+const sulaiman = new EventEmitter();
 
 const extensionsDirectory = join(__dirname, '../extensions/');
 
@@ -85,24 +85,27 @@ export const on =
   /** emits when the app is fully loaded and ready to use
   * @param { () => void } callback the callback function
   */
-  ready: (callback) => eventTarget.addListener('ready', callback),
+  ready: (callback) => sulaiman.addListener('ready', callback),
   /** returns a card that is shown and hidden automatically
   * when the user search for a certain phrase
   * @param { string } phrase one word phrase
   * @param { string[] } [args] arguments available for the phrase
-  * @param { (argument: string, value: string) => void } [callback] emits when the user
-  * inputs the phrase with an argument to the search bar
+  * @param { (argument: string, value: string) => void } [shown] emits when the user
+  * inputs the phrase with an argument to the search bar, before the card is shown
+  * @param { () => boolean } [entered] emits every time the user presses down `Enter`
+  * while the card is shown, and the focus is on the search bar,
+  * if the callback returns `true` the search bar will be cleared and the card will be hidden again
   * @returns { Card }
   */
-  phrase: (phrase, args, callback) => registerPhrase(phrase, args, callback),
+  phrase: (phrase, args, shown, entered) => registerPhrase(phrase, args, shown, entered),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
-  focus: (callback) => eventTarget.addListener('focus', callback),
+  focus: (callback) => sulaiman.addListener('focus', callback),
   /** emits every time the sulaiman app loses focus
   * @param { () => void } callback the callback function
   */
-  blur: (callback) => eventTarget.addListener('blur', callback)
+  blur: (callback) => sulaiman.addListener('blur', callback)
 };
 
 export const off =
@@ -110,7 +113,7 @@ export const off =
   /** emits when the app is fully loaded and ready to use
   * @param { (text: string) => void } callback the callback function
   */
-  ready: (callback) => eventTarget.removeListener('ready', callback),
+  ready: (callback) => sulaiman.removeListener('ready', callback),
   /** removes a phrase and returns a card controlled by you
   * @param { Card } card the card previously given you by registering a phrase
   */
@@ -118,11 +121,11 @@ export const off =
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
-  focus: (callback) => eventTarget.removeListener('focus', callback),
+  focus: (callback) => sulaiman.removeListener('focus', callback),
   /** emits every time the sulaiman app loses focus
   * @param { () => void } callback the callback function
   */
-  blur: (callback) => eventTarget.removeListener('blur', callback)
+  blur: (callback) => sulaiman.removeListener('blur', callback)
 };
 
 export const is =
@@ -138,9 +141,9 @@ export const is =
 
 export const emit =
 {
-  ready: () => eventTarget.emit('ready'),
-  focus: () => eventTarget.emit('focus'),
-  blur: () => eventTarget.emit('blur')
+  ready: () => sulaiman.emit('ready'),
+  focus: () => sulaiman.emit('focus'),
+  blur: () => sulaiman.emit('blur')
 };
 
 export function getCaller(length)
