@@ -276,11 +276,11 @@ export default class Card
       card.domElement.style.setProperty(
         '--cardY',
         cardRect.height + 'px');
-
+  
       // if the card has the collapsed class, remove it
       if (card.domElement.classList.contains('cardCollapsed'))
         card.domElement.classList.remove('cardCollapsed');
-  
+
       // add the expanded class to the card
       card.domElement.classList.add('cardExpanded');
 
@@ -331,6 +331,16 @@ export default class Card
     this.domElement.appendChild(lineElem);
 
     return lineElem;
+  }
+
+  /** removes all children and deletes inline styles
+  */
+  reset()
+  {
+    while (this.domElement.firstChild)
+      this.domElement.removeChild(this.domElement.firstChild);
+
+    this.domElement.style.cssText = '';
   }
 
   /** customize the card with different options that follow the app user's css themes

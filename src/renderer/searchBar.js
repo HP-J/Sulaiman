@@ -134,15 +134,13 @@ function onkeydown(event)
   }
   else if (event.key === 'Enter')
   {
-    if (activePhrase)
+    inputElement.blur();
+
+    if (activePhrase && registeredPhrases[activePhrase].entered)
     {
       if (registeredPhrases[activePhrase].entered())
         clear();
     }
-  }
-  else if (event.key === 'Escape')
-  {
-    inputElement.blur();
   }
 
   if (suggestionsElement.children.length > 0)
@@ -180,8 +178,8 @@ function handlePhrases(input)
     // if input equals phrase show the card and emit the callback
     if (input.startsWith(searchable))
     {
-      if (phraseObj.callback)
-        phraseObj.callback(
+      if (phraseObj.shown)
+        phraseObj.shown(
           searchable.replace(phrase, '').trim(),
           input.replace(searchable, '').trim()
         );

@@ -25,13 +25,15 @@ function createWindow()
   const width = Math.round(screenSize.width * 0.50);
   const height = Math.round(screenSize.height * 0.65);
 
+  const isDEBUG = process.env.DEBUG !== undefined;
+
   mainWindow = new BrowserWindow(
     {
       title: 'Sulaiman',
-      show: false,
-      frame: (process.env.DEBUG !== undefined),
-      skipTaskbar: true,
-      resizable: (process.env.DEBUG !== undefined),
+      show: isDEBUG,
+      frame: isDEBUG,
+      skipTaskbar: !isDEBUG,
+      resizable: isDEBUG,
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
