@@ -10,15 +10,15 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object.<string, { card: Card, args: string[], shown: Function, entered: Function }> }
+/** @type { Object.<string, { phrase: string, card: Card, args: string[], shown: Function, entered: Function }> }
 */
 const registeredPhrases = {};
 
-/** @type { Object.<string, HTMLDivElement> }
+/** @type { Object.<string, { phraseKey: string, argument: string, element: HTMLDivElement }> }
 */
 const searchables = {};
 
-let activePhrase = '';
+let activePhraseKey = '';
 
 let suggestionsIndex = 0;
 
@@ -87,11 +87,11 @@ function oninput()
 
   lastInput = input;
 
-  if (activePhrase)
+  if (activePhraseKey)
   {
-    document.body.removeChild(registeredPhrases[activePhrase].card.domElement);
+    document.body.removeChild(registeredPhrases[activePhraseKey].card.domElement);
 
-    activePhrase = '';
+    activePhraseKey = '';
   }
 
   if (input.length <= 0)
@@ -136,9 +136,9 @@ function onkeydown(event)
   {
     inputElement.blur();
 
-    if (activePhrase && registeredPhrases[activePhrase].entered)
+    if (activePhraseKey && registeredPhrases[activePhraseKey].entered)
     {
-      if (registeredPhrases[activePhrase].entered())
+      if (registeredPhrases[activePhraseKey].entered())
         clear();
     }
   }
@@ -164,29 +164,35 @@ function handlePhrases(input)
 
   const suggestionsData = [];
 
-  for (const searchable in searchables)
+  for (let searchable in searchables)
   {
+    searchable = searchables[searchable];
+
+    const phraseObj = registeredPhrases[searchable.phraseKey];
+    
     // split to array of words
-    const searchableWords = searchable.split(/\s/);
+    const searchableWords = [];
+
+    searchableWords.push(phraseObj.phrase);
+    searchableWords.push(...searchable.argument.split(/\s/));
 
     // compare the searchable with the input
     const { similarity, words } = compareStrings(searchableWords, inputWords);
 
-    const phrase = searchableWords[0];
-    const phraseObj = registeredPhrases[phrase];
+    // if (string:two) starts with (string:one)
+    const regex = input.match(new RegExp('(' + phraseObj.phrase + '\\s' + searchable.argument + ')(.*)', 'i'));
 
-    // if input equals phrase show the card and emit the callback
-    if (input.startsWith(searchable))
+    if (regex)
     {
       if (phraseObj.shown)
         phraseObj.shown(
-          searchable.replace(phrase, '').trim(),
-          input.replace(searchable, '').trim()
+          searchable.argument,
+          regex[2].trim()
         );
 
       document.body.appendChild(phraseObj.card.domElement);
 
-      activePhrase = phrase;
+      activePhraseKey = searchable.phraseKey;
     }
 
     // push the data we got about the two compared string to the data array
@@ -229,8 +235,7 @@ function handleSuggestions(data)
       // loop through the sorted data from the lowest to the highest
       for (let i = 0; i < data.length; i++)
       {
-        // the suggestion element belonging to the searchable
-        const element = searchables[data[i].searchable];
+        const searchable = data[i].searchable;
 
         // if the input is similar in any way to the searchable
         if (data[i].similarity > 0)
@@ -241,17 +246,17 @@ function handleSuggestions(data)
             const word = data[i].words[x];
             
             // set the word in the element
-            setSuggestionItemWord(element, word.highlighted, word.normal, y);
+            setSuggestionItemWord(searchable.element, word.highlighted, word.normal, y);
           }
           
           // moves the suggestion element to the top of the list
-          reorderSuggestionsElement(element);
+          reorderSuggestionsElement(searchable.element);
         }
         // if there is no chance the input is similar to the phrase
         else
         {
           // remove the suggestion element from the list
-          removeSuggestionsElement(element);
+          removeSuggestionsElement(searchable.element);
         }
       }
 
@@ -306,7 +311,10 @@ function compareStrings(searchableWords, inputWords)
     const one = inputWords[xi];
     const two = searchableWords[pi];
 
-    if (two.startsWith(one))
+    // if (string:two) starts with (string:one)
+    const regex = two.match(new RegExp('\\b(' + one + ')(.*)', 'i'));
+
+    if (regex)
     {
       // calculate similarity
       similarity +=
@@ -315,12 +323,12 @@ function compareStrings(searchableWords, inputWords)
         (((100 * one.length) / two.length) / searchableWords.length) +
         (100 * (two.length - (two.length - one.length)))
       );
-      
+
       // add the highlighted part, add the rest of the word that is not highlighted
       words.push(
         {
-          highlighted: inputWords[xi],
-          normal: searchableWords[pi].replace(inputWords[xi], '')
+          highlighted: regex[1],
+          normal: regex[2]
         });
     }
     else
@@ -470,15 +478,13 @@ function updateSuggestionsCount(count)
 */
 export function standard(s)
 {
-  // to lower case, we don't want any trouble with case insensitivity
-
   // replace any newlines or extra whitespace with only one space,
   // so we can split words correctly
 
-  // remove any whitespace from the beginning and the ending of the string,
+  // remove any unnecessary whitespace from the beginning and the ending of the string,
   // just to make sure to get the expected result
 
-  return s.toLowerCase().replace(/\s+|\n/g, ' ').trim();
+  return s.replace(/\s+|\n/g, ' ').trim();
 }
 
 /** @param { string } phrase
@@ -489,19 +495,23 @@ export function standard(s)
 */
 export function registerPhrase(phrase, args, shown, entered)
 {
-  phrase = standard(phrase);
+  if (phrase !== standard(phrase))
+    throw new Error('the phrase must not have any unnecessary whitespace and also must not have any newlines');
 
   if (phrase.split(/\s/).length > 1)
     throw new Error('The phrase can only have one word, additional words can be set as arguments');
 
-  if (registeredPhrases[phrase])
-    throw new Error('The phrase is already registered');
+  const phraseKey = phrase.toLowerCase();
 
+  
+  if (registeredPhrases[phraseKey])
+    throw new Error('The phrase is already registered');
+  
   if (!args || args.length <= 0)
     args = [ '' ];
-
+  
   const card = createCard();
-
+  
   // we want to have control over when cards are shown
   // and removed from the dom, by setting a read-only property
   // that is checked by all append and remove apis, we can accomplish that
@@ -510,29 +520,38 @@ export function registerPhrase(phrase, args, shown, entered)
       value: phrase,
       writable: false
     });
-
+  
   for (let i = 0; i < args.length; i++)
   {
-    const argument = standard(phrase + ' ' + args[i]);
+    if (args[i] !== standard(args[i]))
+      throw new Error('the argument (' + args[i] + ') have unnecessary whitespace or newlines, both are not allowed');
+    
+    const searchable = phraseKey + ' ' + args[i].toLowerCase();
 
-    if (argument === phrase && args.length > 1)
+    if (searchable === phraseKey && args.length > 1)
       throw new Error('Empty argument phrases can\'t have more than the empty argument');
       
-    if (searchables[argument])
+    if (searchables[searchable])
       continue;
-
-    args[i] = argument;
 
     const element = document.createElement('div');
 
     element.setAttribute('class', 'suggestionsItem');
-    element.searchable = argument;
+    element.searchable = searchable;
 
-    searchables[argument] = element;
+    searchables[searchable] =
+    {
+      phraseKey: phraseKey,
+      argument: args[i],
+      element: element
+    };
+
+    args[i] = searchable;
   }
 
-  registeredPhrases[phrase] =
+  registeredPhrases[phraseKey] =
   {
+    phrase: phrase,
     card: card,
     args: args,
     shown: shown,
@@ -547,10 +566,10 @@ export function registerPhrase(phrase, args, shown, entered)
 */
 export function unregisterPhrase(card)
 {
-  if (card.isPhrased && registeredPhrases[card.isPhrased])
+  if (card.isPhrased && registeredPhrases[card.isPhrased.toLowerCase()])
   {
-    const phrase = card.isPhrased;
-    const phraseObj = registeredPhrases[phrase];
+    const phraseKey = card.isPhrased.toLowerCase();
+    const phraseObj = registeredPhrases[phraseKey];
 
     // remove all suggestion element that belongs to the args
     for (let i = 0; i < phraseObj.args.length; i++)
@@ -560,7 +579,7 @@ export function unregisterPhrase(card)
     }
 
     // delete it from the registered phrases array
-    delete registeredPhrases[phrase];
+    delete registeredPhrases[phraseKey];
 
     // clone card with a removed isPhrased property
     const clone = Object.assign(createCard(), card, { isPhrased: undefined });

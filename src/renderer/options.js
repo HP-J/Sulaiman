@@ -23,12 +23,12 @@ export function loadOptions()
 
 export function registerOptionsPhrase()
 {
-  const card = on.phrase('options', [ 'show/hide key' ],
+  const card = on.phrase('Options', [ 'Show/Hide Key' ],
     (argument) =>
     {
       card.reset();
 
-      if (argument === 'show/hide key')
+      if (argument === 'Show/Hide Key')
         showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide);
     });
 }

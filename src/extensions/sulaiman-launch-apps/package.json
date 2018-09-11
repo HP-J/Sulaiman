@@ -1,5 +1,5 @@
 {
-  "name": "sulaiman-app-launch",
+  "name": "sulaiman-launch-apps",
   "version": "0.1.0",
   "description": "search and launch apps installed on your operating system",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "url": "https://gitlab.com/herpproject/sulaiman-app-launch.git"
   },
   "sulaiman": {
-    "displayName": "Apps",
+    "displayName": "Launch Apps",
     "permissions": [
       "process",
       "shell"

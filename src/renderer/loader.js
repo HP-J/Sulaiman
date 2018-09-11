@@ -85,7 +85,7 @@ export const on =
   /** emits when the app is fully loaded and ready to use
   * @param { () => void } callback the callback function
   */
-  ready: (callback) => sulaiman.addListener('ready', callback),
+  ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
   /** returns a card that is shown and hidden automatically
   * when the user search for a certain phrase
   * @param { string } phrase one word phrase

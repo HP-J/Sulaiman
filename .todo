@@ -1,12 +1,5 @@
 graphics:
-  phrase:
-    ☐ auto show/hide @today 
-    
-  auto-complete:
-    ☐ auto-hide @today 
-    ☐ navigation @today 
-
-  ☐ conflicting themes card
+  ☐ conflicting themes card instead of an error
   ☐ show popular extensions from the npm registry
 
 manager:
@@ -14,7 +7,7 @@ manager:
   
   technical:
   ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
-  ☐ build & test MSI 
+  ☐ build & test MSI @today 
 
   ☐ build & test DMG @need-help
 
@@ -23,14 +16,11 @@ CI/CD:
   ☐ upload a version.json containing date, commit, build number 
   ☐ publish a new version to npm
 
-extensions:
-  ☐ check for updates and download packages (https://www.npmjs.com/package/node-wget-promise)
-  ☐ auto-launch (https://www.npmjs.com/package/auto-launch)
-  
+extensions:  
   ☐ files
   ☐ calculator
   ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
   ☐ google
   
   ☐ progressive web apps
-  ☐ app-launch (mac) @need-help 
+  ☐ launch-apps (mac) @need-help 
