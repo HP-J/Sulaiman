@@ -14,7 +14,7 @@ stages:
 #     - release
 
 build:
-  stage: deploy
+  stage: build
   image: node:slim
   script:
     - sudo apt-get update
