@@ -7,7 +7,7 @@ stages:
   - build
 
 variables: {
-    PACKAGE_TYPE: "",
+    PACKAGE_TYPE: "null",
     BUILD_JSON: 
       "node -e \"
       console.log(
@@ -43,15 +43,15 @@ build:
     - npm install
     - npm run compile
     - "PACKAGE_TYPE='nsis' && echo $($BUILD_JSON) >> build.json"
-    - npx electron-builder --win NSIS
-    - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
-    - npx electron-builder --linux AppImage
+    # - npx electron-builder --win NSIS
+    # - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
+    # - npx electron-builder --linux AppImage
     - "PACKAGE_TYPE='ci' && rm build.json && echo $($BUILD_JSON) >> build.json"
   artifacts:
     expire_in: 6 mos
     paths:
-      - public/Sulaiman-Setup.exe
-      - public/Sulaiman.AppImage
+      # - public/Sulaiman-Setup.exe
+      # - public/Sulaiman.AppImage
       - build.json
   only:
     - release
