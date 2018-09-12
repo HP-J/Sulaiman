@@ -25,15 +25,16 @@ variables: {
 
 build:
   stage: build
-  image: electronuserland/builder:wine
+  # image: electronuserland/builder:wine
+  image: node:slim
   script:
-    - npm install
-    - npm run compile
-    - "echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS) >> build.json"
+    # - npm install
+    # - npm run compile
+    # - "echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS) >> build.json"
     # - npx electron-builder --win NSIS
     # - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
     # - npx electron-builder --linux AppImage
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS)  >> build.json"
+    - "echo $(node -e \"$BUILD_JSON\" $($BUILD_JSON_ARGS)) >> build.json"
   artifacts:
     expire_in: 6 mos
     paths:
