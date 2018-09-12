@@ -7,8 +7,6 @@ stages:
   - build
 
 variables: {
-    VERSION: "",
-    DATE: "",
     EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
     APPIMAGE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build",
     BUILD_JSON:
@@ -29,13 +27,14 @@ build:
   script:
     - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
     - "DATE=$(date --utc +%FT%T.%3NZ)"
+    - "BUILD_JSON_ARGS=$VERSION $CI_COMMIT_SHA $DATE $PACKAGE_TYPE $EXE_URL $APPIMAGE_URL"
     # - npm install
     # - npm run compile
     # - "echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS) >> build.json"
     # - npx electron-builder --win NSIS
     # - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
     # - npx electron-builder --linux AppImage
-    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE $PACKAGE_TYPE $EXE_URL $APPIMAGE_URL) >> build.json"
+    - "echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS) >> build.json"
   artifacts:
     expire_in: 6 mos
     paths:
