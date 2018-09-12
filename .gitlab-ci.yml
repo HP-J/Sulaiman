@@ -7,7 +7,6 @@ stages:
   - build
 
 variables: {
-    PACKAGE_TYPE: "null",
     VERSION: "$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')",
     DATE: "$(date --utc +%FT%T.%3NZ)",
     EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
@@ -30,11 +29,11 @@ build:
   script:
     - npm install
     - npm run compile
-    - "PACKAGE_TYPE='nsis' && echo $(\"$BUILD_JSON\") >> build.json"
+    - "echo $(\"$BUILD_JSON\") >> build.json"
     # - npx electron-builder --win NSIS
     # - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
     # - npx electron-builder --linux AppImage
-    - "PACKAGE_TYPE='ci' && rm build.json && echo $(\"$BUILD_JSON\") >> build.json"
+    - "rm build.json && echo $(\"$BUILD_JSON\") >> build.json"
   artifacts:
     expire_in: 6 mos
     paths:
