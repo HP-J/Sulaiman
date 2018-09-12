@@ -8,6 +8,10 @@ stages:
 
 variables: {
     PACKAGE_TYPE: "null",
+    VERSION: "cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]'",
+    DATE: "date --utc +%FT%T.%3NZ",
+    EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
+    APPIMAGE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build",
     BUILD_JSON: 
       "node -e \"
       console.log(
@@ -20,13 +24,12 @@ variables: {
         appImage: process.argv[6]
       }));
       \"
-      $(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')
+      $(VERSION)
       $CI_COMMIT_SHA
-      $(date --utc +%FT%T.%3NZ)
+      $(DATE)
       $PACKAGE_TYPE
-      https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build
-      https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build
-      "
+      $EXE_URL
+      $APPIMAGE_URL"
 }
 
 # test:
