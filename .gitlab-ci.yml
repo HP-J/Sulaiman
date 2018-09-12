@@ -20,14 +20,22 @@ build:
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
-    - "tee public/build.json <<EOF
-{
-  \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",
-  \"commit\": \"$CI_COMMIT_SHA\",
-  \"date\": \"$(date --utc +%FT%T.%3NZ)\",
-  \"win32\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build\",
-  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build\",
-}"
+    - "echo $(node -e \"
+    console.log(
+      JSON.stringify({
+        build: process.argv[1]
+        commit: process.argv[2]
+        date: process.argv[3]
+        win32: process.argv[4]
+        linux: process.argv[5]
+      }));
+    \"
+    $(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') 
+    $CI_COMMIT_SHA 
+    $(date --utc +%FT%T.%3NZ) 
+    https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build 
+    https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build
+  ) >> public/build.json"
   artifacts:
     expire_in: 6 mos
     paths:
