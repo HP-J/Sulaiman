@@ -17,8 +17,8 @@ build:
   stage: build
   image: node:slim
   script:
-    - sudo apt-get update
-    - sudo apt-get install -y wine
+    - apt-get update
+    - apt-get install -y wine
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
   artifacts:
