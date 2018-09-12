@@ -20,13 +20,13 @@ build:
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
-    - "echo \"{\" >> latest.json"
-    - "echo \"  \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",\" >> latest.json"
-    - "echo \"  \"commit\": \"$(CI_COMMIT_SHA)\",\" >> latest.json"
-    - "echo \"  \"date\": \"$(date --utc +%FT%T.%3NZ)\",\" >> latest.json"
-    - "echo \"  \"windows\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$(CI_JOB_ID)/artifacts/raw/public/Sulaiman-Setup.exe?job=build\",\" >> latest.json"
-    - "echo \"  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$(CI_JOB_ID)/artifacts/raw/public/Sulaiman.AppImage?job=build\",\" >> latest.json"
-    - "echo \"}\" >> latest.json"
+    - "echo \"{\" >> public/latest.json"
+    - "echo \"  \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",\" >> public/latest.json"
+    - "echo \"  \"commit\": \"$($CI_COMMIT_SHA)\",\" >> public/latest.json"
+    - "echo \"  \"date\": \"$(date --utc +%FT%T.%3NZ)\",\" >> public/latest.json"
+    - "echo \"  \"windows\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$($CI_JOB_ID)/artifacts/raw/public/Sulaiman-Setup.exe?job=build\",\" >> public/latest.json"
+    - "echo \"  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$($CI_JOB_ID)/artifacts/raw/public/Sulaiman.AppImage?job=build\",\" >> public/latest.json"
+    - "echo \"}\" >> public/latest.json"
   artifacts:
     expire_in: 6 mos
     paths:
