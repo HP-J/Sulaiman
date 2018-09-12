@@ -2,17 +2,17 @@ cache:
   paths:
   - node_modules
 
-stages:
-  # - test
-  - build
-
 variables: {
     EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
     APPIMAGE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build",
     URLS: "$EXE_URL $APPIMAGE_URL",
     BUILD_JSON:
-      "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], current: process.argv[4], nsis: process.argv[5], appImage: process.argv[6] }));"
+      "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || null, nsis: process.argv[5], appImage: process.argv[6] }));"
 }
+
+stages:
+  # - test
+  - build
 
 # test:
 #   stage: test
