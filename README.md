@@ -25,12 +25,11 @@
 - the node package -->
 
 # Download
-- Linux ~ [AppImage]()
-- Windows ~ [MSI]()
+- Linux ~ [AppImage](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.AppImage?job=build)
+- Windows ~ [Setup](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
 - macOS ~ if you own a machine running mac and you're willing to test Sulaiman, please [contact us](mailto:kerolos4zaki@gmail.com), we need your help.
 
 # One Last Thing
-
 [![patrons](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/)
 [![receives](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject)
 [![goal](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/donate)

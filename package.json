@@ -24,12 +24,14 @@
     "directories": {
       "output": "public"
     },
-    "appImage": {
-      "artifactName": "Sulaiman.AppImage",
+    "linux": {
       "category": "Utility"
     },
+    "appImage": {
+      "artifactName": "Sulaiman.AppImage"
+    },
     "nsis": {
-      "artifactName": "Sulaiman Setup.exe",
+      "artifactName": "Sulaiman-Setup.exe",
       "oneClick": false,
       "perMachine": true,
       "allowToChangeInstallationDirectory": true,

@@ -1,13 +1,13 @@
 cache:
   paths:
   - node_modules
-  - $HOME/.cache/electron
-  - $HOME/.cache/electron-builder
+  - /.cache/electron
+  - /.cache/electron-builder
 
-variables: {
- ELECTRON_BUILDER_CACHE: '$HOME/.cache/electron-builder',
- ELECTRON_CACHE: '$HOME/.cache/electron'
-}
+# variables: {
+#  ELECTRON_CACHE: '/.cache/electron',
+#  ELECTRON_BUILDER_CACHE: '/.cache/electron-builder'
+# }
 
 stages:
   # - test
@@ -30,7 +30,6 @@ build:
   artifacts:
     expire_in: 6 mos
     paths:
-      - public/Sulaiman Setup.exe
-      - public/Sulaiman.AppImage
+      - public
   only:
     - release

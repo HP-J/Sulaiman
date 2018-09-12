@@ -1,26 +1,25 @@
 graphics:
-  ☐ conflicting themes card instead of an error
-  ☐ show popular extensions from the npm registry
+  ☐ conflicting themes card instead of an error @low 
+  ☐ show popular extensions from the npm registry @low  
 
 manager:
-  ☐ allow local modules under the sandbox
+  ☐ allow local modules under the sandbox @low 
   
-  technical:
-  ✔ build & test AppImage @done (8/28/2018, 1:05:22 AM)
-  ☐ build & test MSI @today 
+technical:
+  ☐ auto-update () @high 
+  ☐ auto-launch (https://www.npmjs.com/package/auto-launch) @high 
+  ☐ phrases match regex @high  @today 
 
   ☐ build & test DMG @need-help
 
 CI/CD:
-  ☐ build and upload AppImage and MSI 
-  ☐ upload a version.json containing date, commit, build number 
-  ☐ publish a new version to npm
 
 extensions:  
-  ☐ files
-  ☐ calculator
-  ☐ open urls (https://www.npmjs.com/package/@meltwater/fetch-favicon)
-  ☐ google
+  ☐ calculator @high 
+  ☐ open urls 
+  ☐ files 
+
+  ☐ google 
   
   ☐ progressive web apps
   ☐ launch-apps (mac) @need-help 
