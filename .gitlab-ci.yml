@@ -19,6 +19,7 @@ build:
   script:
     - apt-get update
     - apt-get install -y wine
+    - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
   artifacts:
