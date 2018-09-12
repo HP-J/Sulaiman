@@ -9,6 +9,8 @@ import { loadNPM } from './manager.js';
 import { Card, appendCard, removeCard, getIcon } from './api.js';
 import { createCard } from './card.js';
 
+import request from 'request-promise-native';
+
 export const mainWindow = remote.getCurrentWindow();
 
 export const menuTemplate =
@@ -212,6 +214,11 @@ readyState = true;
 
 // emit the ready event for extensions
 emit.ready();
+
+request(
+  'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/latest.json?job=build',
+  { json: true })
+  .then((value) => console.log(value));
 
 // extensions / extensions install / extension delete
 

@@ -20,7 +20,7 @@ build:
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
-    - "echo \"{\" >> public/latest.json"
+    - "echo \"{\" >> public/build.json"
     - "echo \"  \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",\" >> public/build.json"
     - "echo \"  \"commit\": \"$CI_COMMIT_SHA\",\" >> public/build.json"
     - "echo \"  \"date\": \"$(date --utc +%FT%T.%3NZ)\",\" >> public/build.json"
