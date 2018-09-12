@@ -14,8 +14,7 @@
   min-height: 10px;
   max-height: 125vh;
 
-  font-family: Oxygen;
-  font-size: calc(10px + 0.5vw + 1vh);
+  font-family: Oxygen, sans-serif;
   font-weight: 400;
   user-select: none;
   white-space: nowrap;
@@ -117,7 +116,7 @@
 
 .cardMedium
 {
-  font-size: calc(10px + 0.5vw + 1vh);
+  font-size: calc(11px + 0.5vw + 1vh);
 }
 
 .cardSmall

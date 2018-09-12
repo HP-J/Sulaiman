@@ -139,61 +139,60 @@ function windows()
   });
 }
 
-if (platform === 'linux')
+function registerPhrases()
 {
-  const launch = (exec) =>
+  sulaiman.on.ready(() =>
   {
-    execute(exec.replace(/%./g, ''));
-  };
-
-  linux()
-    .then(() =>
+    const launch = (exec) =>
     {
-      // sulaiman.on.ready(() =>
-      // {
-      //   let name = '';
-      //   const button = sulaiman.createCard();
-        
-      //   button.appendText('Launch', { align: 'Center' });
+      if (platform === 'linux')
+        // Linux
+        // Replace %u and other % arguments in exec script
+        // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
+        execute(exec.replace(/%./g, ''));
+      else
+        sulaiman.shell.openItem(exec);
 
-      //   button.domElement.onclick = () =>
-      //   {
-      //     launch(apps[name]);
-      //   };
+      card.auto({ description: 'has been launched' });
+      card.removeChild(button);
+      card.disable();
+    };
 
-      //   const card = sulaiman.on.phrase(
-      //     'Launch',
-      //     phraseArgs,
-      //     // change the card to feature the app chosen
-      //     (argument) =>
-      //     {
-      //       name = argument;
+    let name = '';
+    const button = sulaiman.createCard();
+    
+    button.appendText('Launch', { align: 'Center' });
 
-      //       card.auto({ title: name, description: 'launch the application' });
-      //     },
-      //     // on pressing Enter
-      //     () =>
-      //     {
-      //       console.log(apps[name]);
+    button.domElement.onclick = () =>
+    {
+      launch(apps[name]);
+    };
 
-      //       return true;
-      //     });
-  
-      //   card.appendChild(button);
-      // });
-    });
+    const card = sulaiman.on.phrase(
+      'Launch',
+      phraseArgs,
+      // change the card to feature the app chosen
+      (argument) =>
+      {
+        name = argument;
+
+        card.auto({ title: name, description: 'launch the application' });
+        card.appendChild(button);
+        card.enable();
+      },
+      // on pressing Enter
+      () =>
+      {
+        launch(apps[name]);
+
+        return true;
+      });
+  });
 }
+
+if (platform === 'linux')
+  linux().then(registerPhrases);
 else if (platform === 'win32')
-{
-  // windows();
-}
+  windows().then(registerPhrases);
 else
   throw new Error('sulaiman-launch-apps doesn\'t work on ' + platform);
-
-// WIndows
-// sulaiman.shell.openItem(apps[75]);
-
-// Linux
-// Replace %u and other % arguments in exec script
-// https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
-// exec();

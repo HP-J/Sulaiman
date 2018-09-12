@@ -104,8 +104,6 @@ function restoreSession()
   localStorage.removeItem('session');
 }
 
-
-
 /** @param { Electron.MenuItemConstructorOptions[] } template
 */
 function updateMenu(template)
@@ -216,7 +214,6 @@ readyState = true;
 emit.ready();
 
 // extensions / extensions install / extension delete
-// search app list
 
 // on.phrase('extension',
 //   [

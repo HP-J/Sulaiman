@@ -10,7 +10,10 @@
   },
   "sulaiman": {
     "displayName": "Default Dark",
-    "theme": true
+    "theme": true,
+    "credits": {
+      "all icons are made by smashicons from www.flaticon.com": "https://www.flaticon.com/authors/smashicons"
+    }
   },
   "author": "Herp Project",
   "license": "MIT"

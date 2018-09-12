@@ -19,8 +19,8 @@ html
   width: calc(100vw - 20px);
   height: calc(var(--searchBar-height));
 
-  font-family: Oxygen;
-  font-size: calc(15px + 1.5vh + 0.5vw);
+  font-family: Oxygen, sans-serif;
+  font-size: calc(14px + 1.5vh + 0.5vw);
   font-weight: 400;
 
   user-select: none;
@@ -67,8 +67,8 @@ html
   white-space: pre-wrap;
   user-select: none;
 
-  font-family: Oxygen;
-  font-size: calc(14px + 0.8vh + 0.5vw);
+  font-family: Oxygen, sans-serif;
+  font-size: calc(12px + 0.8vh + 0.5vw);;
   font-weight: 400;
 
   padding: 0px 10px;

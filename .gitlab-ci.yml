@@ -4,25 +4,27 @@ cache:
 
 stages:
   # - test
-  - deploy
+  - build
 
 # test:
 #   stage: test
 #   script:
-#     - echo "export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true && npm install" | sh
-#     - npm run compile
-#     - ./node_modules/.bin/electron . --remote-debugging-port=9222
+#     - npm run test
 #   only:
-#     - development
-#   tags:
-#     - arch
-#     - linux
-#     - 64bit
+#     - release
 
-deploy:
+build:
   stage: deploy
   image: node:slim
   script:
-    - echo "hello world"
+    - sudo apt-get update
+    - sudo apt-get install -y wine
+    - npm run compile
+    - npx electron-builder --win NSIS --linux AppImage
+  artifacts:
+    expire_in: 6 mos
+    paths:
+      - public/Sulaiman Setup.exe
+      - public/Sulaiman.AppImage
   only:
     - release

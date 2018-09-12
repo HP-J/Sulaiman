@@ -118,6 +118,14 @@ export default class Card
       this.domElement.removeChild(child.domElement || child);
   }
 
+  /** returns true if the card contains a card or a html element
+  * @param { Card | HTMLElement } child
+  */
+  containsChild(child)
+  {
+    return this.domElement.contains(child.domElement || child);
+  }
+
   /**
   * @param { string } text
   * @param { TextOptions } options

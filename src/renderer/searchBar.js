@@ -128,7 +128,9 @@ function onkeydown(event)
   }
   else if (event.key === 'ArrowRight' && lastSuggestionItemSelected)
   {
-    inputElement.value = lastSuggestionItemSelected.searchable;
+    const searchable = searchables[lastSuggestionItemSelected.searchable];
+
+    inputElement.value = registeredPhrases[searchable.phraseKey].phrase + ' ' + searchable.argument;
 
     oninput();
   }

@@ -1,5 +1,6 @@
 {
   "name": "sulaiman",
+  "productName": "Sulaiman",
   "version": "0.1.0",
   "description": "A keyboard launcher with no features",
   "main": "index.js",
@@ -8,9 +9,8 @@
     "dev": "npx babel src --out-dir compiled --presets @babel/preset-env --copy-files --source-maps --watch",
     "compile": "npx babel src --out-dir compiled --presets @babel/preset-env --copy-files --no-comments --minified && rm -rf ./compiled/extensions/sulaiman-extension-debug",
     "clean": "rm -r compiled",
-    "test": "eslint src test && nyc mocha --require @babel/register --require @babel/polyfill",
-    "pre-release": "npm version patch --no-git-tag-version && npm run clean && npm run compile",
-    "release": "npm run pre-release && npm publish && git push origin development:release"
+    "test": "eslint src && nyc mocha --require @babel/register --require @babel/polyfill",
+    "pre-release": "npm version patch --no-git-tag-version && npm run clean"
   },
   "build": {
     "appId": "com.herpproject.sulaiman",
@@ -23,18 +23,19 @@
     ],
     "directories": {
       "output": "public"
+    },
+    "appImage": {
+      "artifactName": "Sulaiman.AppImage",
+      "category": "Utility"
+    },
+    "nsis": {
+      "artifactName": "Sulaiman Setup.exe",
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "uninstallDisplayName": "Sulaiman",
+      "shortcutName": "Sulaiman"
     }
-  },
-  "nyc": {
-    "include": [
-      "**/main.js",
-      "**/api.js",
-      "**/card.js",
-      "**/loader.js",
-      "**/manager.js",
-      "**/renderer.js",
-      "**/searchBar.js"
-    ]
   },
   "homepage": "https://gitlab.com/herpproject/Sulaiman",
   "repository": {
@@ -59,7 +60,7 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^9.0.0",
-    "electron": "^3.0.0-beta.7",
+    "electron": "^3.0.0-beta.10",
     "electron-builder": "^20.28.3",
     "eslint": "^5.5.0",
     "mocha": "^5.2.0",
