@@ -49,6 +49,43 @@ function walkSync(directories)
   return results;
 }
 
+function windows()
+{
+  const { APPDATA, ProgramData } = process.env;
+
+  // directories where usually shortcut, links or the apps themselves exists
+  const appDirectories =
+  [
+    join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
+    join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
+  ];
+
+  // the usual extensions for the apps in this os
+  const appExtension = '.lnk';
+
+  return new Promise((resolve) =>
+  {
+    const files = walkSync(appDirectories);
+    
+    for (let i = 0; i < files.length; i++)
+    {
+      const file = files[i];
+      
+      // if it ends with the specified extension
+      if (file.endsWith(appExtension))
+      {
+        const name = basename(file, appExtension);
+
+        phraseArgs.push(name);
+
+        apps[name] = file;
+      }
+    }
+    
+    resolve();
+  });
+}
+
 function linux()
 {
   // directories where usually shortcut, links or the apps themselves exists
@@ -102,56 +139,23 @@ function linux()
   });
 }
 
-function windows()
-{
-  const { APPDATA, ProgramData } = process.env;
-
-  // directories where usually shortcut, links or the apps themselves exists
-  const appDirectories =
-  [
-    join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
-    join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
-  ];
-
-  // the usual extensions for the apps in this os
-  const appExtension = '.lnk';
-
-  return new Promise((resolve) =>
-  {
-    const files = walkSync(appDirectories);
-    
-    for (let i = 0; i < files.length; i++)
-    {
-      const file = files[i];
-      
-      // if it ends with the specified extension
-      if (file.endsWith(appExtension))
-      {
-        const name = basename(file, appExtension);
-
-        phraseArgs.push(name);
-
-        apps[name] = file;
-      }
-    }
-    
-    resolve();
-  });
-}
-
 function registerPhrases()
 {
   sulaiman.on.ready(() =>
   {
     const launch = (exec) =>
     {
-      if (platform === 'linux')
+      if (platform === 'win32')
+      {
+        sulaiman.shell.openItem(exec);
+      }
+      else
+      {
         // Linux
         // Replace %u and other % arguments in exec script
         // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
         execute(exec.replace(/%./g, ''));
-      else
-        sulaiman.shell.openItem(exec);
+      }
 
       card.auto({ description: 'has been launched' });
       card.removeChild(button);
@@ -190,9 +194,9 @@ function registerPhrases()
   });
 }
 
-if (platform === 'linux')
-  linux().then(registerPhrases);
-else if (platform === 'win32')
+if (platform === 'win32')
   windows().then(registerPhrases);
+else if (platform === 'linux')
+  linux().then(registerPhrases);
 else
   throw new Error('sulaiman-launch-apps doesn\'t work on ' + platform);
