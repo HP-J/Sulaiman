@@ -1,13 +1,6 @@
 cache:
   paths:
   - node_modules
-  - /.cache/electron
-  - /.cache/electron-builder
-
-# variables: {
-#  ELECTRON_CACHE: '/.cache/electron',
-#  ELECTRON_BUILDER_CACHE: '/.cache/electron-builder'
-# }
 
 stages:
   # - test
@@ -27,9 +20,18 @@ build:
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
+    - "echo \"{\" >> latest.json"
+    - "echo \"  \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",\" >> latest.json"
+    - "echo \"  \"commit\": \"$(CI_COMMIT_SHA)\",\" >> latest.json"
+    - "echo \"  \"date\": \"$(date --utc +%FT%T.%3NZ)\",\" >> latest.json"
+    - "echo \"  \"windows\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$(CI_JOB_ID)/artifacts/raw/public/Sulaiman-Setup.exe?job=build\",\" >> latest.json"
+    - "echo \"  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$(CI_JOB_ID)/artifacts/raw/public/Sulaiman.AppImage?job=build\",\" >> latest.json"
+    - "echo \"}\" >> latest.json"
   artifacts:
     expire_in: 6 mos
     paths:
-      - public
+      - public/Sulaiman-Setup.exe
+      - public/Sulaiman.AppImage
+      - public/latest.json
   only:
     - release
