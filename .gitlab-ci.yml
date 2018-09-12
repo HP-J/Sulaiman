@@ -12,7 +12,7 @@ variables: {
     DATE: "date --utc +%FT%T.%3NZ",
     EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
     APPIMAGE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build",
-    BUILD_JSON: 
+    BUILD_JSON:
       "node -e \"
       console.log(
       JSON.stringify({
@@ -22,9 +22,9 @@ variables: {
         current: process.argv[4],
         nsis: process.argv[5],
         appImage: process.argv[6]
-      }));
-      \"
-      $(VERSION)
+      }));\"",
+    BUILD_JSON_ARGS:
+      "$(VERSION)
       $CI_COMMIT_SHA
       $(DATE)
       $PACKAGE_TYPE
