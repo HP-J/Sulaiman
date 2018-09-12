@@ -20,14 +20,14 @@ build:
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
-    - "echo \" {
+    - "tee public/build.json <<EOF
+{
   \"build\": \"$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')\",
   \"commit\": \"$CI_COMMIT_SHA\",
   \"date\": \"$(date --utc +%FT%T.%3NZ)\",
   \"win32\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build\",
-  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build\"
-}\" >> public/build.json"
-    - "echo } >> public/build.json"
+  \"linux\": \"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build\",
+}"
   artifacts:
     expire_in: 6 mos
     paths:
