@@ -23,23 +23,26 @@ variables: {
 
 build:
   stage: build
-  # image: electronuserland/builder:wine
-  image: node:slim
+  image: electronuserland/builder:wine
   script:
     - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
     - "DATE=$(date --utc +%FT%T.%3NZ)"
-    # - npm install
-    # - npm run compile
-    # - "echo $(node -e \"$BUILD_JSON\" $BUILD_JSON_ARGS) >> build.json"
-    # - npx electron-builder --win NSIS
-    # - "PACKAGE_TYPE='appImage' && rm build.json && echo $($BUILD_JSON) >> build.json"
-    # - npx electron-builder --linux AppImage
-    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"CI\" $URLS) >> build.json"
+
+    - npm install
+    - npm run compile
+
+    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"nsis\" $URLS) >> build.json"
+    - npx electron-builder --win NSIS
+
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"appImage\" $URLS) >> build.json"
+    - npx electron-builder --linux AppImage
+
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"\" $URLS) >> build.json"
   artifacts:
     expire_in: 6 mos
     paths:
-      # - public/Sulaiman-Setup.exe
-      # - public/Sulaiman.AppImage
+      - public/Sulaiman-Setup.exe
+      - public/Sulaiman.AppImage
       - build.json
   only:
     - release
