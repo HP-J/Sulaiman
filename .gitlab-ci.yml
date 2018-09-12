@@ -1,6 +1,13 @@
 cache:
   paths:
   - node_modules
+  - $HOME/.cache/electron
+  - $HOME/.cache/electron-builder
+
+variables: {
+ ELECTRON_BUILDER_CACHE: '$HOME/.cache/electron-builder',
+ ELECTRON_CACHE: '$HOME/.cache/electron'
+}
 
 stages:
   # - test
@@ -15,10 +22,8 @@ stages:
 
 build:
   stage: build
-  image: node:slim
+  image: electronuserland/builder:wine
   script:
-    - apt-get update
-    - apt-get install -y wine
     - npm install
     - npm run compile
     - npx electron-builder --win NSIS --linux AppImage
