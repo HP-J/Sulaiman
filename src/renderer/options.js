@@ -5,10 +5,6 @@ import { showHide } from './renderer';
 
 export let autoHide = false;
 
-// /** @type { Card }
-// */
-// let phraseCard = undefined;
-
 /** @type { Card }
 */
 let showHideKeyCard = undefined;
@@ -72,6 +68,8 @@ function loadShowHideKey()
   else
   {
     remote.globalShortcut.register(showHideAccelerator, showHide);
+
+    autoHide = true;
   }
 }
 
@@ -92,7 +90,16 @@ function showChangeKeyCard(card, title, description, key, callback, done)
     
     remote.globalShortcut.register(accelerator, callback);
 
-    removeCard(card);
+    if (card.isPhrased)
+    {
+      card.reset();
+      card.auto({ title: 'The new shortcut has been applied' });
+      card.setType({ type: 'Disabled' });
+    }
+    else
+    {
+      removeCard(card);
+    }
 
     if (done)
       done();
@@ -109,14 +116,17 @@ function captureKey(card, callback)
 
   const keysElem = card.appendText('', { size: 'Big', style: 'Bold' });
 
-  card.appendLineSeparator();
+  const emptySpace = card.appendLineBreak();
+  emptySpace.style.padding = '2px';
 
   const setButtonCard = createCard();
   const setButton = setButtonCard.appendText('Set', { align: 'Center' });
+  setButtonCard.setType({ type: 'Button' });
   card.appendChild(setButtonCard);
 
   const cancelButtonCard = createCard();
   cancelButtonCard.appendText('Cancel', { align: 'Center' });
+  cancelButtonCard.setType({ type: 'Button' });
   card.appendChild(cancelButtonCard);
 
   keysElem.style.display = 'none';
@@ -159,9 +169,9 @@ function captureKey(card, callback)
     keysElem.innerText = keys.join(' + ');
 
     if (checkGlobalShortcut(keys.join('+')))
-      setButtonCard.enable();
+      setButtonCard.setType({ type: 'Button' });
     else
-      setButtonCard.disable();
+      setButtonCard.setType({ type: 'Disabled' });
   };
 
   const cancelKeyCapture = () =>
@@ -172,7 +182,7 @@ function captureKey(card, callback)
     setButton.innerText = 'Set';
 
     setButtonCard.domElement.onclick = startKeyCapture;
-    setButtonCard.enable();
+    setButtonCard.setType({ type: 'Button' });
 
     window.removeEventListener('keydown', keyCapture);
   };
@@ -192,7 +202,7 @@ function captureKey(card, callback)
       cancelKeyCapture();
     };
 
-    setButtonCard.disable();
+    setButtonCard.setType({ type: 'Disabled' });
 
     window.addEventListener('keydown', keyCapture);
   };

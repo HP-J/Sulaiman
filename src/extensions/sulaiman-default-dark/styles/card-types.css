@@ -1,0 +1,121 @@
+/* Buttons */
+
+.card.cardButton, .card > .card.cardButton
+{
+  cursor: pointer;
+
+  color: var(--color-text);
+}
+
+.card:hover > .card.cardButton
+{
+  background: var(--color-highlight);
+  color: var(--color-text);
+}
+
+.card.cardButton:hover, .card > .card.cardButton:hover
+{
+  background: var(--color-selected);
+  color: var(--color-text-selected);
+}
+
+/* Progress Bar */
+
+.card.cardProgressBar
+{
+  border-width: 5px 0px 0px 0px;
+  border-style: solid;
+  border-image: linear-gradient(90deg, var(--color-highlight) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+  border-image-slice: 1;
+}
+
+.card.cardProgressBar:not(.cardFastForward)
+{
+  transition: border-width 0.25s linear;
+}
+
+.card.cardProgressBar:hover, .card:hover > .card.cardProgressBar
+{
+  border-width: 10px 0px 0px 0px;
+  border-style: solid;
+  border-image: linear-gradient(90deg, var(--color-selected) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+  border-image-slice: 1;
+}
+
+/* Toggle */
+
+.card > .card.cardToggle
+{
+  flex-grow: 0;
+  align-self: center;
+  box-sizing: border-box;
+
+  background-color: var(--color-hovered);
+
+  width: calc(30px + 4vw);
+  height: calc(15px + 2vh);
+
+  border-width: calc(7px + 0.5vh) calc(5px + 0.15vw) calc(7px + 0.5vh) calc(5px + 0.15vw);
+  border-color: var(--color-background);
+  border-style: solid;
+}
+
+.card:not(.cardFastForward) > .card.cardToggle:not(.cardFastForward)
+{
+  transition: border-width 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
+}
+
+.card:hover > .card.cardToggle
+{
+  border-color: var(--color-highlight);
+}
+
+.card:hover > .card.cardToggleOn
+{
+  background-color: var(--color-text-selected);
+  border-width: calc(5px + 0.1vh) calc(15px + 1.5vw) calc(5px + 0.1vh) calc(5px + 0.15vw);
+}
+
+.card:hover > .card.cardToggleOff
+{
+  background-color: var(--color-selected);
+  border-width: calc(5px + 0.1vh) calc(5px + 0.15vw) calc(5px + 0.1vh) calc(15px + 1.5vw);
+}
+
+.card > .card.cardToggle + *
+{
+  margin-left: 10px; 
+}
+
+/* Disabled */
+
+/** if the card is child, not show the progress unless the parent is hovered on **/
+
+.cardDisabled
+{
+  cursor: default;
+  pointer-events: none;
+}
+
+/** only change the card if it's not a child **/
+
+body > .cardDisabled
+{
+  background: var(--color-disabled);
+}
+
+/** only change the card if it is a child **/
+
+.card > .cardDisabled > *
+{
+  color: var(--color-text);
+}
+
+/* Optional Styles */
+.card > .cardButton > .cardTitle:not(.cardLeft):not(.cardRight),
+.card > .cardButton > .cardDescription:not(.cardLeft):not(.cardRight),
+.card > .cardProgressBar > .cardTitle:not(.cardLeft):not(.cardRight),
+.card > .cardProgressBar > .cardDescription:not(.cardLeft):not(.cardRight)
+{
+  justify-content: center;
+}

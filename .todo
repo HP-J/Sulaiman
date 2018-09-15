@@ -1,21 +1,30 @@
 graphics:
+  ✔ card > card overhaul @done (9/15/2018, 11:36:05 AM)
+  ✔ on off toggles @today @done (9/15/2018, 8:02:23 PM)
+
   ☐ conflicting themes card instead of an error @low 
   ☐ show popular extensions from the npm registry @low  
 
 manager:
-  ☐ allow local modules under the sandbox @low 
-  
+  ☐ allow local imports under the sandbox mode @low 
+
 technical:
-  ☐ auto-update () @high 
-  ☐ auto-launch (https://www.npmjs.com/package/auto-launch) @high 
-  ☐ phrases match regex @high  @today 
+  ☐ auto-update @today 
+  ☐ phrases match regex 
 
-  ☐ build & test DMG @need-help
+  ☐ phrases for [extensions running / extensions install / extension delete]
+  ☐ test all extensions cards 
 
-CI/CD:
+  ☐ auto-launch (https://www.npmjs.com/package/auto-launch) 
+
+  ☐ create an arch user repository and give the CI access to it
+
+ CI/CD:
+  ☐ test the AUR publishing script
+  ☐ build & test DMG packages @need-help
 
 extensions:  
-  ☐ calculator @high 
+  ☐ calculator 
   ☐ open urls 
   ☐ files 
 

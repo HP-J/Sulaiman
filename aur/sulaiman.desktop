@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Sulaiman
+Name[en_US]=Sulaiman
+Comment=A keyboard launcher with no features
+Exec=/usr/bin/sulaiman
+Icon=sulaiman
+Type=Application
+Categories=Utility
+StartupWMClass=sulaiman

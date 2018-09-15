@@ -1,19 +1,23 @@
 import { remote } from 'electron';
 
 import { appendSearchBar } from './searchBar.js';
-
 import { loadExtensions, emit, on } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
 import { loadNPM } from './manager.js';
-import { Card, appendCard, removeCard, getIcon } from './api.js';
-import { createCard } from './card.js';
+import { appendCard, removeCard } from './api.js';
+import Card, { createCard } from './card.js';
 
 import request from 'request-promise-native';
+import wget from 'node-wget-promise';
+
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { tmpdir } from 'os';
 
 export const mainWindow = remote.getCurrentWindow();
 
-export const menuTemplate =
+const menuTemplate =
 [
   {
     label: 'Window',
@@ -88,8 +92,7 @@ function storeSession()
   localStorage.setItem('session', JSON.stringify(
     {
       visible: mainWindow.isVisible()
-    }
-  ));
+    }));
 }
 
 /** restores any stored session
@@ -215,12 +218,113 @@ readyState = true;
 // emit the ready event for extensions
 emit.ready();
 
-request(
-  'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/latest.json?job=build',
-  { json: true })
-  .then((value) => console.log(value));
+function checkForSulaimanUpdates()
+{
+  // if (process.env.DEBUG)
+  //   return;
 
-// extensions / extensions install / extension delete
+  function check()
+  {
+    if (serverBuild.commit !== localBuild.commit && serverBuild[localBuild.package])
+    {
+      const downloading = true;
+
+      const progress = function(info)
+      {
+        console.log(Math.floor(info.percentage * 100));
+      };
+      
+      const done = function()
+      {
+
+      };
+
+      const download = function()
+      {
+        // const url = new URL(serverBuild[localBuild.package]);
+        const url = new URL('https://upload.wikimedia.org/wikipedia/commons/2/2d/Snake_River_%285mb%29.jpg');
+        const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
+
+        const output = join(tmpdir(), filename);
+
+        updateButton.domElement.style.display = dismissButton.domElement.style.display = 'none';
+      
+        descriptionText.innerText = 'Downloading.. ' + '0%';
+        
+        wget(url.href, { output: output, onProgress: progress })
+          .then(() =>
+          {
+
+          })
+          .catch((err) =>
+          {
+            downloadError(err);
+          });
+      };
+
+      const downloadError = function(err)
+      {
+        updateButton.domElement.style.cssText = '';
+
+        updateButton.auto({ title: 'Retry' });
+        descriptionText.innerText = 'Download Error\n' + err.message;
+      };
+
+      const dismiss = function()
+      {
+        removeCard(card);
+      };
+      
+      const updateButton = createCard({ title: 'Update' });
+      updateButton.setType({ type: 'Button' });
+      updateButton.domElement.onclick = download;
+      
+      const dismissButton = createCard({ title: 'Dismiss' });
+      dismissButton.setType({ type: 'Button' });
+      dismissButton.domElement.onclick = dismiss;
+
+      const card = createCard({ title: 'Sulaiman' });
+
+      const descriptionCard = createCard();
+      const descriptionText = descriptionCard.appendText('Update Available', ({ type: 'Description' }));
+
+      descriptionCard.domElement.style.pointerEvents = 'none';
+
+      card.appendChild(descriptionCard);
+      card.appendLineBreak();
+      
+      card.appendChild(updateButton);
+      card.appendChild(dismissButton);
+
+      appendCard(card);
+    }
+  }
+
+  /** @type { { build: string, commit: string, date: string, package: string }  }
+  */
+  const localBuild = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
+
+  if (!localBuild.package)
+    return;
+
+  // request(
+  //   'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/build.json?job=build', {  json: true })
+  //   .then((serverBuild) =>
+  //   {
+  //     compare(serverBuild);
+  //   });
+
+  /** @type { { build: string, commit: string, date: string, nsis: string, appImage: string}  } */
+  const serverBuild = JSON.parse(readFileSync(join(__dirname, '../../serverBuild.json')).toString());
+  serverBuild.commit = 'diff';
+  serverBuild.build = '0.2.0';
+
+  check(serverBuild);
+}
+
+// checkForSulaimanUpdates();
+
+// parent.appendText('Set Toggle', { size: 'Bigger' });
 
 // on.phrase('extension',
 //   [
@@ -238,7 +342,8 @@ request(
 // remove the splash screen when the dom is ready
 isDOMReady(() =>
 {
-  document.body.removeChild(splash);
+  if (splash)
+    document.body.removeChild(splash);
 
   // reset focus
   onfocus();

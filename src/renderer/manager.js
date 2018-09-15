@@ -79,7 +79,7 @@ export function extensionDeleteCard(card, extension)
 
   button.domElement.onclick = () =>
   {
-    button.disable();
+    button.setType({ type: 'Disabled' });
 
     text.innerText = 'Deleting';
   
@@ -102,7 +102,7 @@ export function extensionInstallCard(card, name)
 {
   card.auto({ title: name, description: 'Requesting Package Data...' });
   
-  card.disable();
+  card.setType({ type: 'Disabled' });
 
   getPackageData(name)
     .then((data) =>
@@ -118,7 +118,7 @@ export function extensionInstallCard(card, name)
 
       button.events.onclick = () =>
       {
-        button.disable();
+        button.setType({ type: 'Disabled' });
 
         downloadExtension(button, text, data.name, data.dist.tarball)
           .then(() =>
@@ -157,7 +157,7 @@ function extensionUpdateCard(card, local, remote, name)
 
   button.events.onclick = () =>
   {
-    button.disable();
+    button.setType({ type: 'Disabled' });
 
     downloadExtension(button, text, remote.name, remote.dist.tarball)
       .then(() =>
@@ -234,7 +234,7 @@ function extensionCard(card, data, oldData)
   const showModules = modules && modules.length > 0;
 
   if (showPermissions || showModules)
-    card.appendLineSeparator();
+    card.appendLineBreak();
 
   if (showPermissions)
   {
@@ -248,7 +248,7 @@ function extensionCard(card, data, oldData)
     card.appendText(modules, { type: 'Description', size: 'Smaller' });
   }
 
-  card.appendLineSeparator();
+  card.appendLineBreak();
 
   // button section
 
@@ -297,7 +297,7 @@ function downloadExtension(button, text, name, url)
     const filename = basename(url);
     const dirname = name;
   
-    const tmpDir = tmpdir() + '/sulaiman/' + Date.now();
+    const tmpDir = join(tmpdir(), '/sulaiman/' + Date.now());
   
     const tmpCompressed = join(tmpdir(), filename);
     const tmpDecompressed = join(tmpDir, dirname);
@@ -403,7 +403,7 @@ function installExtensionDependencies(text, name)
 */
 function success(button, text)
 {
-  button.enable();
+  button.setType({ type: 'Normal' });
   button.events.onclick = reload;
   
   text.innerText = 'Reload';
@@ -421,7 +421,7 @@ function failedToInstall(card, name, err)
 
     const button = createCard();
   
-    card.appendLineSeparator();
+    card.appendLineBreak();
 
     card.appendChild(button);
     

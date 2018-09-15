@@ -5,9 +5,9 @@
 
   outline: none;
   overflow: hidden;
-  cursor: pointer;
 
-  background-color: var(--color-dark);
+  background: var(--color-background);
+  color: #FFFFFF;
 
   position: relative;
   width: calc(100vw - 30px);
@@ -20,13 +20,11 @@
   white-space: nowrap;
   
   padding: 8px 15px;
-  border: 0px;
-  margin: 0px;
 }
 
-.card:focus, .card:hover
+.card:hover
 {
-  background: var(--color-medium);
+  background: var(--color-hovered);
 }
 
 /* cards inside of a parent card */
@@ -34,16 +32,11 @@
 .card > .card
 {
   flex-grow: 1;
+
   background-color: transparent;
   
   width: auto;
-  padding: 3px 5px;
-}
-
-.card > .card:hover
-{
-  outline-offset: -1px;
-  outline: #FFFFFF solid 1px;
+  padding: 2px 0px;
 }
 
 .cardLineBreak
@@ -53,31 +46,31 @@
   height: 0px;
 }
 
-.cardLineSeparator
-{
-  flex-basis: 100%;
-  width: 0px;
-}
-
 .cardTitle, .cardDescription
 {
   overflow: hidden;
-
+  
   display: flex;
   flex-grow: 1;
   flex-basis: auto;
   align-items: center;
-
+  justify-content: flex-start;
+  
   background-color: transparent;
-  color: #FFFFFF;
+  
+  font-size: calc(11px + 0.5vw + 1vh);
+  font-weight: 400;
+
+  user-select: none;
 
   width: auto;
   height: auto;
+  padding: 1px 0px;
 }
 
 .cardDescription
 {
-  color: var(--color-lighter);
+  color: var(--color-text);
 
   white-space: pre-line;
   writing-mode: horizontal-tb;
@@ -99,11 +92,6 @@
   height: auto;
 }
 
-.cardLeft
-{
-  justify-content: flex-start;
-}
-
 .cardRight
 {
   justify-content: flex-end;
@@ -112,11 +100,6 @@
 .cardCenter
 {
   justify-content: center;
-}
-
-.cardMedium
-{
-  font-size: calc(11px + 0.5vw + 1vh);
 }
 
 .cardSmall
@@ -139,11 +122,6 @@
   font-size: calc(16px + 0.5vw + 1.5vh);
 }
 
-.cardNormal
-{
-  font-weight: 400;
-}
-
 .cardLight
 {
   font-weight: 100;
@@ -152,6 +130,11 @@
 .cardBold
 {
   font-weight: 700;
+}
+
+.cardSelectable
+{
+  user-select: text;
 }
 
 /* spacing between the title and icons horizontally */
@@ -169,36 +152,4 @@ excluding line breaks and the last element of a card */
 {
   margin-top: 2px;
   margin-bottom: 2px;
-}
-
-.cardProgressBar, .card:hover > .cardProgressBar
-{
-  background: linear-gradient(90deg, var(--color-light) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
-}
-
-/** if the card is child, not show the progress unless the parent is hovered on **/
-
-.card > .cardProgressBar
-{
-  background: transparent;
-}
-
-.cardDisabled
-{
-  cursor: default;
-  pointer-events: none;
-}
-
-/** only change the card if it's not a child **/
-
-body > .cardDisabled
-{
-  background: var(--color-darkest);
-}
-
-/** only change the card if it is a child **/
-
-.card > .cardDisabled > *
-{
-  color: var(--color-lighter);
 }

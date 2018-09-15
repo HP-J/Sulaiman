@@ -159,13 +159,14 @@ function registerPhrases()
 
       card.auto({ description: 'has been launched' });
       card.removeChild(button);
-      card.disable();
+
+      card.setType({ type: 'Disabled' });
     };
 
     let name = '';
-    const button = sulaiman.createCard();
+    const button = sulaiman.createCard({ title: 'Launch' });
     
-    button.appendText('Launch', { align: 'Center' });
+    button.setType({ type: 'Button' });
 
     button.domElement.onclick = () =>
     {
@@ -182,7 +183,8 @@ function registerPhrases()
 
         card.auto({ title: name, description: 'launch the application' });
         card.appendChild(button);
-        card.enable();
+
+        card.setType({ type: 'Normal' });
       },
       // on pressing Enter
       () =>
@@ -196,7 +198,5 @@ function registerPhrases()
 
 if (platform === 'win32')
   windows().then(registerPhrases);
-else if (platform === 'linux')
-  linux().then(registerPhrases);
 else
-  throw new Error('sulaiman-launch-apps doesn\'t work on ' + platform);
+  linux().then(registerPhrases);

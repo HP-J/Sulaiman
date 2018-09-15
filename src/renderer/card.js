@@ -1,11 +1,12 @@
-import { isDOMReady, readyState } from './renderer.js';
-import { getCaller } from './loader.js';
+import { isDOMReady, getCaller } from './loader.js';
+
+import { readyState } from './renderer.js';
 
 /** @typedef { Object } AutoCardOptions
-* @property { string } [title]
-* @property { string } [description]
-* @property { HTMLElement } [extensionIcon]
-* @property { HTMLElement } [actionIcon]
+* @property { string } [title="""]
+* @property { string } [description=""]
+* @property { HTMLElement } [extensionIcon=null]
+* @property { HTMLElement } [actionIcon=null]
 */
 
 /** @typedef { Object } TextOptions
@@ -13,6 +14,7 @@ import { getCaller } from './loader.js';
 * @property { "Left" | "Right" | "Center" } [align=Left]
 * @property { "Medium" | "Small" | "Smaller" | "Big" | "Bigger" } [size=Medium]
 * @property { "Normal" | "Bold" | "Light" } [style=Normal]
+* @property { "nonSelectable" | "Selectable" } [select=nonSelectable]
 */
 
 /**
@@ -77,7 +79,8 @@ export default class Card
   */
   addClass(className)
   {
-    this.domElement.classList.add(className);
+    if (!this.domElement.classList.contains(className))
+      this.domElement.classList.add(className);
   }
 
   /** remove a class from the element
@@ -85,7 +88,8 @@ export default class Card
   */
   removeClass(className)
   {
-    this.domElement.classList.remove(className);
+    if (this.domElement.classList.contains(className))
+      this.domElement.classList.remove(className);
   }
 
   /** set the html element id
@@ -136,21 +140,25 @@ export default class Card
     options = options || {};
 
     options.type = options.type || 'Title';
-    options.align = options.align || 'Left';
-    options.size = options.size || 'Medium';
-    options.style = options.style || 'Normal';
 
     const textElem = document.createElement('div');
 
-    textElem.setAttribute(
-      'class',
-      'card' + options.type +
-      ' card' + options.align +
-      ' card' + options.size +
-      ' card' + options.style
-    );
+    textElem.classList.add('card' + options.type);
+
+    if (options.align)
+      textElem.classList.add('card' + options.align);
+
+    if (options.size)
+      textElem.classList.add('card' + options.size);
+
+    if (options.style)
+      textElem.classList.add('card' + options.style);
+
+    if (options.select)
+      textElem.classList.add('card' + options.select);
 
     textElem.innerText = text;
+
     this.domElement.appendChild(textElem);
 
     return textElem;
@@ -170,35 +178,37 @@ export default class Card
     this.domElement.classList.toggle('cardFastForward');
   }
 
-  /** @param { number } percentage any number between 0 and 100
+  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", state: boolean } | { type: "Button" } | { type: "Disabled" } | { type: "Normal" } } type
   */
-  setProgressBar(percentage)
+  setType(type)
   {
-    if (percentage < 1 && percentage > 100)
-    {
-      // remove class
-      this.removeClass('cardProgressBar');
-
-      return;
-    }
-
-    this.addClass('cardProgressBar');
-
-    this.domElement.style.setProperty('--cardProgress', percentage + '%');
-  }
-
-  /** disable the card
-  */
-  disable()
-  {
-    this.addClass('cardDisabled');
-  }
-
-  /** enable the card
-  */
-  enable()
-  {
+    this.removeClass('cardProgressBar');
+    this.removeClass('cardToggle');
+    this.removeClass('cardButton');
     this.removeClass('cardDisabled');
+
+    this.removeClass('cardToggleOn');
+    this.removeClass('cardToggleOff');
+
+    if (type.type === 'ProgressBar')
+    {
+      this.addClass('cardProgressBar');
+
+      this.domElement.style.setProperty('--cardProgress', (type.percentage || 0) + '%');
+    }
+    else if (type.type === 'Toggle')
+    {
+      this.addClass('cardToggle');
+
+      if (type.state)
+        this.addClass('cardToggleOn');
+      else
+        this.addClass('cardToggleOff');
+    }
+    else if (type.type !== 'Normal')
+    {
+      this.addClass('card' + type.type);
+    }
   }
 
   collapse()
@@ -328,19 +338,6 @@ export default class Card
     return lineElem;
   }
 
-  /** adds new empty space between lines
-  * @returns { HTMLElement }
-  */
-  appendLineSeparator()
-  {
-    const lineElem = document.createElement('null');
-    lineElem.setAttribute('class', 'cardLineSeparator');
-
-    this.domElement.appendChild(lineElem);
-
-    return lineElem;
-  }
-
   /** removes all children and deletes inline styles
   */
   reset()
@@ -349,6 +346,8 @@ export default class Card
       this.domElement.removeChild(this.domElement.firstChild);
 
     this.domElement.style.cssText = '';
+
+    this.setType({ type: 'Normal' });
   }
 
   /** customize the card with different options that follow the app user's css themes

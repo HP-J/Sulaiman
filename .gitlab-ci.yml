@@ -3,46 +3,91 @@ cache:
   - node_modules
 
 variables: {
-    EXE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
-    APPIMAGE_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build",
-    URLS: "$EXE_URL $APPIMAGE_URL",
+    # URLS are used to tell auto-updaters the correct file for the that specified version
+    NSIS_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
+    DEB_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.deb?job=build",
+    TAR_URL: "https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.tar.xz?job=build",
+
+    # the builds supported by sulaiman builtin update system
+    URLS_ARGS: "$NSIS_URL $DEB_URL",
+    # used to create the build.json using nodejs
     BUILD_JSON:
-      "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || null, nsis: process.argv[5], appImage: process.argv[6] }));"
+      "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || undefined, nsis: process.argv[5], deb: process.argv[6] }));"
 }
 
+# if testing fails, it won't build and release new versions
 stages:
-  # - test
   - build
-
-# test:
-#   stage: test
-#   script:
-#     - npm run test
-#   only:
-#     - release
+  # - arch
 
 build:
   stage: build
   image: electronuserland/builder:wine
   script:
+    # set variables
     - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
-    - "DATE=$(date --utc +%FT%T.%3NZ)"
+    - "DATE=$(date -u +%a', '%d' '%b' '%Y' '%T' GMT')"
 
-    - npm install
-    - npm run compile
+    # install dependencies & compile the code
+    - "npm install"
+    - "npm run compile"
 
-    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"nsis\" $URLS) >> build.json"
-    - npx electron-builder --win NSIS
+    # build nsis installer for windows
+    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"nsis\") >> build.json"
+    - "npx electron-builder --win NSIS"
 
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"appImage\" $URLS) >> build.json"
-    - npx electron-builder --linux AppImage
+    # build debian package for linux
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"deb\") >> build.json"
+    - "npx electron-builder --linux deb"
 
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA $DATE \"\" $URLS) >> build.json"
+    # build tar.xz package for linux
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\") >> build.json"
+    - "npx electron-builder --linux tar.xz"
+
+    # create the build.json that will be kept in the artifacts for sulaiman builtin update system to use
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"\" $URLS_ARGS) >> build.json"
   artifacts:
+    # 6 month without a new version to would that sulaiman is properly dead and you properly shouldn't download it anyway
     expire_in: 6 mos
     paths:
       - public/Sulaiman-Setup.exe
-      - public/Sulaiman.AppImage
+      - public/Sulaiman.deb
+      - public/Sulaiman.tar.xz
       - build.json
+  only:
+    - release
+
+arch:
+  stage: arch
+  image: whynothugo/makepkg:latest
+  script:
+    # set variables
+    - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
+
+    # set access
+    - "echo \"$AUR_SSH_PRIVATE_KEY\" > ~/.ssh/id_rsa"
+    - "ssh-add -K ~/.ssh/id_rsa"
+    - "git config user.name \"$GIT_USERNAME\""
+    - "git config user.email \"$GIT_EMAIL\""
+
+    # pull the current package info 
+    - "cd aur"
+    - "git fetch"
+    - "git pull"
+
+    # update the package info
+    - "echo \"$(head -n -3 PKGBUILD)\" > PKGBUILD"
+    - "echo \"pkgver=$VERSION\" >> PKGBUILD"
+    - "echo \"source=('icon.png' 'sulaiman.desktop' '$TAR_URL')\" >> PKGBUILD"
+    - "echo \"md5sums=('$(md5sum icon.png | awk '{print $1}')' '$(md5sum sulaiman.desktop | awk '{print $1}')' '$(md5sum ../public/Sulaiman.tar.xz | awk '{print $1}')')\" >> PKGBUILD"
+    - "makepkg --printsrcinfo > .SRCINFO"
+
+    - "echo \"$(head -n -0 PKGBUILD)\""
+    - "echo \"----------------------------------------------------\""
+    - "echo \"$(head -n -0 .SRCINFO)\""
+    # release a new AUR package
+    # - "git add PKGBUILD .SRCINFO"
+    # - "git commit -m \"$VERSION\""
+    # - "git push"
   only:
     - release

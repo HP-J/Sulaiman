@@ -1,15 +1,17 @@
 html
 {
-  --color-lighter: #6B6A6A;
-  --color-light: #505050;
-  --color-medium: #414141;
-  --color-dark: #272626;
-  --color-darkest: #111111;
+  --color-text: #6B6A6A;
+  --color-selected: #413d44;
+  --color-text-selected: #507ab1;
+  --color-highlight: #383838;
+  --color-hovered: #332e2e;
+  --color-background: #272626;
+  --color-disabled: #111111;
 }
 
 body
 {
-  background-color: var(--color-dark);
+  background-color: var(--color-background);
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;

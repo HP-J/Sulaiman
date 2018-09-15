@@ -17,17 +17,18 @@
 
 ### How to Remove Extensions from Sulaiman?
 
-- deleting extensions is the same, either write 'ext' and the app will show you all your installed extensions then just click on the one you want and you will be offered to delete it, or you can write 'ext delete' followed by the name of the extension, for example 'ext d apps'.
+- deleting extensions is the same, either write 'ext' and the app will show you all your installed extensions then just click on the one you want and you will be offered to delete it, or you can write 'ext delete' followed by the name of the extension, for example 'ext d apps'.  -->
 
-### How to Create Extensions?
-- the wiki
-- the boilerplate
-- the node package -->
+# How to Create Extensions?
+## Here's your [wiki]().
 
 # Download
-- Linux ~ [AppImage](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.AppImage?job=build)
-- Windows ~ [Setup](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
-- macOS ~ if you own a machine running mac and you're willing to test Sulaiman, please [contact us](mailto:kerolos4zaki@gmail.com), we need your help.
+- Linux ~
+[deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build)
+[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)
+[AUR](https://aur.archlinux.org/packages/sulaiman)
+- Windows ~ [Setup.exe](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
+- macOS ~ if you own a machine running mac and you're willing to test Sulaiman, please [contact us](mailto:herpproject0@gmail.com), we need your help.
 
 # One Last Thing
 [![patrons](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/)

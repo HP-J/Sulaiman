@@ -1,0 +1,37 @@
+# Maintainer: Kerolos Zaki <kerolos4zaki@gmail.com>
+# Maintainer: Herp Project <herpproject0@gmail.com>
+
+pkgname=sulaiman
+pkgrel=1
+pkgdesc="A keyboard launcher with no features"
+arch=("x86_64")
+url="https://gitlab.com/herpproject/Sulaiman",
+license=("MIT")
+depends=('c-ares' 'ffmpeg' 'gtk3' 'http-parser' 'libevent' 'libvpx'
+'libxslt' 'libxss' 'minizip' 'nss' 're2' 'snappy' 'libnotify'
+'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
+
+package() {
+ # Install the main files.
+  install -d "${pkgdir}/opt/${pkgname}"
+  cp -a "${srcdir}/Sulaiman/." "${pkgdir}/opt/${pkgname}"
+
+  # Exec bit
+  chmod 755 "${pkgdir}/opt/${pkgname}/Sulaiman"
+
+  # Desktop Entry
+  install -d "${pkgdir}/usr/share/applications"
+  install "${srcdir}/sulaiman.desktop" "${pkgdir}/usr/share/applications"
+  sed -i s%/usr/share%/opt% ${pkgdir}/usr/share/applications/${pkgname}.desktop
+
+  # Main binary
+  mkdir -p ${pkgdir}/usr/bin
+  ln -s "/opt/${pkgname}/Sulaiman" "${pkgdir}/usr/bin/${pkgname}"
+
+  # Copy the icon
+  install -d "${pkgdir}/usr/share/pixmaps"
+  cp "${srcdir}/icon.png" "${pkgdir}/usr/share/pixmaps/${pkgname}.png"
+}
+pkgver=0.1.1
+source=('icon.png' 'sulaiman.desktop' '')
+md5sums=('' '' '')

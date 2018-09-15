@@ -3,6 +3,7 @@ import { NodeVM } from 'vm2';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
+import { platform } from 'os';
 import { EventEmitter } from 'events';
 
 import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './searchBar.js';
@@ -63,7 +64,12 @@ export function loadExtensions()
     if (!existsSync(extensionPath))
       continue;
 
+    /**@type { PackageData }
+    */
     const data = JSON.parse(readFileSync(packagePath));
+
+    if (data.sulaiman.platform && !data.sulaiman.platform.includes(platform()))
+      return;
 
     // if there isn't a loaded extension with the same name
     if (!loadedExtensions[data.name])

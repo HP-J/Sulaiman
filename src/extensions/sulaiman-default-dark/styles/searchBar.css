@@ -10,8 +10,8 @@ html
 {
   z-index: 1;
   outline: none;
+  background-color: var(--color-hovered);
   color: #FFFFFF;
-  background-color: var(--color-medium);
   
   position: sticky;
   top: 0;
@@ -36,7 +36,7 @@ html
   z-index: -1;
   overflow: hidden;
 
-  background-color: var(--color-medium);
+  background-color: var(--color-hovered);
 
   position: sticky;
   top: calc(var(--searchBar-height) + 20px);
@@ -58,13 +58,13 @@ html
   display: flex;
   align-items: center;
 
-  color: var(--color-lighter);
+  color: var(--color-text);
 
   position: relative;
   width: 100vw;
   height: calc(var(--suggestion-item-height));
 
-  white-space: pre-wrap;
+  white-space: pre;
   user-select: none;
 
   font-family: Oxygen, sans-serif;
@@ -81,5 +81,5 @@ html
 
 .suggestionsItemSelected
 {
-  background-color: var(--color-light);
+  background-color: var(--color-selected);
 }
