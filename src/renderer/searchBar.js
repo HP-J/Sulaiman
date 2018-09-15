@@ -140,7 +140,7 @@ function onkeydown(event)
 
     if (activePhraseKey && registeredPhrases[activePhraseKey].entered)
     {
-      if (registeredPhrases[activePhraseKey].entered())
+      if (registeredPhrases[activePhraseKey].entered()) 
         clear();
     }
   }
@@ -154,6 +154,11 @@ function onkeydown(event)
 
     lastSuggestionItemSelected = element;
   }
+}
+
+function escapeRegExp(string)
+{
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** handle phrases their cards and callbacks, then compares them with
@@ -182,7 +187,7 @@ function handlePhrases(input)
     const { similarity, words } = compareStrings(searchableWords, inputWords);
 
     // if (string:two) starts with (string:one)
-    const regex = input.match(new RegExp('(' + phraseObj.phrase + '\\s' + searchable.argument + ')(.*)', 'i'));
+    const regex = input.match(new RegExp('(' + escapeRegExp(phraseObj.phrase + '\\s' + searchable.argument) + ')(.*)', 'i'));
 
     if (regex)
     {
@@ -314,7 +319,10 @@ function compareStrings(searchableWords, inputWords)
     const two = searchableWords[pi];
 
     // if (string:two) starts with (string:one)
-    const regex = two.match(new RegExp('\\b(' + one + ')(.*)', 'i'));
+    let regex;
+
+    if (one && two)
+      regex = two.match(new RegExp('^(' + escapeRegExp(one) + ')(.*)', 'i'));
 
     if (regex)
     {

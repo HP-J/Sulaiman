@@ -46,6 +46,7 @@
   "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "auto-launch": "^5.0.5",
     "fs-extra": "^7.0.0",
     "inly": "^2.0.2",
     "node-wget-promise": "^0.1.6",

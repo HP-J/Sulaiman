@@ -1,0 +1,7 @@
+{
+"build":"0.1.0",
+"commit":"430b764cd22a66148a83bd1f7cb26305621f2921",
+"date":"2018-09-12T14:30:27.944Z",
+"nsis":"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman-Setup.exe?job=build",
+"appImage":"https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.AppImage?job=build"
+}

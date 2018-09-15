@@ -30,7 +30,7 @@ function createWindow()
   mainWindow = new BrowserWindow(
     {
       title: 'Sulaiman',
-      show: isDEBUG,
+      show: true,
       frame: isDEBUG,
       skipTaskbar: !isDEBUG,
       resizable: isDEBUG,

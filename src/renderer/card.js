@@ -373,9 +373,15 @@ export default class Card
       lineBreakElem.classList.add('cardAuto');
     }
 
-    if (options.title && options.title.length > 0)
+    if (typeof options.title === 'string')
     {
-      if (titleElem)
+      if (options.title.length <= 0 && titleElem)
+      {
+        this.removeChild(titleElem);
+
+        titleElem = undefined;
+      }
+      else if (titleElem)
       {
         titleElem.innerText = options.title;
       }
@@ -385,7 +391,8 @@ export default class Card
         titleElem.classList.add('cardAuto');
       }
 
-      this.domElement.insertBefore(titleElem, lineBreakElem);
+      if (titleElem)
+        this.domElement.insertBefore(titleElem, lineBreakElem);
     }
 
     if (options.extensionIcon !== undefined)
@@ -416,9 +423,15 @@ export default class Card
       this.domElement.insertBefore(actionIconElem, lineBreakElem);
     }
 
-    if (options.description && options.description.length > 0)
+    if (typeof options.description === 'string')
     {
-      if (descriptionElem)
+      if (options.description.length <= 0 && descriptionElem)
+      {
+        this.removeChild(descriptionElem);
+
+        descriptionElem = undefined;
+      }
+      else if (descriptionElem)
       {
         descriptionElem.innerText = options.description;
       }
@@ -428,7 +441,8 @@ export default class Card
         descriptionElem.classList.add('cardAuto');
       }
 
-      this.domElement.insertBefore(descriptionElem, lineBreakElem);
+      if (descriptionElem)
+        this.domElement.insertBefore(descriptionElem, lineBreakElem);
     }
   }
 }

@@ -9,13 +9,13 @@ manager:
   ☐ allow local imports under the sandbox mode @low 
 
 technical:
-  ☐ auto-update @today 
+  ✔ auto-update @done (9/15/2018, 8:21:17 PM)
   ☐ phrases match regex 
 
   ☐ phrases for [extensions running / extensions install / extension delete]
   ☐ test all extensions cards 
 
-  ☐ auto-launch (https://www.npmjs.com/package/auto-launch) 
+  ✔ auto-launch @done (9/15/2018, 10:17:11 PM)
 
   ☐ create an arch user repository and give the CI access to it
 

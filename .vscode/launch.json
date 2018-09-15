@@ -22,7 +22,6 @@
       "internalConsoleOptions": "openOnSessionStart",
       "webRoot": "${workspaceRoot}",
       "env": {
-        "DEBUG": "1"
       },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
