@@ -210,11 +210,11 @@ function loadAutoLaunch()
   autoLaunchEntry.isEnabled()
     .then((isEnabled) =>
     {
-      if (isEnabled)
+      if (isEnabled || settings.get('ignoreAutoLaunch', false))
         return;
       
-      autoLaunchCard.appendText('Would you like');
-      autoLaunchCard.appendText('if Sulaiman auto launches itself on startup?', { type: 'Description' });
+      autoLaunchCard.appendText('Would you like,');
+      autoLaunchCard.appendText('If Sulaiman auto launches itself on startup?', { type: 'Description' });
   
       const yesButton = createCard({ title: 'Yes' });
       yesButton.setType({ type: 'Button' });
@@ -233,6 +233,8 @@ function loadAutoLaunch()
   
       noButton.domElement.onclick = () =>
       {
+        settings.set('ignoreAutoLaunch', true);
+        
         removeCard(autoLaunchCard);
       };
   
