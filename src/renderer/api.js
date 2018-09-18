@@ -1,19 +1,22 @@
-import { join } from 'path';
-import { readdirSync } from 'fs';
 import { remote } from 'electron';
 
+import { join } from 'path';
+import { readdirSync } from 'fs';
+
 import Card from './card.js';
+const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
 export { createCard } from './card.js';
-export { setPlaceholder } from './searchBar.js';
+export { setPlaceholder } from './search.js';
 export { on, off } from './loader.js';
 
 export { Card };
 
 /** [needs the 'window' permission]
 * the main window of the app
+* @type { Electron.BrowserWindow }
 */
-export const window = remote.getCurrentWindow();
+export const window = mainWindow;
 
 /** [needs the 'clipboard' permission]
 * access to read & write to clipboard

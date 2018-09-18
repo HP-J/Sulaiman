@@ -1,10 +1,10 @@
+import { remote } from 'electron';
 import { tmpdir } from 'os';
 
 import * as api from './api.js';
 import Card, { createCard } from './card.js';
 
 import { PackageData, loadedExtensions } from './loader.js';
-import { reload } from './renderer.js';
 
 import { remove, move, readFile } from 'fs-extra';
 import { join, basename } from 'path';
@@ -14,6 +14,8 @@ import wget from 'node-wget-promise';
 import inly from 'inly';
 
 const npm = require('npm');
+
+const { reload } = remote.require(join(__dirname, '../main/window.js'));
 
 const cards = [];
 
@@ -404,7 +406,7 @@ function installExtensionDependencies(text, name)
 function success(button, text)
 {
   button.setType({ type: 'Normal' });
-  button.events.onclick = reload;
+  button.events.onclick = () => reload();
   
   text.innerText = 'Reload';
 }

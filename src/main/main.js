@@ -1,13 +1,52 @@
-import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog } from 'electron';
+import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog, Menu } from 'electron';
 
-import path from 'path';
+import { join } from 'path';
 import url from 'url';
+
+import { setWindow, reload, showHide, setApp } from './window.js';
+import { loadOptions } from './options.js';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 /** @type { BrowserWindow }
 */
 let mainWindow;
+
+const menuTemplate = Menu.buildFromTemplate([
+  {
+    label: 'Window',
+    submenu:
+  [
+    {
+      label: 'Reload', accelerator: 'CmdOrCtrl+R', click()
+      {
+        reload(mainWindow);
+      }
+    },
+    {
+      label: 'Zoom In', accelerator: 'CmdOrCtrl+=', role: 'zoomin'
+    },
+    {
+      label: 'Zoom Out', accelerator: 'CmdOrCtrl+-', role: 'zoomout'
+    },
+    {
+      label: 'Reset Zoom', accelerator: 'CmdOrCtrl+Shift+=', role: 'resetzoom'
+    },
+    {
+      label: 'Developer Tools', accelerator: 'CmdOrCtrl+Shift+I', click()
+      {
+        mainWindow.webContents.toggleDevTools();
+      }
+    },
+    {
+      label: 'Quit', accelerator: 'CmdOrCtrl+Q', click()
+      {
+        app.quit();
+      }
+    },
+  ]
+  }
+]);
 
 function createWindow()
 {
@@ -27,12 +66,15 @@ function createWindow()
 
   const isDEBUG = process.env.DEBUG !== undefined;
 
+  // replace the default menu
+  Menu.setApplicationMenu(menuTemplate);
+
   mainWindow = new BrowserWindow(
     {
       title: 'Sulaiman',
       show: true,
       frame: isDEBUG,
-      skipTaskbar: !isDEBUG,
+      skipTaskbar: false,
       resizable: isDEBUG,
       width: width,
       height: height,
@@ -41,24 +83,26 @@ function createWindow()
     }
   );
 
-  // and load the index.html of the app
+  setWindow(mainWindow);
+  setApp(app);
+  
+  loadOptions();
+
+  // load the index.html of the app
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, '../index.html'),
+    pathname: join(__dirname, '../index.html'),
     protocol: 'file:',
     slashes: true
   }));
 
-  // Emitted when the window is closed.
+  // emitted when the window is closed.
   mainWindow.on('closed', () =>
   {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null;
+    mainWindow = undefined;
   });
 }
 
-if (!process.env.DEBUG && !app.requestSingleInstanceLock())
+if (!process.env.DEBUG && !app.requestSingleInstanceLock(showHide))
 {
   app.quit();
 }
@@ -71,6 +115,11 @@ else
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   app.on('ready', createWindow);
+
+  app.on('second-instance')
+  {
+    showHide();
+  }
 
   // handle any errors at the renderer process
   ipcMain.on('rendererError', (event, data) =>

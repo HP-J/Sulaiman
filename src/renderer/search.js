@@ -187,7 +187,7 @@ function handlePhrases(input)
     const { similarity, words } = compareStrings(searchableWords, inputWords);
 
     // if (string:two) starts with (string:one)
-    const regex = input.match(new RegExp('(' + escapeRegExp(phraseObj.phrase + '\\s' + searchable.argument) + ')(.*)', 'i'));
+    const regex = input.match(new RegExp('(' + escapeRegExp(phraseObj.phrase) + '\\s' + escapeRegExp(searchable.argument) + ')(.*)', 'i'));
 
     if (regex)
     {

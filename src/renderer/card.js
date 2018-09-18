@@ -61,6 +61,11 @@ export default class Card
       });
 
     this.domElement = domElement;
+    
+    /** if the card is controlled by a phrase it gets the phrase name, else gets undefined
+    * @type { string }
+    */
+    this.isPhrased = undefined;
 
     this.auto(options);
   }

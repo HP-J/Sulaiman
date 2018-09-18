@@ -1,16 +1,18 @@
 import { remote } from 'electron';
+import * as settings from 'electron-json-config';
 
 import request from 'request-promise-native';
 import wget from 'node-wget-promise';
 
-import AutoLaunch from 'auto-launch';
-
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
+import AutoLaunch from 'auto-launch';
+
 import { Card, createCard, appendCard, removeCard, on } from './api.js';
-import { showHide, skipTaskbar } from './renderer.js';
+
+const { showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
@@ -29,15 +31,27 @@ export function loadOptions()
 
 export function registerOptionsPhrase()
 {
-  const card = on.phrase('Options', [ 'Show/Hide Key', 'Auto-Launch' ],
+  const card = on.phrase('Options', [ 'Show/Hide Key', 'Auto-Launch', 'Tray' ],
     (argument) =>
     {
-
       if (argument === 'Show/Hide Key')
       {
         card.reset();
+        card.domElement.onclick = undefined;
 
-        showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide);
+        showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
+          () =>
+          {
+            autoHide = true;
+    
+            setSkipTaskbar(true);
+          },
+          () =>
+          {
+            autoHide = false;
+    
+            setSkipTaskbar(false);
+          });
       }
       else if (argument === 'Auto-Launch')
       {
@@ -47,39 +61,95 @@ export function registerOptionsPhrase()
         card.setType({ type: 'Disabled' });
 
         autoLaunchEntry.isEnabled()
-          .then((isEnabled) =>
+          .then((enabled) =>
           {
-            card.auto({ title: '' });
-            card.setType({ type: 'Normal' });
-
             const toggle = createCard();
-
+            
+            card.auto({ title: '' });
+            
             card.appendChild(toggle);
-    
-            card.appendText('Auto-Launch');
-    
-            toggle.setType({ type: 'Toggle', state: isEnabled });
+            const text = card.appendText('Auto-Launch');
+            
+            card.setType({ type: 'Normal' });
+            toggle.setType({ type: 'Toggle', state: enabled });
 
-            card.domElement.onclick = () =>
+            toggle.domElement.onclick = text.onclick = () =>
             {
               card.setType({ type: 'Disabled' });
 
-              if (isEnabled)
+              if (enabled)
               {
                 autoLaunchEntry.disable().then(() =>
                 {
+                  card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: false });
+
+                  enabled = false;
                 });
               }
               else
               {
                 autoLaunchEntry.enable().then(() =>
                 {
+                  card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: true });
+
+                  enabled = true;
                 });
               }
             };
           });
+      }
+      else if (argument === 'Tray')
+      {
+        card.reset();
+        card.auto();
+
+        let enabled = settings.get('trayIcon', true);
+        const toggle = createCard();
+
+        card.appendChild(toggle);
+
+        const toggleText = card.appendText('Tray');
+        
+        toggle.setType({ type: 'Toggle', state: enabled });
+        
+        card.appendLineBreak();
+
+        const warningText = card.appendText('This option needs the app to relaunch to be applied');
+
+        const relaunchButton = createCard({ title: 'Relaunch' });
+        relaunchButton.setType({ type: 'Button' });
+
+        card.appendChild(relaunchButton);
+
+        relaunchButton.domElement.onclick = () => relaunch();
+        
+        relaunchButton.domElement.style.display = warningText.style.display = 'none';
+
+        toggle.domElement.onclick = toggleText.onclick = () =>
+        {
+          if (enabled)
+          {
+            settings.set('trayIcon', false);
+            toggle.setType({ type: 'Toggle', state: false });
+
+            enabled = false;
+          }
+          else
+          {
+
+            settings.set('trayIcon', true);
+            toggle.setType({ type: 'Toggle', state: true });
+
+            enabled = true;
+          }
+
+          if (warningText.style.cssText)
+          {
+            relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
+          }
+        };
       }
     });
 }
@@ -88,7 +158,7 @@ function loadShowHideKey()
 {
   const showHideKeyCard = createCard();
 
-  const showHideAccelerator = localStorage.getItem('showHideKey');
+  const showHideAccelerator = settings.get('showHideKey', undefined);
   
   if (!showHideAccelerator)
   {
@@ -96,14 +166,16 @@ function loadShowHideKey()
       showHideKeyCard,
       'Hello there, ',
       'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.',
-      'showHideKey',
-      showHide,
-      () => autoHide = true
+      'showHideKey', showHide,
+      () =>
+      {
+        autoHide = true;
+
+        setSkipTaskbar(true);
+      }
     );
 
     appendCard(showHideKeyCard);
-
-    skipTaskbar(false);
   }
   else if (remote.globalShortcut.isRegistered(showHideAccelerator))
   {
@@ -111,20 +183,23 @@ function loadShowHideKey()
       showHideKeyCard,
       'Sorry, It looks like',
       'A different application is using the shortcut you selected for summoning Sulaiman; we recommend to setting a new one.',
-      'showHideKey',
-      showHide,
-      () => autoHide = true
+      'showHideKey', showHide,
+      () =>
+      {
+        autoHide = true;
+
+        setSkipTaskbar(true);
+      }
     );
 
     appendCard(showHideKeyCard);
-
-    skipTaskbar(false);
   }
   else
   {
     remote.globalShortcut.register(showHideAccelerator, showHide);
 
     autoHide = true;
+    setSkipTaskbar(true);
   }
 }
 
@@ -168,17 +243,20 @@ function loadAutoLaunch()
 /** @param { Card } card
 * @param { string } title
 * @param { string } description
-* @param { () => void ) } [callback]
+* @param { string } key
+* @param { () => void } callback
+* @param { () => void } [done]
+* @param { () => void } [remove]
 */
-function showChangeKeyCard(card, title, description, key, callback, done)
+function showChangeKeyCard(card, title, description, key, callback, done, remove)
 {
   card.auto({ title: title, description: description });
 
-  captureKey(card, (accelerator) =>
+  captureKey(card, key, (accelerator) =>
   {
-    unregisterGlobalShortcut(localStorage.getItem(key));
+    unregisterGlobalShortcut(settings.get(key, undefined));
 
-    localStorage.setItem(key, accelerator);
+    settings.set(key, accelerator);
     
     remote.globalShortcut.register(accelerator, callback);
 
@@ -195,34 +273,37 @@ function showChangeKeyCard(card, title, description, key, callback, done)
 
     if (done)
       done();
+  }, () =>
+  {
+    if (remove)
+      remove();
   });
 }
 
 /** make the card apply to capture key downs and turns them to accelerators
 * @param { Card } card
-* @param { (accelerator: Electron.Accelerator) => void } callback
+* @param { (accelerator: Electron.Accelerator) => void } done
+* @param { () => void } remove
 */
-function captureKey(card, callback)
+function captureKey(card, key, done, remove)
 {
+  let exists;
+
   const keys = [];
 
   const keysElem = card.appendText('', { size: 'Big', style: 'Bold' });
 
-  const emptySpace = card.appendLineBreak();
-  emptySpace.style.padding = '2px';
+  card.appendLineBreak();
 
   const setButtonCard = createCard();
-  const setButton = setButtonCard.appendText('Set', { align: 'Center' });
+  const setButton = setButtonCard.appendText('', { align: 'Center' });
   setButtonCard.setType({ type: 'Button' });
   card.appendChild(setButtonCard);
 
   const cancelButtonCard = createCard();
-  cancelButtonCard.appendText('Cancel', { align: 'Center' });
+  const cancelButton = cancelButtonCard.appendText('', { align: 'Center' });
   cancelButtonCard.setType({ type: 'Button' });
   card.appendChild(cancelButtonCard);
-
-  keysElem.style.display = 'none';
-  cancelButtonCard.domElement.style.display = 'none';
 
   /** @param {KeyboardEvent} event
   */
@@ -268,8 +349,22 @@ function captureKey(card, callback)
 
   const cancelKeyCapture = () =>
   {
+    exists = settings.has(key);
+
     keysElem.style.display = 'none';
-    cancelButtonCard.domElement.style.display = 'none';
+
+    if (exists)
+    {
+      cancelButton.innerText = 'Remove';
+  
+      cancelButtonCard.domElement.onclick = removeKey;
+    }
+    else
+    {
+      cancelButton.innerText = 'Cancel';
+
+      cancelButtonCard.domElement.style.display = 'none';
+    }
 
     setButton.innerText = 'Set';
 
@@ -282,6 +377,10 @@ function captureKey(card, callback)
   const startKeyCapture = () =>
   {
     keysElem.style.cssText = '';
+
+    cancelButton.innerText = 'Cancel';
+
+    cancelButtonCard.domElement.onclick = cancelKeyCapture;
     cancelButtonCard.domElement.style.cssText = '';
       
     keysElem.innerText = 'Press The Keys';
@@ -289,7 +388,7 @@ function captureKey(card, callback)
 
     setButtonCard.domElement.onclick = () =>
     {
-      callback(keys.join('+'));
+      done(keys.join('+'));
 
       cancelKeyCapture();
     };
@@ -299,8 +398,19 @@ function captureKey(card, callback)
     window.addEventListener('keydown', keyCapture);
   };
 
-  setButtonCard.domElement.onclick = startKeyCapture;
-  cancelButtonCard.domElement.onclick = cancelKeyCapture;
+  const removeKey = () =>
+  {
+    if (unregisterGlobalShortcut(settings.get(key, undefined)))
+    {
+      settings.delete(key);
+
+      cancelButtonCard.domElement.style.display = 'none';
+
+      remove();
+    }
+  };
+
+  cancelKeyCapture();
 }
 
 /**
@@ -343,6 +453,8 @@ function checkForSulaimanUpdates()
 {
   function check(serverBuild)
   {
+    // if commit id of the server is different, and
+    // the current package has a download url in the server
     if (serverBuild.commit !== localBuild.commit && serverBuild[localBuild.package])
     {
       const progress = function(info)
@@ -380,7 +492,7 @@ function checkForSulaimanUpdates()
       {
         remote.shell.openItem(path);
 
-        remote.app.quit();
+        quit();
       };
 
       const download = function()
@@ -429,13 +541,21 @@ function checkForSulaimanUpdates()
     }
   }
 
+  const buildPath = join(__dirname, '../../build.json');
+
+  // if the build.json file doesn't exists, then return
+  if (!existsSync(buildPath))
+    return;
+
   /** @type { { build: string, commit: string, date: string, package: string }  }
   */
   const localBuild = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
 
+  // if the package is not specified, then return
   if (!localBuild.package)
     return;
 
+  // request the server's build.json, can fail silently
   request(
     'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/build.json?job=build', {  json: true })
     .then((serverBuild) => check(serverBuild));

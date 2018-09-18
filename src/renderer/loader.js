@@ -6,7 +6,7 @@ import { join } from 'path';
 import { platform } from 'os';
 import { EventEmitter } from 'events';
 
-import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './searchBar.js';
+import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
 import { readyState } from './renderer.js';
 import { Card } from './api.js';
 
