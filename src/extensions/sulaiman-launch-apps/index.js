@@ -1,202 +1,202 @@
-import * as sulaiman from 'sulaiman';
-// import * as sulaiman from '../../../';
+// import * as sulaiman from 'sulaiman';
+// // import * as sulaiman from '../../../';
 
-import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
+// import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
 
-import { join, basename } from 'path';
-import { homedir, platform as getPlatform } from 'os';
-import { exec as execute } from 'child_process';
+// import { join, basename } from 'path';
+// import { homedir, platform as getPlatform } from 'os';
+// import { exec as execute } from 'child_process';
 
-const phraseArgs = [];
+// const phraseArgs = [];
 
-/** @type { Object<string, sting> }
-*/
-const apps = {};
+// /** @type { Object<string, sting> }
+// */
+// const apps = {};
 
-const platform = getPlatform();
+// const platform = getPlatform();
 
-/** @param { string[] } directories
-* @returns { string[] }
-*/
-function walkSync(directories)
-{
-  let results = [];
+// /** @param { string[] } directories
+// * @returns { string[] }
+// */
+// function walkSync(directories)
+// {
+//   let results = [];
 
-  for (let i = 0; i < directories.length; i++)
-  {
-    const dir = directories[i];
+//   for (let i = 0; i < directories.length; i++)
+//   {
+//     const dir = directories[i];
 
-    if (!existsSync(dir))
-      continue;
+//     if (!existsSync(dir))
+//       continue;
 
-    const list = readdirSync(dir);
+//     const list = readdirSync(dir);
 
-    list.forEach((file) =>
-    {
-      file = join(dir, file);
+//     list.forEach((file) =>
+//     {
+//       file = join(dir, file);
       
-      const stat = statSync(file);
+//       const stat = statSync(file);
   
-      if (stat && stat.isDirectory())
-        // Recurs into a subdirectory
-        results = results.concat(walkSync([ file ]));
-      else
-        // Is a file
-        results.push(file);
-    });
-  }
+//       if (stat && stat.isDirectory())
+//         // Recurs into a subdirectory
+//         results = results.concat(walkSync([ file ]));
+//       else
+//         // Is a file
+//         results.push(file);
+//     });
+//   }
 
-  return results;
-}
+//   return results;
+// }
 
-function windows()
-{
-  const { APPDATA, ProgramData } = process.env;
+// function windows()
+// {
+//   const { APPDATA, ProgramData } = process.env;
 
-  // directories where usually shortcut, links or the apps themselves exists
-  const appDirectories =
-  [
-    join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
-    join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
-  ];
+//   // directories where usually shortcut, links or the apps themselves exists
+//   const appDirectories =
+//   [
+//     join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
+//     join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
+//   ];
 
-  // the usual extensions for the apps in this os
-  const appExtension = '.lnk';
+//   // the usual extensions for the apps in this os
+//   const appExtension = '.lnk';
 
-  return new Promise((resolve) =>
-  {
-    const files = walkSync(appDirectories);
+//   return new Promise((resolve) =>
+//   {
+//     const files = walkSync(appDirectories);
     
-    for (let i = 0; i < files.length; i++)
-    {
-      const file = files[i];
+//     for (let i = 0; i < files.length; i++)
+//     {
+//       const file = files[i];
       
-      // if it ends with the specified extension
-      if (file.endsWith(appExtension))
-      {
-        const name = basename(file, appExtension);
+//       // if it ends with the specified extension
+//       if (file.endsWith(appExtension))
+//       {
+//         const name = basename(file, appExtension);
 
-        phraseArgs.push(name);
+//         phraseArgs.push(name);
 
-        apps[name] = file;
-      }
-    }
+//         apps[name] = file;
+//       }
+//     }
     
-    resolve();
-  });
-}
+//     resolve();
+//   });
+// }
 
-function linux()
-{
-  // directories where usually shortcut, links or the apps themselves exists
-  const appDirectories =
-  [
-    '/usr/share/applications/',
-    '/usr/local/share/applications/',
-    join(homedir(), '/.local/share/applications/')
-  ];
+// function linux()
+// {
+//   // directories where usually shortcut, links or the apps themselves exists
+//   const appDirectories =
+//   [
+//     '/usr/share/applications/',
+//     '/usr/local/share/applications/',
+//     join(homedir(), '/.local/share/applications/')
+//   ];
 
-  // the usual extensions for the apps in this os
-  const appExtension = '.desktop';
+//   // the usual extensions for the apps in this os
+//   const appExtension = '.desktop';
 
-  return new Promise((resolve) =>
-  {
-    const files = walkSync(appDirectories);
+//   return new Promise((resolve) =>
+//   {
+//     const files = walkSync(appDirectories);
 
-    for (let i = 0; i < files.length; i++)
-    {
-      const file = files[i];
+//     for (let i = 0; i < files.length; i++)
+//     {
+//       const file = files[i];
       
-      // if it ends with the specified extension
-      if (file.endsWith(appExtension))
-      {
-        const fileParsed = {};
+//       // if it ends with the specified extension
+//       if (file.endsWith(appExtension))
+//       {
+//         const fileParsed = {};
                               
-        // read the file and parse it content to a javascript object
-        const fileRead = readFileSync(file).toString().split('\n');
+//         // read the file and parse it content to a javascript object
+//         const fileRead = readFileSync(file).toString().split('\n');
             
-        for (let i = 0; i < fileRead.length; i++)
-        {
-          const splitIndex = fileRead[i].indexOf('=');
+//         for (let i = 0; i < fileRead.length; i++)
+//         {
+//           const splitIndex = fileRead[i].indexOf('=');
             
-          const key = fileRead[i].substring(0, splitIndex).trim();
-          const value = fileRead[i].substring(splitIndex + 1).trim();
+//           const key = fileRead[i].substring(0, splitIndex).trim();
+//           const value = fileRead[i].substring(splitIndex + 1).trim();
             
-          if (key.length > 0 && value.length > 0)
-            fileParsed[key] = value;
-        }
+//           if (key.length > 0 && value.length > 0)
+//             fileParsed[key] = value;
+//         }
             
-        if (fileParsed.NoDisplay)
-          continue;
+//         if (fileParsed.NoDisplay)
+//           continue;
 
-        phraseArgs.push(fileParsed.Name);
+//         phraseArgs.push(fileParsed.Name);
 
-        apps[fileParsed.Name] = fileParsed.Exec;
-      }
+//         apps[fileParsed.Name] = fileParsed.Exec;
+//       }
       
-      resolve();
-    }
-  });
-}
+//       resolve();
+//     }
+//   });
+// }
 
-function registerPhrases()
-{
-  sulaiman.on.ready(() =>
-  {
-    const launch = (exec) =>
-    {
-      if (platform === 'win32')
-      {
-        sulaiman.shell.openItem(exec);
-      }
-      else
-      {
-        // Linux
-        // Replace %u and other % arguments in exec script
-        // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
-        execute(exec.replace(/%./g, ''));
-      }
+// function registerPhrases()
+// {
+//   sulaiman.on.ready(() =>
+//   {
+//     const launch = (exec) =>
+//     {
+//       if (platform === 'win32')
+//       {
+//         sulaiman.shell.openItem(exec);
+//       }
+//       else
+//       {
+//         // Linux
+//         // Replace %u and other % arguments in exec script
+//         // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
+//         execute(exec.replace(/%./g, ''));
+//       }
 
-      card.auto({ description: 'has been launched' });
-      card.removeChild(button);
+//       card.auto({ description: 'has been launched' });
+//       card.removeChild(button);
 
-      card.setType({ type: 'Disabled' });
-    };
+//       card.setType({ type: 'Disabled' });
+//     };
 
-    let name = '';
-    const button = sulaiman.createCard({ title: 'Launch' });
+//     let name = '';
+//     const button = sulaiman.createCard({ title: 'Launch' });
     
-    button.setType({ type: 'Button' });
+//     button.setType({ type: 'Button' });
 
-    button.domElement.onclick = () =>
-    {
-      launch(apps[name]);
-    };
+//     button.domElement.onclick = () =>
+//     {
+//       launch(apps[name]);
+//     };
 
-    const card = sulaiman.on.phrase(
-      'Launch',
-      phraseArgs,
-      // change the card to feature the app chosen
-      (argument) =>
-      {
-        name = argument;
+//     const card = sulaiman.on.phrase(
+//       'Launch',
+//       phraseArgs,
+//       // change the card to feature the app chosen
+//       (argument) =>
+//       {
+//         name = argument;
 
-        card.auto({ title: name, description: 'launch the application' });
-        card.appendChild(button);
+//         card.auto({ title: name, description: 'launch the application' });
+//         card.appendChild(button);
 
-        card.setType({ type: 'Normal' });
-      },
-      // on pressing Enter
-      () =>
-      {
-        launch(apps[name]);
+//         card.setType({ type: 'Normal' });
+//       },
+//       // on pressing Enter
+//       () =>
+//       {
+//         launch(apps[name]);
 
-        return true;
-      });
-  });
-}
+//         return true;
+//       });
+//   });
+// }
 
-if (platform === 'win32')
-  windows().then(registerPhrases);
-else
-  linux().then(registerPhrases);
+// if (platform === 'win32')
+//   windows().then(registerPhrases);
+// else
+//   linux().then(registerPhrases);

@@ -6,7 +6,7 @@ import { join } from 'path';
 import { platform } from 'os';
 import { EventEmitter } from 'events';
 
-import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
+// import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
 import { readyState } from './renderer.js';
 import { Card } from './api.js';
 
@@ -92,18 +92,18 @@ export const on =
   * @param { () => void } callback the callback function
   */
   ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
-  /** returns a card that is shown and hidden automatically
-  * when the user search for a certain phrase
-  * @param { string } phrase one word phrase
-  * @param { string[] } [args] arguments available for the phrase
-  * @param { (argument: string, value: string) => void } [shown] emits when the user
-  * inputs the phrase with an argument to the search bar, before the card is shown
-  * @param { () => boolean } [entered] emits every time the user presses down `Enter`
-  * while the card is shown, and the focus is on the search bar,
-  * if the callback returns `true` the search bar will be cleared and the card will be hidden again
-  * @returns { Card }
-  */
-  phrase: (phrase, args, shown, entered) => registerPhrase(phrase, args, shown, entered),
+  // /** returns a card that is shown and hidden automatically
+  // * when the user search for a certain phrase
+  // * @param { string } phrase one word phrase
+  // * @param { string[] } [args] arguments available for the phrase
+  // * @param { (argument: string, value: string) => void } [shown] emits when the user
+  // * inputs the phrase with an argument to the search bar, before the card is shown
+  // * @param { () => boolean } [entered] emits every time the user presses down `Enter`
+  // * while the card is shown, and the focus is on the search bar,
+  // * if the callback returns `true` the search bar will be cleared and the card will be hidden again
+  // * @returns { Card }
+  // */
+  // phrase: (phrase, args, shown, entered) => registerPhrase(phrase, args, shown, entered),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -120,10 +120,10 @@ export const off =
   * @param { (text: string) => void } callback the callback function
   */
   ready: (callback) => sulaiman.removeListener('ready', callback),
-  /** removes a phrase and returns a card controlled by you
-  * @param { Card } card the card previously given you by registering a phrase
-  */
-  phrase: (card) => unregisterPhrase(card),
+  // /** removes a phrase and returns a card controlled by you
+  // * @param { Card } card the card previously given you by registering a phrase
+  // */
+  // phrase: (card) => unregisterPhrase(card),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -139,10 +139,10 @@ export const is =
   /** returns true when the app is fully loaded and ready to use
   */
   ready: () => readyState,
-  /** returns true if a phrase is already registered
-  * @param { string } phrase
-  */
-  registeredPhrase: (phrase) => isRegisteredPhrase(phrase)
+  // /** returns true if a phrase is already registered
+  // * @param { string } phrase
+  // */
+  // registeredPhrase: (phrase) => isRegisteredPhrase(phrase)
 };
 
 export const emit =
@@ -249,6 +249,7 @@ function handelMockups(requiredPermissions, theme)
 
     // sulaiman
     window: true,
+    electron: true,
     clipboard: true,
     shell: true,
     dialog: true,

@@ -9,7 +9,7 @@
       "internalConsoleOptions": "neverOpen",
       "cwd": "${workspaceRoot}",
       "env": {
-        // "DEBUG": "1"
+        "DEBUG": "1"
       },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "args": [
@@ -27,7 +27,7 @@
       "internalConsoleOptions": "openOnSessionStart",
       "webRoot": "${workspaceRoot}",
       "env": {
-        // "DEBUG": "1"
+        "DEBUG": "1"
       },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [

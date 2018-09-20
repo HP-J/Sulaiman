@@ -2,11 +2,12 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar } from './search.js';
+import { appendSearchBar, registerPhrase, unregisterPhrase } from './newsearch.js';
 import { loadExtensions, emit, } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
 import { loadNPM } from './manager.js';
+import { createCard } from './card.js';
 
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
@@ -86,13 +87,15 @@ loadExtensions();
 readyState = true;
 
 // load options
-loadOptions();
+// loadOptions();
 
 // register sulaiman-related phrases
-registerPhrases();
+// registerPhrases();
 
 // emit the ready event for extensions
 emit.ready();
+
+const card = registerPhrase('hello');
 
 // on.phrase('extension',
 //   [

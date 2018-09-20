@@ -140,7 +140,7 @@ function onkeydown(event)
 
     if (activePhraseKey && registeredPhrases[activePhraseKey].entered)
     {
-      if (registeredPhrases[activePhraseKey].entered()) 
+      if (registeredPhrases[activePhraseKey].entered())
         clear();
     }
   }
@@ -522,14 +522,7 @@ export function registerPhrase(phrase, args, shown, entered)
   
   const card = createCard();
   
-  // we want to have control over when cards are shown
-  // and removed from the dom, by setting a read-only property
-  // that is checked by all append and remove apis, we can accomplish that
-  Object.defineProperty(card, 'isPhrased',
-    {
-      value: phrase,
-      writable: false
-    });
+
   
   for (let i = 0; i < args.length; i++)
   {

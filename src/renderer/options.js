@@ -227,11 +227,11 @@ function loadAutoLaunch()
         removeCard(autoLaunchCard);
       };
   
-      const noButton = createCard({ title: 'No' });
-      noButton.setType({ type: 'Button' });
-      autoLaunchCard.appendChild(noButton);
+      const dismissButton = createCard({ title: 'Dismiss' });
+      dismissButton.setType({ type: 'Button' });
+      autoLaunchCard.appendChild(dismissButton);
   
-      noButton.domElement.onclick = () =>
+      dismissButton.domElement.onclick = () =>
       {
         settings.set('ignoreAutoLaunch', true);
         

@@ -7,16 +7,22 @@ import Card from './card.js';
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
 export { createCard } from './card.js';
-export { setPlaceholder } from './search.js';
+export { setPlaceholder } from './newsearch.js';
 export { on, off } from './loader.js';
 
 export { Card };
 
 /** [needs the 'window' permission]
-* the main window of the app
+* the main browser window of the app
 * @type { Electron.BrowserWindow }
 */
 export const window = mainWindow;
+
+/** [needs the 'electron' permission]
+* the electron remote
+* @type { Electron.Remote }
+*/
+export const electron = remote;
 
 /** [needs the 'clipboard' permission]
 * access to read & write to clipboard

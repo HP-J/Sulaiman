@@ -1,7 +1,4 @@
 graphics:
-  ✔ card > card overhaul @done (9/15/2018, 11:36:05 AM)
-  ✔ on off toggles @today @done (9/15/2018, 8:02:23 PM)
-
   ☐ conflicting themes card instead of an error @low 
   ☐ show popular extensions from the npm registry @low  
 
@@ -9,21 +6,21 @@ manager:
   ☐ allow local imports under the sandbox mode @low 
 
 technical:
-  ✔ auto-update @done (9/15/2018, 8:21:17 PM)
-  ☐ phrases match regex 
+  ☐ phrases fluid suggestions and regex matching
+
+  ☐ test relaunch and auto-launch on a linux build
 
   ☐ phrases for [extensions running / extensions install / extension delete]
+  ☐ phrases for [quit / reload / relaunch]
   ☐ test all extensions cards 
 
-  ✔ auto-launch @done (9/15/2018, 10:17:11 PM)
+  ☐ create an arch user repository and upload the first version
 
-  ☐ create an arch user repository and give the CI access to it
-
- CI/CD:
+CI/CD:
   ☐ test the AUR publishing script
   ☐ build & test DMG packages @need-help
 
-extensions:  
+extensions:
   ☐ calculator 
   ☐ open urls 
   ☐ files 

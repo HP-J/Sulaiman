@@ -15,9 +15,9 @@ variables: {
       "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || undefined, nsis: process.argv[5], deb: process.argv[6] }));"
 }
 
-# if testing fails, it won't build and release new versions
 stages:
   - build
+  # - npm
   # - arch
 
 build:
@@ -57,37 +57,48 @@ build:
   only:
     - release
 
-arch:
-  stage: arch
-  image: whynothugo/makepkg:latest
-  script:
-    # set variables
-    - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
+# npm:
+#   stage: npm
+#   image: node:slim
+#   script:
+#     - "echo _auth = $NPM_AUTH_TOKEN > ~/.npmrc"
+#     - "echo email = $NPM_EMAIL >> ~/.npmrc"
+#     # - "npm publish"
+#   only:
+#     - release
 
-    # set access
-    - "echo \"$AUR_SSH_PRIVATE_KEY\" > ~/.ssh/id_rsa"
-    - "ssh-add -K ~/.ssh/id_rsa"
-    - "git config user.name \"$GIT_USERNAME\""
-    - "git config user.email \"$GIT_EMAIL\""
+# arch:
+#   stage: arch
+#   image: whynothugo/makepkg:latest
+#   script:
+#     # set variables
+#     - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
 
-    # pull the current package info 
-    - "cd aur"
-    - "git fetch"
-    - "git pull"
+#     # set access
+#     - "echo \"$AUR_SSH_PRIVATE_KEY\" > ~/.ssh/id_rsa"
+#     - "ssh-add -K ~/.ssh/id_rsa"
+#     - "git config user.name \"$GIT_USERNAME\""
+#     - "git config user.email \"$GIT_EMAIL\""
 
-    # update the package info
-    - "echo \"$(head -n -3 PKGBUILD)\" > PKGBUILD"
-    - "echo \"pkgver=$VERSION\" >> PKGBUILD"
-    - "echo \"source=('icon.png' 'sulaiman.desktop' '$TAR_URL')\" >> PKGBUILD"
-    - "echo \"md5sums=('$(md5sum icon.png | awk '{print $1}')' '$(md5sum sulaiman.desktop | awk '{print $1}')' '$(md5sum ../public/Sulaiman.tar.xz | awk '{print $1}')')\" >> PKGBUILD"
-    - "makepkg --printsrcinfo > .SRCINFO"
+#     # pull the current package info 
+#     - "cd aur"
+#     - "git fetch"
+#     - "git pull"
 
-    - "echo \"$(head -n -0 PKGBUILD)\""
-    - "echo \"----------------------------------------------------\""
-    - "echo \"$(head -n -0 .SRCINFO)\""
-    # release a new AUR package
-    # - "git add PKGBUILD .SRCINFO"
-    # - "git commit -m \"$VERSION\""
-    # - "git push"
-  only:
-    - release
+#     # update the package info
+#     - "echo \"$(head -n -3 PKGBUILD)\" > PKGBUILD"
+#     - "echo \"pkgver=$VERSION\" >> PKGBUILD"
+#     - "echo \"source=('icon.png' 'sulaiman.desktop' '$TAR_URL')\" >> PKGBUILD"
+#     - "echo \"md5sums=('$(md5sum icon.png | awk '{print $1}')' '$(md5sum sulaiman.desktop | awk '{print $1}')' '$(md5sum ../public/Sulaiman.tar.xz | awk '{print $1}')')\" >> PKGBUILD"
+#     - "makepkg --printsrcinfo > .SRCINFO"
+
+#     - "echo \"$(head -n -0 PKGBUILD)\""
+#     - "echo \"----------------------------------------------------\""
+#     - "echo \"$(head -n -0 .SRCINFO)\""
+
+#     # release a new AUR package
+#     # - "git add PKGBUILD .SRCINFO"
+#     # - "git commit -m \"$VERSION\""
+#     # - "git push"
+#   only:
+#     - release
