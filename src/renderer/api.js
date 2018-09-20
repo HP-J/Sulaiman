@@ -7,7 +7,7 @@ import Card from './card.js';
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
 export { createCard } from './card.js';
-export { setPlaceholder } from './newsearch.js';
+export { setPlaceholder } from './search.js';
 export { on, off } from './loader.js';
 
 export { Card };

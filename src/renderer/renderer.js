@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar, registerPhrase, unregisterPhrase } from './newsearch.js';
+import { appendSearchBar, registerPhrase, unregisterPhrase } from './search.js';
 import { loadExtensions, emit, } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
@@ -80,10 +80,7 @@ registerEvents();
 // load npm
 loadNPM();
 
-// load all extensions
-loadExtensions();
-
-// mark the app as ready
+// mark the app as ready to create built-in content
 readyState = true;
 
 // load options
@@ -92,7 +89,15 @@ readyState = true;
 // register sulaiman-related phrases
 // registerPhrases();
 
-// emit the ready event for extensions
+// mark the app as not-ready to load all extensions
+readyState = false;
+
+// load all extensions
+loadExtensions();
+
+// finally, mark the app as ready and
+// emit the ready event
+readyState = true;
 emit.ready();
 
 const card = registerPhrase('hello');
