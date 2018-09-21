@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar, registerPhrase, unregisterPhrase } from './search.js';
+import { appendSearchBar, registerPhrase, unregisterPhrase, isRegisteredPhrase, search } from './search.js';
 import { loadExtensions, emit, } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
@@ -100,7 +100,13 @@ loadExtensions();
 readyState = true;
 emit.ready();
 
-const card = registerPhrase('hello');
+registerPhrase('hello')
+  .then((obj) =>
+  {
+    obj.phraseArguments.push('world');
+    
+    search('he');
+  });
 
 // on.phrase('extension',
 //   [

@@ -6,7 +6,8 @@ manager:
   ☐ allow local imports under the sandbox mode @low 
 
 technical:
-  ☐ phrases fluid suggestions and regex matching
+  ☐ phrases: regex search (for extensions like calculator)
+  ✔ phrases: suggestions on-demand @done (9/22/2018, 12:50:39 AM)
 
   ☐ test relaunch and auto-launch on a linux build
 
@@ -18,6 +19,8 @@ technical:
 
 CI/CD:
   ☐ test the AUR publishing script
+  ☐ test the NPM publishing script
+
   ☐ build & test DMG packages @need-help
 
 extensions:
