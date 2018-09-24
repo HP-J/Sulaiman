@@ -232,6 +232,7 @@ function handelMockups(requiredPermissions, theme)
     clipboard: true,
     shell: true,
     dialog: true,
+    tray: true,
 
     // sulaiman theme
     appendStyle: !theme,

@@ -2,7 +2,7 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar, registerPhrase, unregisterPhrase, isRegisteredPhrase, search } from './search.js';
+import { appendSearchBar, registerPhrase, unregisterPhrase, isRegisteredPhrase, search, compare, getStringDefaultRegex } from './search.js';
 import { loadExtensions, emit, } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
@@ -100,13 +100,21 @@ loadExtensions();
 readyState = true;
 emit.ready();
 
-registerPhrase('hello')
-  .then((obj) =>
-  {
-    obj.phraseArguments.push('world');
+compare(
+  // 'a9 b',
+  // /[0-9]/,
+  'he wo',
+  'hello',
+  'world'
+);
+
+// registerPhrase('hello')
+//   .then((obj) =>
+//   {
+//     obj.phraseArguments.push('world');
     
-    search('he');
-  });
+//     search('he');
+//   });
 
 // on.phrase('extension',
 //   [

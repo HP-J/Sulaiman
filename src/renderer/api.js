@@ -4,7 +4,9 @@ import { join } from 'path';
 import { readdirSync } from 'fs';
 
 import Card from './card.js';
+
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
+const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
 
 export { createCard } from './card.js';
 export { setPlaceholder } from './search.js';
@@ -36,6 +38,11 @@ export const shell = remote.shell;
 /** [needs the 'dialog' permission]
 */
 export const dialog = remote.dialog;
+
+/** [needs the 'tray' permission] the tray icon can be disabled in options,
+* in that case tray will return undefined
+*/
+export const tray = trayIcon;
 
 /** when a new icon is loaded it gets cached in this
 * object so it can be cloned if requested again

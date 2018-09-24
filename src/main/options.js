@@ -6,10 +6,9 @@ import * as settings from 'electron-json-config';
 
 import { showHide } from './window.js';
 
-let trayIcon;
-let trayIconImage;
+export let trayIcon;
 
-const trayMenu = Menu.buildFromTemplate([
+const trayMenuTemplate = [
   {
     label: 'Sulaiman',
     enabled: false
@@ -29,7 +28,7 @@ const trayMenu = Menu.buildFromTemplate([
       app.quit();
     }
   }
-]);
+];
 
 export function loadOptions()
 {
@@ -38,6 +37,7 @@ export function loadOptions()
   
   loadTrayIcon();
 }
+
 function loadTrayIcon()
 {
   if (trayIcon)
@@ -47,9 +47,20 @@ function loadTrayIcon()
 
   if (enabled)
   {
-    trayIconImage = nativeImage.createFromPath(join(__dirname, '../../tray.png'));
+    const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
+    const trayIconImage = nativeImage.createFromPath(join(__dirname, '../../tray.png'));
   
     trayIcon = new Tray(trayIconImage);
+
+    trayIcon._setContextMenu = trayIcon.setContextMenu;
+
+    trayIcon.setContextMenu = function(menu)
+    {
+      trayIcon._setContextMenu(menu);
+      
+      trayIcon.contextMenu = menu;
+    };
+
     trayIcon.setContextMenu(trayMenu);
   }
 }
