@@ -2,7 +2,10 @@ import { on } from './loader.js';
 
 import Card, { createCard } from './card.js';
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[] } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], active: boolean } } PhraseObj
+*/
+
+/** @typedef { { element: HTMLDivElement, percentage: number, match: boolean } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -13,7 +16,7 @@ let inputElement;
 */
 let suggestionsElement;
 
-const lastInput = '';
+let lastInput = '';
 
 /** create and append the search bar and card-space
 */
@@ -71,60 +74,129 @@ const registeredPhrases = {};
 */
 function oninput()
 {
-  // const input = standard(inputElement.value);
+  const input = standard(inputElement.value);
 
-  // if (input === lastInput)
-  //   return;
+  if (input === lastInput)
+    return;
 
-  // lastInput = input;
+  lastInput = input;
 
-  // if there is a active card, remove it from dom
+  if (!input)
+  {
+    updateSuggestionsCount(0);
+  }
+  else
+  {
+    window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+  }
 
-  // if input string is empty, update count to 0 and return
-  // else scroll to top of the body `window.scroll` and
-  // remove all suggestions item from the suggestions element
-  // reset selected item to 0
-  // if (!input)
-  // {
-
-  // }
-    
-  // then search phrase
-  // searchPhrases(getInputRegex(input));
+  search(input);
 }
 
 function search(input)
 {
-  // for (const phrase in registeredPhrases)
-  // {
-  //   const phraseObj = registeredPhrases[phrase];
+  return new Promise((resolve, reject) =>
+  {
+    /** @type { CompareObject[] }
+    */
+    const suggestions = [];
+    
+    // search all phrases are their arguments
+    for (const phrase in registeredPhrases)
+    {
+      const phraseObj = registeredPhrases[phrase];
+      
+      // if the phrase has no arguments
+      if (!phraseObj.phraseArguments || phraseObj.phraseArguments.length <= 0)
+      {
+        const compareObject = compare(input, phraseObj.phrase);
 
-  //   compare(input, phraseObj.regex);
-  // }
+        if (compareObject.match)
+          activatePhrase(phraseObj);
+        else if (phraseObj.active)
+          deactivatePhrase(phraseObj);
+
+        suggestions.push(compareObject);
+      }
+      else
+      {
+        // else the phrase must have one or more arguments
+        // loop through the phrase's arguments, comparing them
+        for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+        {
+          const compareObject = compare(input, phraseObj.phrase, phraseObj.phraseArguments[i]);
+
+          if (compareObject.match)
+            activatePhrase(phraseObj, phraseObj.phraseArguments[i]);
+          else if (phraseObj.active)
+            deactivatePhrase(phraseObj);
+
+          suggestions.push(compareObject);
+        }
+      }
+    }
+      
+    // sort all compare objects based on their percentage
+    sort(suggestions, (a, b) =>
+    {
+      if (a.percentage > b.percentage)
+        return 1;
+      else if (a.percentage < b.percentage)
+        return -1;
+      else
+        return 0;
+    });
+
+    // remove old suggestion items
+    while (suggestionsElement.firstChild)
+    {
+      suggestionsElement.removeChild(suggestionsElement.firstChild);
+    }
+
+    // add new suggestion items
+    for (let i = 0; i < suggestions.length; i++)
+    {
+      suggestionsElement.appendChild(suggestions[i].element);
+    }
+
+    // update the count for the css variable
+    updateSuggestionsCount(suggestions.length);
+  });
+}
+
+/** @param { PhraseObj } phraseObj
+*/
+function activatePhrase(phraseObj, argument)
+{
+  // TODO callback phraseObj show with argument, if it returns true show card and set it as active, else do nothing
+
+  console.log('activate: ' + phraseObj.phrase);
+}
+
+/** @param { PhraseObj } phraseObj
+*/
+function deactivatePhrase(phraseObj)
+{
+  console.log('deactivate: ' + phraseObj.phrase);
+}
+
+/** @param { T[] } array
+* @template T
+* @param { (a: T, b: T) => number } compare
+*/
+function sort(array, compare)
+{
+  array.sort(compare);
 }
 
 /** @param { string } input
 * @param { RegExp } phraseRegex
 * @param { string | RegExp } phrase
 * @param { string } argument
+* @returns { CompareObject }
 */
 export function compare(input, phrase, argument)
 {
-  /** replaces the unescapable characters in a regex with escapable characters
-  * @param { string } s the string you want to update
-  */
-  function escapeRegExp(s)
-  {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  /** @param { string } phrase
-  */
-  function getStringRegex(phrase)
-  {
-    return new RegExp('(' + escapeRegExp(phrase).split('').join('?') + '?.*?)', 'i');
-  }
-
   /** @param { string } remaining
   * @param { string } written
   * @param { boolean } isTextFirst
@@ -161,17 +233,9 @@ export function compare(input, phrase, argument)
     return { textElementRemaining: textElementRemaining, textElementWritten: textElementWritten };
   }
 
-  /** @param { string } remaining
-  * @param { string } written
-  */
-  function getComparePercentage(written, remaining)
-  {
-    return (written.length / (written + remaining).length) * 100;
-  }
-
   // phrase type
   const isString = (typeof phrase === 'string');
-  
+
   /** split the input to words
   * @type { string[] }
   */
@@ -185,14 +249,14 @@ export function compare(input, phrase, argument)
 
   // split argument to words
   const argumentSplit = (argument) ? standard(argument).split(' ') : [];
-  
+
   /** the regex that wil be tested on input
   * @type { RegExp }
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
   // the total percentage for the comparison
-  const totalPercentage = 100 + (argumentSplit.length * 100);
+  const totalPercentage = 200 + (argumentSplit.length * 200);
 
   // the final percentage for the comparison
   let comparePercentage = 0;
@@ -208,7 +272,7 @@ export function compare(input, phrase, argument)
 
   const phraseTextWritten = match[0];
   let phraseTextRemaining = '';
-  
+
   if (
     // if not string, then always match phrase
     (!isString) ||
@@ -220,15 +284,14 @@ export function compare(input, phrase, argument)
     // if returned true show card, set as active
 
     phraseMatch = true;
-    comparePercentage = 100;
+    comparePercentage = 200;
   }
 
-  if (isString)
-    phraseTextRemaining = phrase.replace(phraseTextWritten, '').split(' ');
-  else
-    phraseTextRemaining = inputFirstWord.replace(phraseTextWritten, '').split(' ');
+  phraseTextRemaining = ((isString) ? phrase : inputFirstWord)
+    .replace(phraseTextWritten, '').split(' ');
 
-  const isTextFirst = (isString) ? !phrase.startsWith(phraseTextWritten) : !input.startsWith(phraseTextWritten);
+  const isTextFirst = !((isString) ? phrase : input)
+    .startsWith(phraseTextWritten);
 
   // if the phrase doesn't match, that mean that the phrase is a string type
   // and that it's not completely written, add the correct compare percentage for the first word
@@ -237,13 +300,13 @@ export function compare(input, phrase, argument)
 
   // create an element for the suggestion item
   const element = document.createElement('div');
-  
+
   // set the element as suggestions item
   element.setAttribute('class', 'suggestionsItem');
 
   // append a text and text written elements for the phrase, on the suggestions item
   appendTextAndWrittenElements(phraseTextWritten, phraseTextRemaining, isTextFirst);
-  
+
   // process arguments (any thing after the first word)
   for (let i = 0, x = 0; i < argumentSplit.length; i++)
   {
@@ -265,8 +328,6 @@ export function compare(input, phrase, argument)
       
       comparePercentage += getComparePercentage(written, remaining);
 
-      console.log(comparePercentage + '/' + totalPercentage);
-
       x += 1;
     }
     else
@@ -275,7 +336,34 @@ export function compare(input, phrase, argument)
     }
   }
 
-  return { element: element, totalPercentage: totalPercentage, comparePercentage: comparePercentage, phraseMatch: phraseMatch };
+  return {
+    element: element,
+    percentage: comparePercentage,
+    match: totalPercentage === comparePercentage,
+  };
+}
+
+/** @param { string } remaining
+* @param { string } written
+*/
+function getComparePercentage(written, remaining)
+{
+  return ((written.length / (written + remaining).length) * 100) + 100;
+}
+
+/** @param { string } phrase
+*/
+function getStringRegex(phrase)
+{
+  return new RegExp('(' + escapeRegExp(phrase).split('').join('?') + '?.*?)', 'i');
+}
+
+/** replaces the unescapable characters in a regex with escapable characters
+* @param { string } s the string you want to update
+*/
+function escapeRegExp(s)
+{
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** update a string to be the standard the app uses for searching
@@ -351,7 +439,8 @@ export function registerPhrase(phrase)
           {
             phrase: phrase,
             card: card,
-            phraseArguments: []
+            phraseArguments: [],
+            active: false
           };
 
           // register the phrase
