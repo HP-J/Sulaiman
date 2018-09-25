@@ -1,10 +1,10 @@
 # Welcome to Sulaiman
-#### A keyboard launcher with no features
-
 
 *The app is in early stages of development, we still have a lot in the bag, stick around*
 
 *Your feedback is highly encourage*
+
+#### A keyboard launcher with no features
 
 - It can't and won't boost your productivity.
 - It's NOT a cross-platform application.
@@ -12,11 +12,15 @@
 - You can't change the color, size, location and shape of the entire GUI using themes.
 - We don't have a good extension API either.
 
-# How to Install/Delete Extensions?  
-This [wiki page](https://gitlab.com/herpproject/Sulaiman/wikis/home) is for you.
+#### How to Install/Delete Extensions?  
+- currently sulaiman doesn't have a way to search for extensions form the app it self, however,
+sulaiman does have a way to install extensions, which is the only recommend way to install them.
+- you can type 'extension install' then the name of extension's npm package to install it.
+- you can type 'extension running' to see all installed extensions and delete any of them if you desire
+- or you can type 'extension delete' then the name of the extension's npm package to delete it.
 
-# How to Create your own Extensions?  
-Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
+#### How to Create your own Extensions?  
+- Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
 
 # Download Sulaiman
 - Linux ~

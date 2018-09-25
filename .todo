@@ -6,9 +6,6 @@ manager:
   ☐ allow local imports under the sandbox mode @low 
 
 technical:
-  ✔ phrases: regex search (for extensions like calculator) @done (9/24/2018, 2:42:01 AM)
-  ✔ phrases: suggestions on-demand @done (9/22/2018, 12:50:39 AM)
-
   ☐ test relaunch and auto-launch on a linux build
 
   ☐ phrases for [extensions running / extensions install / extension delete]

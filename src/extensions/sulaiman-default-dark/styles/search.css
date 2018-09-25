@@ -74,9 +74,10 @@ html
   padding: 0px 10px;
 }
 
-.suggestionsItemWrittenText
+.suggestionsItem > mark
 {
   color: #FFFFFF;
+  background-color: transparent;
 }
 
 .suggestionsItemSelected

@@ -100,20 +100,10 @@ loadExtensions();
 readyState = true;
 emit.ready();
 
-compare(
-  // 'a9 b',
-  // /[0-9]/,
-  'he wo',
-  'hello',
-  'world'
-);
-
 // registerPhrase('hello')
 //   .then((obj) =>
 //   {
-//     obj.phraseArguments.push('world');
-    
-//     search('he');
+//     console.log('added');
 //   });
 
 // on.phrase('extension',

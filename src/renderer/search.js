@@ -197,40 +197,31 @@ function sort(array, compare)
 */
 export function compare(input, phrase, argument)
 {
-  /** @param { string } remaining
-  * @param { string } written
-  * @param { boolean } isTextFirst
+  /** @param { string } written
+  * @param { string } text
   * @param { boolean } isArgument
   */
-  function appendTextAndWrittenElements(written, remaining, isTextFirst, isArgument)
+  function appendWrittenAndTextElements(written, text, isArgument)
   {
-    const textElementRemaining = document.createElement('div');
-    const textElementWritten = document.createElement('div');
-  
-    textElementWritten.setAttribute('class', 'suggestionsItemWrittenText');
-
-    textElementRemaining.innerText = remaining;
-    textElementWritten.innerText = written;
-
-    if (isTextFirst)
-    {
-      element.appendChild(textElementRemaining);
-      element.appendChild(textElementWritten);
-    }
-    else
-    {
-      element.appendChild(textElementWritten);
-      element.appendChild(textElementRemaining);
-    }
-
     if (isArgument)
+      element.appendChild(document.createElement('div')).innerText = ' ';
+    
+    for (let textIndex = 0, writtenIndex = 0; textIndex < text.length; textIndex++)
     {
-      const textElement = ((isTextFirst) ? textElementRemaining : textElementWritten);
-      
-      textElement.innerText = ' ' + textElement.innerText;
-    }
+      const textChar = text.charAt(textIndex);
+      const writtenChar = written.charAt(writtenIndex);
 
-    return { textElementRemaining: textElementRemaining, textElementWritten: textElementWritten };
+      if (textChar === writtenChar)
+      {
+        writtenIndex += 1;
+
+        element.appendChild(document.createElement('mark')).innerText = textChar;
+      }
+      else
+      {
+        element.appendChild(document.createTextNode(textChar));
+      }
+    }
   }
 
   // phrase type
@@ -271,7 +262,7 @@ export function compare(input, phrase, argument)
     return undefined;
 
   const phraseTextWritten = match[0];
-  let phraseTextRemaining = '';
+  const phraseText = ((isString) ? phrase : inputFirstWord);
 
   if (
     // if not string, then always match phrase
@@ -287,16 +278,10 @@ export function compare(input, phrase, argument)
     comparePercentage = 200;
   }
 
-  phraseTextRemaining = ((isString) ? phrase : inputFirstWord)
-    .replace(phraseTextWritten, '').split(' ');
-
-  const isTextFirst = !((isString) ? phrase : input)
-    .startsWith(phraseTextWritten);
-
   // if the phrase doesn't match, that mean that the phrase is a string type
   // and that it's not completely written, add the correct compare percentage for the first word
   if (!phraseMatch)
-    comparePercentage += getComparePercentage(phraseTextWritten, phraseTextRemaining);
+    comparePercentage += getComparePercentage(phraseTextWritten, phraseText);
 
   // create an element for the suggestion item
   const element = document.createElement('div');
@@ -304,8 +289,8 @@ export function compare(input, phrase, argument)
   // set the element as suggestions item
   element.setAttribute('class', 'suggestionsItem');
 
-  // append a text and text written elements for the phrase, on the suggestions item
-  appendTextAndWrittenElements(phraseTextWritten, phraseTextRemaining, isTextFirst);
+  // // append a text and text written elements for the phrase, on the suggestions item
+  appendWrittenAndTextElements(phraseTextWritten, phraseText);
 
   // process arguments (any thing after the first word)
   for (let i = 0, x = 0; i < argumentSplit.length; i++)
@@ -321,20 +306,20 @@ export function compare(input, phrase, argument)
     if (match && match[0])
     {
       const written = match[0];
-      const remaining = argument.replace(written, '');
-      const isTextFirst = !argument.startsWith(written);
 
-      appendTextAndWrittenElements(written, remaining, isTextFirst, true);
+      appendWrittenAndTextElements(written, argument, true);
       
-      comparePercentage += getComparePercentage(written, remaining);
+      comparePercentage += getComparePercentage(written, argument);
 
       x += 1;
     }
     else
     {
-      appendTextAndWrittenElements('', argument, false, true);
+      appendWrittenAndTextElements('', argument, true);
     }
   }
+
+  document.body.appendChild(element);
 
   return {
     element: element,
@@ -343,12 +328,12 @@ export function compare(input, phrase, argument)
   };
 }
 
-/** @param { string } remaining
-* @param { string } written
+/** @param { string } written
+* @param { string } text
 */
-function getComparePercentage(written, remaining)
+function getComparePercentage(written, text)
 {
-  return ((written.length / (written + remaining).length) * 100) + 100;
+  return ((written.length / text.length) * 100) + 100;
 }
 
 /** @param { string } phrase
