@@ -7,6 +7,7 @@ import { platform } from 'os';
 import { EventEmitter } from 'events';
 
 import { readyState } from './renderer.js';
+import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
 
 /** @typedef { Object } PackageData
 * @property { string } name
@@ -90,6 +91,17 @@ export const on =
   * @param { () => void } callback the callback function
   */
   ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
+  /** register a phrase, then returns a card controlled only by the search system
+  * @param { string | RegExp } phrase
+  * @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
+  * @param { (phrase: PhraseObj, argument: string, extra: string) => boolean } [activate] emits when the phrase and/or an argument is matched,
+  * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
+  * @param { (phrase: PhraseObj) => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
+  * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
+  * which will deactivate the phrase, or equals false to leave the phrase active, default is false
+  * @returns { Promise<PhraseObj> }
+  */
+  phrase: registerPhrase,
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -106,6 +118,11 @@ export const off =
   * @param { (text: string) => void } callback the callback function
   */
   ready: (callback) => sulaiman.removeListener('ready', callback),
+  /** unregister a card, then returns a clone of the card that can be controlled by you
+  * @param { Card } card
+  * @returns { Promise<Card> }
+  */
+  phrase: unregisterPhrase,
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -121,6 +138,11 @@ export const is =
   /** returns true when the app is fully loaded and ready to use
   */
   ready: () => readyState,
+  /** returns true if the same phrase is registered already, false if it's not
+  * @param { string | RegExp } phrase
+  * @returns { Promise<boolean> }
+  */
+  phrase: isRegisteredPhrase
 };
 
 export const emit =

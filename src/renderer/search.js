@@ -2,10 +2,13 @@ import { on } from './loader.js';
 
 import { createCard } from './card.js';
 
-/** @typedef {import('./card.js').default } Card
+/** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } InternalPhraseObj
+*/
+
+/** @typedef { { card: Card, phraseArguments: string[] } } PhraseObj
 */
 
 /** @typedef { { element: HTMLDivElement, percentage: number, match: boolean, extra: string } } CompareObject
@@ -19,7 +22,7 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object<string, PhraseObj> }
+/** @type { Object<string, InternalPhraseObj> }
 */
 const registeredPhrases = {};
 
@@ -144,7 +147,7 @@ function onkeydown(event)
     let isClear;
 
     if (phraseObj.enter)
-      isClear = phraseObj.enter();
+      isClear = phraseObj.enter({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments });
 
     if (isClear)
       clear();
@@ -288,7 +291,7 @@ function search(input)
   });
 }
 
-/** @param { PhraseObj } phraseObj
+/** @param { InternalPhraseObj } phraseObj
 * @param { string } extra
 * @param { string } argument
 */
@@ -297,7 +300,7 @@ function activatePhrase(phraseObj, extra, argument)
   let activate;
 
   if (phraseObj.activate)
-    activate = phraseObj.activate(argument, extra);
+    activate = phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, argument, extra);
 
   if (activate === undefined || activate)
   {
@@ -308,7 +311,7 @@ function activatePhrase(phraseObj, extra, argument)
   }
 }
 
-/** @param { PhraseObj } phraseObj
+/** @param { InternalPhraseObj } phraseObj
 */
 function deactivatePhrase(phraseObj)
 {
@@ -349,7 +352,7 @@ function compare(input, phrase, argument)
       const textChar = text.charAt(textIndex);
       const writtenChar = written.charAt(writtenIndex);
 
-      if (textChar === writtenChar)
+      if (textChar.toLowerCase() === writtenChar.toLowerCase())
       {
         writtenIndex += 1;
 
@@ -562,14 +565,15 @@ function updateSuggestionsCount(count)
 
 /** register a phrase, then returns a card controlled only by the search system
 * @param { string | RegExp } phrase
-* @param { (argument: string, extra: string) => boolean } activate emits when the phrase and/or an argument is matched,
+* @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
+* @param { (phrase: PhraseObj, argument: string, extra: string) => boolean } [activate] emits when the phrase and/or an argument is matched,
 * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
-* @param { () => boolean } enter emits when the user presses the `Enter` key while the search bar is on focus
+* @param { (phrase: PhraseObj) => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
 * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
 * which will deactivate the phrase, or equals false to leave the phrase active, default is false
-* @returns { Promise<{ card: Card, phraseArguments: string[] }> }
+* @returns { Promise<PhraseObj> }
 */
-export function registerPhrase(phrase, activate, enter)
+export function registerPhrase(phrase, args, activate, enter)
 {
   return new Promise((resolve, reject) =>
   {
@@ -597,7 +601,7 @@ export function registerPhrase(phrase, activate, enter)
           const isString = (typeof phrase === 'string');
           const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
 
-          /** @type { PhraseObj }
+          /** @type { InternalPhraseObj }
           */
           const phraseObj =
           {
@@ -609,13 +613,13 @@ export function registerPhrase(phrase, activate, enter)
             active: false
           };
 
+          if (args)
+            phraseObj.phraseArguments.push(...args);
+
           // register the phrase
           registeredPhrases[phraseKey] = phraseObj;
     
-          resolve({
-            card: card,
-            phraseArguments: phraseObj.phraseArguments
-          });
+          resolve({ card: card, phraseArguments: phraseObj.phraseArguments });
         }
       })
       .catch((err) => reject(err));
@@ -674,7 +678,7 @@ export function unregisterPhrase(card)
   });
 }
 
-/** returns true if the same phrase is registered already, false if it's not,
+/** returns true if the same phrase is registered already, false if it's not
 * @param { string | RegExp } phrase
 * @returns { Promise<boolean> }
 */
@@ -696,6 +700,13 @@ export function isRegisteredPhrase(phrase)
     if (isString && phrase !== standard(phrase))
     {
       reject('the phrase must not have any unnecessary whitespace and also must not have any newlines');
+    
+      return;
+    }
+
+    if (isString && !phrase.match(/(?=^[A-Z][a-z0-9-]*$)/))
+    {
+      reject('the phrase must be in english, first word uppercase, the rest lowercase or numbers or -, if you want to use another language use a regex instead of string');
     
       return;
     }

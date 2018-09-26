@@ -12,7 +12,7 @@ import AutoLaunch from 'auto-launch';
 
 import { createCard, appendCard, removeCard, on } from './api.js';
 
-/** @typedef {import('./card.js').default } Card
+/** @typedef { import('./card.js').default } Card
 */
 
 const { showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
@@ -32,16 +32,19 @@ export function loadOptions()
   checkForSulaimanUpdates();
 }
 
-export function registerOptionsPhrase()
+export function registerOptionsPhrases()
 {
-  const card = on.phrase('Options', [ 'Show/Hide Key', 'Auto-Launch', 'Tray' ],
-    (argument) =>
+  return new Promise((resolve) =>
+  {
+    on.phrase('Options', undefined, (phrase, argument) =>
     {
+      const card = phrase.card;
+  
       if (argument === 'Show/Hide Key')
       {
         card.reset();
         card.domElement.onclick = undefined;
-
+  
         showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
           () =>
           {
@@ -59,10 +62,10 @@ export function registerOptionsPhrase()
       else if (argument === 'Auto-Launch')
       {
         card.reset();
-
+  
         card.auto({ title: 'Loading Current Settings..' });
         card.setType({ type: 'Disabled' });
-
+  
         autoLaunchEntry.isEnabled()
           .then((enabled) =>
           {
@@ -75,18 +78,18 @@ export function registerOptionsPhrase()
             
             card.setType({ type: 'Normal' });
             toggle.setType({ type: 'Toggle', state: enabled });
-
+  
             toggle.domElement.onclick = text.onclick = () =>
             {
               card.setType({ type: 'Disabled' });
-
+  
               if (enabled)
               {
                 autoLaunchEntry.disable().then(() =>
                 {
                   card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: false });
-
+  
                   enabled = false;
                 });
               }
@@ -96,7 +99,7 @@ export function registerOptionsPhrase()
                 {
                   card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: true });
-
+  
                   enabled = true;
                 });
               }
@@ -107,54 +110,61 @@ export function registerOptionsPhrase()
       {
         card.reset();
         card.auto();
-
+  
         let enabled = settings.get('trayIcon', true);
         const toggle = createCard();
-
+  
         card.appendChild(toggle);
-
+  
         const toggleText = card.appendText('Tray');
         
         toggle.setType({ type: 'Toggle', state: enabled });
         
         card.appendLineBreak();
-
+  
         const warningText = card.appendText('This option needs the app to relaunch to be applied');
-
+  
         const relaunchButton = createCard({ title: 'Relaunch' });
         relaunchButton.setType({ type: 'Button' });
-
+  
         card.appendChild(relaunchButton);
-
+  
         relaunchButton.domElement.onclick = () => relaunch();
         
         relaunchButton.domElement.style.display = warningText.style.display = 'none';
-
+  
         toggle.domElement.onclick = toggleText.onclick = () =>
         {
           if (enabled)
           {
             settings.set('trayIcon', false);
             toggle.setType({ type: 'Toggle', state: false });
-
+  
             enabled = false;
           }
           else
           {
-
+  
             settings.set('trayIcon', true);
             toggle.setType({ type: 'Toggle', state: true });
-
+  
             enabled = true;
           }
-
+  
           if (warningText.style.cssText)
           {
             relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
           }
         };
       }
-    });
+    })
+      .then((phrase) =>
+      {
+        phrase.phraseArguments.push('Show/Hide Key', 'Auto-Launch', 'Tray');
+
+        resolve();
+      });
+  });
 }
 
 function loadShowHideKey()

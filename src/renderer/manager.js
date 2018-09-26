@@ -13,10 +13,10 @@ import request from 'request-promise-native';
 import wget from 'node-wget-promise';
 import inly from 'inly';
 
-/** @typedef {import('./card.js').default } Card
+/** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef {import('./loader.js').PackageData } PackageData
+/** @typedef { import('./loader.js').PackageData } PackageData
 */
 
 const npm = require('npm');

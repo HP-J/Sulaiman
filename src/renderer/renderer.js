@@ -3,14 +3,14 @@ import { remote } from 'electron';
 import { join } from 'path';
 
 import { appendSearchBar, registerPhrase } from './search.js';
-import { loadExtensions, emit, } from './loader.js';
-import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
+import { loadExtensions, emit } from './loader.js';
+import { autoHide, loadOptions, registerOptionsPhrases } from './options.js';
 
 import { loadNPM } from './manager.js';
 
-const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
+const { mainWindow, quit, reload, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 
-export let readyState = false;
+export let readyState = true;
 
 const splash = document.body.children[0];
 
@@ -48,9 +48,16 @@ function registerEvents()
   });
 }
 
-function registerPhrases()
+function registerBuiltinPhrases()
 {
-  registerOptionsPhrase();
+  // const quitPhrase = registerPhrase('Quit', undefined, () => false, () => quit());
+  // const reloadPhrase = registerPhrase('Reload', undefined, () => false, () => reload());
+  // const relaunchPhrase = registerPhrase('Relaunch', undefined, () => false, () => relaunch());
+
+  // const optionsPhrase = registerOptionsPhrases();
+
+  // return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase ]);
+  return Promise.all([ registerPhrase('Launch', [ 'Discord' ]), registerPhrase('Reload') ]);
 }
 
 /** gets called when the application gets focus
@@ -70,6 +77,31 @@ function onblur()
   emit.blur();
 }
 
+function ready()
+{
+  // mark the app as not-ready to load all extensions
+  readyState = false;
+
+  // load all extensions
+  loadExtensions();
+
+  // finally, mark the app as ready and
+  // emit the ready event
+  readyState = true;
+
+  emit.ready();
+
+  // remove the splash screen when the dom is ready
+  isDOMReady(() =>
+  {
+    if (splash)
+      document.body.removeChild(splash);
+
+    // reset focus
+    onfocus();
+  });
+}
+
 // create and append the search bar
 appendSearchBar();
     
@@ -79,55 +111,8 @@ registerEvents();
 // load npm
 loadNPM();
 
-// mark the app as ready to create built-in content
-readyState = true;
-
 // load options
-// loadOptions();
+loadOptions();
 
 // register sulaiman-related phrases
-// registerPhrases();
-
-// mark the app as not-ready to load all extensions
-readyState = false;
-
-// load all extensions
-loadExtensions();
-
-// finally, mark the app as ready and
-// emit the ready event
-readyState = true;
-emit.ready();
-
-// registerPhrase('hello')
-//   .then((obj) =>
-//   {
-//     obj.card.auto({ title: 'Hello' });
-//     obj.phraseArguments.push('world');
-//     obj.phraseArguments.push('world world');
-//   });
-
-registerPhrase('world');
-
-// on.phrase('extension',
-//   [
-//     'delete',
-//     'install',
-//     'running'
-//   ], (argument, value) =>
-//   {
-//     console.log(argument.length + ' = ' + value.length);
-//   }, () =>
-//   {
-//     console.log('entered');
-//   });
-
-// remove the splash screen when the dom is ready
-isDOMReady(() =>
-{
-  if (splash)
-    document.body.removeChild(splash);
-
-  // reset focus
-  onfocus();
-});
+registerBuiltinPhrases().then(ready);
