@@ -1,11 +1,14 @@
 import { on } from './loader.js';
 
-import Card, { createCard } from './card.js';
+import { createCard } from './card.js';
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], active: boolean } } PhraseObj
+/** @typedef {import('./card.js').default } Card
 */
 
-/** @typedef { { element: HTMLDivElement, percentage: number, match: boolean } } CompareObject
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
+*/
+
+/** @typedef { { element: HTMLDivElement, percentage: number, match: boolean, extra: string } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -16,7 +19,13 @@ let inputElement;
 */
 let suggestionsElement;
 
+/** @type { Object<string, PhraseObj> }
+*/
+const registeredPhrases = {};
+
 let lastInput = '';
+
+let selectIndex = 0;
 
 /** create and append the search bar and card-space
 */
@@ -52,9 +61,7 @@ function focus()
 */
 function clear()
 {
-  inputElement.value = '';
-
-  oninput();
+  setInput('');
 }
 
 /** gets called every time sulaiman loses focus
@@ -65,10 +72,6 @@ function blur()
   if (!process.env.DEBUG)
     clear();
 }
-
-/** @type { Object<string, PhraseObj> }
-*/
-const registeredPhrases = {};
 
 /** gets called when the user changes the input value
 */
@@ -81,21 +84,121 @@ function oninput()
 
   lastInput = input;
 
+  // on input scroll to top of the window
+  window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+
   if (!input)
   {
     updateSuggestionsCount(0);
+
+    // deactivate phrases
+    search();
   }
   else
   {
-    window.scroll({ top: 0, left: 0, behavior: 'smooth' });
-  }
+    // remove old suggestion elements
+    while (suggestionsElement.firstChild)
+    {
+      suggestionsElement.removeChild(suggestionsElement.firstChild);
+    }
 
-  search(input);
+    // show new suggestion, and activate phrases
+    search(input).then(() =>
+    {
+      // update the suggestions count on the css variable
+      updateSuggestionsCount(suggestionsElement.children.length);
+
+      // update the select index to the first suggestion and select it
+      selectItem(-selectIndex);
+    });
+  }
 }
 
+/** @param { KeyboardEvent } event
+*/
+function onkeydown(event)
+{
+  if (event.code === 'ArrowUp')
+  {
+    selectItem(-1);
+  }
+  else if (event.code === 'ArrowDown')
+  {
+    selectItem(1);
+  }
+  else if (event.code === 'ArrowRight')
+  {
+    setInput(suggestionsElement.children[selectIndex].autoText);
+  }
+  else if (event.code === 'Enter')
+  {
+    inputElement.blur();
+
+    const phrase = suggestionsElement.children[selectIndex].phrase;
+
+    const isString = (typeof phrase === 'string');
+
+    const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
+    const phraseObj = registeredPhrases[phraseKey];
+
+    let isClear;
+
+    if (phraseObj.enter)
+      isClear = phraseObj.enter();
+
+    if (isClear)
+      clear();
+  }
+}
+
+/** @param { number } indexDiff
+*/
+function selectItem(indexDiff)
+{
+  if (suggestionsElement.children.length <= 0)
+    return;
+
+  const nextIndex = Math.min(Math.max(selectIndex + indexDiff, 0), suggestionsElement.children.length - 1);
+
+  const nextElement = suggestionsElement.children[nextIndex];
+  const currentElement = suggestionsElement.children[selectIndex];
+  
+  if (currentElement && nextElement !== currentElement && currentElement.classList.contains('suggestionsItemSelected'))
+  {
+    currentElement.classList.remove('suggestionsItemSelected');
+
+    requestAnimationFrame(() =>
+    {
+      currentElement.scrollIntoView({
+        behavior: 'instant',
+        inline: 'nearest',
+        block: 'nearest'
+      });
+    });
+  }
+
+  if (!nextElement.classList.contains('suggestionsItemSelected'))
+  {
+    nextElement.classList.add('suggestionsItemSelected');
+
+    requestAnimationFrame(() =>
+    {
+      nextElement.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'nearest',
+        block: 'nearest'
+      });
+    });
+  }
+
+  selectIndex = nextIndex;
+}
+
+/** @param { string } input
+*/
 function search(input)
 {
-  return new Promise((resolve, reject) =>
+  return new Promise((resolve) =>
   {
     /** @type { CompareObject[] }
     */
@@ -105,53 +208,75 @@ function search(input)
     for (const phrase in registeredPhrases)
     {
       const phraseObj = registeredPhrases[phrase];
+
+      /** @type { CompareObject }
+      */
+      let matchedCompare = undefined;
+      let matchedArgument = '';
       
-      // if the phrase has no arguments
-      if (!phraseObj.phraseArguments || phraseObj.phraseArguments.length <= 0)
+      if (input)
       {
-        const compareObject = compare(input, phraseObj.phrase);
-
-        if (compareObject.match)
-          activatePhrase(phraseObj);
-        else if (phraseObj.active)
-          deactivatePhrase(phraseObj);
-
-        suggestions.push(compareObject);
-      }
-      else
-      {
-        // else the phrase must have one or more arguments
-        // loop through the phrase's arguments, comparing them
-        for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+        // if the phrase has no arguments
+        if (!phraseObj.phraseArguments || phraseObj.phraseArguments.length <= 0)
         {
-          const compareObject = compare(input, phraseObj.phrase, phraseObj.phraseArguments[i]);
-
+          const compareObject = compare(input, phraseObj.phrase);
+  
+          // if there is not match what-so-ever, continue the main phrases loop
+          if (!compareObject)
+            continue;
+  
           if (compareObject.match)
-            activatePhrase(phraseObj, phraseObj.phraseArguments[i]);
-          else if (phraseObj.active)
-            deactivatePhrase(phraseObj);
-
+          {
+            matchedCompare = compareObject;
+          }
+  
           suggestions.push(compareObject);
         }
+        else
+        {
+          // else the phrase must have one or more arguments
+          // loop through the phrase's arguments, comparing them
+          for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+          {
+            const compareObject = compare(input, phraseObj.phrase, phraseObj.phraseArguments[i]);
+  
+            // if there is not match what-so-ever, continue the phrase arguments loop
+            if (!compareObject)
+              continue;
+  
+            if (compareObject.match)
+            {
+              matchedCompare = compareObject;
+              matchedArgument = phraseObj.phraseArguments[i];
+            }
+  
+            suggestions.push(compareObject);
+          }
+        }
       }
+
+      // this is to make sure that activatePhrase doesn't somehow get called twice on same compare
+      // and to stop next-cycle deactivation inside of the arguments loop
+      // if there is a match in the phrase
+      if (matchedCompare)
+        // activate it
+        activatePhrase(phraseObj, matchedCompare.extra, matchedArgument);
+      else if (phraseObj.active)
+        // if not and the phrase is still active from previous compare
+        // deactivate it
+        deactivatePhrase(phraseObj);
     }
       
     // sort all compare objects based on their percentage
     sort(suggestions, (a, b) =>
     {
       if (a.percentage > b.percentage)
-        return 1;
-      else if (a.percentage < b.percentage)
         return -1;
+      else if (a.percentage < b.percentage)
+        return 1;
       else
         return 0;
     });
-
-    // remove old suggestion items
-    while (suggestionsElement.firstChild)
-    {
-      suggestionsElement.removeChild(suggestionsElement.firstChild);
-    }
 
     // add new suggestion items
     for (let i = 0; i < suggestions.length; i++)
@@ -159,25 +284,38 @@ function search(input)
       suggestionsElement.appendChild(suggestions[i].element);
     }
 
-    // update the count for the css variable
-    updateSuggestionsCount(suggestions.length);
+    resolve();
   });
 }
 
 /** @param { PhraseObj } phraseObj
+* @param { string } extra
+* @param { string } argument
 */
-function activatePhrase(phraseObj, argument)
+function activatePhrase(phraseObj, extra, argument)
 {
-  // TODO callback phraseObj show with argument, if it returns true show card and set it as active, else do nothing
+  let activate;
 
-  console.log('activate: ' + phraseObj.phrase);
+  if (phraseObj.activate)
+    activate = phraseObj.activate(argument, extra);
+
+  if (activate === undefined || activate)
+  {
+    if (!document.body.contains(phraseObj.card.domElement))
+      document.body.appendChild(phraseObj.card.domElement);
+    
+    phraseObj.active = true;
+  }
 }
 
 /** @param { PhraseObj } phraseObj
 */
 function deactivatePhrase(phraseObj)
 {
-  console.log('deactivate: ' + phraseObj.phrase);
+  if (document.body.contains(phraseObj.card.domElement))
+    document.body.removeChild(phraseObj.card.domElement);
+
+  phraseObj.active = false;
 }
 
 /** @param { T[] } array
@@ -195,7 +333,7 @@ function sort(array, compare)
 * @param { string } argument
 * @returns { CompareObject }
 */
-export function compare(input, phrase, argument)
+function compare(input, phrase, argument)
 {
   /** @param { string } written
   * @param { string } text
@@ -235,9 +373,6 @@ export function compare(input, phrase, argument)
   // the first word in input, used for the phrase's regex search
   const inputFirstWord = inputSplit[0];
 
-  // remove the first word from the array, because the rest of the array will be used for the argument's regex search
-  inputSplit.splice(0, 1);
-
   // split argument to words
   const argumentSplit = (argument) ? standard(argument).split(' ') : [];
 
@@ -246,9 +381,19 @@ export function compare(input, phrase, argument)
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
-  // the total percentage for the comparison
-  const totalPercentage = 200 + (argumentSplit.length * 200);
+  // how many words can be written
+  const wordCount = 1 + argumentSplit.length;
 
+  // if input word count is higher then searchable word count
+  if (inputSplit.length > wordCount)
+    return undefined;
+
+  // how many are written
+  let writtenWordCount = 0;
+
+  // the total percentage for the comparison
+  const totalPercentage = (wordCount * 100) + 100;
+  
   // the final percentage for the comparison
   let comparePercentage = 0;
 
@@ -257,11 +402,12 @@ export function compare(input, phrase, argument)
 
   const match = regex.exec(inputFirstWord);
 
-  // if there is no match, then return undefined
-  if (!match || !match[0])
-    return undefined;
+  // if first input word match the phrase it self
+  // make sure not to compare it to the phrase arguments
+  if (match && match[0])
+    inputSplit.splice(0, 1);
 
-  const phraseTextWritten = match[0];
+  const phraseTextWritten = (match) ? match[0] : '';
   const phraseText = ((isString) ? phrase : inputFirstWord);
 
   if (
@@ -275,13 +421,18 @@ export function compare(input, phrase, argument)
     // if returned true show card, set as active
 
     phraseMatch = true;
-    comparePercentage = 200;
+
+    comparePercentage = 100;
+    writtenWordCount += 1;
   }
 
   // if the phrase doesn't match, that mean that the phrase is a string type
   // and that it's not completely written, add the correct compare percentage for the first word
-  if (!phraseMatch)
+  if (!phraseMatch && phraseTextWritten)
+  {
     comparePercentage += getComparePercentage(phraseTextWritten, phraseText);
+    writtenWordCount += 1;
+  }
 
   // create an element for the suggestion item
   const element = document.createElement('div');
@@ -289,7 +440,18 @@ export function compare(input, phrase, argument)
   // set the element as suggestions item
   element.setAttribute('class', 'suggestionsItem');
 
-  // // append a text and text written elements for the phrase, on the suggestions item
+  // pair the element to it's phrase
+  element.phrase = phrase;
+
+  // the text that auto-complete will use
+  element.autoText = phraseText;
+  
+  if (argument)
+    element.autoText = phraseText + ' ' + argument;
+  else
+    element.autoText = phraseText;
+
+  // append a text and text written elements for the phrase, on the suggestions item
   appendWrittenAndTextElements(phraseTextWritten, phraseText);
 
   // process arguments (any thing after the first word)
@@ -310,6 +472,7 @@ export function compare(input, phrase, argument)
       appendWrittenAndTextElements(written, argument, true);
       
       comparePercentage += getComparePercentage(written, argument);
+      writtenWordCount += 1;
 
       x += 1;
     }
@@ -319,12 +482,18 @@ export function compare(input, phrase, argument)
     }
   }
 
-  document.body.appendChild(element);
+  // if compare percentage is an absolute zero
+  if (comparePercentage <= 0)
+    return undefined;
+
+  // give higher arrangement to searchables with higher word ratio
+  comparePercentage += 100 * (writtenWordCount / wordCount);
 
   return {
     element: element,
     percentage: comparePercentage,
-    match: totalPercentage === comparePercentage,
+    match: (totalPercentage === comparePercentage),
+    extra: input.replace(phraseText + ' ' + (argument || ''), '').trim()
   };
 }
 
@@ -333,14 +502,19 @@ export function compare(input, phrase, argument)
 */
 function getComparePercentage(written, text)
 {
-  return ((written.length / text.length) * 100) + 100;
+  const percentage = ((written.length / text.length) * 100);
+
+  // if (percentage > 0)
+  //   percentage += 100;
+
+  return percentage;
 }
 
 /** @param { string } phrase
 */
 function getStringRegex(phrase)
 {
-  return new RegExp('(' + escapeRegExp(phrase).split('').join('?') + '?.*?)', 'i');
+  return new RegExp('(' + escapeRegExp(phrase).split('').join('?') + '?)', 'i');
 }
 
 /** replaces the unescapable characters in a regex with escapable characters
@@ -388,9 +562,14 @@ function updateSuggestionsCount(count)
 
 /** register a phrase, then returns a card controlled only by the search system
 * @param { string | RegExp } phrase
+* @param { (argument: string, extra: string) => boolean } activate emits when the phrase and/or an argument is matched,
+* should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
+* @param { () => boolean } enter emits when the user presses the `Enter` key while the search bar is on focus
+* and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
+* which will deactivate the phrase, or equals false to leave the phrase active, default is false
 * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
 */
-export function registerPhrase(phrase)
+export function registerPhrase(phrase, activate, enter)
 {
   return new Promise((resolve, reject) =>
   {
@@ -425,6 +604,8 @@ export function registerPhrase(phrase)
             phrase: phrase,
             card: card,
             phraseArguments: [],
+            activate: activate,
+            enter: enter,
             active: false
           };
 
@@ -519,10 +700,28 @@ export function isRegisteredPhrase(phrase)
       return;
     }
 
+    // don't register an empty phrase
+    if (isString && !phrase)
+    {
+      reject('the phrase is empty');
+    
+      return;
+    }
+
     const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
 
     resolve(registeredPhrases[phraseKey] !== undefined);
   });
+}
+
+/** set the text in the search bar
+* @param { string } input
+*/
+export function setInput(input)
+{
+  inputElement.value = input;
+
+  oninput();
 }
 
 /** set the text in the search bar (if the search bar is empty)

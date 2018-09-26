@@ -2,9 +2,9 @@ import { remote } from 'electron';
 import { tmpdir } from 'os';
 
 import * as api from './api.js';
-import Card, { createCard } from './card.js';
+import { createCard } from './card.js';
 
-import { PackageData, loadedExtensions } from './loader.js';
+import { loadedExtensions } from './loader.js';
 
 import { remove, move, readFile } from 'fs-extra';
 import { join, basename } from 'path';
@@ -12,6 +12,12 @@ import { join, basename } from 'path';
 import request from 'request-promise-native';
 import wget from 'node-wget-promise';
 import inly from 'inly';
+
+/** @typedef {import('./card.js').default } Card
+*/
+
+/** @typedef {import('./loader.js').PackageData } PackageData
+*/
 
 const npm = require('npm');
 

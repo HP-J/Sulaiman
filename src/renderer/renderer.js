@@ -2,12 +2,11 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar, registerPhrase, unregisterPhrase, isRegisteredPhrase, search, compare, getStringDefaultRegex } from './search.js';
+import { appendSearchBar, registerPhrase } from './search.js';
 import { loadExtensions, emit, } from './loader.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
 import { loadNPM } from './manager.js';
-import { createCard } from './card.js';
 
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
@@ -103,8 +102,12 @@ emit.ready();
 // registerPhrase('hello')
 //   .then((obj) =>
 //   {
-//     console.log('added');
+//     obj.card.auto({ title: 'Hello' });
+//     obj.phraseArguments.push('world');
+//     obj.phraseArguments.push('world world');
 //   });
+
+registerPhrase('world');
 
 // on.phrase('extension',
 //   [

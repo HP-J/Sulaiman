@@ -9,7 +9,7 @@ const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
 
 export { createCard } from './card.js';
-export { setPlaceholder } from './search.js';
+export { setPlaceholder, setInput } from './search.js';
 export { on, off } from './loader.js';
 
 export { Card };

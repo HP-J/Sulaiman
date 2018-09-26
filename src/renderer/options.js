@@ -10,7 +10,10 @@ import { tmpdir } from 'os';
 
 import AutoLaunch from 'auto-launch';
 
-import { Card, createCard, appendCard, removeCard, on } from './api.js';
+import { createCard, appendCard, removeCard, on } from './api.js';
+
+/** @typedef {import('./card.js').default } Card
+*/
 
 const { showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 

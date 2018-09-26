@@ -7,7 +7,6 @@ import { platform } from 'os';
 import { EventEmitter } from 'events';
 
 import { readyState } from './renderer.js';
-import { Card } from './api.js';
 
 /** @typedef { Object } PackageData
 * @property { string } name
@@ -16,7 +15,7 @@ import { Card } from './api.js';
 * @property { Sulaiman } sulaiman
 */
 
-/** @typedef { Object } Sulaiman
+/** @typedef { Object } SulaimanData
 * @property { string } displayName
 * @property { string[] } platform
 * @property { boolean } theme
