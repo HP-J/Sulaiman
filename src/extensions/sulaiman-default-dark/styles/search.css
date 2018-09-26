@@ -75,10 +75,20 @@ html
   padding: 0px 10px;
 }
 
-.suggestionsItem > mark
+.suggestionsItem mark
 {
   color: #FFFFFF;
   background-color: transparent;
+}
+
+.suggestionsItem > div:first-child
+{
+  text-transform: lowercase;
+}
+
+.suggestionsItem > div:first-child::first-letter
+{
+  text-transform: uppercase;
 }
 
 .suggestionsItemSelected

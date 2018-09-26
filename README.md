@@ -22,7 +22,7 @@ sulaiman does have a way to install extensions, which is the only recommend way 
 #### How to Create your own Extensions?  
 - Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
 
-# Download Sulaiman
+#### Download Sulaiman
 - Linux ~
 [deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build),
 [tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build),

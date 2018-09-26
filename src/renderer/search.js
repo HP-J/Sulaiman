@@ -46,7 +46,8 @@ export function appendSearchBar()
 
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
-  inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
+  // inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
+  toggleSuggestionElement();
 
   on.focus(focus);
   on.blur(blur);
@@ -131,7 +132,8 @@ function onkeydown(event)
   }
   else if (event.code === 'ArrowRight')
   {
-    setInput(suggestionsElement.children[selectIndex].autoText);
+    if (suggestionsElement.children.length > selectIndex)
+      setInput(suggestionsElement.children[selectIndex].innerText);
   }
   else if (event.code === 'Enter')
   {
@@ -342,10 +344,9 @@ function compare(input, phrase, argument)
   * @param { string } text
   * @param { boolean } isArgument
   */
-  function appendWrittenAndTextElements(written, text, isArgument)
+  function appendWrittenAndTextElement(written, text, isArgument)
   {
-    if (isArgument)
-      element.appendChild(document.createElement('div')).innerText = ' ';
+    const containerElement = document.createElement('div');
     
     for (let textIndex = 0, writtenIndex = 0; textIndex < text.length; textIndex++)
     {
@@ -356,13 +357,18 @@ function compare(input, phrase, argument)
       {
         writtenIndex += 1;
 
-        element.appendChild(document.createElement('mark')).innerText = textChar;
+        containerElement.appendChild(document.createElement('mark')).innerText = textChar;
       }
       else
       {
-        element.appendChild(document.createTextNode(textChar));
+        containerElement.appendChild(document.createTextNode(textChar));
       }
     }
+
+    if (isArgument)
+      element.appendChild(document.createElement('div')).innerText = ' ';
+
+    element.appendChild(containerElement);
   }
 
   // phrase type
@@ -384,18 +390,13 @@ function compare(input, phrase, argument)
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
-  // how many words can be written
-  const wordCount = 1 + argumentSplit.length;
-
+  // ! might need to re-enable
   // if input word count is higher then searchable word count
-  if (inputSplit.length > wordCount)
-    return undefined;
-
-  // how many are written
-  let writtenWordCount = 0;
+  // if (inputSplit.length > wordCount)
+  //   return undefined;
 
   // the total percentage for the comparison
-  const totalPercentage = (wordCount * 100) + 100;
+  const totalPercentage = (1 + argumentSplit.length) * 100;
   
   // the final percentage for the comparison
   let comparePercentage = 0;
@@ -424,9 +425,7 @@ function compare(input, phrase, argument)
     // if returned true show card, set as active
 
     phraseMatch = true;
-
     comparePercentage = 100;
-    writtenWordCount += 1;
   }
 
   // if the phrase doesn't match, that mean that the phrase is a string type
@@ -434,7 +433,6 @@ function compare(input, phrase, argument)
   if (!phraseMatch && phraseTextWritten)
   {
     comparePercentage += getComparePercentage(phraseTextWritten, phraseText);
-    writtenWordCount += 1;
   }
 
   // create an element for the suggestion item
@@ -446,16 +444,8 @@ function compare(input, phrase, argument)
   // pair the element to it's phrase
   element.phrase = phrase;
 
-  // the text that auto-complete will use
-  element.autoText = phraseText;
-  
-  if (argument)
-    element.autoText = phraseText + ' ' + argument;
-  else
-    element.autoText = phraseText;
-
   // append a text and text written elements for the phrase, on the suggestions item
-  appendWrittenAndTextElements(phraseTextWritten, phraseText);
+  appendWrittenAndTextElement(phraseTextWritten, phraseText);
 
   // process arguments (any thing after the first word)
   for (let i = 0, x = 0; i < argumentSplit.length; i++)
@@ -472,25 +462,21 @@ function compare(input, phrase, argument)
     {
       const written = match[0];
 
-      appendWrittenAndTextElements(written, argument, true);
+      appendWrittenAndTextElement(written, argument, true);
       
       comparePercentage += getComparePercentage(written, argument);
-      writtenWordCount += 1;
 
       x += 1;
     }
     else
     {
-      appendWrittenAndTextElements('', argument, true);
+      appendWrittenAndTextElement('', argument, true);
     }
   }
 
   // if compare percentage is an absolute zero
   if (comparePercentage <= 0)
     return undefined;
-
-  // give higher arrangement to searchables with higher word ratio
-  comparePercentage += 100 * (writtenWordCount / wordCount);
 
   return {
     element: element,
@@ -700,13 +686,6 @@ export function isRegisteredPhrase(phrase)
     if (isString && phrase !== standard(phrase))
     {
       reject('the phrase must not have any unnecessary whitespace and also must not have any newlines');
-    
-      return;
-    }
-
-    if (isString && !phrase.match(/(?=^[A-Z][a-z0-9-]*$)/))
-    {
-      reject('the phrase must be in english, first word uppercase, the rest lowercase or numbers or -, if you want to use another language use a regex instead of string');
     
       return;
     }

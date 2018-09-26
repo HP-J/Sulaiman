@@ -57,7 +57,7 @@ function registerBuiltinPhrases()
   // const optionsPhrase = registerOptionsPhrases();
 
   // return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase ]);
-  return Promise.all([ registerPhrase('Launch', [ 'Discord' ]), registerPhrase('Reload') ]);
+  return Promise.all([ registerPhrase('launch', [ 'discord' ]), registerPhrase('Reload') ]);
 }
 
 /** gets called when the application gets focus
