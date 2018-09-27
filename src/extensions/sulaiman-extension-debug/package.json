@@ -1,6 +1,6 @@
 {
   "name": "sulaiman-extension-debug",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "does tests on sulaiman extension APIs",
   "main": "index.js",
   "private": true,

@@ -11,7 +11,7 @@ import { createCard } from './card.js';
 /** @typedef { { card: Card, phraseArguments: string[] } } PhraseObj
 */
 
-/** @typedef { { element: HTMLDivElement, percentage: number, match: boolean, extra: string } } CompareObject
+/** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, extra: string } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -46,8 +46,7 @@ export function appendSearchBar()
 
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
-  // inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
-  toggleSuggestionElement();
+  inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
 
   on.focus(focus);
   on.blur(blur);
@@ -230,7 +229,7 @@ function search(input)
           if (!compareObject)
             continue;
   
-          if (compareObject.match)
+          if (compareObject.match())
           {
             matchedCompare = compareObject;
           }
@@ -249,12 +248,12 @@ function search(input)
             if (!compareObject)
               continue;
   
-            if (compareObject.match)
+            if (compareObject.match())
             {
               matchedCompare = compareObject;
               matchedArgument = phraseObj.phraseArguments[i];
             }
-  
+
             suggestions.push(compareObject);
           }
         }
@@ -279,6 +278,11 @@ function search(input)
         return -1;
       else if (a.percentage < b.percentage)
         return 1;
+
+      if (a.wordCount > b.wordCount)
+        return 1;
+      if (a.wordCount < b.wordCount)
+        return -1;
       else
         return 0;
     });
@@ -338,7 +342,7 @@ function sort(array, compare)
 * @param { string } argument
 * @returns { CompareObject }
 */
-function compare(input, phrase, argument)
+export function compare(input, phrase, argument)
 {
   /** @param { string } written
   * @param { string } text
@@ -390,19 +394,11 @@ function compare(input, phrase, argument)
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
-  // ! might need to re-enable
+  const wordCount = (1 + argumentSplit.length);
+
   // if input word count is higher then searchable word count
-  // if (inputSplit.length > wordCount)
-  //   return undefined;
-
-  // the total percentage for the comparison
-  const totalPercentage = (1 + argumentSplit.length) * 100;
-  
-  // the final percentage for the comparison
-  let comparePercentage = 0;
-
-  // if only the phrase matches
-  let phraseMatch = false;
+  if (inputSplit.length > wordCount)
+    return undefined;
 
   const match = regex.exec(inputFirstWord);
 
@@ -412,28 +408,16 @@ function compare(input, phrase, argument)
     inputSplit.splice(0, 1);
 
   const phraseTextWritten = (match) ? match[0] : '';
+
+  /** @type { string }
+  */
   const phraseText = ((isString) ? phrase : inputFirstWord);
 
-  if (
-    // if not string, then always match phrase
-    (!isString) ||
-    // if is string, check match if equals to string
-    (isString && phraseTextWritten.length === phrase.length)
-  )
-  {
-    // callback match function with argument
-    // if returned true show card, set as active
+  const phraseLettersWrittenCount = phraseTextWritten.length;
+  const phraseLettersCount = phraseText.length;
 
-    phraseMatch = true;
-    comparePercentage = 100;
-  }
-
-  // if the phrase doesn't match, that mean that the phrase is a string type
-  // and that it's not completely written, add the correct compare percentage for the first word
-  if (!phraseMatch && phraseTextWritten)
-  {
-    comparePercentage += getComparePercentage(phraseTextWritten, phraseText);
-  }
+  let argumentLettersWrittenCount = 0;
+  let argumentLettersCount = 0;
 
   // create an element for the suggestion item
   const element = document.createElement('div');
@@ -457,6 +441,8 @@ function compare(input, phrase, argument)
 
     if (input)
       match = getStringRegex(argument).exec(input);
+    
+    argumentLettersCount =+ argument.length;
 
     if (match && match[0])
     {
@@ -464,7 +450,7 @@ function compare(input, phrase, argument)
 
       appendWrittenAndTextElement(written, argument, true);
       
-      comparePercentage += getComparePercentage(written, argument);
+      argumentLettersWrittenCount = written.length;
 
       x += 1;
     }
@@ -474,29 +460,20 @@ function compare(input, phrase, argument)
     }
   }
 
-  // if compare percentage is an absolute zero
-  if (comparePercentage <= 0)
+  // if percentage is an absolute zero, don't show the item
+  if (phraseLettersWrittenCount + argumentLettersWrittenCount <= 0)
     return undefined;
 
   return {
     element: element,
-    percentage: comparePercentage,
-    match: (totalPercentage === comparePercentage),
+    wordCount: wordCount,
+    percentage: ((phraseLettersWrittenCount + argumentLettersWrittenCount) / (phraseLettersCount + argumentLettersCount)),
+    match: function()
+    {
+      return this.percentage === 1;
+    },
     extra: input.replace(phraseText + ' ' + (argument || ''), '').trim()
   };
-}
-
-/** @param { string } written
-* @param { string } text
-*/
-function getComparePercentage(written, text)
-{
-  const percentage = ((written.length / text.length) * 100);
-
-  // if (percentage > 0)
-  //   percentage += 100;
-
-  return percentage;
 }
 
 /** @param { string } phrase
