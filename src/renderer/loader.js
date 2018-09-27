@@ -43,24 +43,27 @@ export const loadedExtensions = {};
 */
 export function loadExtensions()
 {
-  let extensionPath = undefined, packagePath = undefined;
+  let extensionPath, scriptPath, packagePath;
 
   const extensions = readdirSync(extensionsDirectory);
 
   for (let i = 0; i < extensions.length; i++)
   {
+    // main directory of the extension
+    extensionPath = extensionsDirectory + extensions[i];
+
     // the required extension index script
-    extensionPath = extensionsDirectory + extensions[i] + '/index.js';
+    scriptPath = join(extensionPath, 'index.js');;
 
     // the required package json
-    packagePath = extensionsDirectory + extensions[i] + '/package.json';
+    packagePath = join(extensionPath, 'package.json');
 
     // if the package.json file doesn't exists
     if (!existsSync(packagePath))
       continue;
 
     // if the index.js file doesn't exists continue the loop
-    if (!existsSync(extensionPath))
+    if (!existsSync(scriptPath))
       continue;
 
     /**@type { PackageData }
@@ -74,10 +77,10 @@ export function loadExtensions()
     if (!loadedExtensions[data.name])
     {
       // create a vm for the extension
-      const vm = createVM(data);
+      const vm = createVM(data, extensionPath);
 
       // run the extension index script
-      vm.run(readFileSync(extensionPath).toString(), extensionPath);
+      vm.run(readFileSync(scriptPath).toString(), scriptPath);
 
       // append the extension that just loaded to the loaded extensions array
       loadedExtensions[data.name] = data;
@@ -177,11 +180,12 @@ export function getCaller(length)
 }
 
 /** creates a new NodeVM for an extension
-* @param { string } extensionPath
 * @param { PackageData } data
+* @param { string } extensionPath
 */
-function createVM(data)
+function createVM(data, extensionPath)
 {
+  // handle conflicting themes (more than one extension want theme permissions)
   if (data.sulaiman.theme)
   {
     if (!themeExtension)
@@ -192,10 +196,12 @@ function createVM(data)
         themeExtension + ' & ' + data.name);
   }
 
-  const { sandbox, mock } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
+  const { sandbox, enforcedMocks } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
 
   // separate node builtin modules from the external modules
-  const { builtin, external } = handelModules(data.sulaiman.modules);
+  const { builtin, externalMocks } = handelModules(data.sulaiman.modules, extensionPath);
+
+  const mocks = { ...enforcedMocks, ...externalMocks };
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -204,14 +210,14 @@ function createVM(data)
     {
       // node builtin modules
       builtin: builtin,
-      // external modules
-      external: external,
-      // limit externals to this path, so extensions can't require any local modules outside of their directory
-      root: 'none',
-      // allow access to the running sulaiman apis
-      mock: mock,
+      // needs to be an empty array to allow local modules to run
+      external: [],
+      // limit externals to this path, so extensions can't require scripts/modules outside of their root directory
+      root: extensionPath,
+      // allow access to the running sulaiman apis and external modules
+      mock: mocks,
       // host allows any required module to require more modules inside it with no limits
-      context: 'host'
+      context: 'sandbox'
     }
   });
 
@@ -222,7 +228,6 @@ function createVM(data)
 * @param { string } extensionName
 * @param { string[] } requiredPermissions
 * @param { boolean } theme
-* @returns { { sandbox: {} } }
 */
 function handelMockups(requiredPermissions, theme)
 {
@@ -236,7 +241,7 @@ function handelMockups(requiredPermissions, theme)
   };
 
   // override specific apis from any module or the entire module
-  const mock =
+  const enforcedMocks =
   {
     sulaiman: { ...require('./api.js') }
   };
@@ -274,25 +279,26 @@ function handelMockups(requiredPermissions, theme)
       if (sandbox[key])
         sandbox[key] = undefined;
       
-      else if (mock.sulaiman[key])
-        mock.sulaiman[key] = undefined;
+      else if (enforcedMocks.sulaiman[key])
+        enforcedMocks.sulaiman[key] = undefined;
     }
   }
 
-  return { sandbox, mock };
+  return { sandbox, enforcedMocks };
 }
 
 /** separate node builtin modules from the external modules
 * and adds modules that are allowed to have by default
-* @param { [] } requiredModules the modules array from the extension package data
-* @returns { { builtin: [], external: [] } }
+* @param { string[] } requiredModules the modules array from the extension package data
+* @param { string } extensionPath
 */
-function handelModules(requiredModules)
+function handelModules(requiredModules, extensionPath)
 {
   const builtin = [];
-  const external = [];
+  const externalMocks = {};
 
-  // allowed by default
+  // modules that are allowed by default for being used
+  // regularly in node apps and harmless to the user
   builtin.push('path');
 
   if (requiredModules)
@@ -300,19 +306,26 @@ function handelModules(requiredModules)
     // loop through all the listed modules
     for (let i = 0; i < requiredModules.length; i++)
     {
-      // checks if a module is a node builtin module or an external
-      // and add them to two separate arrays
-      (isBuiltin(requiredModules[i]) ? builtin : external).push(requiredModules[i]);
+      const isBuiltin = getIsBuiltin(requiredModules[i]);
+
+      if (isBuiltin)
+      {
+        builtin.push(requiredModules[i]);
+      }
+      else
+      {
+        externalMocks[requiredModules[i]] = require(join(extensionPath, 'node_modules', requiredModules[i]));
+      }
     }
   }
 
-  return { builtin, external };
+  return { builtin, externalMocks };
 }
 
 /** checks if a module is a node builtin module or an external
 * @returns { boolean }
 */
-function isBuiltin(moduleName)
+function getIsBuiltin(moduleName)
 {
   try
   {

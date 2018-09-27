@@ -203,7 +203,7 @@ function registerPhrases()
   });
 }
 
-// if (platform === 'win32')
-//   windows().then(registerPhrases);
-// else
-//   linux().then(registerPhrases);
+if (platform === 'win32')
+  windows().then(registerPhrases);
+else
+  linux().then(registerPhrases);

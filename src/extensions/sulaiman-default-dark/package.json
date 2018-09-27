@@ -4,6 +4,7 @@
   "description": "The default dark theme for Sulaiman",
   "main": "index.js",
   "private": true,
+  "homepage": "https://gitlab.com/herpproject/sulaiman-default-dark",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"
@@ -15,6 +16,6 @@
       "all icons are made by smashicons from www.flaticon.com": "https://www.flaticon.com/authors/smashicons"
     }
   },
-  "author": "Herp Project",
+  "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT"
 }

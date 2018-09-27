@@ -50,14 +50,13 @@ function registerEvents()
 
 function registerBuiltinPhrases()
 {
-  // const quitPhrase = registerPhrase('Quit', undefined, () => false, () => quit());
-  // const reloadPhrase = registerPhrase('Reload', undefined, () => false, () => reload());
-  // const relaunchPhrase = registerPhrase('Relaunch', undefined, () => false, () => relaunch());
+  const quitPhrase = registerPhrase('Quit', undefined, () => false, () => quit());
+  const reloadPhrase = registerPhrase('Reload', undefined, () => false, () => reload());
+  const relaunchPhrase = registerPhrase('Relaunch', undefined, () => false, () => relaunch());
 
-  // const optionsPhrase = registerOptionsPhrases();
+  const optionsPhrase = registerOptionsPhrases();
 
-  // return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase ]);
-  return Promise.all([ registerPhrase('launch', [ 'discord' ]), registerPhrase('Reload') ]);
+  return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase ]);
 }
 
 /** gets called when the application gets focus
@@ -104,7 +103,7 @@ function ready()
 
 // create and append the search bar
 appendSearchBar();
-    
+
 // register to several events the app uses
 registerEvents();
 

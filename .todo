@@ -3,7 +3,7 @@ graphics:
   ☐ show popular extensions from the npm registry @low  
 
 manager:
-  ☐ allow local imports under the sandbox mode @low 
+  ✔ allow local imports under the sandbox mode @low @done (9/27/2018, 7:18:22 AM)
 
 technical:
   ☐ test relaunch and auto-launch on a linux build
@@ -21,11 +21,12 @@ CI/CD:
   ☐ build & test DMG packages @need-help
 
 extensions:
-  ☐ calculator 
-  ☐ open urls 
   ☐ files 
+  ☐ google 
+  ☐ calculator: usable calculator card, like the one google has
+  ☐ urls 
+
   ☐ progressive web apps
   
   ☐ launch-apps (mac) @need-help 
   
-  ☐ google 
