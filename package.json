@@ -13,11 +13,9 @@
   },
   "build": {
     "appId": "com.herpproject.sulaiman",
+    "afterPack": "afterPack.js",
     "asar": false,
     "files": [
-      "node_modules",
-      "compiled",
-      "package.json",
       "index.js",
       "LICENSE",
       "README.md",

@@ -4,8 +4,10 @@ import { join } from 'path';
 
 import * as settings from 'electron-json-config';
 
-import { showHide } from './window.js';
+import { isDebug, showHide } from './window.js';
 
+/** @type { Tray }
+*/
 export let trayIcon;
 
 const trayMenuTemplate = [
@@ -32,7 +34,7 @@ const trayMenuTemplate = [
 
 export function loadOptions()
 {
-  if (process.env.DEBUG)
+  if (isDebug())
     return;
   
   loadTrayIcon();

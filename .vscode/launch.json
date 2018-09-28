@@ -8,12 +8,10 @@
       "sourceMaps": true,
       "internalConsoleOptions": "neverOpen",
       "cwd": "${workspaceRoot}",
-      "env": {
-        "DEBUG": "1"
-      },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "args": [
-        "."
+        ".",
+        "--debug"
       ],
       "program": "${workspaceRoot}/index.js",
       "console": "integratedTerminal",
@@ -26,12 +24,10 @@
       "sourceMaps": true,
       "internalConsoleOptions": "openOnSessionStart",
       "webRoot": "${workspaceRoot}",
-      "env": {
-        "DEBUG": "1"
-      },
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "runtimeArgs": [
-        "${workspaceRoot}"
+        "${workspaceRoot}",
+        "--debug"
       ]
     }
   ]

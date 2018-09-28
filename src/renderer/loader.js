@@ -53,7 +53,7 @@ export function loadExtensions()
     extensionPath = extensionsDirectory + extensions[i];
 
     // the required extension index script
-    scriptPath = join(extensionPath, 'index.js');;
+    scriptPath = join(extensionPath, 'index.js');
 
     // the required package json
     packagePath = join(extensionPath, 'package.json');
@@ -309,13 +309,9 @@ function handelModules(requiredModules, extensionPath)
       const isBuiltin = getIsBuiltin(requiredModules[i]);
 
       if (isBuiltin)
-      {
         builtin.push(requiredModules[i]);
-      }
       else
-      {
         externalMocks[requiredModules[i]] = require(join(extensionPath, 'node_modules', requiredModules[i]));
-      }
     }
   }
 

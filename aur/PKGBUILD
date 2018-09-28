@@ -12,7 +12,11 @@ depends=('c-ares' 'ffmpeg' 'gtk3' 'http-parser' 'libevent' 'libvpx'
 'libappindicator-gtk2' 'libappindicator-gtk3' 'libappindicator-sharp')
 
 package() {
- # Install the main files.
+  # Describe package as AUR
+  echo "$(head -n -1 "${srcdir}/Sulaiman/resources/app/build.json")" > "${srcdir}/Sulaiman/resources/app/build.json"
+  echo ",\"package\": \"AUR\"}" >> "${srcdir}/Sulaiman/resources/app/build.json"
+
+  # Install the main files.
   install -d "${pkgdir}/opt/${pkgname}"
   cp -a "${srcdir}/Sulaiman/." "${pkgdir}/opt/${pkgname}"
 
@@ -22,10 +26,10 @@ package() {
   # Desktop Entry
   install -d "${pkgdir}/usr/share/applications"
   install "${srcdir}/sulaiman.desktop" "${pkgdir}/usr/share/applications"
-  sed -i s%/usr/share%/opt% ${pkgdir}/usr/share/applications/${pkgname}.desktop
+  sed -i "s%/usr/share%/opt%" "${pkgdir}/usr/share/applications/${pkgname}.desktop"
 
   # Main binary
-  mkdir -p ${pkgdir}/usr/bin
+  mkdir -p "${pkgdir}/usr/bin"
   ln -s "/opt/${pkgname}/Sulaiman" "${pkgdir}/usr/bin/${pkgname}"
 
   # Copy the icon

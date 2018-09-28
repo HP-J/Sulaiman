@@ -15,15 +15,21 @@ import { createCard, appendCard, removeCard, on } from './api.js';
 /** @typedef { import('./card.js').default } Card
 */
 
-const { showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
+const { isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
+
+/** @type { { build: string, branch: string, commit: string, date: string, package: string } }
+*/
+let buildData = {};
 
 export let autoHide = false;
 
 export function loadOptions()
 {
-  if (process.env.DEBUG)
+  loadBuildData();
+
+  if (isDebug())
     return;
   
   loadAutoLaunch();
@@ -36,7 +42,7 @@ export function registerOptionsPhrases()
 {
   return new Promise((resolve) =>
   {
-    on.phrase('Options', undefined, (phrase, argument) =>
+    const optionsPhrase = on.phrase('Options', undefined, (phrase, argument) =>
     {
       const card = phrase.card;
   
@@ -161,9 +167,30 @@ export function registerOptionsPhrases()
       .then((phrase) =>
       {
         phrase.phraseArguments.push('Show/Hide Key', 'Auto-Launch', 'Tray');
-
-        resolve();
       });
+    
+    const aboutPhrase = on.phrase('About')
+      .then((phrase) =>
+      {
+        phrase.card.auto({ title: 'Sulaiman' });
+        
+        if (buildData.build)
+          phrase.card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
+
+        if (buildData.package)
+          phrase.card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
+
+        if (buildData.branch)
+          phrase.card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
+         
+        if (buildData.commit)
+          phrase.card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
+        
+        if (buildData.date)
+          phrase.card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
+      });
+
+    Promise.all([ optionsPhrase, aboutPhrase ]).then(resolve);
   });
 }
 
@@ -464,13 +491,26 @@ function unregisterGlobalShortcut(accelerator)
   }
 }
 
+function loadBuildData()
+{
+  const buildPath = join(__dirname, '../../build.json');
+
+  // if the build.json file doesn't exists, then return
+  if (!existsSync(buildPath))
+    return;
+
+  buildData = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
+}
+
 function checkForSulaimanUpdates()
 {
+  /** @param { { build: string, branch: string, commit: string, date: string } } serverBuild
+  */
   function check(serverBuild)
   {
     // if commit id of the server is different, and
     // the current package has a download url in the server
-    if (serverBuild.commit !== localBuild.commit && serverBuild[localBuild.package])
+    if (serverBuild.build !== buildData.build && serverBuild[buildData.package])
     {
       const progress = function(info)
       {
@@ -512,7 +552,7 @@ function checkForSulaimanUpdates()
 
       const download = function()
       {
-        const url = new URL(serverBuild[localBuild.package]);
+        const url = new URL(serverBuild[buildData.package]);
         const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
 
         const output = join(tmpdir(), filename);
@@ -556,22 +596,12 @@ function checkForSulaimanUpdates()
     }
   }
 
-  const buildPath = join(__dirname, '../../build.json');
-
-  // if the build.json file doesn't exists, then return
-  if (!existsSync(buildPath))
-    return;
-
-  /** @type { { build: string, commit: string, date: string, package: string }  }
-  */
-  const localBuild = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
-
-  // if the package is not specified, then return
-  if (!localBuild.package)
+  // if build.json doesn't exists or if the package is not specified, then return
+  if (!buildData.package || !buildData.branch)
     return;
 
   // request the server's build.json, can fail silently
   request(
-    'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/build.json?job=build', {  json: true })
+    'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + buildData.branch + '/raw/build.json?job=build', {  json: true })
     .then((serverBuild) => check(serverBuild));
 }

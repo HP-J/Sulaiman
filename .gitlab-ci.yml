@@ -12,7 +12,7 @@ variables: {
     URLS_ARGS: "$NSIS_URL $DEB_URL",
     # used to create the build.json using nodejs
     BUILD_JSON:
-      "console.log(JSON.stringify({ build: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || undefined, nsis: process.argv[5], deb: process.argv[6] }));"
+      "console.log(JSON.stringify({ build: process.argv[1], branch: process.argv[2], commit: process.argv[3], date: process.argv[4], package: process.argv[5] || undefined, nsis: process.argv[6], deb: process.argv[7] }));"
 }
 
 stages:
@@ -33,19 +33,19 @@ build:
     - "npm run compile"
 
     # build nsis installer for windows
-    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"nsis\") >> build.json"
+    - "echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"nsis\") >> build.json"
     - "npx electron-builder --win NSIS"
 
     # build debian package for linux
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"deb\") >> build.json"
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"deb\") >> build.json"
     - "npx electron-builder --linux deb"
 
     # build tar.xz package for linux
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\") >> build.json"
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\") >> build.json"
     - "npx electron-builder --linux tar.xz"
 
     # create the build.json that will be kept in the artifacts for sulaiman builtin update system to use
-    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_SHA \"$DATE\" \"\" $URLS_ARGS) >> build.json"
+    - "rm build.json && echo $(node -e \"$BUILD_JSON\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"\" $URLS_ARGS) >> build.json"
   artifacts:
     # 6 month without a new version to would that sulaiman is properly dead and you properly shouldn't download it anyway
     expire_in: 6 mos
@@ -92,8 +92,9 @@ build:
 #     - "echo \"md5sums=('$(md5sum icon.png | awk '{print $1}')' '$(md5sum sulaiman.desktop | awk '{print $1}')' '$(md5sum ../public/Sulaiman.tar.xz | awk '{print $1}')')\" >> PKGBUILD"
 #     - "makepkg --printsrcinfo > .SRCINFO"
 
+#     - "echo \"-----------------------------now Reading PKGBUILD-----------------------\""
 #     - "echo \"$(head -n -0 PKGBUILD)\""
-#     - "echo \"----------------------------------------------------\""
+#     - "echo \"-----------------------------now Reading .SRCINFO-----------------------\""
 #     - "echo \"$(head -n -0 .SRCINFO)\""
 
 #     # release a new AUR package

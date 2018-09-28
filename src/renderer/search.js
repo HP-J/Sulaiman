@@ -1,6 +1,11 @@
-import { on } from './loader.js';
+import { remote } from 'electron';
 
+import { join } from 'path';
+
+import { on } from './loader.js';
 import { createCard } from './card.js';
+
+const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -72,7 +77,7 @@ function clear()
 function blur()
 {
   // clear the search bar on sulaiman blur
-  if (!process.env.DEBUG)
+  if (!isDebug())
     clear();
 }
 
