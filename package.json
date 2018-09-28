@@ -17,6 +17,7 @@
     "asar": false,
     "files": [
       "index.js",
+      "build.json",
       "LICENSE",
       "README.md",
       "CHANGELOG.md",
