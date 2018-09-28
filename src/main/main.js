@@ -3,7 +3,7 @@ import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog, Menu } fro
 import { join } from 'path';
 import url from 'url';
 
-import { setWindow, reload, showHide, setApp } from './window.js';
+import { isDebug, setWindow, setApp, showHide, reload, quit } from './window.js';
 import { loadOptions } from './options.js';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -20,7 +20,7 @@ const menuTemplate = Menu.buildFromTemplate([
     {
       label: 'Reload', accelerator: 'CmdOrCtrl+R', click()
       {
-        reload(mainWindow);
+        reload();
       }
     },
     {
@@ -41,7 +41,7 @@ const menuTemplate = Menu.buildFromTemplate([
     {
       label: 'Quit', accelerator: 'CmdOrCtrl+Q', click()
       {
-        app.quit();
+        quit();
       }
     },
   ]
@@ -64,18 +64,15 @@ function createWindow()
   const width = Math.round(screenSize.width * 0.50);
   const height = Math.round(screenSize.height * 0.65);
 
-  const isDEBUG = process.env.DEBUG !== undefined;
-
   // replace the default menu
   Menu.setApplicationMenu(menuTemplate);
 
   mainWindow = new BrowserWindow(
     {
       title: 'Sulaiman',
-      show: true,
-      frame: isDEBUG,
+      frame: isDebug(),
       skipTaskbar: false,
-      resizable: isDEBUG,
+      resizable: isDebug(),
       width: width,
       height: height,
       x: Math.round((screenSize.width - width) / 2),
@@ -102,9 +99,9 @@ function createWindow()
   });
 }
 
-if (!process.env.DEBUG && !app.requestSingleInstanceLock(showHide))
+if (!isDebug() && !app.requestSingleInstanceLock())
 {
-  app.quit();
+  quit();
 }
 else
 {
@@ -126,7 +123,7 @@ else
   {
     dialog.showErrorBox('A Javascript error occurred in the renderer process', data);
     
-    app.quit();
+    quit();
   });
 
   // Quit when all windows are closed.
@@ -135,7 +132,7 @@ else
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin')
-      app.quit();
+      quit();
   });
 
   app.on('will-quit', () =>

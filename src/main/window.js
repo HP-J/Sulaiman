@@ -10,6 +10,10 @@ export let app;
 */
 export let skipTaskbar;
 
+/** @type { boolean }
+*/
+let debugMode = undefined;
+
 /** @param { Electron.BrowserWindow } _window
 */
 export function setWindow(_window)
@@ -33,10 +37,16 @@ export function reload()
 
 export function relaunch()
 {
-  app.releaseSingleInstanceLock();
   app.relaunch();
-
   app.quit();
+}
+
+export function isDebug()
+{
+  if (debugMode === undefined)
+    debugMode = process.argv.includes('--debug');
+
+  return debugMode;
 }
 
 export function quit()
