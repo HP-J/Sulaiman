@@ -13,7 +13,7 @@ depends=('c-ares' 'ffmpeg' 'gtk3' 'http-parser' 'libevent' 'libvpx'
 
 package() {
   # Describe package as AUR
-  echo "$(head -n -1 "${srcdir}/Sulaiman/resources/app/build.json")" > "${srcdir}/Sulaiman/resources/app/build.json"
+  sed -i "$ s/.$//" "${srcdir}/Sulaiman/resources/app/build.json"
   echo ",\"package\": \"AUR\"}" >> "${srcdir}/Sulaiman/resources/app/build.json"
 
   # Install the main files.
