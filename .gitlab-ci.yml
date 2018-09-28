@@ -27,7 +27,7 @@ build:
     - "TAR_URL=https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.tar.xz?job=build"
 
     # the builds supported by sulaiman builtin update system
-    - "URLS_ARGS: \"$NSIS_URL $DEB_URL\""
+    - "URLS_ARGS=\"$NSIS_URL $DEB_URL\""
 
     # install dependencies & compile the code
     - "npm install"
