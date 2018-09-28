@@ -8,19 +8,16 @@ technical:
   ☐ phrases for [extensions running / extensions install / extension delete]
   ☐ test all extensions cards 
 
-  ✔ phrases for [quit / reload / relaunch] @done (9/28/2018, 3:27:41 AM)
-
-  ☐ create an arch user repository and upload the first version
-
-  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json
+  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @next-build  
     and the extension it require is installed and does have public API
-  
-  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman,
+
+  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @next-build
     without installing an extension
-  
-  ☐ relaunch doesn't work on linux as far as tested (starts but doesn't show the browser window) (electron bug?)
+
+  ☐ relaunch doesn't work on linux as far as tested (starts but doesn't show the browser window) (electron bug?) @low 
 
 CI/CD:
+  ☐ create an arch user repository and upload the first version
   ☐ test the AUR publishing script
   ☐ test the NPM publishing script
 
@@ -32,7 +29,5 @@ extensions:
   ☐ calculator: usable calculator card, like the one google has @next-build
   ☐ urls @next-build
 
-  ☐ progressive web apps
-  
   ☐ launch-apps (mac) @need-help 
   

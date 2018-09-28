@@ -440,7 +440,7 @@ export function compare(input, phrase, argument)
   for (let i = 0, x = 0; i < argumentSplit.length; i++)
   {
     const argument = argumentSplit[i];
-    const input = inputSplit[x];
+    const input = inputSplit[0];
 
     let match;
 
@@ -451,6 +451,8 @@ export function compare(input, phrase, argument)
 
     if (match && match[0])
     {
+      inputSplit.splice(0, 1);
+
       const written = match[0];
 
       appendWrittenAndTextElement(written, argument, true);
@@ -477,7 +479,7 @@ export function compare(input, phrase, argument)
     {
       return this.percentage === 1;
     },
-    extra: input.replace(phraseText + ' ' + (argument || ''), '').trim()
+    extra: (inputSplit.length > 0) ? inputSplit.join(' ').trim() : ''
   };
 }
 
@@ -485,7 +487,21 @@ export function compare(input, phrase, argument)
 */
 function getStringRegex(phrase)
 {
-  return new RegExp('(' + escapeRegExp(phrase).split('').join('?') + '?)', 'i');
+  const string = escapeRegExp(phrase);
+  const split = string.split('');
+  let regexString = '';
+
+  for (let i = split.length - 1; i >= 0; i--)
+  {
+    const partial = string.slice(0, i + 1);
+
+    if (partial !== string)
+      regexString = regexString + '|' + partial;
+    else
+      regexString = partial;
+  }
+
+  return new RegExp('^(?:' + regexString + ')', 'i');
 }
 
 /** replaces the unescapable characters in a regex with escapable characters
