@@ -1,6 +1,7 @@
 graphics:
   ☐ conflicting themes card instead of an error @next-build 
-  ☐ show popular extensions from the npm registry @next-build  
+  ☐ show popular extensions from the npm registry @next-build
+  ☐ show most recent phrases when input is empty, or most used @next-build
 
 manager:
 

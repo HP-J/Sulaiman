@@ -3,7 +3,7 @@ import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog, Menu } fro
 import { join } from 'path';
 import url from 'url';
 
-import { isDebug, setWindow, setApp, showHide, reload, quit } from './window.js';
+import { isDebug, isHidden, setWindow, setApp, showHide, reload, quit } from './window.js';
 import { loadOptions } from './options.js';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -70,6 +70,7 @@ function createWindow()
   mainWindow = new BrowserWindow(
     {
       title: 'Sulaiman',
+      show: isDebug() || isHidden(),
       frame: isDebug(),
       skipTaskbar: false,
       resizable: isDebug(),

@@ -10,9 +10,8 @@ export let app;
 */
 export let skipTaskbar;
 
-/** @type { boolean }
-*/
-let debugMode = undefined;
+let debugMode = false;
+let shownMode = true;
 
 /** @param { Electron.BrowserWindow } _window
 */
@@ -43,10 +42,18 @@ export function relaunch()
 
 export function isDebug()
 {
-  if (debugMode === undefined)
-    debugMode = process.argv.includes('--debug');
+  if (process.argv.includes('--debug'))
+    debugMode = true;
 
   return debugMode;
+}
+
+export function isHidden()
+{
+  if (process.argv.includes('--hidden'))
+    shownMode = false;
+
+  return shownMode;
 }
 
 export function quit()

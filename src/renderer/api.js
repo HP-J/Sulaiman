@@ -64,13 +64,9 @@ export function storeIcon(path, iconName)
   if (storedIcons[iconName] !== undefined)
     throw 'an icon with that name already exists';
 
-  if (!path.endsWith('.svg'))
-    throw 'sulaiman only supports SVG icons';
+  const icon = document.createElement('img');
 
-  const icon = document.createElement('object');
-
-  icon.type = 'image/svg+xml';
-  icon.data = path;
+  icon.src = path;
 
   // cache the icon with the required name
   storedIcons[iconName] = icon;

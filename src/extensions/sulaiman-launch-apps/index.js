@@ -4,7 +4,7 @@ import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
 
 import { join, basename } from 'path';
 import { homedir, platform as getPlatform } from 'os';
-import { exec as execute } from 'child_process';
+import { spawn } from 'child_process';
 
 const phraseArgs = [];
 
@@ -138,18 +138,18 @@ function linux()
   });
 }
 
-function launch(exec)
+function launch(execPath)
 {
   if (platform === 'win32')
   {
-    sulaiman.shell.openItem(exec);
+    sulaiman.shell.openItem(execPath);
   }
   else
   {
     // Linux
     // Replace %u and other % arguments in exec script
     // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
-    execute(exec.replace(/%./g, ''));
+    spawn(execPath.replace(/%./g, ''), [], { detached: true });
   }
 }
 
