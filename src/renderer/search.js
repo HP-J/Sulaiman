@@ -3,6 +3,7 @@ import { remote } from 'electron';
 import { join } from 'path';
 
 import { on } from './loader.js';
+import { makeItCollapsible, toggleCollapse } from './renderer.js';
 import { createCard, internalCreateCard } from './card.js';
 
 const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
@@ -53,6 +54,41 @@ export function appendSearchBar()
   on.focus(focus);
   on.blur(blur);
   on.ready(oninput);
+}
+
+export function registerPhrasesPhrase()
+{
+  return new Promise((resolve) =>
+  {
+    const phrasesPhrase = internalRegisterPhrase('Phrases', undefined, (phrase) =>
+    {
+      const card = phrase.card;
+
+      card.reset();
+
+      card.auto({ title: 'Available Phrases' });
+
+      makeItCollapsible(card);
+
+      for (const phrase in registeredPhrases)
+      {
+        const phraseObj = registeredPhrases[phrase];
+
+        card.appendText(phraseObj.phrase, { style: 'Bold', select: 'Selectable', size: 'Small' });
+
+        for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+        {
+          card.appendText(phraseObj.phraseArguments[i], { type: 'Description', select: 'Selectable', size: 'Small' });
+        }
+
+        card.appendLineBreak();
+      }
+
+      toggleCollapse(card, undefined, true);
+    });
+
+    Promise.all([ phrasesPhrase ]).then(resolve);
+  });
 }
 
 /** gets called every time sulaiman regain focus
@@ -341,7 +377,7 @@ function sort(array, compare)
 * @param { string } argument
 * @returns { CompareObject }
 */
-export function compare(input, phrase, argument)
+function compare(input, phrase, argument)
 {
   /** @param { string } written
   * @param { string } text

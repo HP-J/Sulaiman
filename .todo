@@ -1,6 +1,6 @@
 graphics:
   ☐ conflicting themes card instead of an error @next-build 
-  ☐ show popular extensions from the npm registry @next-build
+  ☐ show popular extensions from npm registry (gallery) @next-build @high 
   ☐ show most recent phrases when input is empty, or most used @next-build
 
 manager:
@@ -22,9 +22,9 @@ CI/CD:
   ☐ build & test DMG packages @need-help
 
 extensions:
-  ☐ files @next-build
+  ☐ browse files @next-build
+  ☐ usable calculator card, like the one google has @next-build
   ☐ google assistant @next-build @not-builtin
-  ☐ calculator: usable calculator card, like the one google has @next-build
   ☐ urls @next-build
 
   ☐ launch-apps (mac) @need-help 

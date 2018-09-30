@@ -7,7 +7,8 @@ import { tmpdir } from 'os';
 import request from 'request-promise-native';
 import inly from 'inly';
 
-import { appendCard, removeCard, getIcon } from './api.js';
+import { makeItCollapsible, toggleCollapse } from './renderer.js';
+import { appendCard, removeCard } from './api.js';
 
 import { internalRegisterPhrase as registerPhrase } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
@@ -21,7 +22,7 @@ import { loadedExtensions } from './loader.js';
 
 const npm = require('npm');
 
-const { mainWindow, reload } = remote.require(join(__dirname, '../main/window.js'));
+const { mainWindow, isDebug, reload } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
 */
@@ -42,13 +43,16 @@ export function registerExtensionsPhrase()
 {
   // since this function is called once when the app starts
   // it's safe to call a check for updates here
-  const updatesCard = createCard();
-
-  checkForExtensionsUpdates(updatesCard).then((number) =>
+  if (!isDebug())
   {
-    if (number > 0)
-      appendCard(updatesCard);
-  });
+    const updatesCard = createCard();
+
+    checkForExtensionsUpdates(updatesCard).then((number) =>
+    {
+      if (number > 0)
+        appendCard(updatesCard);
+    });
+  }
 
   return new Promise((resolve) =>
   {
@@ -106,7 +110,7 @@ function checkForExtensionsUpdates(parent)
   
             if (extensionUpdateCard(card, local, remote, remote.name))
             {
-              toggleCollapse(card, card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon'), true);
+              toggleCollapse(card, undefined, true);
   
               appendCard(card);
   
@@ -142,7 +146,7 @@ function showRunningExtensions(parent)
 
     extensionDeleteCard(card, loadedExtensions[extension]);
 
-    toggleCollapse(card, card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon'), true);
+    toggleCollapse(card, undefined, true);
   
     parent.appendChild(card);
   }
@@ -358,54 +362,6 @@ function extensionCard(card, data, oldData)
   card.appendChild(button);
   
   return button;
-}
-
-/** @param { Card } card
-*/
-function makeItCollapsible(card)
-{
-  const arrowIcon = getIcon('arrow');
-
-  card.auto({ actionIcon: arrowIcon });
-
-  const titleElem = card.domElement.querySelector('.cardAuto.cardTitle');
-  const extensionIconElem = card.domElement.querySelector('.cardAuto.cardIcon.cardExtensionIcon');
-  const actionIconElem = card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon');
-  const descriptionElem = card.domElement.querySelector('.cardAuto.cardDescription');
-  
-  if (titleElem)
-    titleElem.onclick = () => toggleCollapse(card, arrowIcon);
-  
-  if (extensionIconElem)
-    extensionIconElem.onclick = () => toggleCollapse(card, arrowIcon);
-
-  if (actionIconElem)
-    actionIconElem.onclick = () => toggleCollapse(card, arrowIcon);
-
-  if (descriptionElem)
-    descriptionElem.onclick = () => toggleCollapse(card, arrowIcon);
-}
-
-/** @param { Card } card
-* @param { HTMLElement } icon
-* @param { Card } fast
-*/
-function toggleCollapse(card, icon, fast)
-{
-  if (fast || card.isFastForward)
-    card.toggleFastForward();
-
-  if (!card.isCollapsed)
-    card.collapse();
-  else
-    card.expand();
-
-  if (!icon.style.transform)
-    icon.style.transform = 'rotateZ(0deg)';
-  else if (icon.style.transform === 'rotateZ(0deg)')
-    icon.style.transform = 'rotateZ(180deg)';
-  else if (icon.style.transform === 'rotateZ(180deg)')
-    icon.style.transform = 'rotateZ(0deg)';
 }
 
 /** @param { string } name

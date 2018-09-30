@@ -34,14 +34,20 @@ export let autoHide = false;
 export function loadOptions()
 {
   loadBuildData();
-  
+
   if (isDebug())
     return;
   
   loadAutoLaunch();
   loadShowHideKey();
 
-  checkForSulaimanUpdates();
+  const updateCard = createCard();
+
+  checkForSulaimanUpdates(updateCard).then((update) =>
+  {
+    if (update)
+      appendCard(updateCard);
+  });
 }
 
 export function registerOptionsPhrase()
@@ -167,26 +173,36 @@ export function registerOptionsPhrase()
       }
     });
 
-    const aboutPhrase = registerPhrase('About')
-      .then((phrase) =>
+    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], (phrase, argument) =>
+    {
+      const card = phrase.card;
+
+      card.reset();
+
+      if (argument === 'About')
       {
         phrase.card.auto({ title: 'Sulaiman' });
 
         if (buildData.build)
           phrase.card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
-
+  
         if (buildData.package)
           phrase.card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
-
+  
         if (buildData.branch)
           phrase.card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
-
+  
         if (buildData.commit)
           phrase.card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
-
+  
         if (buildData.date)
           phrase.card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
-      });
+      }
+      else if (argument === 'Check for Updates')
+      {
+        checkForSulaimanUpdates(card);
+      }
+    });
 
     Promise.all([ optionsPhrase, aboutPhrase ]).then(resolve);
   });
@@ -500,134 +516,167 @@ function loadBuildData()
   buildData = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
 }
 
-function checkForSulaimanUpdates()
+/** @param { Card } card
+* @returns { Promise<boolean> }
+*/
+function checkForSulaimanUpdates(card)
 {
+  return new Promise((resolve) =>
+  {
   /** @param { { build: string, branch: string, commit: string, date: string } } serverBuild
   */
-  function check(serverBuild)
-  {
-    // if commit id of the server is different, and
-    // the current package has a download url in the server
-    if (serverBuild.build !== buildData.build && serverBuild[buildData.package])
+    function check(serverBuild)
     {
-      const progress = function(percentage)
+      // if commit id of the server is different, and
+      // the current package has a download url in the server
+      if (serverBuild.build !== buildData.build && serverBuild[buildData.package])
       {
-        percentage = Math.floor(percentage * 100);
-
-        card.auto({ description: 'Downloading ' + percentage + '%' });
-
-        card.setType({ type: 'ProgressBar', percentage: percentage });
-      };
-
-      const downloadError = function(err)
-      {
-        if (err && err.canceled)
+        const progress = function(percentage)
         {
-          reset();
-          return;
-        }
+          percentage = Math.floor(percentage * 100);
 
-        updateButton.domElement.style.cssText = '';
+          card.auto({ description: 'Downloading ' + percentage + '%' });
 
-        updateButton.auto({ title: 'Retry' });
+          card.setType({ type: 'ProgressBar', percentage: percentage });
+        };
 
-        card.auto({ description: 'Error: ' + err.message });
-
-        card.setType({ type: 'Normal' });
-      };
-
-      /** @param { string } path
-      */
-      const done = function(path)
-      {
-        updateButton.domElement.style.cssText = '';
-
-        updateButton.auto({ title: 'Install' });
-        updateButton.domElement.onclick = () => install(path);
-
-        dismissButton.auto({ title: 'Dismiss' });
-        dismissButton.domElement.onclick = dismiss;
-
-        card.auto({ description: 'Downloaded' });
-
-        card.setType({ type: 'Normal' });
-      };
-
-      const install = function(path)
-      {
-        remote.shell.openItem(path);
-
-        quit();
-      };
-
-      const download = function()
-      {
-        updateButton.domElement.style.display = 'none';
-
-        const url = new URL(serverBuild[buildData.package]);
-        const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
-
-        card.auto({ description: 'Downloading..' });
-
-        dl(mainWindow, url.href,
+        const downloadError = function(err)
+        {
+          if (err && err.canceled)
           {
-            directory: tmpdir(),
-            filename: filename,
-            showBadge: false,
-            onStarted: (item) => dismissButton.domElement.onclick = () => item.cancel(),
-            onProgress: progress,
-            onCancel: reset
-          })
-          .then((item) => done(item.getSavePath()))
-          .catch((err) => downloadError(err.cause || err));
+            reset();
+            return;
+          }
 
-        dismissButton.auto({ title: 'Cancel' });
-      };
+          updateButton.domElement.style.cssText = '';
 
-      const dismiss = function()
+          updateButton.auto({ title: 'Retry' });
+
+          card.auto({ description: 'Error: ' + err.message });
+
+          card.setType({ type: 'Normal' });
+        };
+
+        /** @param { string } path
+        */
+        const done = function(path)
+        {
+          updateButton.domElement.style.cssText = '';
+
+          updateButton.auto({ title: 'Install' });
+          updateButton.domElement.onclick = () => install(path);
+
+          if (card.isPhrased)
+          {
+            dismissButton.domElement.style.display = 'none';
+          }
+          else
+          {
+            dismissButton.auto({ title: 'Dismiss' });
+            dismissButton.domElement.onclick = dismiss;
+          }
+
+          card.auto({ description: 'Downloaded' });
+
+          card.setType({ type: 'Normal' });
+        };
+
+        const install = function(path)
+        {
+          remote.shell.openItem(path);
+
+          quit();
+        };
+
+        const download = function()
+        {
+          updateButton.domElement.style.display = 'none';
+          dismissButton.domElement.style.cssText = '';
+
+          const url = new URL(serverBuild[buildData.package]);
+          const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
+
+          card.auto({ description: 'Downloading..' });
+
+          dismissButton.auto({ title: 'Cancel' });
+
+          dl(mainWindow, url.href,
+            {
+              directory: tmpdir(),
+              filename: filename,
+              showBadge: false,
+              onStarted: (item) => dismissButton.domElement.onclick = () => item.cancel(),
+              onProgress: progress,
+              onCancel: reset
+            })
+            .then(() => done(join(tmpdir(), filename)))
+            .catch((err) => downloadError(err.cause || err));
+        };
+
+        const dismiss = function()
+        {
+          removeCard(card);
+        };
+
+        const reset = function()
+        {
+          updateButton.domElement.style.cssText = dismissButton.domElement.style.cssText = '';
+
+          updateButton.auto({ title: 'Update' });
+          updateButton.domElement.onclick = download;
+
+          if (card.isPhrased)
+          {
+            dismissButton.domElement.style.display = 'none';
+          }
+          else
+          {
+            dismissButton.auto({ title: 'Dismiss' });
+            dismissButton.domElement.onclick = dismiss;
+          }
+
+          card.auto({ description: 'Update available' });
+          card.setType({ type: 'Normal' });
+        };
+
+        const updateButton = createCard();
+        updateButton.setType({ type: 'Button' });
+
+        const dismissButton = createCard();
+        dismissButton.setType({ type: 'Button' });
+
+        reset();
+
+        card.appendLineBreak();
+
+        card.appendChild(updateButton);
+        card.appendChild(dismissButton);
+
+        resolve(true);
+      }
+      else
       {
-        removeCard(card);
-      };
+        card.auto({ description: 'Up-to-date' });
 
-      const reset = function()
-      {
-        updateButton.domElement.style.cssText = dismissButton.domElement.style.cssText = '';
-
-        updateButton.auto({ title: 'Update' });
-        updateButton.domElement.onclick = download;
-
-        dismissButton.auto({ title: 'Dismiss' });
-        dismissButton.domElement.onclick = dismiss;
-
-        card.auto({ description: 'Update Available' });
-        card.setType({ type: 'Normal' });
-      };
-
-      const card = createCard({ title: 'Sulaiman' });
-
-      const updateButton = createCard();
-      updateButton.setType({ type: 'Button' });
-
-      const dismissButton = createCard();
-      dismissButton.setType({ type: 'Button' });
-
-      reset();
-
-      card.appendLineBreak();
-
-      card.appendChild(updateButton);
-      card.appendChild(dismissButton);
-
-      appendCard(card);
+        resolve(false);
+        return;
+      }
     }
-  }
 
-  // if build.json doesn't exists or if the package is not specified, then return
-  if (!buildData.package || !buildData.branch)
-    return;
+    card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
 
-  // request the server's build.json, can fail silently
-  request(
-    'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + buildData.branch + '/raw/build.json?job=build', {  json: true })
-    .then((serverBuild) => check(serverBuild));
+    // if build.json doesn't exists or if the package is not specified, then return
+    if (!buildData.package || !buildData.branch)
+    {
+      card.auto({ description: 'Up-to-date' });
+
+      resolve(false);
+      return;
+    }
+
+    // request the server's build.json, can fail silently
+    request(
+      'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + buildData.branch + '/raw/build.json?job=build', {  json: true })
+      .then((serverBuild) => check(serverBuild));
+  });
 }
