@@ -2,7 +2,6 @@ import { remote } from 'electron';
 import * as settings from 'electron-json-config';
 
 import request from 'request-promise-native';
-import wget from 'node-wget-promise';
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -10,12 +9,19 @@ import { tmpdir } from 'os';
 
 import AutoLaunch from 'auto-launch';
 
-import { createCard, appendCard, removeCard, on } from './api.js';
+import { internalRegisterPhrase as registerPhrase } from './search.js';
+import { internalCreateCard as createCard } from './card.js';
+
+import { appendCard, removeCard } from './api.js';
 
 /** @typedef { import('./card.js').default } Card
 */
 
-const { isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
+/** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
+*/
+const { download: dl  } = remote.require('electron-dl');
+
+const { mainWindow, isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
@@ -28,7 +34,7 @@ export let autoHide = false;
 export function loadOptions()
 {
   loadBuildData();
-
+  
   if (isDebug())
     return;
   
@@ -38,64 +44,61 @@ export function loadOptions()
   checkForSulaimanUpdates();
 }
 
-export function registerOptionsPhrases()
+export function registerOptionsPhrase()
 {
   return new Promise((resolve) =>
   {
-    const optionsPhrase = on.phrase('Options', undefined, (phrase, argument) =>
+    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], (phrase, argument) =>
     {
       const card = phrase.card;
-  
+
+      card.reset();
+
       if (argument === 'Show/Hide Key')
       {
-        card.reset();
-        card.domElement.onclick = undefined;
-  
         showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
           () =>
           {
             autoHide = true;
-    
+
             setSkipTaskbar(true);
           },
           () =>
           {
             autoHide = false;
-    
+
             setSkipTaskbar(false);
           });
       }
       else if (argument === 'Auto-Launch')
       {
-        card.reset();
-  
         card.auto({ title: 'Loading Current Settings..' });
         card.setType({ type: 'Disabled' });
-  
+
         autoLaunchEntry.isEnabled()
           .then((enabled) =>
           {
             const toggle = createCard();
-            
+
             card.auto({ title: '' });
-            
+
             card.appendChild(toggle);
             const text = card.appendText('Auto-Launch');
-            
+
             card.setType({ type: 'Normal' });
             toggle.setType({ type: 'Toggle', state: enabled });
-  
+
             toggle.domElement.onclick = text.onclick = () =>
             {
               card.setType({ type: 'Disabled' });
-  
+
               if (enabled)
               {
                 autoLaunchEntry.disable().then(() =>
                 {
                   card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: false });
-  
+
                   enabled = false;
                 });
               }
@@ -105,7 +108,7 @@ export function registerOptionsPhrases()
                 {
                   card.setType({ type: 'Normal' });
                   toggle.setType({ type: 'Toggle', state: true });
-  
+
                   enabled = true;
                 });
               }
@@ -114,66 +117,61 @@ export function registerOptionsPhrases()
       }
       else if (argument === 'Tray')
       {
-        card.reset();
         card.auto();
-  
+
         let enabled = settings.get('trayIcon', true);
         const toggle = createCard();
-  
+
         card.appendChild(toggle);
-  
+
         const toggleText = card.appendText('Tray');
-        
+
         toggle.setType({ type: 'Toggle', state: enabled });
-        
+
         card.appendLineBreak();
-  
+
         const warningText = card.appendText('This option needs the app to relaunch to be applied');
-  
+
         const relaunchButton = createCard({ title: 'Relaunch' });
         relaunchButton.setType({ type: 'Button' });
-  
+
         card.appendChild(relaunchButton);
-  
+
         relaunchButton.domElement.onclick = () => relaunch();
-        
+
         relaunchButton.domElement.style.display = warningText.style.display = 'none';
-  
+
         toggle.domElement.onclick = toggleText.onclick = () =>
         {
           if (enabled)
           {
             settings.set('trayIcon', false);
             toggle.setType({ type: 'Toggle', state: false });
-  
+
             enabled = false;
           }
           else
           {
-  
+
             settings.set('trayIcon', true);
             toggle.setType({ type: 'Toggle', state: true });
-  
+
             enabled = true;
           }
-  
+
           if (warningText.style.cssText)
           {
             relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
           }
         };
       }
-    })
-      .then((phrase) =>
-      {
-        phrase.phraseArguments.push('Show/Hide Key', 'Auto-Launch', 'Tray');
-      });
-    
-    const aboutPhrase = on.phrase('About')
+    });
+
+    const aboutPhrase = registerPhrase('About')
       .then((phrase) =>
       {
         phrase.card.auto({ title: 'Sulaiman' });
-        
+
         if (buildData.build)
           phrase.card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
 
@@ -182,10 +180,10 @@ export function registerOptionsPhrases()
 
         if (buildData.branch)
           phrase.card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
-         
+
         if (buildData.commit)
           phrase.card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
-        
+
         if (buildData.date)
           phrase.card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
       });
@@ -199,7 +197,7 @@ function loadShowHideKey()
   const showHideKeyCard = createCard();
 
   const showHideAccelerator = settings.get('showHideKey', undefined);
-  
+
   if (!showHideAccelerator)
   {
     showChangeKeyCard(
@@ -252,32 +250,32 @@ function loadAutoLaunch()
     {
       if (isEnabled || settings.get('ignoreAutoLaunch', false))
         return;
-      
+
       autoLaunchCard.appendText('Would you like,');
       autoLaunchCard.appendText('If Sulaiman auto launches itself on startup?', { type: 'Description' });
-  
+
       const yesButton = createCard({ title: 'Yes' });
       yesButton.setType({ type: 'Button' });
       autoLaunchCard.appendChild(yesButton);
-  
+
       yesButton.domElement.onclick = () =>
       {
         autoLaunchEntry.enable();
-      
+
         removeCard(autoLaunchCard);
       };
-  
+
       const dismissButton = createCard({ title: 'Dismiss' });
       dismissButton.setType({ type: 'Button' });
       autoLaunchCard.appendChild(dismissButton);
-  
+
       dismissButton.domElement.onclick = () =>
       {
         settings.set('ignoreAutoLaunch', true);
-        
+
         removeCard(autoLaunchCard);
       };
-  
+
       appendCard(autoLaunchCard);
     });
 }
@@ -299,7 +297,7 @@ function showChangeKeyCard(card, title, description, key, callback, done, remove
     unregisterGlobalShortcut(settings.get(key, undefined));
 
     settings.set(key, accelerator);
-    
+
     remote.globalShortcut.register(accelerator, callback);
 
     if (card.isPhrased)
@@ -366,7 +364,7 @@ function captureKey(card, key, done, remove)
 
     if (code === ' ')
       code = 'Space';
-      
+
     if (code === 'Meta')
       code = 'Alt';
 
@@ -375,7 +373,7 @@ function captureKey(card, key, done, remove)
 
     if (!(/^[a-z]*$/).test(code) && event.code.startsWith('Key'))
       code = event.code.replace('Key', '');
-      
+
     code = code[0].toUpperCase() + code.substring(1);
 
     if (!keys.includes(code))
@@ -398,7 +396,7 @@ function captureKey(card, key, done, remove)
     if (exists)
     {
       cancelButton.innerText = 'Remove';
-  
+
       cancelButtonCard.domElement.onclick = removeKey;
     }
     else
@@ -424,7 +422,7 @@ function captureKey(card, key, done, remove)
 
     cancelButtonCard.domElement.onclick = cancelKeyCapture;
     cancelButtonCard.domElement.style.cssText = '';
-      
+
     keysElem.innerText = 'Press The Keys';
     setButton.innerText = 'Apply';
 
@@ -512,25 +510,34 @@ function checkForSulaimanUpdates()
     // the current package has a download url in the server
     if (serverBuild.build !== buildData.build && serverBuild[buildData.package])
     {
-      const progress = function(info)
+      const progress = function(percentage)
       {
-        const percentage = Math.floor(info.percentage * 100);
+        percentage = Math.floor(percentage * 100);
 
-        descriptionText.innerText = 'Downloading.. ' + percentage + '%';
+        card.auto({ description: 'Downloading ' + percentage + '%' });
 
         card.setType({ type: 'ProgressBar', percentage: percentage });
       };
 
       const downloadError = function(err)
       {
+        if (err && err.canceled)
+        {
+          reset();
+          return;
+        }
+
         updateButton.domElement.style.cssText = '';
 
         updateButton.auto({ title: 'Retry' });
-        descriptionText.innerText = 'Download Error\n' + err.message;
+
+        card.auto({ description: 'Error: ' + err.message });
 
         card.setType({ type: 'Normal' });
       };
-      
+
+      /** @param { string } path
+      */
       const done = function(path)
       {
         updateButton.domElement.style.cssText = '';
@@ -538,7 +545,10 @@ function checkForSulaimanUpdates()
         updateButton.auto({ title: 'Install' });
         updateButton.domElement.onclick = () => install(path);
 
-        descriptionText.innerText = 'Downloaded';
+        dismissButton.auto({ title: 'Dismiss' });
+        dismissButton.domElement.onclick = dismiss;
+
+        card.auto({ description: 'Downloaded' });
 
         card.setType({ type: 'Normal' });
       };
@@ -552,18 +562,26 @@ function checkForSulaimanUpdates()
 
       const download = function()
       {
+        updateButton.domElement.style.display = 'none';
+
         const url = new URL(serverBuild[buildData.package]);
         const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
 
-        const output = join(tmpdir(), filename);
+        card.auto({ description: 'Downloading..' });
 
-        updateButton.domElement.style.display = dismissButton.domElement.style.display = 'none';
-      
-        descriptionText.innerText = 'Downloading..';
-        
-        wget(url.href, { output: output, onProgress: progress })
-          .then(() => done(output))
-          .catch((err) => downloadError(err));
+        dl(mainWindow, url.href,
+          {
+            directory: tmpdir(),
+            filename: filename,
+            showBadge: false,
+            onStarted: (item) => dismissButton.domElement.onclick = () => item.cancel(),
+            onProgress: progress,
+            onCancel: reset
+          })
+          .then((item) => done(item.getSavePath()))
+          .catch((err) => downloadError(err.cause || err));
+
+        dismissButton.auto({ title: 'Cancel' });
       };
 
       const dismiss = function()
@@ -571,24 +589,32 @@ function checkForSulaimanUpdates()
         removeCard(card);
       };
 
+      const reset = function()
+      {
+        updateButton.domElement.style.cssText = dismissButton.domElement.style.cssText = '';
+
+        updateButton.auto({ title: 'Update' });
+        updateButton.domElement.onclick = download;
+
+        dismissButton.auto({ title: 'Dismiss' });
+        dismissButton.domElement.onclick = dismiss;
+
+        card.auto({ description: 'Update Available' });
+        card.setType({ type: 'Normal' });
+      };
+
       const card = createCard({ title: 'Sulaiman' });
 
-      const updateButton = createCard({ title: 'Update' });
+      const updateButton = createCard();
       updateButton.setType({ type: 'Button' });
-      updateButton.domElement.onclick = download;
-      
-      const dismissButton = createCard({ title: 'Dismiss' });
+
+      const dismissButton = createCard();
       dismissButton.setType({ type: 'Button' });
-      dismissButton.domElement.onclick = dismiss;
 
-      const descriptionCard = createCard();
-      const descriptionText = descriptionCard.appendText('Update Available', ({ type: 'Description' }));
+      reset();
 
-      descriptionCard.domElement.style.pointerEvents = 'none';
-
-      card.appendChild(descriptionCard);
       card.appendLineBreak();
-      
+
       card.appendChild(updateButton);
       card.appendChild(dismissButton);
 
