@@ -6,9 +6,6 @@ graphics:
 manager:
 
 technical:
-  ☐ phrases for [extensions running / extensions install / extension delete]
-  ☐ test all extensions cards 
-
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @next-build  
     and the extension it require is installed and does have public API
 

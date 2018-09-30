@@ -3,17 +3,14 @@ import { remote } from 'electron';
 import { join } from 'path';
 
 import { on } from './loader.js';
-import { createCard } from './card.js';
+import { createCard, internalCreateCard } from './card.js';
 
 const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } InternalPhraseObj
-*/
-
-/** @typedef { { card: Card, phraseArguments: string[] } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
 */
 
 /** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, extra: string } } CompareObject
@@ -27,7 +24,7 @@ let inputElement;
 */
 let suggestionsElement;
 
-/** @type { Object<string, InternalPhraseObj> }
+/** @type { Object<string, PhraseObj> }
 */
 const registeredPhrases = {};
 
@@ -93,7 +90,7 @@ function oninput()
   lastInput = input;
 
   // on input scroll to top of the window
-  window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+  requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
 
   if (!input)
   {
@@ -153,7 +150,7 @@ function onkeydown(event)
     let isClear;
 
     if (phraseObj.enter)
-      isClear = phraseObj.enter({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments });
+      isClear = phraseObj.enter();
 
     if (isClear)
       clear();
@@ -302,27 +299,24 @@ function search(input)
   });
 }
 
-/** @param { InternalPhraseObj } phraseObj
+/** @param { PhraseObj } phraseObj
 * @param { string } extra
 * @param { string } argument
 */
 function activatePhrase(phraseObj, extra, argument)
 {
-  let activate;
+  if (!phraseObj.activate)
+    return;
 
-  if (phraseObj.activate)
-    activate = phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, argument, extra);
+  phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, argument, extra);
 
-  if (activate === undefined || activate)
-  {
-    if (!document.body.contains(phraseObj.card.domElement))
-      document.body.appendChild(phraseObj.card.domElement);
-    
-    phraseObj.active = true;
-  }
+  if (!document.body.contains(phraseObj.card.domElement))
+    document.body.appendChild(phraseObj.card.domElement);
+
+  phraseObj.active = true;
 }
 
-/** @param { InternalPhraseObj } phraseObj
+/** @param { PhraseObj } phraseObj
 */
 function deactivatePhrase(phraseObj)
 {
@@ -401,10 +395,6 @@ export function compare(input, phrase, argument)
 
   const wordCount = (1 + argumentSplit.length);
 
-  // if input word count is higher then searchable word count
-  if (inputSplit.length > wordCount)
-    return undefined;
-
   const match = regex.exec(inputFirstWord);
 
   // if first input word match the phrase it self
@@ -437,7 +427,7 @@ export function compare(input, phrase, argument)
   appendWrittenAndTextElement(phraseTextWritten, phraseText);
 
   // process arguments (any thing after the first word)
-  for (let i = 0, x = 0; i < argumentSplit.length; i++)
+  for (let i = 0; i < argumentSplit.length; i++)
   {
     const argument = argumentSplit[i];
     const input = inputSplit[0];
@@ -458,8 +448,6 @@ export function compare(input, phrase, argument)
       appendWrittenAndTextElement(written, argument, true);
       
       argumentLettersWrittenCount = written.length;
-
-      x += 1;
     }
     else
     {
@@ -547,17 +535,25 @@ function updateSuggestionsCount(count)
   suggestionsElement.style.setProperty('--suggestions-count', count);
 }
 
-/** register a phrase, then returns a card controlled only by the search system
-* @param { string | RegExp } phrase
-* @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
-* @param { (phrase: PhraseObj, argument: string, extra: string) => boolean } [activate] emits when the phrase and/or an argument is matched,
-* should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
-* @param { (phrase: PhraseObj) => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
-* and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
-* which will deactivate the phrase, or equals false to leave the phrase active, default is false
-* @returns { Promise<PhraseObj> }
+/** @param { string | RegExp } phrase
+* @param { string[] } [args]
+* @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate]
+* @param { () => boolean } [enter]
+* @returns { Promise<{ card: Card, phraseArguments: string[] }> }
 */
-export function registerPhrase(phrase, args, activate, enter)
+export function internalRegisterPhrase(phrase, args, activate, enter)
+{
+  return registerPhrase(internalCreateCard(), phrase, args, activate, enter);
+}
+
+/** @param { Card } card
+* @param { string | RegExp } phrase
+* @param { string[] } [args]
+* @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate]
+* @param { () => boolean } [enter]
+* @returns { Promise<{ card: Card, phraseArguments: string[] }> }
+*/
+export function registerPhrase(card, phrase, args, activate, enter)
 {
   return new Promise((resolve, reject) =>
   {
@@ -571,8 +567,6 @@ export function registerPhrase(phrase, args, activate, enter)
         }
         else
         {
-          const card = createCard();
-
           // we want to have control over when cards are shown
           // and removed from the dom, by setting a read-only property
           // that is checked by all append and remove apis, we can accomplish that
@@ -585,7 +579,7 @@ export function registerPhrase(phrase, args, activate, enter)
           const isString = (typeof phrase === 'string');
           const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
 
-          /** @type { InternalPhraseObj }
+          /** @type { PhraseObj }
           */
           const phraseObj =
           {
@@ -602,7 +596,7 @@ export function registerPhrase(phrase, args, activate, enter)
 
           // register the phrase
           registeredPhrases[phraseKey] = phraseObj;
-    
+
           resolve({ card: card, phraseArguments: phraseObj.phraseArguments });
         }
       })

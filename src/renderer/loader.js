@@ -8,6 +8,10 @@ import { EventEmitter } from 'events';
 
 import { readyState } from './renderer.js';
 import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
+import { createCard } from './card.js';
+
+/** @typedef { import('./card.js').default } Card
+*/
 
 /** @typedef { Object } PackageData
 * @property { string } name
@@ -70,8 +74,11 @@ export function loadExtensions()
     */
     const data = JSON.parse(readFileSync(packagePath));
 
+    if (!data.sulaiman)
+      continue;
+    
     if (data.sulaiman.platform && !data.sulaiman.platform.includes(platform()))
-      return;
+      continue;
 
     // if there isn't a loaded extension with the same name
     if (!loadedExtensions[data.name])
@@ -97,14 +104,14 @@ export const on =
   /** register a phrase, then returns a card controlled only by the search system
   * @param { string | RegExp } phrase
   * @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
-  * @param { (phrase: PhraseObj, argument: string, extra: string) => boolean } [activate] emits when the phrase and/or an argument is matched,
+  * @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate] emits when the phrase and/or an argument is matched,
   * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
-  * @param { (phrase: PhraseObj) => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
+  * @param { () => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
   * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
   * which will deactivate the phrase, or equals false to leave the phrase active, default is false
-  * @returns { Promise<PhraseObj> }
+  * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
   */
-  phrase: registerPhrase,
+  phrase: (phrase, args, activate, enter) => registerPhrase(createCard(), phrase, args, activate, enter),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */

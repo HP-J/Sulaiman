@@ -1,17 +1,17 @@
 import { remote } from 'electron';
+
+import { remove, removeSync, move, readFile, existsSync } from 'fs-extra';
+import { join, basename } from 'path';
 import { tmpdir } from 'os';
 
-import * as api from './api.js';
-import { createCard } from './card.js';
-
-import { loadedExtensions } from './loader.js';
-
-import { remove, move, readFile } from 'fs-extra';
-import { join, basename } from 'path';
-
 import request from 'request-promise-native';
-import wget from 'node-wget-promise';
 import inly from 'inly';
+
+import { appendCard, removeCard, getIcon } from './api.js';
+
+import { internalRegisterPhrase as registerPhrase } from './search.js';
+import { internalCreateCard as createCard } from './card.js';
+import { loadedExtensions } from './loader.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -21,9 +21,13 @@ import inly from 'inly';
 
 const npm = require('npm');
 
-const { reload } = remote.require(join(__dirname, '../main/window.js'));
+const { mainWindow, reload } = remote.require(join(__dirname, '../main/window.js'));
 
-const cards = [];
+/** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
+*/
+const { download: dl  } = remote.require('electron-dl');
+
+let cancelToken;
 
 export function loadNPM()
 {
@@ -34,67 +38,134 @@ export function loadNPM()
   });
 }
 
-export function checkForExtensionsUpdates()
+export function registerExtensionsPhrase()
 {
-  for (const extension in loadedExtensions)
+  // since this function is called once when the app starts
+  // it's safe to call a check for updates here
+  const updatesCard = createCard();
+
+  checkForExtensionsUpdates(updatesCard).then((number) =>
   {
-    const local = loadedExtensions[extension];
+    if (number > 0)
+      appendCard(updatesCard);
+  });
 
-    getPackageData(local.name)
-      .then((remote) =>
+  return new Promise((resolve) =>
+  {
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], (phrase, argument, extra) =>
+    {
+      const card = phrase.card;
+
+      card.reset();
+
+      if (argument === 'Install')
       {
-        if (local.version !== remote.version)
+        if (cancelToken)
         {
-          const card = createCard();
-
-          if (extensionUpdateCard(card, local, remote, remote.name))
-          {
-            card.enableFastForward();
-            card.collapse();
-
-            api.appendCard(card);
-          }
+          cancelToken();
+          cancelToken = undefined;
         }
-      });
-  }
+        
+        cancelToken = extensionInstallCard(card, extra, phrase);
+      }
+      else if (argument === 'Running')
+      {
+        showRunningExtensions(card);
+      }
+      else if (argument === 'Check for Updates')
+      {
+        checkForExtensionsUpdates(card);
+      }
+    });
+
+    Promise.all([ extensionsPhrase ]).then(resolve);
+  });
 }
 
-export function showInstalledExtensions()
+/** @param { Card } parent
+*/
+function checkForExtensionsUpdates(parent)
 {
+  return new Promise((resolve, reject) =>
+  {
+    let number = 0;
+    const promises = [];
+  
+    parent.auto({ title: 'Extensions', description: 'Checking for Updates' });
+      
+    for (const extension in loadedExtensions)
+    {
+      const local = loadedExtensions[extension];
+  
+      promises.push(getPackageData(local.name)
+        .then((remote) =>
+        {
+          if (local.version !== remote.version)
+          {
+            const card = createCard();
+  
+            if (extensionUpdateCard(card, local, remote, remote.name))
+            {
+              toggleCollapse(card, card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon'), true);
+  
+              appendCard(card);
+  
+              number += 1;
+            }
+          }
+        }).catch((err) => reject(err)));
+    }
+  
+    Promise.all(promises).then(() =>
+    {
+      parent.auto({ title: number + ' Extensions have Updates', description: '' });
+
+      if (number > 0)
+        makeItCollapsible(parent);
+
+      resolve(number);
+    });
+  });
+}
+
+/** @param { Card } parent
+*/
+function showRunningExtensions(parent)
+{
+  parent.auto({ title: 'Running Extensions' });
+
+  makeItCollapsible(parent);
+  
   for (const extension in loadedExtensions)
   {
     const card = createCard();
 
     extensionDeleteCard(card, loadedExtensions[extension]);
 
-    card.toggleFastForward();
-    card.collapse();
+    toggleCollapse(card, card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon'), true);
   
-    api.appendCard(card);
-
-    cards.push(card);
+    parent.appendChild(card);
   }
 }
 
 /** @param { Card } card
 * @param { PackageData } extension
 */
-export function extensionDeleteCard(card, extension)
+function extensionDeleteCard(card, extension)
 {
-  const { button, text } = extensionCard(card, extension);
+  const button = extensionCard(card, extension);
 
-  text.innerText = 'Delete';
+  button.auto({ title: 'Delete' });
 
   button.domElement.onclick = () =>
   {
-    button.setType({ type: 'Disabled' });
-
-    text.innerText = 'Deleting';
+    button.auto({ title: 'Deleting' });
+    button.setType({ type: 'Normal' });
   
     deleteDir(extension.name)
       .then(() =>
       {
-        success(button, text);
+        success(button);
       })
       .catch(() =>
       {
@@ -106,47 +177,58 @@ export function extensionDeleteCard(card, extension)
 /** @param { Card } card
 * @param { string } name
 */
-export function extensionInstallCard(card, name)
+function extensionInstallCard(card, name)
 {
-  card.auto({ title: name, description: 'Requesting Package Data...' });
-  
-  card.setType({ type: 'Disabled' });
+  if (!name)
+  {
+    card.auto({ title: 'Extensions', description: 'Enter extension name' });
+    return;
+  }
 
-  getPackageData(name)
+  card.auto({ title: name, description: 'Gathering information from the internet...' });
+
+  const cancelPromise = cancelablePromise(getPackageData(name));
+
+  cancelPromise.promise
     .then((data) =>
     {
-      const validated = validateExtension(data);
+      data.sulaiman = {};
 
-      if (validated)
-        throw validated;
+      // const validated = validateExtension(data);
 
-      const { button, text } = extensionCard(card, data);
+      // if (validated)
+      //   throw validated;
+
+      const button = extensionCard(card, data);
     
-      text.innerText = 'Install';
+      button.auto({ title: 'Install' });
 
-      button.events.onclick = () =>
+      button.domElement.onclick = () =>
       {
-        button.setType({ type: 'Disabled' });
-
-        downloadExtension(button, text, data.name, data.dist.tarball)
+        downloadExtension(card, button, data.name, data.dist.tarball)
           .then(() =>
           {
-            return installExtensionDependencies(text, data.name);
+            return installExtensionDependencies(button, data.name);
           })
           .then(() =>
           {
-            success(button, text);
+            success(button);
           })
-          .catch(() =>
+          .catch((err) =>
           {
-            failedToInstall(card, name);
+            failedToInstall(card, name, err.message);
           });
       };
     })
     .catch((err) =>
     {
-      failedToInstall(card, name, err);
+      if (err && err.canceled)
+        return;
+      
+      failedToInstall(card, name, err.message);
     });
+
+  return cancelPromise.cancel;
 }
 
 /** @param { Card } card
@@ -159,33 +241,43 @@ function extensionUpdateCard(card, local, remote, name)
   if (validateExtension(remote))
     return false;
 
-  const { button, text } = extensionCard(card, remote, local);
+  const updateButton = extensionCard(card, remote, local);
 
-  text.innerText = 'Update';
+  updateButton.auto({ title: 'Update' });
 
-  button.events.onclick = () =>
+  const dismissButton = createCard();
+  dismissButton.setType({ type: 'Button' });
+
+  dismissButton.auto({ title: 'Dismiss' });
+  
+  card.appendChild(dismissButton);
+
+  updateButton.domElement.onclick = () =>
   {
-    button.setType({ type: 'Disabled' });
+    card.removeChild(dismissButton);
 
-    downloadExtension(button, text, remote.name, remote.dist.tarball)
+    downloadExtension(card, updateButton, remote.name, remote.dist.tarball)
       .then(() =>
       {
-        return installExtensionDependencies(text, remote.name);
+        return installExtensionDependencies(updateButton, remote.name);
       })
       .then(() =>
       {
-        success(button, text);
+        success(updateButton);
       })
-      .catch(() =>
+      .catch((err) =>
       {
-        failedToInstall(card, name);
+        failedToInstall(card, name, err.message);
       });
   };
+
+  dismissButton.domElement.onclick = () => removeCard(card);
 
   return true;
 }
 
 /** @param { string } name
+* @return { Promise<PackageData> }
 */
 function getPackageData(name)
 {
@@ -206,15 +298,18 @@ function getPackageData(name)
 /** @param { Card } card
 * @param { PackageData } data
 * @param { PackageData } oldData
-* @returns { { button: Card, text: HTMLElement } }
+* @returns { Card }
 */
 function extensionCard(card, data, oldData)
 {
   card.auto({
     title: data.sulaiman.displayName,
-    description: data.description,
-    actionIcon: api.getIcon('arrow')
+    description: data.description
   });
+
+  card.setType({ type: 'Normal' });
+
+  makeItCollapsible(card);
 
   let permissions, modules;
 
@@ -256,17 +351,61 @@ function extensionCard(card, data, oldData)
     card.appendText(modules, { type: 'Description', size: 'Smaller' });
   }
 
-  card.appendLineBreak();
-
-  // button section
-
   const button = createCard();
+
+  button.setType({ type: 'Button' });
   
   card.appendChild(button);
   
-  const text = button.appendText('', { align: 'Center', style: 'Bold' });
+  return button;
+}
 
-  return { button, text };
+/** @param { Card } card
+*/
+function makeItCollapsible(card)
+{
+  const arrowIcon = getIcon('arrow');
+
+  card.auto({ actionIcon: arrowIcon });
+
+  const titleElem = card.domElement.querySelector('.cardAuto.cardTitle');
+  const extensionIconElem = card.domElement.querySelector('.cardAuto.cardIcon.cardExtensionIcon');
+  const actionIconElem = card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon');
+  const descriptionElem = card.domElement.querySelector('.cardAuto.cardDescription');
+  
+  if (titleElem)
+    titleElem.onclick = () => toggleCollapse(card, arrowIcon);
+  
+  if (extensionIconElem)
+    extensionIconElem.onclick = () => toggleCollapse(card, arrowIcon);
+
+  if (actionIconElem)
+    actionIconElem.onclick = () => toggleCollapse(card, arrowIcon);
+
+  if (descriptionElem)
+    descriptionElem.onclick = () => toggleCollapse(card, arrowIcon);
+}
+
+/** @param { Card } card
+* @param { HTMLElement } icon
+* @param { Card } fast
+*/
+function toggleCollapse(card, icon, fast)
+{
+  if (fast || card.isFastForward)
+    card.toggleFastForward();
+
+  if (!card.isCollapsed)
+    card.collapse();
+  else
+    card.expand();
+
+  if (!icon.style.transform)
+    icon.style.transform = 'rotateZ(0deg)';
+  else if (icon.style.transform === 'rotateZ(0deg)')
+    icon.style.transform = 'rotateZ(180deg)';
+  else if (icon.style.transform === 'rotateZ(180deg)')
+    icon.style.transform = 'rotateZ(0deg)';
 }
 
 /** @param { string } name
@@ -281,58 +420,82 @@ function deleteDir(name)
 function validateExtension(data)
 {
   if (!data.sulaiman)
-    return 'package is not a sulaiman extension';
+    return new Error('is not a Sulaiman Extension');
 
   if (!data.sulaiman.displayName)
-    return 'invalid package information: display name';
+    return new Error('Package information misconfiguration, display name is not defined');
 
   if (data.sulaiman.platform && !data.sulaiman.platform.includes(process.platform.toString()))
-    return 'this platform is not supported by the extension';
+    return new Error('This platform is not supported by the extension');
 
   return undefined;
 }
 
-/** @param { Card } button
-* @param { HTMLElement } text
+/** @template T
+* @param { Promise<T> } promise
+* @returns { { promise: Promise<T>, cancel: () => void } }
+*/
+function cancelablePromise(promise)
+{
+  let cancel;
+
+  const cancelPromise = new Promise((resolve, reject) =>
+  {
+    cancel = reject.bind(null, { canceled: true });
+  });
+
+  const cancelablePromise = Object.assign(Promise.race([ promise, cancelPromise ]), { cancel });
+
+  return { promise: cancelablePromise, cancel };
+}
+
+/** @param { Card } card
+* @param { Card } button
 * @param { string } name
 * @param { string } url
 * @returns { Promise<void> }
 */
-function downloadExtension(button, text, name, url)
+function downloadExtension(card, button, name, url)
 {
   return new Promise((resolve, reject) =>
   {
     const filename = basename(url);
     const dirname = name;
   
-    const tmpDir = join(tmpdir(), '/sulaiman/' + Date.now());
+    const tmpDir = join(tmpdir(), 'sulaiman', dirname);
+
+    if (existsSync(tmpDir))
+      removeSync(tmpDir);
   
-    const tmpCompressed = join(tmpdir(), filename);
-    const tmpDecompressed = join(tmpDir, dirname);
+    const tmpCompressedDir = join(tmpdir(), filename);
   
     const output = join(__dirname, '../extensions/' + dirname);
 
-    wget(url,
-      {
-        onProgress: (progress) =>
-        {
-          const percentage = (progress.percentage * 100).toFixed(0);
+    button.setType({ type: 'Normal' });
 
-          button.setProgressBar(percentage);
+    dl(mainWindow, url,
+      {
+        directory: tmpdir(),
+        filename: filename,
+        showBadge: false,
+        onProgress: (percentage) =>
+        {
+          percentage = Math.floor(percentage * 100);
+
+          button.auto({ title: 'Downloading ' + percentage + '%' });
           
-          text.innerText = 'Downloading ' + percentage + '%';
-        },
-        output: tmpCompressed
+          card.setType({ type: 'ProgressBar', percentage: percentage });
+        }
       })
       .then(() =>
       {
-        const extract = inly(tmpCompressed, tmpDecompressed);
+        const extract = inly(tmpCompressedDir, tmpDir);
   
         extract.on('progress', (percentage) =>
         {
-          button.setProgressBar(percentage);
+          button.auto({ title: 'Decompressing ' + percentage + '%' });
           
-          text.innerText = 'Decompressing ' + percentage + '%';
+          card.setType({ type: 'ProgressBar', percentage: percentage });
         });
   
         extract.on('error', (err) =>
@@ -342,41 +505,38 @@ function downloadExtension(button, text, name, url)
   
         extract.on('end', () =>
         {
-          button.setProgressBar(0);
+          card.setType({ type: 'Normal' });
 
-          move(tmpDecompressed + '/package', output, { overwrite: true }).then(() =>
-          {
-            resolve();
-          });
+          move(tmpDir + '/package', output, { overwrite: true }).then(resolve);
         });
       })
       .catch((err) =>
       {
-        reject(err);
+        reject(err.cause || err);
       });
   });
 }
 
-/** @param { HTMLElement } text
+/** @param { Card } button
 * @param { string } name
 * @returns { Promise<void> }
 */
-function installExtensionDependencies(text, name)
+function installExtensionDependencies(button, name)
 {
   return new Promise((resolve, reject) =>
   {
-    text.innerText = 'Installing Dependencies';
+    button.auto({ title: 'Installing Dependencies' });
 
     const dir = join(__dirname, '../extensions/' + name);
 
     const orgPrefix = npm.prefix;
   
     npm.prefix = dir;
-  
-    readFile(dir + '/package.json')
+
+    readFile(join(dir, '/package.json'))
       .then((file) =>
       {
-        const data = JSON.parse(file);
+        const data = JSON.parse(file.toString());
   
         const dependencies = [];
   
@@ -407,14 +567,13 @@ function installExtensionDependencies(text, name)
 }
 
 /** @param { Card } button
-* @param { HTMLElement } text
 */
-function success(button, text)
+function success(button)
 {
-  button.setType({ type: 'Normal' });
-  button.events.onclick = () => reload();
+  button.auto({ title: 'Reload' });
+  button.setType({ type: 'Button' });
   
-  text.innerText = 'Reload';
+  button.domElement.onclick = () => reload();
 }
 
 /** @param { Card } card
@@ -425,17 +584,15 @@ function failedToInstall(card, name, err)
 {
   deleteDir(name).then(() =>
   {
-    card.auto({ title: name, description: 'Failed to Install' + ((err) ? '\n' + err : '') });
+    card.reset();
+    card.auto({ title: name, description: err });
 
-    const button = createCard();
+    const button = createCard({ title: 'Try Again' });
+    button.setType({ type: 'Button' });
   
-    card.appendLineBreak();
-
     card.appendChild(button);
     
-    button.appendText('Try Again', { align: 'Center', style: 'Bold' });
-    
-    button.events.onclick = () =>
+    button.domElement.onclick = () =>
     {
       extensionInstallCard(card, name);
     };

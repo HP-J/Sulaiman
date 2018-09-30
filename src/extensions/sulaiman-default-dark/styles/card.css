@@ -92,6 +92,11 @@
   height: auto;
 }
 
+.card:not(.cardFastForward) > .cardIcon
+{
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
 .cardRight
 {
   justify-content: flex-end;
@@ -150,6 +155,6 @@ excluding line breaks and the last element of a card */
 
 .card > *:not(.cardLineBreak)
 {
-  margin-top: 2px;
+  margin-top: 3px;
   margin-bottom: 2px;
 }

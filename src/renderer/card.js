@@ -1,4 +1,4 @@
-import { isDOMReady, getCaller } from './loader.js';
+import { getCaller } from './loader.js';
 
 import { readyState } from './renderer.js';
 
@@ -30,6 +30,14 @@ export function createCard(options)
   return card;
 }
 
+/**
+* @param { AutoCardOptions } options
+*/
+export function internalCreateCard(options)
+{
+  return new Card(options);
+}
+
 /** A class containing functions and variables to append
 * html elements to the body and control them
 */
@@ -42,7 +50,7 @@ export default class Card
   {
     const { file, functionName } = getCaller(3);
 
-    if (file !== __filename || functionName !== createCard.name)
+    if (file !== __filename && (functionName === createCard.name || functionName === internalCreateCard.name))
       throw new TypeError('Illegal Constructor');
 
     /** the card's main html element
@@ -216,6 +224,11 @@ export default class Card
     }
   }
 
+  get isCollapsed()
+  {
+    return this.domElement.classList.contains('cardCollapsed');
+  }
+
   collapse()
   {
     /** @param { Card } card
@@ -223,25 +236,42 @@ export default class Card
     function collapse(card)
     {
       // get the first line break element in the card
-      let element = card.domElement.querySelector('.cardLineBreak');
+      const lineBreakElement = card.domElement.querySelector('.cardLineBreak');
 
-      // if there is no line breaks in the card
-      // we can't collapse it
-      if (!element)
+      const lineBreakNextElement = lineBreakElement.nextElementSibling;
+      const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
+      
+      if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
         return;
+      
+      const lineBreakRect = lineBreakElement.getBoundingClientRect();
 
-      // get the rect of the card and the line break
-      const lineBreakRect = element.getBoundingClientRect();
-      const cardRect = card.domElement.getBoundingClientRect();
+      const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
+      const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
 
-      // get where the collapse should stop at
-      card.domElement.style.setProperty(
-        '--cardX',
-        lineBreakRect.left - cardRect.left + 'px');
+      const nextElementRect = lineBreakNextElement.getBoundingClientRect();
+      const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
+
+      const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
+      card.domElement.removeChild(card.domElement.lastChild);
+      
+      const topMargin = (nextElementRect.top - lineBreakRect.bottom);
+      const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
+      
+      // const cardRect = card.domElement.getBoundingClientRect();
+      // const topPadding = firstElementRect.top - cardRect.top;
+      // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
+
+      const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
+      const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
 
       card.domElement.style.setProperty(
         '--cardY',
-        lineBreakRect.top - cardRect.top + 'px');
+        top + 'px');
+
+      card.domElement.style.setProperty(
+        '--cardHeight',
+        height + 'px');
 
       // if the card has the expanded class, remove it
       if (card.domElement.classList.contains('cardExpanded'))
@@ -251,7 +281,7 @@ export default class Card
       card.domElement.classList.add('cardCollapsed');
 
       // loop to all the children after the line break
-      element = element.nextElementSibling;
+      let element = lineBreakNextElement;
 
       // loop until there is no more childs
       while (element)
@@ -271,7 +301,7 @@ export default class Card
     if (this.isFastForward)
       collapse(this);
     else
-      isDOMReady(() => collapse(this));
+      requestAnimationFrame(() => collapse(this));
   }
 
   expand()
@@ -281,25 +311,43 @@ export default class Card
     function expand(card)
     {
       // get the first line break element in the card
-      let element = card.domElement.querySelector('.cardLineBreak');
+      const lineBreakElement = card.domElement.querySelector('.cardLineBreak');
 
-      // if there is no line breaks in the card
-      // we can't expand it
-      if (!element)
+      const lineBreakNextElement = lineBreakElement.nextElementSibling;
+      const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
+   
+      if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
         return;
+   
+      const lineBreakRect = lineBreakElement.getBoundingClientRect();
 
-      // get the rect of the card
-      const cardRect = card.domElement.getBoundingClientRect();
+      const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
+      const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
 
-      // get where the expand should start from
-      card.domElement.style.setProperty(
-        '--cardX',
-        cardRect.width + 'px');
+      const nextElementRect = lineBreakNextElement.getBoundingClientRect();
+      const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
+
+      const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
+      card.domElement.removeChild(card.domElement.lastChild);
+   
+      const topMargin = (nextElementRect.top - lineBreakRect.bottom);
+      const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
+   
+      // const cardRect = card.domElement.getBoundingClientRect();
+      // const topPadding = firstElementRect.top - cardRect.top;
+      // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
+
+      const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
+      const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
 
       card.domElement.style.setProperty(
         '--cardY',
-        cardRect.height + 'px');
-  
+        top + 'px');
+
+      card.domElement.style.setProperty(
+        '--cardHeight',
+        height + 'px');
+
       // if the card has the collapsed class, remove it
       if (card.domElement.classList.contains('cardCollapsed'))
         card.domElement.classList.remove('cardCollapsed');
@@ -308,7 +356,7 @@ export default class Card
       card.domElement.classList.add('cardExpanded');
 
       // loop to all the children after the line break
-      element = element.nextElementSibling;
+      let element = lineBreakElement.nextElementSibling;
 
       while (element)
       {
@@ -327,7 +375,7 @@ export default class Card
     if (this.isFastForward)
       expand(this);
     else
-      isDOMReady(() => expand(this));
+      requestAnimationFrame(() => expand(this));
   }
 
   /** adds a new line break to the card
@@ -393,39 +441,51 @@ export default class Card
       else
       {
         titleElem = this.appendText(options.title);
+
         titleElem.classList.add('cardAuto');
       }
-
-      if (titleElem)
-        this.domElement.insertBefore(titleElem, lineBreakElem);
     }
 
     if (options.extensionIcon !== undefined)
     {
-      options.extensionIcon.classList.add('cardAuto', 'cardIcon', 'cardExtensionIcon');
+      if (options.extensionIcon === false && extensionIconElem)
+      {
+        this.domElement.removeChild(extensionIconElem);
 
-      if (extensionIconElem)
-        this.domElement.replaceChild(options.extensionIcon, extensionIconElem);
+        extensionIconElem = undefined;
+      }
       else
+      {
+        options.extensionIcon.classList.add('cardAuto', 'cardIcon', 'cardExtensionIcon');
+
         this.appendChild(options.extensionIcon);
 
-      extensionIconElem = options.extensionIcon;
+        if (extensionIconElem)
+          this.domElement.replaceChild(options.extensionIcon, extensionIconElem);
 
-      this.domElement.insertBefore(extensionIconElem, lineBreakElem);
+        extensionIconElem = options.extensionIcon;
+      }
     }
    
     if (options.actionIcon !== undefined)
     {
-      options.actionIcon.classList.add('cardAuto', 'cardIcon', 'cardActionIcon');
+      if (options.actionIcon === false && actionIconElem)
+      {
+        this.domElement.removeChild(actionIconElem);
 
-      if (actionIconElem)
-        this.domElement.replaceChild(options.actionIcon, actionIconElem);
+        actionIconElem = undefined;
+      }
       else
-        this.appendChild(options.actionIcon);
-      
-      actionIconElem = options.actionIcon;
+      {
+        options.actionIcon.classList.add('cardAuto', 'cardIcon', 'cardActionIcon');
 
-      this.domElement.insertBefore(actionIconElem, lineBreakElem);
+        this.appendChild(options.actionIcon);
+
+        if (actionIconElem)
+          this.domElement.replaceChild(options.actionIcon, actionIconElem);
+        
+        actionIconElem = options.actionIcon;
+      }
     }
 
     if (typeof options.description === 'string')
@@ -443,11 +503,26 @@ export default class Card
       else
       {
         descriptionElem = this.appendText(options.description, { type: 'Description' });
+
         descriptionElem.classList.add('cardAuto');
       }
-
-      if (descriptionElem)
-        this.domElement.insertBefore(descriptionElem, lineBreakElem);
     }
+
+    if (lineBreakElem && !titleElem && !descriptionElem &&! actionIconElem && !extensionIconElem)
+      this.domElement.removeChild(lineBreakElem);
+    else
+      this.domElement.insertBefore(lineBreakElem, this.domElement.firstElementChild);
+
+    if (descriptionElem)
+      this.domElement.insertBefore(descriptionElem, this.domElement.firstElementChild);
+
+    if (actionIconElem)
+      this.domElement.insertBefore(actionIconElem, this.domElement.firstElementChild);
+
+    if (extensionIconElem)
+      this.domElement.insertBefore(extensionIconElem, this.domElement.firstElementChild);
+
+    if (titleElem)
+      this.domElement.insertBefore(titleElem, this.domElement.firstElementChild);
   }
 }

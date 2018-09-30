@@ -12,8 +12,8 @@ html
 body
 {
   background-color: var(--color-background);
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow-x: hidden;
   overflow-y: scroll;
 }
@@ -21,10 +21,10 @@ body
 ::-webkit-scrollbar
 {
   background: transparent;
-  width: 8px;
+  width: 1.5vw;
 }
 
 ::-webkit-scrollbar-thumb
 {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.25);
 }

@@ -2,30 +2,27 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { appendSearchBar, registerPhrase } from './search.js';
+import { appendSearchBar, internalRegisterPhrase as registerPhrase } from './search.js';
 import { loadExtensions, emit } from './loader.js';
-import { autoHide, loadOptions, registerOptionsPhrases } from './options.js';
+import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 
-import { loadNPM } from './manager.js';
+import { loadNPM, registerExtensionsPhrase } from './manager.js';
 
 const { mainWindow, quit, reload, relaunch } = remote.require(join(__dirname, '../main/window.js'));
 
-export let readyState = true;
+export let readyState = false;
 
 const splash = document.body.children[0];
 
-/** executes the callback when the DOM has completed any running operations
+/** emit once, when the DOM has completed any running operations
 * @param { () => void } callback
 */
-export function isDOMReady(callback)
+function isDOMReady(callback)
 {
-  if (document.readyState === 'complete')
-    callback();
+  if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', callback, { once: true });
   else
-    window.setTimeout(() =>
-    {
-      isDOMReady(callback);
-    }, 100);
+    callback();
 }
 
 /** register to several events the app uses
@@ -50,13 +47,14 @@ function registerEvents()
 
 function registerBuiltinPhrases()
 {
-  const quitPhrase = registerPhrase('Quit', undefined, () => false, () => quit());
-  const reloadPhrase = registerPhrase('Reload', undefined, () => false, () => reload());
-  const relaunchPhrase = registerPhrase('Relaunch', undefined, () => false, () => relaunch());
+  const quitPhrase = registerPhrase('Quit', undefined, undefined, () => quit());
+  const reloadPhrase = registerPhrase('Reload', undefined, undefined, () => reload());
+  const relaunchPhrase = registerPhrase('Relaunch', undefined, undefined, () => relaunch());
 
-  const optionsPhrase = registerOptionsPhrases();
+  const optionsPhrase = registerOptionsPhrase();
+  const extensionsPhrase = registerExtensionsPhrase();
 
-  return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase ]);
+  return Promise.all([ quitPhrase, reloadPhrase, relaunchPhrase, optionsPhrase, extensionsPhrase ]);
 }
 
 /** gets called when the application gets focus
@@ -76,31 +74,6 @@ function onblur()
   emit.blur();
 }
 
-function ready()
-{
-  // mark the app as not-ready to load all extensions
-  readyState = false;
-
-  // load all extensions
-  loadExtensions();
-
-  // finally, mark the app as ready and
-  // emit the ready event
-  readyState = true;
-
-  emit.ready();
-
-  // remove the splash screen when the dom is ready
-  isDOMReady(() =>
-  {
-    if (splash)
-      document.body.removeChild(splash);
-
-    // reset focus
-    onfocus();
-  });
-}
-
 // create and append the search bar
 appendSearchBar();
 
@@ -113,5 +86,26 @@ loadNPM();
 // load options
 loadOptions();
 
-// register sulaiman-related phrases
-registerBuiltinPhrases().then(ready);
+// load all extensions
+loadExtensions();
+
+// register all builtin phrases
+registerBuiltinPhrases()
+  .then(() =>
+  {
+    // finally, mark the app as ready and
+    // emit the ready event
+    readyState = true;
+
+    emit.ready();
+
+    // remove the splash screen when the dom is ready
+    isDOMReady(() =>
+    {
+      if (splash)
+        document.body.removeChild(splash);
+
+      // reset focus
+      onfocus();
+    });
+  });

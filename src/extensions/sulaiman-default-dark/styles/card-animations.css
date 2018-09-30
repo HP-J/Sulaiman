@@ -1,111 +1,54 @@
 .cardCollapsed:not(.cardFastForward)
 {
-  animation: cardCollapsed 1s ease;
-}
-
-@keyframes cardCollapsed
-{
-  20%
-  {
-    border-bottom-left-radius: 15%;
-    border-bottom-right-radius: 15%;
-  }
-
-  50%
-  {
-    max-height: var(--cardY);
-  }
-
-  100%
-  {
-    max-height: var(--cardY);
-
-    border-bottom-left-radius: 0%;
-    border-bottom-right-radius: 0%;
-  }
-}
-
-:not(.cardFastForward) > .cardChildCollapsed
-{
-  animation: cardChildCollapsed 1s ease;
-  animation-fill-mode: forwards;
-}
-
-.cardFastForward > .cardChildCollapsed 
-{
-  display: none;
-}
-
-@keyframes cardChildCollapsed
-{
-  49%
-  {
-    opacity: 1;
-    position: relative;
-  }
-
-  50%
-  {
-    opacity: 0;
-    position: absolute;
-  }
-
-  100%
-  {
-    opacity: 0;
-    position: absolute;
-  }
+  animation: cardCollapsed 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 .cardExpanded:not(.cardFastForward)
 {
-  animation: cardExpanded 1s ease;
+  animation: cardExpanded 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes cardCollapsed
+{
+  from
+  {
+    height: var(--cardHeight);
+  }
+
+  to
+  {
+    height: var(--cardY);
+  }
 }
 
 @keyframes cardExpanded
 {
-  0%
+  from
   {
-    max-height: var(--cardY);
+    height: var(--cardY);
   }
 
-  20%
+  to
   {
-    border-bottom-left-radius: 15%;
-    border-bottom-right-radius: 15%;
-    max-height: var(--cardY);
-  }
-
-  100%
-  {
-    border-bottom-left-radius: 0%;
-    border-bottom-right-radius: 0%;
-    max-height: 125vh;
+    height: var(--cardHeight);
   }
 }
 
-:not(.cardFastForward) > .cardChildExpanded
+.cardCollapsed:not(.cardFastForward) > .cardChildCollapsed
 {
-  animation: cardChildExpanded 1s ease;
+  transition: opacity 0.5s ease;
+  opacity: 0;
 }
 
-@keyframes cardChildExpanded
+.cardExpanded:not(.cardFastForward) > .cardChildExpanded
 {
-  0%
-  {
-    opacity: 0;
-    position: absolute;
-  }
+  transition: opacity 0.5s ease;
+  opacity: 1;
+}
 
-  19%
-  {
-    opacity: 0;
-    position: absolute;
-  }
+/* just hide elements if fast forward mode is turned on */
 
-  20%
-  {
-    opacity: 1;
-    position: relative;
-  }
+.cardFastForward > .cardChildCollapsed 
+{
+  display: none;
 }
