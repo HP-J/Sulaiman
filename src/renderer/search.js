@@ -343,10 +343,16 @@ function search(input)
 */
 function activatePhrase(phraseObj, matchedPhrase,  matchedArgument, extra)
 {
-  if (!phraseObj.activate)
+  if
+  (
+    !phraseObj.activate ||
+    !phraseObj.activate({
+      card: phraseObj.card,
+      phraseArguments: phraseObj.phraseArgument
+    }, matchedPhrase, matchedArgument, extra))
+  {
     return;
-
-  phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, matchedPhrase, matchedArgument, extra);
+  }
 
   if (!document.body.contains(phraseObj.card.domElement))
     document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
