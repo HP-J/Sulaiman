@@ -102,9 +102,9 @@ export const on =
   */
   ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
   /** register a phrase, then returns a card controlled only by the search system
-  * @param { string | RegExp } phrase
+  * @param { string | RegExp } phrase a phrase or a regex that the user have to enter to activate this phrase functionality
   * @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
-  * @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate] emits when the phrase and/or an argument is matched,
+  * @param { (phrase: { card: Card, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => void } [activate] emits when the phrase and/or an argument is matched,
   * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
   * @param { () => boolean } [enter] emits when the user presses the `Enter` key while the search bar is on focus
   * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
@@ -203,12 +203,12 @@ function createVM(data, extensionPath)
         themeExtension + ' & ' + data.name);
   }
 
-  const { sandbox, enforcedMocks } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
+  const { sandbox, enforcedMockups } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
 
   // separate node builtin modules from the external modules
-  const { builtin, externalMocks } = handelModules(data.sulaiman.modules, extensionPath);
+  const { builtin, externalMockups } = handelModules(data.sulaiman.modules, extensionPath);
 
-  const mocks = { ...enforcedMocks, ...externalMocks };
+  const mockups = { ...enforcedMockups, ...externalMockups };
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -222,8 +222,10 @@ function createVM(data, extensionPath)
       // limit externals to this path, so extensions can't require scripts/modules outside of their root directory
       root: extensionPath,
       // allow access to the running sulaiman apis and external modules
-      mock: mocks,
-      // host allows any required module to require more modules inside it with no limits
+      mock: mockups,
+      // sandbox mean all modules and local files are applied to the rules of the vm,
+      // however modules that are accepted by the user on installing an extension, get required
+      // from outside of the vm and are imported to the vm as mock ups
       context: 'sandbox'
     }
   });
@@ -248,7 +250,7 @@ function handelMockups(requiredPermissions, theme)
   };
 
   // override specific apis from any module or the entire module
-  const enforcedMocks =
+  const enforcedMockups =
   {
     sulaiman: { ...require('./api.js') }
   };
@@ -286,12 +288,12 @@ function handelMockups(requiredPermissions, theme)
       if (sandbox[key])
         sandbox[key] = undefined;
       
-      else if (enforcedMocks.sulaiman[key])
-        enforcedMocks.sulaiman[key] = undefined;
+      else if (enforcedMockups.sulaiman[key])
+        enforcedMockups.sulaiman[key] = undefined;
     }
   }
 
-  return { sandbox, enforcedMocks };
+  return { sandbox, enforcedMockups };
 }
 
 /** separate node builtin modules from the external modules
@@ -302,7 +304,7 @@ function handelMockups(requiredPermissions, theme)
 function handelModules(requiredModules, extensionPath)
 {
   const builtin = [];
-  const externalMocks = {};
+  const externalMockups = {};
 
   // modules that are allowed by default for being used
   // regularly in node apps and harmless to the user
@@ -318,11 +320,11 @@ function handelModules(requiredModules, extensionPath)
       if (isBuiltin)
         builtin.push(requiredModules[i]);
       else
-        externalMocks[requiredModules[i]] = require(join(extensionPath, 'node_modules', requiredModules[i]));
+        externalMockups[requiredModules[i]] = require(join(extensionPath, 'node_modules', requiredModules[i]));
     }
   }
 
-  return { builtin, externalMocks };
+  return { builtin, externalMockups };
 }
 
 /** checks if a module is a node builtin module or an external

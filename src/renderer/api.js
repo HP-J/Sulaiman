@@ -172,7 +172,7 @@ export function appendCard(card)
   if (card.isPhrased)
     throw new Error('the card is controlled by the phrase search system');
   else
-    document.body.appendChild(card.domElement);
+    document.body.insertBefore(card.domElement, document.body.children[3]);
 }
 
 /** remove the card from the body

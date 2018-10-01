@@ -54,7 +54,7 @@ export function registerOptionsPhrase()
 {
   return new Promise((resolve) =>
   {
-    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], (phrase, argument) =>
+    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], (phrase, match, argument) =>
     {
       const card = phrase.card;
 
@@ -173,7 +173,7 @@ export function registerOptionsPhrase()
       }
     });
 
-    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], (phrase, argument) =>
+    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], (phrase, match, argument) =>
     {
       const card = phrase.card;
 

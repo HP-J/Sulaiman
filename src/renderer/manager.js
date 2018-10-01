@@ -56,7 +56,7 @@ export function registerExtensionsPhrase()
 
   return new Promise((resolve) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], (phrase, argument, extra) =>
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], (phrase, match, argument, extra) =>
     {
       const card = phrase.card;
 
@@ -196,12 +196,10 @@ function extensionInstallCard(card, name)
   cancelPromise.promise
     .then((data) =>
     {
-      data.sulaiman = {};
+      const validated = validateExtension(data);
 
-      // const validated = validateExtension(data);
-
-      // if (validated)
-      //   throw validated;
+      if (validated)
+        throw validated;
 
       const button = extensionCard(card, data);
     

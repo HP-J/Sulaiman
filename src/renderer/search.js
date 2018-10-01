@@ -1,6 +1,7 @@
 import { remote } from 'electron';
 
 import { join } from 'path';
+import { isArray } from 'util';
 
 import { on } from './loader.js';
 import { makeItCollapsible, toggleCollapse } from './renderer.js';
@@ -11,10 +12,10 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 /** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (argument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (phrase: { card: Card, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
 */
 
-/** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, extra: string } } CompareObject
+/** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, matchedPhrase: string, extra: string } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -302,7 +303,7 @@ function search(input)
       // if there is a match in the phrase
       if (matchedCompare)
         // activate it
-        activatePhrase(phraseObj, matchedCompare.extra, matchedArgument);
+        activatePhrase(phraseObj, matchedCompare.matchedPhrase, matchedArgument, matchedCompare.extra);
       else if (phraseObj.active)
         // if not and the phrase is still active from previous compare
         // deactivate it
@@ -336,18 +337,19 @@ function search(input)
 }
 
 /** @param { PhraseObj } phraseObj
-* @param { string } extra
-* @param { string } argument
+ * @param { string } matchedPhrase
+ * @param { string } matchedArgument
+ * @param { string } extra
 */
-function activatePhrase(phraseObj, extra, argument)
+function activatePhrase(phraseObj, matchedPhrase,  matchedArgument, extra)
 {
   if (!phraseObj.activate)
     return;
 
-  phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, argument, extra);
+  phraseObj.activate({ card: phraseObj.card, phraseArguments: phraseObj.phraseArguments }, matchedPhrase, matchedArgument, extra);
 
   if (!document.body.contains(phraseObj.card.domElement))
-    document.body.appendChild(phraseObj.card.domElement);
+    document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
 
   phraseObj.active = true;
 }
@@ -503,6 +505,7 @@ function compare(input, phrase, argument)
     {
       return this.percentage === 1;
     },
+    matchedPhrase: phraseTextWritten,
     extra: (inputSplit.length > 0) ? inputSplit.join(' ').trim() : ''
   };
 }
@@ -627,7 +630,7 @@ export function registerPhrase(card, phrase, args, activate, enter)
             active: false
           };
 
-          if (args)
+          if (args && isArray(args))
             phraseObj.phraseArguments.push(...args);
 
           // register the phrase
