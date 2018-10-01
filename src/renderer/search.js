@@ -337,19 +337,19 @@ function search(input)
 }
 
 /** @param { PhraseObj } phraseObj
- * @param { string } matchedPhrase
- * @param { string } matchedArgument
- * @param { string } extra
+* @param { string } matchedPhrase
+* @param { string } matchedArgument
+* @param { string } extra
 */
 function activatePhrase(phraseObj, matchedPhrase,  matchedArgument, extra)
 {
   if
   (
     !phraseObj.activate ||
-    !phraseObj.activate({
+    (phraseObj.activate({
       card: phraseObj.card,
       phraseArguments: phraseObj.phraseArgument
-    }, matchedPhrase, matchedArgument, extra))
+    }, matchedPhrase, matchedArgument, extra)) === false ? true : false)
   {
     return;
   }
