@@ -56,7 +56,7 @@ const appendedStyles = {};
 
 /** add an icon to store
 * @param { string } path a full path to the icon
-* @param { string } iconName give the icon a name that will be used later to pull it from store
+* @param { string } iconName give the icon a name that will be used later to get it from store
 */
 export function storeIcon(path, iconName)
 {
@@ -72,8 +72,8 @@ export function storeIcon(path, iconName)
   storedIcons[iconName] = icon;
 }
 
-/** pull a copy of an icon from store
-* @param { "arrow" | "browser" | "clipboard" | "files" | "image" | "internet" | "more" | "open" | "quit" | "text" | "unknown" | "video" } iconName the icon name
+/** returns a clone of an icon from store
+* @param { "arrow" | "browser" | "clipboard" | "files" | "image" | "internet" | "more" | "open" | "question" | "settings" | "share" | "video" } iconName the icon name
 * @returns { HTMLElement } the icon wrapped in a html element
 */
 export function getIcon(iconName)

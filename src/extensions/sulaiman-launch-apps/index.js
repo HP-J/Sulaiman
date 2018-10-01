@@ -165,14 +165,14 @@ function registerPhrases()
 
     sulaiman.on.phrase(
       'Launch',
-      undefined,
+      phraseArgs,
       // on activation
       (phrase, argument) =>
       {
         // set app name
         name = argument;
 
-        phrase.card.auto({ title: name, description: 'launch the application' });
+        phrase.card.auto({ title: name,  });
 
         button.domElement.onclick = () =>
         {
@@ -198,7 +198,7 @@ function registerPhrases()
       // after phrase is created
       .then((phrase) =>
       {
-        phrase.phraseArguments.push(...phraseArgs);
+        phrase.card.auto({ description: 'launch the application' });
       });
   });
 }
