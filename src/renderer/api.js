@@ -73,7 +73,7 @@ export function storeIcon(path, iconName)
 }
 
 /** returns a clone of an icon from store
-* @param { "arrow" | "browser" | "clipboard" | "files" | "image" | "internet" | "more" | "open" | "question" | "settings" | "share" | "video" } iconName the icon name
+* @param { "arrow" | "more" | "question" | "settings" | "share" } iconName the icon name
 * @returns { HTMLElement } the icon wrapped in a html element
 */
 export function getIcon(iconName)
