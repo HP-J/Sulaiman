@@ -12,9 +12,13 @@
   "sulaiman": {
     "displayName": "Default Dark",
     "theme": true,
-    "credits": {
-      "all icons are made by smashicons from www.flaticon.com": "https://www.flaticon.com/authors/smashicons"
-    }
+    "credits": [
+      [
+        "Smashicons",
+        "all icons used in this theme are made by Smashicons from www.flaticon.com",
+        "https://www.flaticon.com/authors/smashicons"
+      ]
+    ]
   },
   "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT"

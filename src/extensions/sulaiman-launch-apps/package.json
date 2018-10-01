@@ -25,9 +25,13 @@
       "linux",
       "win32"
     ],
-    "credits": {
-      "KELiON\nfor his already established work on figuring this out": "https://www.github.com/KELiON/cerebro-basic-apps"
-    }
+    "credits": [
+      [
+        "KELiON",
+        "for his already established work on figuring this out",
+        "https://www.github.com/KELiON/cerebro-basic-apps"
+      ]
+    ]
   },
   "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT"

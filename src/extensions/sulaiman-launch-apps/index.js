@@ -4,7 +4,7 @@ import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
 
 import { join, basename } from 'path';
 import { homedir, platform as getPlatform } from 'os';
-import { spawn } from 'child_process';
+import { exec } from 'child_process';
 
 const phraseArgs = [];
 
@@ -149,7 +149,7 @@ function launch(execPath)
     // Linux
     // Replace %u and other % arguments in exec script
     // https://github.com/KELiON/cerebro/pull/62#issuecomment-276511320
-    spawn(execPath.replace(/%./g, ''), [], { detached: true });
+    exec(execPath.replace(/%./g, ''));
   }
 }
 
@@ -167,7 +167,7 @@ function registerPhrases()
       'Launch',
       phraseArgs,
       // on activation
-      (phrase, argument) =>
+      (phrase, match, argument) =>
       {
         // set app name
         name = argument;
