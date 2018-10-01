@@ -12,7 +12,7 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 /** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: (phrase: { card: Card, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean, enter: () => boolean, active: boolean } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: () => any, enter: () => any, active: boolean } } PhraseObj
 */
 
 /** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, matchedPhrase: string, extra: string } } CompareObject
@@ -99,20 +99,13 @@ function focus()
   inputElement.focus();
 }
 
-/** clear the search bar
-*/
-function clear()
-{
-  setInput('');
-}
-
 /** gets called every time sulaiman loses focus
 */
 function blur()
 {
   // clear the search bar on sulaiman blur
   if (!isDebug())
-    clear();
+    setInput('');
 }
 
 /** gets called when the user changes the input value
@@ -175,8 +168,6 @@ function onkeydown(event)
   }
   else if (event.code === 'Enter')
   {
-    inputElement.blur();
-
     const phrase = suggestionsElement.children[selectIndex].phrase;
 
     const isString = (typeof phrase === 'string');
@@ -184,13 +175,24 @@ function onkeydown(event)
     const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
     const phraseObj = registeredPhrases[phraseKey];
 
-    let isClear;
+    /** @type { { clearSearchBar: boolean, blurSearchBar: boolean, selectSearchBarText: boolean } }
+    */
+    let options;
 
     if (phraseObj.enter)
-      isClear = phraseObj.enter();
+      options = phraseObj.enter();
 
-    if (isClear)
-      clear();
+    if (!options)
+      options = { blurSearchBar: true };
+
+    if (options.clearSearchBar)
+      setInput('');
+
+    if (options.blurSearchBar)
+      inputElement.blur();
+
+    if (options.selectSearchBarText)
+      inputElement.select();
   }
 }
 
@@ -303,7 +305,7 @@ function search(input)
       // if there is a match in the phrase
       if (matchedCompare)
         // activate it
-        activatePhrase(phraseObj, matchedCompare.matchedPhrase, matchedArgument, matchedCompare.extra);
+        activatePhrase(phraseObj, matchedCompare.element, matchedCompare.matchedPhrase, matchedArgument, matchedCompare.extra);
       else if (phraseObj.active)
         // if not and the phrase is still active from previous compare
         // deactivate it
@@ -337,18 +339,20 @@ function search(input)
 }
 
 /** @param { PhraseObj } phraseObj
+* @param { HTMLElement } suggestionElement
 * @param { string } matchedPhrase
 * @param { string } matchedArgument
 * @param { string } extra
 */
-function activatePhrase(phraseObj, matchedPhrase,  matchedArgument, extra)
+function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArgument, extra)
 {
   if
   (
     !phraseObj.activate ||
     (phraseObj.activate({
       card: phraseObj.card,
-      phraseArguments: phraseObj.phraseArgument
+      suggestion: suggestionElement,
+      phraseArguments: phraseObj.phraseArguments
     }, matchedPhrase, matchedArgument, extra)) === false ? true : false)
   {
     return;
@@ -575,7 +579,7 @@ function updateSuggestionsCount(count)
 
 /** @param { string | RegExp } phrase
 * @param { string[] } [args]
-* @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate]
+* @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, argument: string, extra: string) => void } [activate]
 * @param { () => boolean } [enter]
 * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
 */
@@ -587,7 +591,7 @@ export function internalRegisterPhrase(phrase, args, activate, enter)
 /** @param { Card } card
 * @param { string | RegExp } phrase
 * @param { string[] } [args]
-* @param { (phrase: PhraseObj, argument: string, extra: string) => void } [activate]
+* @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, argument: string, extra: string) => void } [activate]
 * @param { () => boolean } [enter]
 * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
 */

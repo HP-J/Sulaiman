@@ -206,4 +206,4 @@ export let createElementNS = document.createElementNS;
 createElementNS = createElement.bind(document);
 
 export let createTextNode = document.createTextNode;
-createTextNode = createElement.bind(document);
+createTextNode = createTextNode.bind(document);

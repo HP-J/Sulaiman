@@ -105,14 +105,15 @@ export const on =
   * @param { string | RegExp } phrase a phrase or a regex that the user have to enter to activate this phrase functionality
   * @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
 
-  * @param { (phrase: { card: Card, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
+  * @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
   * emits when the phrase (and an argument) is matched,
   * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
 
-  * @param { () => boolean } [enter]
+  * @param { () => { blurSearchBar: boolean, clearSearchBar: boolean, selectSearchBarText: boolean } } [enter]
   * emits when the user presses the `Enter` key while the search bar is on focus
   * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
   * which will deactivate the phrase, or equals false to leave the phrase active, default is false
+  
   * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
   */
   phrase: (phrase, args, activate, enter) => registerPhrase(createCard(), phrase, args, activate, enter),

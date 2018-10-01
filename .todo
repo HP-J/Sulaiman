@@ -1,5 +1,6 @@
 graphics:
   ☐ conflicting themes card instead of an error @next-build 
+  ☐ showing credits @next-build
   ☐ show popular extensions from npm registry (gallery) @next-build @high 
   ☐ show most recent phrases when input is empty, or most used @next-build
 
