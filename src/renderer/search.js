@@ -415,14 +415,6 @@ function compare(input, phrase, argument)
   // phrase type
   const isString = (typeof phrase === 'string');
 
-  /** split the input to words
-  * @type { string[] }
-  */
-  const inputSplit = input.split(' ');
-
-  // the first word in input, used for the phrase's regex search
-  const inputFirstWord = inputSplit[0];
-
   // split argument to words
   const argumentSplit = (argument) ? standard(argument).split(' ') : [];
 
@@ -431,20 +423,25 @@ function compare(input, phrase, argument)
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
+  const match = input.match(regex);
+
+  if (match === null)
+    return undefined;
+
+  // split the input to words
+  const inputSplit = input.split(' ');
+
+  // remove all words that matched the phrase from input array,
+  // so the argument won't compare to any of them
+  inputSplit.splice(0, match[0].split(' ').length);
+
+  const phraseTextWritten = match[0];
+
   const wordCount = (1 + argumentSplit.length);
-
-  const match = regex.exec(inputFirstWord);
-
-  // if first input word match the phrase it self
-  // make sure not to compare it to the phrase arguments
-  if (match && match[0])
-    inputSplit.splice(0, 1);
-
-  const phraseTextWritten = (match) ? match[0] : '';
 
   /** @type { string }
   */
-  const phraseText = ((isString) ? phrase : inputFirstWord);
+  const phraseText = ((isString) ? phrase : match[0]);
 
   const phraseLettersWrittenCount = phraseTextWritten.length;
   const phraseLettersCount = phraseText.length;
@@ -492,10 +489,6 @@ function compare(input, phrase, argument)
       appendWrittenAndTextElement('', argument, true);
     }
   }
-
-  // if percentage is an absolute zero, don't show the item
-  if (phraseLettersWrittenCount + argumentLettersWrittenCount <= 0)
-    return undefined;
 
   return {
     element: element,
