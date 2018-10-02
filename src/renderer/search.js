@@ -164,7 +164,7 @@ function onkeydown(event)
   else if (event.code === 'ArrowRight')
   {
     if (suggestionsElement.children.length > selectIndex)
-      setInput(suggestionsElement.children[selectIndex].innerText);
+      setInput(suggestionsElement.children[selectIndex].value);
   }
   else if (event.code === 'Enter')
   {
@@ -346,10 +346,13 @@ function search(input)
 */
 function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArgument, extra)
 {
+  // cache element text as the auto-complete value before giving away the suggestion element, however it's still
+  // possible to modify it, using the suggestionElement.value
+  suggestionElement.value = suggestionElement.innerText;
+
   if
   (
-    !phraseObj.activate ||
-    (phraseObj.activate({
+    !phraseObj.activate || (phraseObj.activate({
       card: phraseObj.card,
       suggestion: suggestionElement,
       phraseArguments: phraseObj.phraseArguments
