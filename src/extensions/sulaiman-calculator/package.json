@@ -1,0 +1,23 @@
+{
+  "name": "sulaiman-calculator",
+  "version": "0.1.1",
+  "description": "just calculate numbers",
+  "main": "index.js",
+  "private": true,
+  "homepage": "https://gitlab.com/herpproject/sulaiman-calculator",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/herpproject/sulaiman-calculator.git"
+  },
+  "sulaiman": {
+    "displayName": "Calculator",
+    "modules": [
+      "expr-eval"
+    ]
+  },
+  "author": "Herp Project <herpproject0@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "expr-eval": "^1.2.2"
+  }
+}
