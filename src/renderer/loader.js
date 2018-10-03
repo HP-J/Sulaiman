@@ -6,9 +6,11 @@ import { join } from 'path';
 import { platform } from 'os';
 import { EventEmitter } from 'events';
 
-import { readyState } from './renderer.js';
+import { appendCard, removeCard } from './api.js';
+import { readyState, toggleCollapse } from './renderer.js';
+import { internalCreateCard as createCard } from './card.js';
 import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
-import { createCard } from './card.js';
+import { extensionDeleteCard } from './manager.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -17,7 +19,7 @@ import { createCard } from './card.js';
 * @property { string } name
 * @property { string } version
 * @property { string } description
-* @property { Sulaiman } sulaiman
+* @property { SulaimanData } sulaiman
 */
 
 /** @typedef { Object } SulaimanData
@@ -29,94 +31,70 @@ import { createCard } from './card.js';
 * @property { Object.<string, string> } credits
 */
 
+/** @typedef Theme
+* card functions that are handled by themes
+* @property { (element: HTMLElement) => boolean } isFastForward
+* @property { (element: HTMLElement) => void } toggleFastForward
+* @property { (element: HTMLElement) => boolean } isCollapsed
+* @property { (element: HTMLElement) => void } collapse
+* @property { (element: HTMLElement) => void } expand
+*/
+
 const sulaiman = new EventEmitter();
 
 const extensionsDirectory = join(__dirname, '../extensions/');
 
-/** the name of the extension that defined it self as a theme
-* @type { string }
+export let themeName = '';
+
+/** @type { Theme }
 */
-let themeExtension = undefined;
+export let theme = undefined;
 
 /** an array of all the extensions that loaded
 * @type { Object.<string, PackageData> } }
 */
 export const loadedExtensions = {};
 
-/** load and start all extensions
-*/
-export function loadExtensions()
-{
-  let extensionPath, scriptPath, packagePath;
-
-  const extensions = readdirSync(extensionsDirectory);
-
-  for (let i = 0; i < extensions.length; i++)
-  {
-    // main directory of the extension
-    extensionPath = extensionsDirectory + extensions[i];
-
-    // the required extension index script
-    scriptPath = join(extensionPath, 'index.js');
-
-    // the required package json
-    packagePath = join(extensionPath, 'package.json');
-
-    // if the package.json file doesn't exists
-    if (!existsSync(packagePath))
-      continue;
-
-    // if the index.js file doesn't exists continue the loop
-    if (!existsSync(scriptPath))
-      continue;
-
-    /**@type { PackageData }
-    */
-    const data = JSON.parse(readFileSync(packagePath));
-
-    if (!data.sulaiman)
-      continue;
-    
-    if (data.sulaiman.platform && !data.sulaiman.platform.includes(platform()))
-      continue;
-
-    // if there isn't a loaded extension with the same name
-    if (!loadedExtensions[data.name])
-    {
-      // create a vm for the extension
-      const vm = createVM(data, extensionPath);
-
-      // run the extension index script
-      vm.run(readFileSync(scriptPath).toString(), scriptPath);
-
-      // append the extension that just loaded to the loaded extensions array
-      loadedExtensions[data.name] = data;
-    }
-  }
-}
-
 export const on =
 {
-  /** emits when the app is fully loaded and ready to use
+  /** emits once when the app is fully loaded and ready to use
   * @param { () => void } callback the callback function
   */
   ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
+  /** emits once if (or when) the dom is ready and not (or after) loading
+  * @param { () => void } callback the callback function
+  */
+  domReady: (callback) =>
+  {
+    if (document.readyState === 'loading')
+      document.addEventListener('DOMContentLoaded', callback, { once: true });
+    else
+      callback();
+  },
   /** register a phrase, then returns a card controlled only by the search system
-  * @param { string | RegExp } phrase a phrase or a regex that the user have to enter to activate this phrase functionality
-  * @param { string[] } [args] an array of possible arguments like: the 'Tray' in 'Options Tray'
+  * @param { string | RegExp } phrase
+  *  phrase or a regex that the user have to enter to activate this phrase functionality
+  * @param { string[] } [defaultArgs]
+  * an array of possible arguments like: the 'Tray' in 'Options Tray',
+  * will be overridden by search callback if it returns a string array
+  
+  * @param { (s: string) => string[] } [search]
+  * emits every time a search occurs, should return a string array of arguments, overrides defaultArgs
+  * if you have a fixed set of arguments that won't need to be updated every search please use defaultArgs array instead
 
-  * @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
+  * @param { (phrase: { card: Card, suggestion: HTMLElement }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
   * emits when the phrase (and an argument) is matched,
   * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
 
   * @param { () => { blurSearchBar: boolean, clearSearchBar: boolean, selectSearchBarText: boolean } } [enter]
   * emits when the user presses the `Enter` key while the search bar is on focus
-  * and the phrase and/or an argument is matched, should return a boolean that equals true to clear the search bar after
-  * which will deactivate the phrase, or equals false to leave the phrase active, default is false
+  * and the phrase (and an argument) is matched, you can change some of the options that occur to the search bar,
+  * default options are just blurring the search bar, other options include selecting the search bar text or
+  * clearing the search bar input
   
-  * @returns { Promise<{ card: Card, phraseArguments: string[] }> }
+  * @returns { Promise<Card> }
   */
-  phrase: (phrase, args, activate, enter) => registerPhrase(createCard(), phrase, args, activate, enter),
+  phrase: (phrase, defaultArgs, search, activate, enter) => registerPhrase(createCard(), phrase, defaultArgs, search, activate, enter),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -191,29 +169,188 @@ export function getCaller(length)
   return { file, functionName };
 }
 
+export function getPlatform()
+{
+  const p = platform();
+
+  if (p === 'linux')
+    return 'Linux';
+  else if (p === 'win32')
+    return 'Windows';
+  else if (p === 'darwin')
+    return 'macOS';
+  else
+    return p;
+}
+
+/** load and start all extensions
+*/
+export function loadExtensions()
+{
+  let extensionPath, scriptPath, packagePath;
+
+  const extensions = readdirSync(extensionsDirectory);
+
+  for (let i = 0; i < extensions.length; i++)
+  {
+    // main directory of the extension
+    extensionPath = extensionsDirectory + extensions[i];
+
+    // the required extension index script
+    scriptPath = join(extensionPath, 'index.js');
+
+    // the required package json
+    packagePath = join(extensionPath, 'package.json');
+
+    // if the package.json file doesn't exists
+    if (!existsSync(packagePath))
+      continue;
+
+    // if the index.js file doesn't exists continue the loop
+    if (!existsSync(scriptPath))
+      continue;
+
+    /**@type { PackageData }
+    */
+    const data = JSON.parse(readFileSync(packagePath));
+
+    const notValid = validateExtension(data);
+
+    if (notValid)
+    {
+      if (notValid.card)
+        appendCard(notValid.card);
+
+      if (notValid.abort)
+        continue;
+    }
+
+    // create a vm for the extension
+    const vm = createVM(data, extensionPath);
+      
+    // run the extension index script
+    const exprts = vm.run(readFileSync(scriptPath).toString(), scriptPath);
+
+    if (data.sulaiman.theme)
+    {
+      themeName = data.name;
+      theme = exprts;
+    }
+
+    // append the extension that just loaded to the loaded extensions array
+    loadedExtensions[data.name] = data;
+  }
+}
+
+/** @param { string } warning
+* @param { PackageData } abortedData
+* @param { PackageData } [runningData]
+*/
+function loadingAbortedCard(warning, abortedData, runningData)
+{
+  const card = createCard();
+
+  card.appendText(warning, { style: 'Bold', size: 'Small' });
+  card.appendLineBreak();
+
+  const abortedCard = createCard();
+  
+  extensionDeleteCard(abortedCard, abortedData);
+
+  card.appendChild(abortedCard);
+  card.appendLineBreak();
+
+  toggleCollapse(abortedCard, undefined, true, true);
+  
+  if (runningData)
+  {
+    const runningCard = createCard();
+
+    extensionDeleteCard(runningCard, runningData);
+
+    card.appendChild(runningCard);
+    card.appendLineBreak();
+
+    toggleCollapse(runningCard, undefined, true, true);
+  }
+
+  const dismissButton = createCard({ title: 'Dismiss' });
+  dismissButton.setType({ type: 'Button' });
+
+  dismissButton.domElement.onclick = () => removeCard(card);
+
+  card.appendChild(dismissButton);
+
+  return card;
+}
+
+/** @param { PackageData } data
+ * @returns { { card: Card, abort: boolean } }
+*/
+function validateExtension(data)
+{
+  // if the package doesn't have name,
+  // is the only case where we can abort from loading without a explanation
+  if (!data.name)
+    return { abort: true };
+
+  if (!data.version)
+    data.version = '0.0.0';
+
+  if (!data.sulaiman)
+    data.sulaiman = {};
+
+  if (!data.sulaiman.displayName)
+    data.sulaiman.displayName = data.name;
+
+  // already loaded with the same name
+  if (loadedExtensions[data.name])
+  {
+    const runningData = loadedExtensions[data.name];
+
+    return {
+      card: loadingAbortedCard(
+        runningData.sulaiman.displayName + ' is the running theme\n' + data.sulaiman.displayName + ' load aborted',
+        data, runningData),
+      abort: true
+    };
+  }
+
+  // incompatible platform
+  if (data.sulaiman.platform && !data.sulaiman.platform.includes(platform()))
+  {
+    return {
+      card: loadingAbortedCard(getPlatform() + ' is not supported by the this extension', data),
+      abort: true
+    };
+  }
+
+  // handle conflicting themes (more than one extension want theme permissions)
+  if (data.sulaiman.theme && themeName)
+  {
+    const runningData = loadedExtensions[themeName];
+
+    return {
+      card: loadingAbortedCard(
+        runningData.sulaiman.displayName + ' is the running theme\n' + data.sulaiman.displayName + ' load aborted',
+        data, runningData),
+      abort: true
+    };
+  }
+}
+
 /** creates a new NodeVM for an extension
 * @param { PackageData } data
 * @param { string } extensionPath
 */
 function createVM(data, extensionPath)
 {
-  // handle conflicting themes (more than one extension want theme permissions)
-  if (data.sulaiman.theme)
-  {
-    if (!themeExtension)
-      themeExtension = data.name;
-    else
-      throw new Error(
-        'conflicting themes, more that one extension wants theme permissions, ' +
-        themeExtension + ' & ' + data.name);
-  }
-
-  const { sandbox, enforcedMockups } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
+  const { sandbox, defaultMockups } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
 
   // separate node builtin modules from the external modules
   const { builtin, externalMockups } = handelModules(data.sulaiman.modules, extensionPath);
 
-  const mockups = { ...enforcedMockups, ...externalMockups };
+  const mockups = { ...defaultMockups, ...externalMockups };
 
   // create a new vm for the extension with the modules and permissions required
   const vm = new NodeVM({
@@ -255,7 +392,7 @@ function handelMockups(requiredPermissions, theme)
   };
 
   // override specific apis from any module or the entire module
-  const enforcedMockups =
+  const defaultMockups =
   {
     sulaiman: { ...require('./api.js') }
   };
@@ -293,12 +430,23 @@ function handelMockups(requiredPermissions, theme)
       if (sandbox[key])
         sandbox[key] = undefined;
       
-      else if (enforcedMockups.sulaiman[key])
-        enforcedMockups.sulaiman[key] = undefined;
+      else if (defaultMockups.sulaiman[key])
+        defaultMockups.sulaiman[key] = undefined;
     }
   }
 
-  return { sandbox, enforcedMockups };
+  // properties and functions allowed by default for being used
+  // regularly in most apps, and are harmless to the user
+  if (!sandbox.document)
+  {
+    sandbox.document = {
+      createElement: document.createElement.bind(document),
+      createElementNS: document.createElementNS.bind(document),
+      createTextNode: document.createTextNode.bind(document)
+    };
+  }
+  
+  return { sandbox, defaultMockups };
 }
 
 /** separate node builtin modules from the external modules
@@ -310,10 +458,6 @@ function handelModules(requiredModules, extensionPath)
 {
   const builtin = [];
   const externalMockups = {};
-
-  // modules that are allowed by default for being used
-  // regularly in node apps and harmless to the user
-  builtin.push('path');
 
   if (requiredModules)
   {
@@ -328,6 +472,11 @@ function handelModules(requiredModules, extensionPath)
         externalMockups[requiredModules[i]] = require(join(extensionPath, 'node_modules', requiredModules[i]));
     }
   }
+
+  // modules that are allowed by default for being used
+  // regularly in most apps, and are harmless to the user
+  if (!builtin.includes('path'))
+    builtin.push('path');
 
   return { builtin, externalMockups };
 }

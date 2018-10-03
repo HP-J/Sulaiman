@@ -1,6 +1,6 @@
 # Welcome to Sulaiman
 
-*The app is in early stages of development, we still have a lot in the bag, stick around*
+*The app is in early stages of development, we still have a lot of plans, stick around*
 
 *Your feedback is highly encourage*
 
@@ -16,19 +16,18 @@
 - currently sulaiman doesn't have a way to search for extensions form the app it self, however,
 sulaiman does have a way to install extensions, which is the only recommend way to install them.
 - you can type 'extension install' then the name of extension's npm package to install it.
-- you can type 'extension running' to see all installed extensions and delete any of them if you desire
-- or you can type 'extension delete' then the name of the extension's npm package to delete it.
+- you can type 'extension running' to see all installed extensions and delete any of them if you desire.
 
 #### How to Create your own Extensions?  
 - Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
 
 #### Download Sulaiman
 - Linux ~
-[deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build),
-[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build),
-[AUR](https://aur.archlinux.org/packages/sulaiman)
+[AUR](https://aur.archlinux.org/packages/sulaiman) |
+[deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
+[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)
 - Windows ~ [Setup.exe](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
-- macOS ~ if you own a machine running mac and you're willing to test Sulaiman, please [contact us](mailto:herpproject0@gmail.com), we need your help.
+- macOS ~ if you made electron apps for macOS before, you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
 
 # One Last Thing..
 [![patrons](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/)

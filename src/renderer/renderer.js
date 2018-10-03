@@ -2,12 +2,13 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { getIcon } from './api.js';
+import { getIcon, appendCard } from './api.js';
 
-import { loadExtensions, emit } from './loader.js';
-import { loadNPM, registerExtensionsPhrase } from './manager.js';
+import { loadExtensions, emit, on } from './loader.js';
+import { loadNPM, registerExtensionsPhrase, extensionInstallCard } from './manager.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 import { appendSearchBar, internalRegisterPhrase as registerPhrase, registerPhrasesPhrase } from './search.js';
+import { internalCreateCard } from './card.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -46,14 +47,27 @@ export function makeItCollapsible(card)
 /** @param { Card } card
 * @param { HTMLElement } [icon]
 * @param { boolean } [fast]
+* @param { boolean } [collapseOnly]
 */
-export function toggleCollapse(card, icon, fast)
+export function toggleCollapse(card, icon, fast, collapseOnly)
 {
   icon = icon || card.domElement.querySelector('.cardAuto.cardIcon.cardActionIcon');
 
-  if (fast || card.isFastForward)
+  if (
+    (fast && !card.isFastForward) ||
+    (!fast && card.isFastForward))
     card.toggleFastForward();
 
+  if (collapseOnly)
+  {
+    card.collapse();
+
+    if (icon.style.transform !== 'rotateZ(0deg)')
+      icon.style.transform = 'rotateZ(0deg)';
+
+    return;
+  }
+  
   if (!card.isCollapsed)
     card.collapse();
   else
@@ -65,17 +79,6 @@ export function toggleCollapse(card, icon, fast)
     icon.style.transform = 'rotateZ(180deg)';
   else if (icon.style.transform === 'rotateZ(180deg)')
     icon.style.transform = 'rotateZ(0deg)';
-}
-
-/** emit once, when the DOM has completed any running operations
-* @param { () => void } callback
-*/
-function isDOMReady(callback)
-{
-  if (document.readyState === 'loading')
-    document.addEventListener('DOMContentLoaded', callback, { once: true });
-  else
-    callback();
 }
 
 /** register to several events the app uses
@@ -100,9 +103,9 @@ function registerEvents()
 
 function registerBuiltinPhrases()
 {
-  const quitPhrase = registerPhrase('Quit', undefined, undefined, () => quit());
-  const reloadPhrase = registerPhrase('Reload', undefined, undefined, () => reload());
-  const relaunchPhrase = registerPhrase('Relaunch', undefined, undefined, () => relaunch());
+  const quitPhrase = registerPhrase('Quit', undefined, undefined, undefined, () => quit());
+  const reloadPhrase = registerPhrase('Reload', undefined, undefined, undefined, () => reload());
+  const relaunchPhrase = registerPhrase('Relaunch', undefined, undefined, undefined, () => relaunch());
 
   const phrasesPhrase = registerPhrasesPhrase();
   const optionsPhrase = registerOptionsPhrase();
@@ -147,23 +150,27 @@ loadOptions();
 // load all extensions
 loadExtensions();
 
+const card = internalCreateCard();
+extensionInstallCard(card, 'require');
+appendCard(card);
+
 // register all builtin phrases
-registerBuiltinPhrases()
-  .then(() =>
+// registerBuiltinPhrases()
+//   .then(() =>
+{
+  // finally, mark the app as ready and
+  // emit the ready event
+  readyState = true;
+
+  emit.ready();
+
+  // remove the splash screen when the dom is ready
+  on.domReady(() =>
   {
-    // finally, mark the app as ready and
-    // emit the ready event
-    readyState = true;
+    if (splash)
+      document.body.removeChild(splash);
 
-    emit.ready();
-
-    // remove the splash screen when the dom is ready
-    isDOMReady(() =>
-    {
-      if (splash)
-        document.body.removeChild(splash);
-
-      // reset focus
-      onfocus();
-    });
+    // reset focus
+    onfocus();
   });
+}

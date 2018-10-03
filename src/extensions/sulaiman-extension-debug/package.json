@@ -1,19 +1,15 @@
 {
   "name": "sulaiman-extension-debug",
-  "version": "0.1.1",
-  "description": "does tests on sulaiman extension APIs",
-  "main": "index.js",
   "private": true,
   "sulaiman": {
-    "displayName": "Extension Debug",
     "permissions": [
       "document",
       "clipboard"
     ],
     "modules": [
-      "path"
+      "fs"
     ]
   },
   "author": "Herp Project",
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

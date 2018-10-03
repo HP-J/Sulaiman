@@ -14,32 +14,32 @@ export { on, off } from './loader.js';
 
 export { Card };
 
-/** [needs the 'window' permission]
+/** [requires the 'browser-window' permission]
 * the main browser window of the app
 * @type { Electron.BrowserWindow }
 */
-export const window = mainWindow;
+export const browserWindow = mainWindow;
 
-/** [needs the 'electron' permission]
+/** [requires the 'electron' permission]
 * the electron remote
 * @type { Electron.Remote }
 */
 export const electron = remote;
 
-/** [needs the 'clipboard' permission]
+/** [requires the 'clipboard' permission]
 * access to read & write to clipboard
 */
 export const clipboard = remote.clipboard;
 
-/** [needs the 'shell' permission]
+/** [requires the 'shell' permission]
 */
 export const shell = remote.shell;
 
-/** [needs the 'dialog' permission]
+/** [requires the 'dialog' permission]
 */
 export const dialog = remote.dialog;
 
-/** [needs the 'tray' permission] the tray icon can be disabled in options,
+/** [requires the 'tray' permission] the tray icon can be disabled in options,
 * in that case tray will return undefined
 */
 export const tray = trayIcon;
@@ -198,12 +198,3 @@ export function containsCard(card)
   else
     throw TypeError('card is not an instance of Card');
 }
-
-export let createElement = document.createElement;
-createElement = createElement.bind(document);
-
-export let createElementNS = document.createElementNS;
-createElementNS = createElement.bind(document);
-
-export let createTextNode = document.createTextNode;
-createTextNode = createTextNode.bind(document);

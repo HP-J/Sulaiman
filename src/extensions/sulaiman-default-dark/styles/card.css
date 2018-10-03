@@ -60,7 +60,11 @@
   font-size: calc(11px + 0.5vw + 1vh);
   font-weight: 400;
 
+  writing-mode: horizontal-tb;
   user-select: none;
+  max-block-size: 35vh;
+
+  white-space: pre-line;
 
   width: auto;
   height: auto;
@@ -70,11 +74,6 @@
 .cardDescription
 {
   color: var(--color-text);
-
-  white-space: pre-line;
-  writing-mode: horizontal-tb;
-  max-block-size: 35vh;
-
   width: 100%;
 }
 

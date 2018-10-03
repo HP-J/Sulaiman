@@ -166,6 +166,7 @@ function registerPhrases()
     sulaiman.on.phrase(
       'Launch',
       phraseArgs,
+      undefined,
       // on activation
       (phrase, match, argument) =>
       {
@@ -203,7 +204,7 @@ function registerPhrases()
   });
 }
 
-if (platform === 'win32')
-  windows().then(registerPhrases);
-else
-  linux().then(registerPhrases);
+// if (platform === 'win32')
+//   windows().then(registerPhrases);
+// else
+//   linux().then(registerPhrases);

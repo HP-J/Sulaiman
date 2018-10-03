@@ -1,8 +1,9 @@
 import { remote } from 'electron';
 
-import { remove, removeSync, move, readFile, existsSync } from 'fs-extra';
+import { tmpdir, platform } from 'os';
+
 import { join, basename } from 'path';
-import { tmpdir } from 'os';
+import { remove, removeSync, move, readFile, existsSync } from 'fs-extra';
 
 import request from 'request-promise-native';
 import inly from 'inly';
@@ -12,7 +13,7 @@ import { appendCard, removeCard } from './api.js';
 
 import { internalRegisterPhrase as registerPhrase } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
-import { loadedExtensions } from './loader.js';
+import { loadedExtensions, getPlatform, themeName } from './loader.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -56,7 +57,7 @@ export function registerExtensionsPhrase()
 
   return new Promise((resolve) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], (phrase, match, argument, extra) =>
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], undefined, (phrase, match, argument, extra) =>
     {
       const card = phrase.card;
 
@@ -86,6 +87,365 @@ export function registerExtensionsPhrase()
   });
 }
 
+/** @param { Card } card
+* @param { PackageData } data
+* @param { PackageData } oldData
+* @returns { Card }
+*/
+export function extensionCard(card, data, oldData)
+{
+  card.reset();
+
+  card.auto({
+    title: data.sulaiman.displayName,
+    description: data.description
+  });
+  
+  card.setType({ type: 'Normal' });
+
+  makeItCollapsible(card);
+  
+  card.appendLineBreak();
+
+  card.appendText('Package', { size: 'Smaller', style: 'Bold' });
+  card.appendText(data.name + '@' + data.version, { type: 'Description', size: 'Smaller' });
+
+  let permissions, modules;
+
+  // get the names of all permissions, and filters already accepted permissions
+  if (data.sulaiman.permissions)
+  {
+    permissions = data.sulaiman.permissions;
+
+    if (oldData && oldData.sulaiman.permissions)
+      permissions = data.sulaiman.permissions.filter(x => !oldData.sulaiman.permissions.includes(x));
+
+    permissions = permissions.join('\n');
+  }
+
+  // get the names of all modules, and filters already accepted modules
+  if (data.sulaiman.modules)
+  {
+    modules = data.sulaiman.modules;
+
+    if (oldData && oldData.sulaiman.modules)
+      modules = data.sulaiman.modules.filter(x => !oldData.sulaiman.modules.includes(x));
+
+    modules = modules.join('\n');
+  }
+
+  const showPermissions = permissions && permissions.length > 0;
+  const showModules = modules && modules.length > 0;
+
+  if (showPermissions)
+  {
+    card.appendText(((oldData) ? 'New ' : '') + 'Permissions', { size: 'Smaller', style: 'Bold' });
+    card.appendText(permissions, { type: 'Description', size: 'Smaller' });
+  }
+  
+  if (showModules)
+  {
+    card.appendText(((oldData) ? 'New ' : '') + 'Modules', { size: 'Smaller', style: 'Bold' });
+    card.appendText(modules, { type: 'Description', size: 'Smaller' });
+  }
+
+  const button = createCard();
+
+  button.setType({ type: 'Button' });
+  
+  card.appendChild(button);
+  
+  return button;
+}
+
+/** @param { Card } card
+* @param { PackageData } extension
+*/
+export function extensionDeleteCard(card, extension)
+{
+  const button = extensionCard(card, extension);
+
+  button.auto({ title: 'Delete' });
+
+  button.domElement.onclick = () =>
+  {
+    button.auto({ title: 'Deleting' });
+    button.setType({ type: 'Normal' });
+  
+    deleteDir(extension.name)
+      .then(() =>
+      {
+        success(card, extension.sulaiman.displayName, 'deleted');
+      })
+      .catch(() =>
+      {
+        reload();
+      });
+  };
+}
+
+/** @param { Card } card
+* @param { string } name
+*/
+export function extensionInstallCard(card, name)
+{
+  if (!name)
+  {
+    card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
+
+    return;
+  }
+
+  if (name.split(' ').length > 1)
+  {
+    card.auto({ title: 'Extensions', description: 'Invalid package name' });
+
+    return;
+  }
+
+  if (!name.startsWith('sulaiman-'))
+    name = 'sulaiman-' + name;
+
+  card.auto({ title: name, description: 'Requesting package information from the npm registry' });
+
+  const cancelPromise = cancelablePromise(getPackageData(name));
+
+  cancelPromise.promise
+    .then((data) =>
+    {
+      function show()
+      {
+        const button = extensionCard(card, data);
+    
+        button.auto({ title: 'Install' });
+  
+        button.domElement.onclick = () =>
+        {
+          downloadExtension(card, button, data.name, data.dist.tarball)
+            .then(({ packageDir, output }) =>
+            {
+              if (validated.beforeMoving)
+              {
+                button.auto({ title: validated.beforeMovingMessage });
+      
+                return validated.beforeMoving().then(() =>
+                {
+                  return { packageDir, output };
+                });
+              }
+              else
+              {
+                return { packageDir, output };
+              }
+            })
+            .then(({ packageDir, output }) =>
+            {
+              button.auto({ title: 'Moving package files to extensions folder' });
+                  
+              return move(packageDir, output, { overwrite: true });
+            })
+            .then(() =>
+            {
+              // return installExtensionDependencies(button, data.name);
+            })
+            .then(() =>
+            {
+              success(card, data.sulaiman.displayName, 'installed');
+            })
+            .catch((err) =>
+            {
+              failedToInstall(card, name, err.message);
+            });
+        };
+      }
+
+      const validated = validateExtension(card, data);
+
+      if (validated.fail === true)
+        return;
+
+      if (validated.beforeMoving)
+      {
+        card.reset();
+
+        card.auto({ description: data.sulaiman.displayName });
+        card.appendText(validated.continueMessage, { style: 'Bold', size: 'Small' });
+        card.appendLineBreak();
+        
+        const button = createCard({ title: 'Continue' });
+        button.setType({ type: 'Button' });
+
+        card.appendChild(button);
+
+        button.domElement.onclick = show;
+      }
+      else
+      {
+        show();
+      }
+    })
+    .catch((err) =>
+    {
+      if (err && err.canceled)
+        return;
+      
+      failedToInstall(card, name, err.message);
+    });
+
+  return cancelPromise.cancel;
+}
+
+/** @param { Card } card
+* @param { PackageData } local
+* @param { PackageData } remote
+* @param { string } name
+*/
+export function extensionUpdateCard(card, local, remote, name)
+{
+  function show()
+  {
+    const updateButton = extensionCard(card, remote, local);
+
+    updateButton.auto({ title: 'Update' });
+  
+    const dismissButton = createCard();
+    dismissButton.setType({ type: 'Button' });
+  
+    dismissButton.auto({ title: 'Dismiss' });
+    
+    card.appendChild(dismissButton);
+  
+    updateButton.domElement.onclick = () =>
+    {
+      card.removeChild(dismissButton);
+  
+      downloadExtension(card, updateButton, remote.name, remote.dist.tarball)
+        .then(({ packageDir, output }) =>
+        {
+          if (validated.beforeMoving)
+          {
+            updateButton.auto({ title: validated.beforeMovingMessage });
+  
+            return validated.beforeMoving().then(() =>
+            {
+              return { packageDir, output };
+            });
+          }
+          else
+          {
+            return { packageDir, output };
+          }
+        })
+        .then(({ packageDir, output }) =>
+        {
+          updateButton.auto({ title: 'Moving package files to extensions folder' });
+        
+          return move(packageDir, output, { overwrite: true });
+        })
+        .then(() =>
+        {
+          return installExtensionDependencies(updateButton, remote.name);
+        })
+        .then(() =>
+        {
+          success(card, remote.sulaiman.displayName, 'installed');
+        })
+        .catch((err) =>
+        {
+          failedToInstall(card, name, err.message);
+        });
+    };
+  
+    dismissButton.domElement.onclick = () => removeCard(card);
+  }
+
+  const validated = validateExtension(card, remote, true);
+
+  if (validated.fail === true)
+    return false;
+
+  if (validated.beforeMoving)
+  {
+    card.reset();
+
+    card.auto({ description: remote.sulaiman.displayName });
+    card.appendText(validated.continueMessage, { style: 'Bold', size: 'Small' });
+    card.appendLineBreak();
+    
+    const continueButton = createCard({ title: 'Continue' });
+    const dismissButton = createCard();
+
+    continueButton.setType({ type: 'Button' });
+    dismissButton.setType({ type: 'Button' });
+
+    card.appendChild(continueButton);
+    card.appendChild(dismissButton);
+
+    continueButton.domElement.onclick = show;
+    dismissButton.domElement.onclick = () => removeCard(card);
+  }
+  else
+  {
+    show();
+  }
+
+  return true;
+}
+
+/** @param { Card } card
+* @param { PackageData } data
+* @param { boolean } update
+* @returns { { fail: boolean, continueMessage: string, beforeMovingMessage: string, beforeMoving: () => Promise<void> } }
+*/
+function validateExtension(card, data, update)
+{
+  if (!data.sulaiman)
+  {
+    card.auto({ description: 'This package is not a sulaiman extension' });
+
+    return { fail: true };
+  }
+  
+  if (!data.sulaiman.displayName)
+    data.sulaiman.displayName = data.name;
+
+  // incompatible platform
+  if (data.sulaiman.platform && !data.sulaiman.platform.includes(platform()))
+  {
+    card.auto({ description: getPlatform() + ' is not supported by the this extension' });
+
+    return { fail: true };
+  }
+
+  // already loaded with the same name, and not an update
+  if (!update && loadedExtensions[data.name])
+  {
+    return {
+      continueMessage: 'Installing this extension will override a already installed extension with the same package name',
+      beforeMovingMessage: 'Deleting extension with the same name',
+      beforeMoving: () =>
+      {
+        return deleteDir(data.name);
+      }
+    };
+  }
+
+  // handle conflicting themes (more than one extension want theme permissions)
+  if (themeName !== data.name)
+  {
+    return {
+      continueMessage: 'Installing this extension will delete your current theme: ' + loadedExtensions[themeName].sulaiman.displayName,
+      beforeMovingMessage: 'Deleting the extension current theme extension',
+      beforeMoving: () =>
+      {
+        return deleteDir(themeName);
+      }
+    };
+  }
+
+  return {};
+}
+
 /** @param { Card } parent
 */
 function checkForExtensionsUpdates(parent)
@@ -110,7 +470,7 @@ function checkForExtensionsUpdates(parent)
   
             if (extensionUpdateCard(card, local, remote, remote.name))
             {
-              toggleCollapse(card, undefined, true);
+              toggleCollapse(card, undefined, true, true);
   
               appendCard(card);
   
@@ -146,136 +506,10 @@ function showRunningExtensions(parent)
 
     extensionDeleteCard(card, loadedExtensions[extension]);
 
-    toggleCollapse(card, undefined, true);
+    toggleCollapse(card, undefined, true, true);
   
     parent.appendChild(card);
   }
-}
-
-/** @param { Card } card
-* @param { PackageData } extension
-*/
-function extensionDeleteCard(card, extension)
-{
-  const button = extensionCard(card, extension);
-
-  button.auto({ title: 'Delete' });
-
-  button.domElement.onclick = () =>
-  {
-    button.auto({ title: 'Deleting' });
-    button.setType({ type: 'Normal' });
-  
-    deleteDir(extension.name)
-      .then(() =>
-      {
-        success(button);
-      })
-      .catch(() =>
-      {
-        reload();
-      });
-  };
-}
-
-/** @param { Card } card
-* @param { string } name
-*/
-function extensionInstallCard(card, name)
-{
-  if (!name)
-  {
-    card.auto({ title: 'Extensions', description: 'Enter extension name' });
-    return;
-  }
-
-  card.auto({ title: name, description: 'Gathering information from the internet...' });
-
-  const cancelPromise = cancelablePromise(getPackageData(name));
-
-  cancelPromise.promise
-    .then((data) =>
-    {
-      const validated = validateExtension(data);
-
-      if (validated)
-        throw validated;
-
-      const button = extensionCard(card, data);
-    
-      button.auto({ title: 'Install' });
-
-      button.domElement.onclick = () =>
-      {
-        downloadExtension(card, button, data.name, data.dist.tarball)
-          .then(() =>
-          {
-            return installExtensionDependencies(button, data.name);
-          })
-          .then(() =>
-          {
-            success(button);
-          })
-          .catch((err) =>
-          {
-            failedToInstall(card, name, err.message);
-          });
-      };
-    })
-    .catch((err) =>
-    {
-      if (err && err.canceled)
-        return;
-      
-      failedToInstall(card, name, err.message);
-    });
-
-  return cancelPromise.cancel;
-}
-
-/** @param { Card } card
-* @param { PackageData } local
-* @param { PackageData } remote
-* @param { string } name
-*/
-function extensionUpdateCard(card, local, remote, name)
-{
-  if (validateExtension(remote))
-    return false;
-
-  const updateButton = extensionCard(card, remote, local);
-
-  updateButton.auto({ title: 'Update' });
-
-  const dismissButton = createCard();
-  dismissButton.setType({ type: 'Button' });
-
-  dismissButton.auto({ title: 'Dismiss' });
-  
-  card.appendChild(dismissButton);
-
-  updateButton.domElement.onclick = () =>
-  {
-    card.removeChild(dismissButton);
-
-    downloadExtension(card, updateButton, remote.name, remote.dist.tarball)
-      .then(() =>
-      {
-        return installExtensionDependencies(updateButton, remote.name);
-      })
-      .then(() =>
-      {
-        success(updateButton);
-      })
-      .catch((err) =>
-      {
-        failedToInstall(card, name, err.message);
-      });
-  };
-
-  dismissButton.domElement.onclick = () => removeCard(card);
-
-  return true;
 }
 
 /** @param { string } name
@@ -297,92 +531,11 @@ function getPackageData(name)
   });
 }
 
-/** @param { Card } card
-* @param { PackageData } data
-* @param { PackageData } oldData
-* @returns { Card }
-*/
-function extensionCard(card, data, oldData)
-{
-  card.auto({
-    title: data.sulaiman.displayName,
-    description: data.description
-  });
-
-  card.setType({ type: 'Normal' });
-
-  makeItCollapsible(card);
-
-  let permissions, modules;
-
-  if (data.sulaiman.permissions)
-  {
-    permissions = data.sulaiman.permissions;
-
-    if (oldData && oldData.sulaiman.permissions)
-      permissions = data.sulaiman.permissions.filter(x => !oldData.sulaiman.permissions.includes(x));
-
-    permissions = permissions.join('\n');
-  }
-
-  if (data.sulaiman.modules)
-  {
-    modules = data.sulaiman.modules;
-
-    if (oldData && oldData.sulaiman.modules)
-      modules = data.sulaiman.modules.filter(x => !oldData.sulaiman.modules.includes(x));
-
-    modules = modules.join('\n');
-  }
-
-  const showPermissions = permissions && permissions.length > 0;
-  const showModules = modules && modules.length > 0;
-
-  if (showPermissions || showModules)
-    card.appendLineBreak();
-
-  if (showPermissions)
-  {
-    card.appendText(((oldData) ? 'ADDED ' : '') + 'PERMISSIONS', { size: 'Smaller', style: 'Bold' });
-    card.appendText(permissions, { type: 'Description', size: 'Smaller' });
-  }
-  
-  if (showModules)
-  {
-    card.appendText(((oldData) ? 'ADDED ' : '') + 'MODULES', { size: 'Smaller', style: 'Bold' });
-    card.appendText(modules, { type: 'Description', size: 'Smaller' });
-  }
-
-  const button = createCard();
-
-  button.setType({ type: 'Button' });
-  
-  card.appendChild(button);
-  
-  return button;
-}
-
 /** @param { string } name
 */
 function deleteDir(name)
 {
   return remove(join(__dirname, '../extensions/' + name));
-}
-
-/** @param { PackageData } data
-*/
-function validateExtension(data)
-{
-  if (!data.sulaiman)
-    return new Error('is not a Sulaiman Extension');
-
-  if (!data.sulaiman.displayName)
-    return new Error('Package information misconfiguration, display name is not defined');
-
-  if (data.sulaiman.platform && !data.sulaiman.platform.includes(process.platform.toString()))
-    return new Error('This platform is not supported by the extension');
-
-  return undefined;
 }
 
 /** @template T
@@ -407,7 +560,7 @@ function cancelablePromise(promise)
 * @param { Card } button
 * @param { string } name
 * @param { string } url
-* @returns { Promise<void> }
+* @returns { Promise<{ packageDir: string, output: string }> }
 */
 function downloadExtension(card, button, name, url)
 {
@@ -425,13 +578,15 @@ function downloadExtension(card, button, name, url)
   
     const output = join(__dirname, '../extensions/' + dirname);
 
-    button.setType({ type: 'Normal' });
-
     dl(mainWindow, url,
       {
         directory: tmpdir(),
         filename: filename,
         showBadge: false,
+        onStarted: () =>
+        {
+          button.setType({ type: 'Normal' });
+        },
         onProgress: (percentage) =>
         {
           percentage = Math.floor(percentage * 100);
@@ -461,7 +616,7 @@ function downloadExtension(card, button, name, url)
         {
           card.setType({ type: 'Normal' });
 
-          move(tmpDir + '/package', output, { overwrite: true }).then(resolve);
+          resolve({ packageDir: tmpDir + '/package', output: output });
         });
       })
       .catch((err) =>
@@ -520,19 +675,26 @@ function installExtensionDependencies(button, name)
   });
 }
 
-/** @param { Card } button
+/** @param { Card } card
+* @param { string } name
+* @param { string } state
 */
-function success(button)
+function success(card, name, state)
 {
-  button.auto({ title: 'Reload' });
+  card.reset();
+  card.auto({ title: name, description: 'Has been ' + state });
+
+  const button = createCard({ title: 'Reload' });
   button.setType({ type: 'Button' });
+
+  card.appendChild(button);
   
   button.domElement.onclick = () => reload();
 }
 
 /** @param { Card } card
-/** @param { string } name
-/** @param { string } err
+* @param { string } name
+* @param { string } err
 */
 function failedToInstall(card, name, err)
 {
@@ -549,6 +711,8 @@ function failedToInstall(card, name, err)
     button.domElement.onclick = () =>
     {
       extensionInstallCard(card, name);
+
+      card.removeChild(button);
     };
   });
 }

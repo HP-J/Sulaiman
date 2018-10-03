@@ -12,10 +12,10 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 /** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, phraseArguments: string[], activate: () => any, enter: () => any, active: boolean } } PhraseObj
+/** @typedef { { phrase: string | RegExp, card: Card, defaultArgs: string[], search: () => string[], activate: () => boolean, enter: () => {}, active: boolean } } PhraseObj
 */
 
-/** @typedef { { element: HTMLDivElement, wordCount: number, percentage: number, match: () => boolean, matchedPhrase: string, extra: string } } CompareObject
+/** @typedef { { element: HTMLElement, wordCount: number, percentage: number, match: () => boolean, matchedPhrase: string, extra: string } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -61,7 +61,7 @@ export function registerPhrasesPhrase()
 {
   return new Promise((resolve) =>
   {
-    const phrasesPhrase = internalRegisterPhrase('Phrases', undefined, (phrase) =>
+    const phrasesPhrase = internalRegisterPhrase('Phrases', undefined, undefined, (phrase) =>
     {
       const card = phrase.card;
 
@@ -77,15 +77,15 @@ export function registerPhrasesPhrase()
 
         card.appendText(phraseObj.phrase, { style: 'Bold', select: 'Selectable', size: 'Small' });
 
-        for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+        for (let i = 0; i < phraseObj.defaultArgs.length; i++)
         {
-          card.appendText(phraseObj.phraseArguments[i], { type: 'Description', select: 'Selectable', size: 'Small' });
+          card.appendText(phraseObj.defaultArgs[i], { type: 'Description', select: 'Selectable', size: 'Small' });
         }
 
         card.appendLineBreak();
       }
 
-      toggleCollapse(card, undefined, true);
+      toggleCollapse(card, undefined, true, true);
     });
 
     Promise.all([ phrasesPhrase ]).then(resolve);
@@ -164,7 +164,7 @@ function onkeydown(event)
   else if (event.code === 'ArrowRight')
   {
     if (suggestionsElement.children.length > selectIndex)
-      setInput(suggestionsElement.children[selectIndex].value);
+      setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);
   }
   else if (event.code === 'Enter')
   {
@@ -222,7 +222,7 @@ function selectItem(indexDiff)
     });
   }
 
-  if (!nextElement.classList.contains('suggestionsItemSelected'))
+  if (nextElement && !nextElement.classList.contains('suggestionsItemSelected'))
   {
     nextElement.classList.add('suggestionsItemSelected');
 
@@ -239,6 +239,53 @@ function selectItem(indexDiff)
   selectIndex = nextIndex;
 }
 
+/** @param { PhraseObj } phraseObj
+* @param { HTMLElement } suggestionElement
+* @param { string } matchedPhrase
+* @param { string } matchedArgument
+* @param { string } extra
+*/
+function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArgument, extra)
+{
+  // cache element text as the auto-complete value before giving away the suggestion element, however it's still
+  // possible to modify it, using the suggestionElement.value
+  suggestionElement.value = suggestionElement.innerText;
+  
+  if
+  (
+    !phraseObj.activate || (phraseObj.activate({
+      card: phraseObj.card,
+      suggestion: suggestionElement
+    }, matchedPhrase, matchedArgument, extra)) === false ? true : false)
+  {
+    return;
+  }
+
+  if (!document.body.contains(phraseObj.card.domElement))
+    document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
+
+  phraseObj.active = true;
+}
+
+/** @param { PhraseObj } phraseObj
+*/
+function deactivatePhrase(phraseObj)
+{
+  if (document.body.contains(phraseObj.card.domElement))
+    document.body.removeChild(phraseObj.card.domElement);
+
+  phraseObj.active = false;
+}
+
+/** @param { T[] } array
+* @template T
+* @param { (a: T, b: T) => number } compare
+*/
+function sort(array, compare)
+{
+  array.sort(compare);
+}
+
 /** @param { string } input
 */
 function search(input)
@@ -248,7 +295,7 @@ function search(input)
     /** @type { CompareObject[] }
     */
     const suggestions = [];
-    
+
     // search all phrases are their arguments
     for (const phrase in registeredPhrases)
     {
@@ -258,32 +305,44 @@ function search(input)
       */
       let matchedCompare = undefined;
       let matchedArgument = '';
-      
+
       if (input)
       {
+        /** @type { string[] }
+        */
+        let args;
+
+        let onDemandArgs;
+
+        const phraseCompareObject = compare(input, phraseObj.phrase);
+
+        if (phraseObj.search)
+          onDemandArgs = phraseObj.search(phraseCompareObject[0]);
+
+        if (onDemandArgs && isArray(onDemandArgs))
+          args = onDemandArgs;
+        else
+          args = phraseObj.defaultArgs;
+
         // if the phrase has no arguments
-        if (!phraseObj.phraseArguments || phraseObj.phraseArguments.length <= 0)
+        if (args.length <= 0)
         {
-          const compareObject = compare(input, phraseObj.phrase);
-  
           // if there is not match what-so-ever, continue the main phrases loop
-          if (!compareObject)
-            continue;
-  
-          if (compareObject.match())
+          if (phraseCompareObject)
           {
-            matchedCompare = compareObject;
+            if (phraseCompareObject.match())
+              matchedCompare = phraseCompareObject;
+
+            suggestions.push(phraseCompareObject);
           }
-  
-          suggestions.push(compareObject);
         }
         else
         {
           // else the phrase must have one or more arguments
           // loop through the phrase's arguments, comparing them
-          for (let i = 0; i < phraseObj.phraseArguments.length; i++)
+          for (let i = 0; i < args.length; i++)
           {
-            const compareObject = compare(input, phraseObj.phrase, phraseObj.phraseArguments[i]);
+            const compareObject = compare(input, phraseObj.phrase, args[i]);
   
             // if there is not match what-so-ever, continue the phrase arguments loop
             if (!compareObject)
@@ -292,7 +351,7 @@ function search(input)
             if (compareObject.match())
             {
               matchedCompare = compareObject;
-              matchedArgument = phraseObj.phraseArguments[i];
+              matchedArgument = args[i];
             }
 
             suggestions.push(compareObject);
@@ -336,54 +395,6 @@ function search(input)
 
     resolve();
   });
-}
-
-/** @param { PhraseObj } phraseObj
-* @param { HTMLElement } suggestionElement
-* @param { string } matchedPhrase
-* @param { string } matchedArgument
-* @param { string } extra
-*/
-function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArgument, extra)
-{
-  // cache element text as the auto-complete value before giving away the suggestion element, however it's still
-  // possible to modify it, using the suggestionElement.value
-  suggestionElement.value = suggestionElement.innerText;
-
-  if
-  (
-    !phraseObj.activate || (phraseObj.activate({
-      card: phraseObj.card,
-      suggestion: suggestionElement,
-      phraseArguments: phraseObj.phraseArguments
-    }, matchedPhrase, matchedArgument, extra)) === false ? true : false)
-  {
-    return;
-  }
-
-  if (!document.body.contains(phraseObj.card.domElement))
-    document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
-
-  phraseObj.active = true;
-}
-
-/** @param { PhraseObj } phraseObj
-*/
-function deactivatePhrase(phraseObj)
-{
-  if (document.body.contains(phraseObj.card.domElement))
-    document.body.removeChild(phraseObj.card.domElement);
-
-  phraseObj.active = false;
-}
-
-/** @param { T[] } array
-* @template T
-* @param { (a: T, b: T) => number } compare
-*/
-function sort(array, compare)
-{
-  array.sort(compare);
 }
 
 /** @param { string } input
@@ -474,11 +485,15 @@ function compare(input, phrase, argument)
   // append a text and text written elements for the phrase, on the suggestions item
   appendWrittenAndTextElement(phraseTextWritten, phraseText);
 
+  //
+
   // process arguments (any thing after the first word)
   for (let i = 0; i < argumentSplit.length; i++)
   {
     const argument = argumentSplit[i];
     const input = inputSplit[0];
+
+    // console.log(argument + ' - ' + input);
 
     let match;
 
@@ -520,15 +535,15 @@ function compare(input, phrase, argument)
 */
 function getStringRegex(phrase)
 {
-  const string = escapeRegExp(phrase);
-  const split = string.split('');
+  const split = phrase.split('');
+
   let regexString = '';
 
   for (let i = split.length - 1; i >= 0; i--)
   {
-    const partial = string.slice(0, i + 1);
+    const partial = escapeRegExp(phrase.slice(0, i + 1));
 
-    if (partial !== string)
+    if (i !== 0)
       regexString = regexString + '|' + partial;
     else
       regexString = partial;
@@ -581,24 +596,26 @@ function updateSuggestionsCount(count)
 }
 
 /** @param { string | RegExp } phrase
-* @param { string[] } [args]
-* @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, argument: string, extra: string) => void } [activate]
-* @param { () => boolean } [enter]
-* @returns { Promise<{ card: Card, phraseArguments: string[] }> }
+* @param { string[] } [defaultArgs]
+* @param { () => string[] } [search]
+* @param { (phrase: { card: Card, suggestion: HTMLElement }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
+* @param { () => { clearSearchBar: boolean, blurSearchBar: boolean, selectSearchBarText: boolean } } [enter]
+* @returns { Promise<Card> }
 */
-export function internalRegisterPhrase(phrase, args, activate, enter)
+export function internalRegisterPhrase(phrase, defaultArgs, search, activate, enter)
 {
-  return registerPhrase(internalCreateCard(), phrase, args, activate, enter);
+  return registerPhrase(internalCreateCard(), phrase, defaultArgs, search, activate, enter);
 }
 
 /** @param { Card } card
 * @param { string | RegExp } phrase
-* @param { string[] } [args]
-* @param { (phrase: { card: Card, suggestion: HTMLElement, phraseArguments: string[] }, argument: string, extra: string) => void } [activate]
-* @param { () => boolean } [enter]
-* @returns { Promise<{ card: Card, phraseArguments: string[] }> }
+* @param { string[] } [defaultArgs]
+* @param { () => string[] } [search]
+* @param { () => boolean } [activate]
+* @param { () => {} } [enter]
+* @returns { Promise<{}> }
 */
-export function registerPhrase(card, phrase, args, activate, enter)
+export function registerPhrase(card, phrase, defaultArgs, search, activate, enter)
 {
   return new Promise((resolve, reject) =>
   {
@@ -630,19 +647,20 @@ export function registerPhrase(card, phrase, args, activate, enter)
           {
             phrase: phrase,
             card: card,
-            phraseArguments: [],
+            defaultArgs: [],
+            search: search,
             activate: activate,
             enter: enter,
             active: false
           };
 
-          if (args && isArray(args))
-            phraseObj.phraseArguments.push(...args);
+          if (defaultArgs && isArray(defaultArgs))
+            phraseObj.defaultArgs.push(...defaultArgs);
 
           // register the phrase
           registeredPhrases[phraseKey] = phraseObj;
 
-          resolve({ card: card, phraseArguments: phraseObj.phraseArguments });
+          resolve(card);
         }
       })
       .catch((err) => reject(err));

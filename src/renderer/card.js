@@ -1,4 +1,4 @@
-import { getCaller } from './loader.js';
+import { theme, getCaller } from './loader.js';
 
 import { readyState } from './renderer.js';
 
@@ -181,14 +181,18 @@ export default class Card
   */
   get isFastForward()
   {
-    return this.domElement.classList.contains('cardFastForward');
+    if (theme.isFastForward)
+      return theme.isFastForward(this);
+    else
+      return undefined;
   }
 
   /** fast-forward mode is supposed to skip through transitions and animations
   */
   toggleFastForward()
   {
-    this.domElement.classList.toggle('cardFastForward');
+    if (theme.toggleFastForward)
+      theme.toggleFastForward(this);
   }
 
   /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", state: boolean } | { type: "Button" } | { type: "Disabled" } | { type: "Normal" } } type
@@ -226,156 +230,22 @@ export default class Card
 
   get isCollapsed()
   {
-    return this.domElement.classList.contains('cardCollapsed');
+    if (theme.isCollapsed)
+      return theme.isCollapsed(this);
+    else
+      return undefined;
   }
 
   collapse()
   {
-    /** @param { Card } card
-    */
-    function collapse(card)
-    {
-      // get the first line break element in the card
-      const lineBreakElement = card.domElement.querySelector('.cardLineBreak');
-
-      const lineBreakNextElement = lineBreakElement.nextElementSibling;
-      const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
-      
-      if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
-        return;
-      
-      const lineBreakRect = lineBreakElement.getBoundingClientRect();
-
-      const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
-      const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
-
-      const nextElementRect = lineBreakNextElement.getBoundingClientRect();
-      const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
-
-      const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
-      card.domElement.removeChild(card.domElement.lastChild);
-      
-      const topMargin = (nextElementRect.top - lineBreakRect.bottom);
-      const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
-      
-      // const cardRect = card.domElement.getBoundingClientRect();
-      // const topPadding = firstElementRect.top - cardRect.top;
-      // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
-
-      const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
-      const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
-
-      card.domElement.style.setProperty(
-        '--cardY',
-        top + 'px');
-
-      card.domElement.style.setProperty(
-        '--cardHeight',
-        height + 'px');
-
-      // if the card has the expanded class, remove it
-      if (card.domElement.classList.contains('cardExpanded'))
-        card.domElement.classList.remove('cardExpanded');
-
-      // add the collapsed class to the card
-      card.domElement.classList.add('cardCollapsed');
-
-      // loop to all the children after the line break
-      let element = lineBreakNextElement;
-
-      // loop until there is no more childs
-      while (element)
-      {
-        // if the child has the expanded class, remove it
-        if (element.classList.contains('cardChildExpanded'))
-          element.classList.remove('cardChildExpanded');
-
-        // add the collapsed class to all the card children
-        element.classList.add('cardChildCollapsed');
-
-        // switch to the next child
-        element = element.nextElementSibling;
-      }
-    }
-
-    if (this.isFastForward)
-      collapse(this);
-    else
-      requestAnimationFrame(() => collapse(this));
+    if (theme.collapse)
+      theme.collapse(this);
   }
 
   expand()
   {
-    /** @param { Card } card
-    */
-    function expand(card)
-    {
-      // get the first line break element in the card
-      const lineBreakElement = card.domElement.querySelector('.cardLineBreak');
-
-      const lineBreakNextElement = lineBreakElement.nextElementSibling;
-      const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
-   
-      if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
-        return;
-   
-      const lineBreakRect = lineBreakElement.getBoundingClientRect();
-
-      const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
-      const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
-
-      const nextElementRect = lineBreakNextElement.getBoundingClientRect();
-      const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
-
-      const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
-      card.domElement.removeChild(card.domElement.lastChild);
-   
-      const topMargin = (nextElementRect.top - lineBreakRect.bottom);
-      const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
-   
-      // const cardRect = card.domElement.getBoundingClientRect();
-      // const topPadding = firstElementRect.top - cardRect.top;
-      // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
-
-      const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
-      const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
-
-      card.domElement.style.setProperty(
-        '--cardY',
-        top + 'px');
-
-      card.domElement.style.setProperty(
-        '--cardHeight',
-        height + 'px');
-
-      // if the card has the collapsed class, remove it
-      if (card.domElement.classList.contains('cardCollapsed'))
-        card.domElement.classList.remove('cardCollapsed');
-
-      // add the expanded class to the card
-      card.domElement.classList.add('cardExpanded');
-
-      // loop to all the children after the line break
-      let element = lineBreakElement.nextElementSibling;
-
-      while (element)
-      {
-        // if the child has the collapsed class, remove it
-        if (element.classList.contains('cardChildCollapsed'))
-          element.classList.remove('cardChildCollapsed');
-  
-        // add the expanded class to all the card children
-        element.classList.add('cardChildExpanded');
-  
-        // switch to the next child
-        element = element.nextElementSibling;
-      }
-    }
-
-    if (this.isFastForward)
-      expand(this);
-    else
-      requestAnimationFrame(() => expand(this));
+    if (theme.expand)
+      theme.expand(this);
   }
 
   /** adds a new line break to the card
