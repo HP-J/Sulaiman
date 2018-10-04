@@ -15,6 +15,9 @@ import { extensionDeleteCard } from './manager.js';
 /** @typedef { import('./card.js').default } Card
 */
 
+/** @typedef { import('./search.js').PhraseEvents } PhraseEvents
+*/
+
 /** @typedef { Object } PackageData
 * @property { string } name
 * @property { string } version
@@ -72,29 +75,14 @@ export const on =
       callback();
   },
   /** register a phrase, then returns a card controlled only by the search system
-  * @param { string | RegExp } phrase
-  *  phrase or a regex that the user have to enter to activate this phrase functionality
+  * @param { string | RegExp } phrase phrase or a regex that the user have to enter to activate this phrase functionality
   * @param { string[] } [defaultArgs]
   * an array of possible arguments like: the 'Tray' in 'Options Tray',
   * will be overridden by search callback if it returns a string array
-  
-  * @param { (s: string) => string[] } [search]
-  * emits every time a search occurs, should return a string array of arguments, overrides defaultArgs
-  * if you have a fixed set of arguments that won't need to be updated every search please use defaultArgs array instead
-
-  * @param { (phrase: { card: Card, suggestion: HTMLElement }, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
-  * emits when the phrase (and an argument) is matched,
-  * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
-
-  * @param { () => { blurSearchBar: boolean, clearSearchBar: boolean, selectSearchBarText: boolean } } [enter]
-  * emits when the user presses the `Enter` key while the search bar is on focus
-  * and the phrase (and an argument) is matched, you can change some of the options that occur to the search bar,
-  * default options are just blurring the search bar, other options include selecting the search bar text or
-  * clearing the search bar input
-  
+  * @param { PhraseEvents } [on] phrase-related events
   * @returns { Promise<Card> }
   */
-  phrase: (phrase, defaultArgs, search, activate, enter) => registerPhrase(createCard(), phrase, defaultArgs, search, activate, enter),
+  phrase: (phrase, defaultArgs, on) => registerPhrase(createCard(), phrase, defaultArgs, on),
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */

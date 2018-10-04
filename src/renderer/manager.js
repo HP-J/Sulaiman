@@ -57,29 +57,87 @@ export function registerExtensionsPhrase()
 
   return new Promise((resolve) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Check for Updates' ], undefined, (phrase, match, argument, extra) =>
-    {
-      const card = phrase.card;
-
-      card.reset();
-
-      if (argument === 'Install')
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Delete', 'Check for Updates' ], {
+      suggest: (argument) =>
       {
-        if (cancelToken)
-        {
-          cancelToken();
-          cancelToken = undefined;
-        }
+        const args = [];
         
-        cancelToken = extensionInstallCard(card, extra, phrase);
-      }
-      else if (argument === 'Running')
+        if (argument === 'Delete')
+        {
+          for (let name in loadedExtensions)
+          {
+            if (name.startsWith('sulaiman-'))
+              name = name.replace('sulaiman-', '');
+            
+            args.push(name);
+          }
+        }
+
+        return args;
+      },
+      activate: (card, suggestion, match, argument, extra) =>
       {
-        showRunningExtensions(card);
-      }
-      else if (argument === 'Check for Updates')
-      {
-        checkForExtensionsUpdates(card);
+        card.reset();
+
+        if (argument === 'Install')
+        {
+          if (cancelToken)
+          {
+            cancelToken();
+            cancelToken = undefined;
+          }
+
+          if (!extra)
+          {
+            card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
+
+            return;
+          }
+
+          if (extra.split(' ').length > 1)
+          {
+            card.auto({ title: 'Extensions', description: 'Invalid package name' });
+        
+            return;
+          }
+
+          if (!extra.startsWith('sulaiman-'))
+            extra = 'sulaiman-' + extra;
+        
+          cancelToken = extensionInstallCard(card, extra);
+        }
+        else if (argument.startsWith('Delete'))
+        {
+          if (!extra)
+          {
+            card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
+
+            return;
+          }
+
+          if (extra.split(' ').length > 1)
+          {
+            card.auto({ title: 'Extensions', description: 'Invalid package name' });
+        
+            return;
+          }
+
+          if (!extra.startsWith('sulaiman-'))
+            extra = 'sulaiman-' + extra;
+
+          if (loadedExtensions[extra])
+            extensionDeleteCard(card, loadedExtensions[extra]);
+          else
+            card.auto({ title: 'Extensions', description: 'No extensions running with that nam' });
+        }
+        else if (argument === 'Running')
+        {
+          showRunningExtensions(card);
+        }
+        else if (argument === 'Check for Updates')
+        {
+          checkForExtensionsUpdates(card);
+        }
       }
     });
 
@@ -189,23 +247,6 @@ export function extensionDeleteCard(card, extension)
 */
 export function extensionInstallCard(card, name)
 {
-  if (!name)
-  {
-    card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
-
-    return;
-  }
-
-  if (name.split(' ').length > 1)
-  {
-    card.auto({ title: 'Extensions', description: 'Invalid package name' });
-
-    return;
-  }
-
-  if (!name.startsWith('sulaiman-'))
-    name = 'sulaiman-' + name;
-
   card.auto({ title: name, description: 'Requesting package information from the npm registry' });
 
   const cancelPromise = cancelablePromise(getPackageData(name));
@@ -510,6 +551,8 @@ function showRunningExtensions(parent)
   
     parent.appendChild(card);
   }
+
+  toggleCollapse(parent, undefined, true, true);
 }
 
 /** @param { string } name

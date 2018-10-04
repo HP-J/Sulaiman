@@ -166,45 +166,41 @@ function registerPhrases()
     sulaiman.on.phrase(
       'Launch',
       phraseArgs,
-      undefined,
-      // on activation
-      (phrase, match, argument) =>
       {
-        // set app name
-        name = argument;
-
-        phrase.card.auto({ title: name,  });
-
-        button.domElement.onclick = () =>
+        activate: (card, suggestion, match, argument) =>
+        {
+          // set app name
+          name = argument;
+  
+          card.auto({ title: name,  });
+  
+          button.domElement.onclick = () =>
+          {
+            launch(apps[name]);
+      
+            card.auto({ description: 'has been launched' });
+            card.removeChild(button);
+      
+            card.setType({ type: 'Disabled' });
+          };
+  
+          card.appendChild(button);
+  
+          card.setType({ type: 'Normal' });
+        },
+        enter: () =>
         {
           launch(apps[name]);
-    
-          phrase.card.auto({ description: 'has been launched' });
-          phrase.card.removeChild(button);
-    
-          phrase.card.setType({ type: 'Disabled' });
-        };
-
-        phrase.card.appendChild(button);
-
-        phrase.card.setType({ type: 'Normal' });
-      },
-      // on enter
-      () =>
-      {
-        launch(apps[name]);
-
-        return true;
+  
+          return { clearSearchBar: true, blurSearchBar: true };
+        }
       })
       // after phrase is created
-      .then((card) =>
-      {
-        card.auto({ description: 'launch the application' });
-      });
+      .then(card => card.auto({ description: 'launch the application' }));
   });
 }
 
-// if (platform === 'win32')
-//   windows().then(registerPhrases);
-// else
-//   linux().then(registerPhrases);
+if (platform === 'win32')
+  windows().then(registerPhrases);
+else
+  linux().then(registerPhrases);

@@ -54,153 +54,151 @@ export function registerOptionsPhrase()
 {
   return new Promise((resolve) =>
   {
-    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], undefined, (phrase, match, argument) =>
-    {
-      const card = phrase.card;
-
-      card.reset();
-
-      if (argument === 'Show/Hide Key')
+    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], {
+      activate: (card, suggestion, match, argument) =>
       {
-        showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
-          () =>
-          {
-            autoHide = true;
+        card.reset();
 
-            setSkipTaskbar(true);
-          },
-          () =>
-          {
-            autoHide = false;
-
-            setSkipTaskbar(false);
-          });
-      }
-      else if (argument === 'Auto-Launch')
-      {
-        card.auto({ title: 'Loading Current Settings..' });
-        card.setType({ type: 'Disabled' });
-
-        autoLaunchEntry.isEnabled()
-          .then((enabled) =>
-          {
-            const toggle = createCard();
-
-            card.auto({ title: '' });
-
-            card.appendChild(toggle);
-            const text = card.appendText('Auto-Launch');
-
-            card.setType({ type: 'Normal' });
-            toggle.setType({ type: 'Toggle', state: enabled });
-
-            toggle.domElement.onclick = text.onclick = () =>
-            {
-              card.setType({ type: 'Disabled' });
-
-              if (enabled)
-              {
-                autoLaunchEntry.disable().then(() =>
-                {
-                  card.setType({ type: 'Normal' });
-                  toggle.setType({ type: 'Toggle', state: false });
-
-                  enabled = false;
-                });
-              }
-              else
-              {
-                autoLaunchEntry.enable().then(() =>
-                {
-                  card.setType({ type: 'Normal' });
-                  toggle.setType({ type: 'Toggle', state: true });
-
-                  enabled = true;
-                });
-              }
-            };
-          });
-      }
-      else if (argument === 'Tray')
-      {
-        card.auto();
-
-        let enabled = settings.get('trayIcon', true);
-        const toggle = createCard();
-
-        card.appendChild(toggle);
-
-        const toggleText = card.appendText('Tray');
-
-        toggle.setType({ type: 'Toggle', state: enabled });
-
-        card.appendLineBreak();
-
-        const warningText = card.appendText('This option needs the app to relaunch to be applied');
-
-        const relaunchButton = createCard({ title: 'Relaunch' });
-        relaunchButton.setType({ type: 'Button' });
-
-        card.appendChild(relaunchButton);
-
-        relaunchButton.domElement.onclick = () => relaunch();
-
-        relaunchButton.domElement.style.display = warningText.style.display = 'none';
-
-        toggle.domElement.onclick = toggleText.onclick = () =>
+        if (argument === 'Keys Show/Hide')
         {
-          if (enabled)
+          showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
+            () =>
+            {
+              autoHide = true;
+
+              setSkipTaskbar(true);
+            },
+            () =>
+            {
+              autoHide = false;
+
+              setSkipTaskbar(false);
+            });
+        }
+        else if (argument === 'Auto-Launch')
+        {
+          card.auto({ title: 'Loading Current Settings..' });
+
+          autoLaunchEntry.isEnabled()
+            .then((enabled) =>
+            {
+              const toggle = createCard();
+
+              card.auto({ title: '' });
+
+              card.appendChild(toggle);
+              const text = card.appendText('Auto-Launch');
+
+              toggle.setType({ type: 'Toggle', state: enabled });
+
+              toggle.domElement.onclick = text.onclick = () =>
+              {
+                card.setType({ type: 'Disabled' });
+
+                if (enabled)
+                {
+                  autoLaunchEntry.disable().then(() =>
+                  {
+                    card.setType({ type: 'Normal' });
+                    toggle.setType({ type: 'Toggle', state: false });
+
+                    enabled = false;
+                  });
+                }
+                else
+                {
+                  autoLaunchEntry.enable().then(() =>
+                  {
+                    card.setType({ type: 'Normal' });
+                    toggle.setType({ type: 'Toggle', state: true });
+
+                    enabled = true;
+                  });
+                }
+              };
+            });
+        }
+        else if (argument === 'Tray')
+        {
+          card.auto();
+
+          let enabled = settings.get('trayIcon', true);
+          const toggle = createCard();
+
+          card.appendChild(toggle);
+
+          const toggleText = card.appendText('Tray');
+
+          toggle.setType({ type: 'Toggle', state: enabled });
+
+          card.appendLineBreak();
+
+          const warningText = card.appendText('This option needs the app to relaunch to be applied');
+
+          const relaunchButton = createCard({ title: 'Relaunch' });
+          relaunchButton.setType({ type: 'Button' });
+
+          card.appendChild(relaunchButton);
+
+          relaunchButton.domElement.onclick = () => relaunch();
+
+          relaunchButton.domElement.style.display = warningText.style.display = 'none';
+
+          toggle.domElement.onclick = toggleText.onclick = () =>
           {
-            settings.set('trayIcon', false);
-            toggle.setType({ type: 'Toggle', state: false });
+            if (enabled)
+            {
+              settings.set('trayIcon', false);
+              toggle.setType({ type: 'Toggle', state: false });
 
-            enabled = false;
-          }
-          else
-          {
+              enabled = false;
+            }
+            else
+            {
 
-            settings.set('trayIcon', true);
-            toggle.setType({ type: 'Toggle', state: true });
+              settings.set('trayIcon', true);
+              toggle.setType({ type: 'Toggle', state: true });
 
-            enabled = true;
-          }
+              enabled = true;
+            }
 
-          if (warningText.style.cssText)
-          {
-            relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
-          }
-        };
+            if (warningText.style.cssText)
+            {
+              relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
+            }
+          };
+        }
       }
     });
 
-    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], undefined, (phrase, match, argument) =>
-    {
-      const card = phrase.card;
-
-      card.reset();
-
-      if (argument === 'About')
+    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], {
+      activate: (card, suggestion, match, argument) =>
       {
-        phrase.card.auto({ title: 'Sulaiman' });
+        card.reset();
 
-        if (buildData.build)
-          phrase.card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
+        if (argument === 'About')
+        {
+          card.auto({ title: 'Sulaiman' });
+
+          if (buildData.build)
+            card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
   
-        if (buildData.package)
-          phrase.card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
+          if (buildData.package)
+            card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
   
-        if (buildData.branch)
-          phrase.card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
+          if (buildData.branch)
+            card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
   
-        if (buildData.commit)
-          phrase.card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
+          if (buildData.commit)
+            card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
   
-        if (buildData.date)
-          phrase.card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
-      }
-      else if (argument === 'Check for Updates')
-      {
-        checkForSulaimanUpdates(card);
+          if (buildData.date)
+            card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
+        }
+        else if (argument === 'Check for Updates')
+        {
+          checkForSulaimanUpdates(card);
+        }
       }
     });
 
@@ -316,13 +314,7 @@ function showChangeKeyCard(card, title, description, key, callback, done, remove
 
     remote.globalShortcut.register(accelerator, callback);
 
-    if (card.isPhrased)
-    {
-      card.reset();
-      card.auto({ title: 'The new shortcut has been applied' });
-      card.setType({ type: 'Disabled' });
-    }
-    else
+    if (!card.isPhrased)
     {
       removeCard(card);
     }
@@ -395,7 +387,7 @@ function captureKey(card, key, done, remove)
     if (!keys.includes(code))
       keys.push(code);
 
-    keysElem.innerText = keys.join(' + ');
+    keysElem.innerText = keys.join('+');
 
     if (keys.length > 1 && checkGlobalShortcut(keys.join('+')))
       setButtonCard.setType({ type: 'Button' });
@@ -405,27 +397,29 @@ function captureKey(card, key, done, remove)
 
   const cancelKeyCapture = () =>
   {
-    exists = settings.has(key);
-
-    keysElem.style.display = 'none';
+    exists = settings.get(key);
+    
+    setButtonCard.setType({ type: 'Button' });
 
     if (exists)
     {
-      cancelButton.innerText = 'Remove';
+      keysElem.innerText = exists;
 
+      setButton.innerText = 'Change';
+      cancelButton.innerText = 'Remove';
+      
       cancelButtonCard.domElement.onclick = removeKey;
     }
     else
     {
-      cancelButton.innerText = 'Cancel';
-
+      keysElem.style.display = 'none';
       cancelButtonCard.domElement.style.display = 'none';
+      
+      setButton.innerText = 'Set';
+      cancelButton.innerText = 'Cancel';
     }
-
-    setButton.innerText = 'Set';
-
+    
     setButtonCard.domElement.onclick = startKeyCapture;
-    setButtonCard.setType({ type: 'Button' });
 
     window.removeEventListener('keydown', keyCapture);
   };
@@ -433,14 +427,16 @@ function captureKey(card, key, done, remove)
   const startKeyCapture = () =>
   {
     keysElem.style.cssText = '';
-
-    cancelButton.innerText = 'Cancel';
-
-    cancelButtonCard.domElement.onclick = cancelKeyCapture;
     cancelButtonCard.domElement.style.cssText = '';
+    
+    
+    setButtonCard.setType({ type: 'Disabled' });
 
     keysElem.innerText = 'Press The Keys';
     setButton.innerText = 'Apply';
+    cancelButton.innerText = 'Cancel';
+    
+    cancelButtonCard.domElement.onclick = cancelKeyCapture;
 
     setButtonCard.domElement.onclick = () =>
     {
@@ -448,8 +444,6 @@ function captureKey(card, key, done, remove)
 
       cancelKeyCapture();
     };
-
-    setButtonCard.setType({ type: 'Disabled' });
 
     window.addEventListener('keydown', keyCapture);
   };
@@ -460,7 +454,7 @@ function captureKey(card, key, done, remove)
     {
       settings.delete(key);
 
-      cancelButtonCard.domElement.style.display = 'none';
+      cancelKeyCapture();
 
       remove();
     }

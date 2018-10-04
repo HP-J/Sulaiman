@@ -1,4 +1,5 @@
 import * as sulaiman from 'sulaiman';
+
 import { Parser } from 'expr-eval';
 
 const parser = new Parser();
@@ -17,30 +18,30 @@ function registerPhrase()
     let result;
 
     sulaiman.on.phrase(
-      /(((abs|acos|acosh|asin|asinh|atan|atanh|ceil|cos|cosh|exp|floor|length|ln|log|log10|not|round|sin|sinh|sqrt|tan|tanh|trunc|random)\((?:\s)?)?((?:\()+(?:\s)?)?((\+|-)?[0-9]+|pi)((?:\s)?(?:\))+)?((?:\s)?(\+|-|\*|\/|%|\^|==|!=|>=|<=|>|<)(?:\s)?((abs|acos|acosh|asin|asinh|atan|atanh|ceil|cos|cosh|exp|floor|length|ln|log|log10|not|round|sin|sinh|sqrt|tan|tanh|trunc|random)\((?:\s)?)?(?:\(?)+(?:\s)?((\+|-)?[0-9]+|pi)((?:\s)?(?:\))+)?)+)|((abs|acos|acosh|asin|asinh|atan|atanh|ceil|cos|cosh|exp|floor|length|ln|log|log10|not|round|sin|sinh|sqrt|tan|tanh|trunc|random)\((?:\s)?[0-9](?:\s)?\))/i,
+      /^(\(|abs|(-|\+)?[0-9])(.*)/i,
       undefined,
-      // on activation
-      (phrase, match) =>
       {
-        try
+        activate: (card, suggestion, match) =>
         {
-          result = parse(match);
-        }
-        catch (err)
+          try
+          {
+            result = parse(match);
+          }
+          catch (err)
+          {
+            result = 'Syntax ERROR';
+          }
+  
+          suggestion.appendChild(document.createTextNode(' = ' + result));
+  
+          return false;
+        },
+        enter: () =>
         {
-          result = 'Syntax ERROR';
+          sulaiman.setInput(result);
+          
+          return { selectSearchBarText: true };
         }
-
-        phrase.suggestion.appendChild(sulaiman.createTextNode(' = ' + result));
-
-        return false;
-      },
-      // on enter
-      () =>
-      {
-        sulaiman.setInput(result);
-        
-        return { selectSearchBarText: true };
       });
   });
 }

@@ -102,9 +102,9 @@ function registerEvents()
 
 function registerBuiltinPhrases()
 {
-  const quitPhrase = registerPhrase('Quit', undefined, undefined, undefined, () => quit());
-  const reloadPhrase = registerPhrase('Reload', undefined, undefined, undefined, () => reload());
-  const relaunchPhrase = registerPhrase('Relaunch', undefined, undefined, undefined, () => relaunch());
+  const quitPhrase = registerPhrase('Quit', undefined, { enter: () => quit() });
+  const reloadPhrase = registerPhrase('Reload', undefined, { enter: () => reload() });
+  const relaunchPhrase = registerPhrase('Relaunch', undefined, { enter: () => relaunch() });
 
   const phrasesPhrase = registerPhrasesPhrase();
   const optionsPhrase = registerOptionsPhrase();
@@ -150,22 +150,22 @@ loadOptions();
 loadExtensions();
 
 // register all builtin phrases
-// registerBuiltinPhrases()
-//   .then(() =>
-{
+registerBuiltinPhrases()
+  .then(() =>
+  {
   // finally, mark the app as ready and
   // emit the ready event
-  readyState = true;
+    readyState = true;
 
-  emit.ready();
+    emit.ready();
 
-  // remove the splash screen when the dom is ready
-  on.domReady(() =>
-  {
-    if (splash)
-      document.body.removeChild(splash);
+    // remove the splash screen when the dom is ready
+    on.domReady(() =>
+    {
+      if (splash)
+        document.body.removeChild(splash);
 
-    // reset focus
-    onfocus();
+      // reset focus
+      onfocus();
+    });
   });
-}
