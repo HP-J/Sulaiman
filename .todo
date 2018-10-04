@@ -4,17 +4,17 @@ graphics:
   ☐ show most recent phrases when input is empty, or most used @build2 @high 
 
   ☐ show popular extensions from npm registry (gallery) @build2 @high 
-  ☐ have a section that shows popular extensions (popular all time)
-  ☐ have a section that shows trending extensions (popular this week)
-  ☐ have a section that shows extensions made by herp project (sort by popularity)
+    ☐ have a section that shows popular extensions (popular all time)
+    ☐ have a section that shows trending extensions (popular this week)
+    ☐ have a section that shows extensions made by herp project (sort by popularity)
 
 manager:
 
 loader:
-  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @build2
+  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @future-build
     and the extension it require is installed and does have public API
 
-  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @build2
+  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @future-build
     without installing an extension
 
 options:
@@ -25,7 +25,7 @@ CI/CD:
   ☐ test the AUR publishing script
   ☐ test the NPM publishing script
 
-  ☐ snapcraft builds
+  ☐ snapcraft builds @build2
 
   ☐ build & test DMG packages @help-needed
 

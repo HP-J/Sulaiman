@@ -197,9 +197,9 @@ function registerPhrases()
         return true;
       })
       // after phrase is created
-      .then((phrase) =>
+      .then((card) =>
       {
-        phrase.card.auto({ description: 'launch the application' });
+        card.auto({ description: 'launch the application' });
       });
   });
 }

@@ -60,11 +60,10 @@
   font-size: calc(11px + 0.5vw + 1vh);
   font-weight: 400;
 
-  writing-mode: horizontal-tb;
   user-select: none;
-  max-block-size: 35vh;
-
   white-space: pre-line;
+  writing-mode: horizontal-tb;
+  max-block-size: 35vh;
 
   width: auto;
   height: auto;

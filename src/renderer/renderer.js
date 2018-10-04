@@ -2,13 +2,12 @@ import { remote } from 'electron';
 
 import { join } from 'path';
 
-import { getIcon, appendCard } from './api.js';
+import { getIcon } from './api.js';
 
 import { loadExtensions, emit, on } from './loader.js';
-import { loadNPM, registerExtensionsPhrase, extensionInstallCard } from './manager.js';
+import { loadNPM, registerExtensionsPhrase } from './manager.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
 import { appendSearchBar, internalRegisterPhrase as registerPhrase, registerPhrasesPhrase } from './search.js';
-import { internalCreateCard } from './card.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -149,10 +148,6 @@ loadOptions();
 
 // load all extensions
 loadExtensions();
-
-const card = internalCreateCard();
-extensionInstallCard(card, 'require');
-appendCard(card);
 
 // register all builtin phrases
 // registerBuiltinPhrases()

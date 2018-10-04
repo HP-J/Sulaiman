@@ -333,7 +333,8 @@ function search(input)
             if (phraseCompareObject.match())
               matchedCompare = phraseCompareObject;
 
-            suggestions.push(phraseCompareObject);
+            if (phraseCompareObject.percentage > 0)
+              suggestions.push(phraseCompareObject);
           }
         }
         else
@@ -343,7 +344,7 @@ function search(input)
           for (let i = 0; i < args.length; i++)
           {
             const compareObject = compare(input, phraseObj.phrase, args[i]);
-  
+
             // if there is not match what-so-ever, continue the phrase arguments loop
             if (!compareObject)
               continue;
@@ -354,7 +355,8 @@ function search(input)
               matchedArgument = args[i];
             }
 
-            suggestions.push(compareObject);
+            if (compareObject.percentage > 0)
+              suggestions.push(compareObject);
           }
         }
       }
@@ -407,9 +409,8 @@ function compare(input, phrase, argument)
 {
   /** @param { string } written
   * @param { string } text
-  * @param { boolean } isArgument
   */
-  function appendWrittenAndTextElement(written, text, isArgument)
+  function appendWrittenAndTextElement(written, text)
   {
     const containerElement = document.createElement('div');
     
@@ -430,7 +431,7 @@ function compare(input, phrase, argument)
       }
     }
 
-    if (isArgument)
+    if (element.innerText)
       element.appendChild(document.createElement('div')).innerText = ' ';
 
     element.appendChild(containerElement);
@@ -447,18 +448,16 @@ function compare(input, phrase, argument)
   */
   const regex = (isString) ? getStringRegex(phrase) : phrase;
 
-  const match = input.match(regex);
-
-  if (match === null)
-    return undefined;
+  const match = input.match(regex) || [ '' ];
 
   // split the input to words
   const inputSplit = input.split(' ');
 
   // remove all words that matched the phrase from input array,
   // so the argument won't compare to any of them
-  inputSplit.splice(0, match[0].split(' ').length);
-
+  if (match[0])
+    inputSplit.splice(0, match[0].split(' ').length);
+  
   const phraseTextWritten = match[0];
 
   const wordCount = (1 + argumentSplit.length);
@@ -485,15 +484,11 @@ function compare(input, phrase, argument)
   // append a text and text written elements for the phrase, on the suggestions item
   appendWrittenAndTextElement(phraseTextWritten, phraseText);
 
-  //
-
   // process arguments (any thing after the first word)
   for (let i = 0; i < argumentSplit.length; i++)
   {
     const argument = argumentSplit[i];
     const input = inputSplit[0];
-
-    // console.log(argument + ' - ' + input);
 
     let match;
 
@@ -508,13 +503,13 @@ function compare(input, phrase, argument)
 
       const written = match[0];
 
-      appendWrittenAndTextElement(written, argument, true);
+      appendWrittenAndTextElement(written, argument);
       
       argumentLettersWrittenCount = written.length;
     }
     else
     {
-      appendWrittenAndTextElement('', argument, true);
+      appendWrittenAndTextElement('', argument);
     }
   }
 
@@ -535,18 +530,19 @@ function compare(input, phrase, argument)
 */
 function getStringRegex(phrase)
 {
-  const split = phrase.split('');
-
   let regexString = '';
-
-  for (let i = split.length - 1; i >= 0; i--)
+  
+  const split = phrase.split('');
+  const length = split.length - 1;
+  
+  for (let i = length; i >= 0; i--)
   {
     const partial = escapeRegExp(phrase.slice(0, i + 1));
 
-    if (i !== 0)
-      regexString = regexString + '|' + partial;
-    else
+    if (i === length)
       regexString = partial;
+    else
+      regexString = regexString + '|' + partial;
   }
 
   return new RegExp('^(?:' + regexString + ')', 'i');

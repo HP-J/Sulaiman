@@ -64,8 +64,8 @@ html
   width: 100vw;
   height: calc(var(--suggestion-item-height));
 
-  white-space: pre;
   user-select: none;
+  white-space: pre-line;
 
   font-family: Oxygen, sans-serif;
   font-size: calc(12px + 0.8vh + 0.5vw);;
