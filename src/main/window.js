@@ -27,19 +27,6 @@ export function setApp(_app)
   app = _app;
 }
 
-/** reloads the electron browser window
-*/
-export function reload()
-{
-  mainWindow.reload();
-}
-
-export function relaunch()
-{
-  app.relaunch();
-  app.quit();
-}
-
 export function isDebug()
 {
   if (process.argv.includes('--debug'))
@@ -54,6 +41,19 @@ export function isHidden()
     shownMode = false;
 
   return shownMode;
+}
+
+/** reloads the electron browser window
+*/
+export function reload()
+{
+  mainWindow.reload();
+}
+
+export function relaunch()
+{
+  app.relaunch();
+  app.quit();
 }
 
 export function quit()

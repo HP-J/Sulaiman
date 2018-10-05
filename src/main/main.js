@@ -93,7 +93,7 @@ function createWindow()
     slashes: true
   }));
 
-  // emitted when the window is closed.
+  // emits when the window is closed
   mainWindow.on('closed', () =>
   {
     mainWindow = undefined;
