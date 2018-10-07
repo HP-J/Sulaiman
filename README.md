@@ -12,14 +12,15 @@
 - You can't change the color, size, location and shape of the entire GUI using themes.
 - We don't have a good extension API either.
 
-#### How to Install/Delete Extensions?  
+#### How to install and delete extensions?
 
 - currently sulaiman doesn't have a way to search for extensions form the app it self, however,
-sulaiman does have a way to install extensions, which is the only recommend way to install them.
+sulaiman does have a way to install extensions, which is the only recommended way to install them.
 - you can type 'extension install' then the name of an extension's npm package to install it.
-- you can type 'extension running' to see all installed extensions and delete any of them if you desire.
+- you can type 'extension delete' then the name of an extension's npm package to delete it.
+- you can type 'extension running' to see all running extensions and remove any of them.
 
-#### How to Create your own Extensions?  
+#### How to create your own extensions?
 
 - Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
 
@@ -29,7 +30,7 @@ sulaiman does have a way to install extensions, which is the only recommend way 
 [AUR](https://aur.archlinux.org/packages/sulaiman) |
 [deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
 [tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build) |
-Snap will be available when the next build come out
+Snap will be available soon
 - **Windows:** [Setup.exe](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
 - **macOS:**  if you made electron apps for macOS before, you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
 
