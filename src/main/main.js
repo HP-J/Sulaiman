@@ -102,7 +102,7 @@ function createWindow()
 
 if (!isDebug() && !app.requestSingleInstanceLock())
 {
-  quit();
+  app.quit();
 }
 else
 {
