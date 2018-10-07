@@ -287,7 +287,7 @@ export function extensionInstallCard(card, name)
             })
             .then(() =>
             {
-              // return installExtensionDependencies(button, data.name);
+              return installExtensionDependencies(button, data.name);
             })
             .then(() =>
             {
@@ -295,7 +295,10 @@ export function extensionInstallCard(card, name)
             })
             .catch((err) =>
             {
-              failedToInstall(card, name, err.message);
+              deleteDir(name).then(() =>
+              {
+                failedToInstall(card, name, err.message);
+              });
             });
         };
       }
@@ -327,10 +330,13 @@ export function extensionInstallCard(card, name)
     })
     .catch((err) =>
     {
-      if (err && err.canceled)
-        return;
-      
-      failedToInstall(card, name, err.message);
+      deleteDir(name).then(() =>
+      {
+        if (err && err.canceled)
+          return;
+        
+        failedToInstall(card, name, err.message);
+      });
     });
 
   return cancelPromise.cancel;
@@ -393,7 +399,10 @@ export function extensionUpdateCard(card, local, remote, name)
         })
         .catch((err) =>
         {
-          failedToInstall(card, name, err.message);
+          deleteDir(name).then(() =>
+          {
+            failedToInstall(card, name, err.message);
+          });
         });
     };
   
@@ -694,7 +703,8 @@ function installExtensionDependencies(button, name)
   
         for (const mod in data.dependencies)
         {
-          dependencies.push(mod + '@' + data.dependencies[mod]);
+          if (mod !== 'sulaiman')
+            dependencies.push(mod + '@' + data.dependencies[mod]);
         }
   
         npm.commands.install(dependencies, (err) =>
@@ -741,21 +751,18 @@ function success(card, name, state)
 */
 function failedToInstall(card, name, err)
 {
-  deleteDir(name).then(() =>
-  {
-    card.reset();
-    card.auto({ title: name, description: err });
+  card.reset();
+  card.auto({ title: name, description: err });
 
-    const button = createCard({ title: 'Try Again' });
-    button.setType({ type: 'Button' });
+  const button = createCard({ title: 'Try Again' });
+  button.setType({ type: 'Button' });
+
+  card.appendChild(button);
   
-    card.appendChild(button);
-    
-    button.domElement.onclick = () =>
-    {
-      extensionInstallCard(card, name);
+  button.domElement.onclick = () =>
+  {
+    extensionInstallCard(card, name);
 
-      card.removeChild(button);
-    };
-  });
+    card.removeChild(button);
+  };
 }
