@@ -6,8 +6,6 @@ import { join, basename } from 'path';
 import { homedir, platform as getPlatform } from 'os';
 import { exec } from 'child_process';
 
-const phraseArgs = [];
-
 /** @type { Object<string, sting> }
 */
 const apps = {};
@@ -52,11 +50,11 @@ function windows()
 {
   const { APPDATA, ProgramData } = process.env;
 
-  // directories where usually shortcut, links or the apps themselves exists
+  // directories where usually app shortcuts exists
   const appDirectories =
   [
-    join(APPDATA, '/Microsoft/Windows/Start Menu/Programs/'),
-    join(ProgramData, '/Microsoft/Windows/Start Menu/Programs/')
+    join(APPDATA, '/Microsoft/Windows/Start Menu/'),
+    join(ProgramData, '/Microsoft/Windows/Start Menu/')
   ];
 
   // the usual extensions for the apps in this os
@@ -74,10 +72,20 @@ function windows()
       if (file.endsWith(appExtension))
       {
         const name = basename(file, appExtension);
+        let target;
 
-        phraseArgs.push(name);
-
-        apps[name] = file;
+        try
+        {
+          target = sulaiman.shell.readShortcutLink(file).target;
+        }
+        catch (e)
+        {
+          //
+        }
+        finally
+        {
+          apps[name] = target || file;
+        }
       }
     }
     
@@ -87,7 +95,7 @@ function windows()
 
 function linux()
 {
-  // directories where usually shortcut, links or the apps themselves exists
+  // directories where usually app shortcuts exists
   const appDirectories =
   [
     '/usr/share/applications/',
@@ -109,32 +117,22 @@ function linux()
       // if it ends with the specified extension
       if (file.endsWith(appExtension))
       {
-        const fileParsed = {};
-                              
-        // read the file and parse it content to a javascript object
-        const fileRead = readFileSync(file).toString().split('\n');
-            
-        for (let i = 0; i < fileRead.length; i++)
-        {
-          const splitIndex = fileRead[i].indexOf('=');
-            
-          const key = fileRead[i].substring(0, splitIndex).trim();
-          const value = fileRead[i].substring(splitIndex + 1).trim();
-            
-          if (key.length > 0 && value.length > 0)
-            fileParsed[key] = value;
-        }
-            
-        if (fileParsed.NoDisplay)
+        const desktopFile = readFileSync(file).toString();
+
+        const hidden = desktopFile.match(/^(?:NoDisplay=)(.+)/m);
+
+        if (hidden && hidden[1] === 'true')
           continue;
 
-        phraseArgs.push(fileParsed.Name);
+        const name = desktopFile.match(/^(?:Name=)(.+)/m);
+        const exec = desktopFile.match(/^(?:Exec=)(.+)/m);
 
-        apps[fileParsed.Name] = fileParsed.Exec;
+        if (name && exec)
+          apps[name[1]] = exec[1];
       }
-      
-      resolve();
     }
+
+    resolve();
   });
 }
 
@@ -144,7 +142,7 @@ function launch(execPath)
   {
     sulaiman.shell.openItem(execPath);
   }
-  else
+  else if (platform === 'linux')
   {
     // Linux
     // Replace %u and other % arguments in exec script
@@ -157,50 +155,50 @@ function registerPhrases()
 {
   sulaiman.on.ready(() =>
   {
+    const appsAsNames = Object.keys(apps);
+
+    if (appsAsNames.length <= 0)
+      return;
+
     let name = '';
 
-    const button = sulaiman.createCard({ title: 'Launch' });
+    const button = sulaiman.createCard();
 
     button.setType({ type: 'Button' });
 
     sulaiman.on.phrase(
       'Launch',
-      phraseArgs,
+      appsAsNames,
       {
         activate: (card, suggestion, match, argument) =>
         {
           // set app name
           name = argument;
   
-          card.auto({ title: name,  });
+          card.auto({ title: name, description: 'Launch the application' });
+          button.auto({ title: 'Launch' });
   
           button.domElement.onclick = () =>
           {
             launch(apps[name]);
       
-            card.auto({ description: 'has been launched' });
-            card.removeChild(button);
-      
-            card.setType({ type: 'Disabled' });
+            card.auto({ description: 'Has been launched' });
+            button.auto({ title: 'Launch Again' });
           };
   
           card.appendChild(button);
-  
-          card.setType({ type: 'Normal' });
         },
         enter: () =>
         {
           launch(apps[name]);
   
-          return { clearSearchBar: true, blurSearchBar: true };
+          return { clearSearchBar: true };
         }
-      })
-      // after phrase is created
-      .then(card => card.auto({ description: 'launch the application' }));
+      });
   });
 }
 
 if (platform === 'win32')
   windows().then(registerPhrases);
-else
+else if (platform === 'linux')
   linux().then(registerPhrases);

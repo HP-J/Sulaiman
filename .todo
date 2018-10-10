@@ -33,6 +33,7 @@ CI/CD:
 
 extensions:
   ☐ open files @build2 @high 
+  ☐ show the app icon on its launch-app card
   ☐ usable calculator card (like the one in google search) @low 
 
   ☐ launch-apps (mac support) @help-needed
