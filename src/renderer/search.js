@@ -283,15 +283,10 @@ function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArg
   
   if
   (
-    !phraseObj.emit.activate ||
-    (phraseObj.emit.activate(
-      phraseObj.card,
-      suggestionElement,
-      matchedPhrase,
-      matchedArgument,
-      extra))
-      // default to true aka showing the phrase's card
-      === false ? true : false)
+    phraseObj.emit.activate && (
+      phraseObj.emit.activate(phraseObj.card, suggestionElement, matchedPhrase, matchedArgument, extra)
+    ) === false
+  )
   {
     // return with out activation aka don't show the phrase's card
     return;
@@ -539,7 +534,7 @@ function compare(input, phrase, argument)
     if (input)
       match = getStringRegex(argument).exec(input);
     
-    argumentLettersCount =+ argument.length;
+    argumentLettersCount = argumentLettersCount + argument.length;
 
     if (match && match[0])
     {
@@ -554,14 +549,14 @@ function compare(input, phrase, argument)
 
       appendWrittenAndTextElement(element, written, argument);
       
-      argumentLettersWrittenCount = written.length;
+      argumentLettersWrittenCount = argumentLettersWrittenCount + written.length;
     }
     else
     {
       appendWrittenAndTextElement(element, '', argument);
     }
   }
-
+  
   return {
     element: element,
     wordCount: wordCount,
@@ -703,6 +698,9 @@ export function registerPhrase(card, phrase, defaultArgs, on)
             emit: on,
             active: false
           };
+
+          if (!on)
+            phraseObj.emit = {};
 
           if (defaultArgs && isArray(defaultArgs))
             phraseObj.defaultArgs.push(...defaultArgs);

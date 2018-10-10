@@ -57,12 +57,12 @@ export function registerExtensionsPhrase()
 
   return new Promise((resolve) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Delete', 'Check for Updates' ], {
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Remove', 'Check for Updates' ], {
       suggest: (argument) =>
       {
         const args = [];
         
-        if (argument === 'Delete')
+        if (argument === 'Remove')
         {
           for (let name in loadedExtensions)
           {
@@ -106,7 +106,7 @@ export function registerExtensionsPhrase()
         
           cancelToken = extensionInstallCard(card, extra);
         }
-        else if (argument.startsWith('Delete'))
+        else if (argument.startsWith('Remove'))
         {
           if (!extra)
           {
@@ -126,7 +126,7 @@ export function registerExtensionsPhrase()
             extra = 'sulaiman-' + extra;
 
           if (loadedExtensions[extra])
-            extensionDeleteCard(card, loadedExtensions[extra]);
+            extensionRemoveCard(card, loadedExtensions[extra]);
           else
             card.auto({ title: 'Extensions', description: 'No extensions running with that nam' });
         }
@@ -219,7 +219,7 @@ export function extensionCard(card, data, oldData)
 /** @param { Card } card
 * @param { PackageData } extension
 */
-export function extensionDeleteCard(card, extension)
+export function extensionRemoveCard(card, extension)
 {
   const button = extensionCard(card, extension);
 
@@ -532,7 +532,7 @@ function checkForExtensionsUpdates(parent)
   
     Promise.all(promises).then(() =>
     {
-      parent.auto({ title: number + ' Extensions have Updates', description: '' });
+      parent.auto({ title: number + ' Extensions Have Updates', description: '' });
 
       if (number > 0)
         makeItCollapsible(parent);
@@ -554,7 +554,7 @@ function showRunningExtensions(parent)
   {
     const card = createCard();
 
-    extensionDeleteCard(card, loadedExtensions[extension]);
+    extensionRemoveCard(card, loadedExtensions[extension]);
 
     toggleCollapse(card, undefined, true, true);
   

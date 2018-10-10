@@ -10,7 +10,7 @@ import { appendCard, removeCard } from './api.js';
 import { readyState, toggleCollapse } from './renderer.js';
 import { internalCreateCard as createCard } from './card.js';
 import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
-import { extensionDeleteCard } from './manager.js';
+import { extensionRemoveCard } from './manager.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -243,7 +243,7 @@ function loadingAbortedCard(warning, abortedData, runningData)
 
   const abortedCard = createCard();
   
-  extensionDeleteCard(abortedCard, abortedData);
+  extensionRemoveCard(abortedCard, abortedData);
 
   card.appendChild(abortedCard);
   card.appendLineBreak();
@@ -254,7 +254,7 @@ function loadingAbortedCard(warning, abortedData, runningData)
   {
     const runningCard = createCard();
 
-    extensionDeleteCard(runningCard, runningData);
+    extensionRemoveCard(runningCard, runningData);
 
     card.appendChild(runningCard);
     card.appendLineBreak();
