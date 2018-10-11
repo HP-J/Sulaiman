@@ -38,7 +38,7 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 /** @typedef { { phrase: string | RegExp, card: Card, defaultArgs: string[], emit: PhraseEvents } } PhraseObject
 */
 
-/** @typedef { { element: HTMLElement, wordCount: number, percentage: number, match: () => boolean, visible: () => boolean, matchedPhrase: string, matchedArgument: string, extra: string } } CompareObject
+/** @typedef { { element: HTMLElement, wordCount: number, writtenWordCount: number, percentage: number, match: () => boolean, visible: () => boolean, matchedPhrase: string, matchedArgument: string, extra: string } } CompareObject
 */
 
 /** @type { HTMLInputElement }
@@ -237,7 +237,7 @@ function selectItem(indexDiff)
 
   const nextElement = suggestionsElement.children[nextIndex];
   const currentElement = suggestionsElement.children[selectIndex];
-  
+
   if (currentElement && nextElement !== currentElement && currentElement.classList.contains('suggestionsItemSelected'))
   {
     currentElement.classList.remove('suggestionsItemSelected');
@@ -280,7 +280,7 @@ function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArg
   // cache element text as the auto-complete value before giving away the suggestion element, however it's still
   // possible to modify it, using the suggestionElement.value
   suggestionElement.value = suggestionElement.innerText;
-  
+
   if
   (
     phraseObj.emit.activate && (
@@ -380,7 +380,7 @@ function search(input)
             {
               if (compareObject.match())
                 matchedCompare = compareObject;
-              
+
               suggestions.push(compareObject);
             }
           }
@@ -418,10 +418,15 @@ function search(input)
         // deactivate it
         deactivatePhrase(phraseObj);
     }
-      
+
     // sort all compare objects based on their percentage
     sort(suggestions, (a, b) =>
     {
+      if (a.writtenWordCount > b.writtenWordCount)
+        return -1;
+      else if (a.writtenWordCount < b.writtenWordCount)
+        return 1;
+
       if (a.percentage > b.percentage)
         return -1;
       else if (a.percentage < b.percentage)
@@ -490,11 +495,6 @@ function compare(input, phrase, argument)
   // split argument to words
   const argumentSplit = (argument) ? standard(argument).split(' ') : [];
 
-  // remove all words that matched the phrase from input array,
-  // so the argument won't compare to any of them
-  if (match[0])
-    inputSplit.splice(0, match[0].split(' ').length);
-
   /** @type { string }
   */
   const phraseText = ((isString) ? phrase : match[0]);
@@ -509,7 +509,17 @@ function compare(input, phrase, argument)
   let argumentLettersWrittenCount = 0;
 
   const wordCount = phraseText.split(' ').length + argumentSplit.length;
-  const inputWordCount = inputSplit.length;
+  let writtenWordCount = 0;
+
+  // if the phrase word itself matches
+  if (match[0])
+  {
+    // remove all words that matched the phrase from input array,
+    // so the argument won't compare to any of them
+    inputSplit.splice(0, match[0].split(' ').length);
+  
+    writtenWordCount = writtenWordCount + 1;
+  }
 
   // create an element for the suggestion item
   const element = document.createElement('div');
@@ -533,7 +543,7 @@ function compare(input, phrase, argument)
 
     if (input)
       match = getStringRegex(argument).exec(input);
-    
+
     argumentLettersCount = argumentLettersCount + argument.length;
 
     if (match && match[0])
@@ -548,7 +558,9 @@ function compare(input, phrase, argument)
         argumentTextWritten = written;
 
       appendWrittenAndTextElement(element, written, argument);
-      
+
+      writtenWordCount = writtenWordCount + 1;
+
       argumentLettersWrittenCount = argumentLettersWrittenCount + written.length;
     }
     else
@@ -556,10 +568,11 @@ function compare(input, phrase, argument)
       appendWrittenAndTextElement(element, '', argument);
     }
   }
-  
+
   return {
     element: element,
     wordCount: wordCount,
+    writtenWordCount: writtenWordCount,
     percentage: ((phraseLettersWrittenCount + argumentLettersWrittenCount) / (phraseLettersCount + argumentLettersCount)),
     match: function()
     {
@@ -567,9 +580,6 @@ function compare(input, phrase, argument)
     },
     visible: function()
     {
-      if (inputWordCount > wordCount && this.percentage === 1)
-        return false;
-
       if (this.percentage > 0)
         return true;
 
@@ -586,10 +596,10 @@ function compare(input, phrase, argument)
 function getStringRegex(phrase)
 {
   let regexString = '';
-  
+
   const split = phrase.split('');
   const length = split.length - 1;
-  
+
   for (let i = length; i >= 0; i--)
   {
     const partial = escapeRegExp(phrase.slice(0, i + 1));
@@ -684,7 +694,7 @@ export function registerPhrase(card, phrase, defaultArgs, on)
               value: phrase,
               writable: false
             });
-      
+
           const isString = (typeof phrase === 'string');
           const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
 
@@ -781,7 +791,7 @@ export function isRegisteredPhrase(phrase)
     if (!isString && !(phrase instanceof RegExp))
     {
       reject('the phrase type is not a string or a regex, it should be one of those two');
-        
+
       return;
     }
 
@@ -789,7 +799,7 @@ export function isRegisteredPhrase(phrase)
     if (isString && phrase !== standard(phrase))
     {
       reject('the phrase must not have any unnecessary whitespace and also must not have any newlines');
-    
+
       return;
     }
 
@@ -797,7 +807,7 @@ export function isRegisteredPhrase(phrase)
     if (isString && !phrase)
     {
       reject('the phrase is empty');
-    
+
       return;
     }
 
