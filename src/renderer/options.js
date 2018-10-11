@@ -194,6 +194,18 @@ export function registerOptionsPhrase()
   
           if (buildData.date)
             card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.electron)
+            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.chrome)
+            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.node)
+            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.v8)
+            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
         }
         else if (argument === 'Check for Updates')
         {
