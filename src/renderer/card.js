@@ -298,7 +298,7 @@ export default class Card
 
     if (typeof options.title === 'string')
     {
-      if (options.title.length <= 0 && titleElem)
+      if (!options.title && titleElem)
       {
         this.removeChild(titleElem);
 
@@ -360,7 +360,7 @@ export default class Card
 
     if (typeof options.description === 'string')
     {
-      if (options.description.length <= 0 && descriptionElem)
+      if (!options.description && descriptionElem)
       {
         this.removeChild(descriptionElem);
 

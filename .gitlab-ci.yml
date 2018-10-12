@@ -5,7 +5,7 @@ cache:
 variables: {
     # used to create the build.json using nodejs
     BUILD_JSON_EVAL:
-      "console.log(JSON.stringify({ branch: process.argv[1], commit: process.argv[2], date: process.argv[3], version: process.argv[4], package: process.argv[5] || undefined, nsis: process.argv[6], deb: process.argv[7] }));"
+      "console.log(JSON.stringify({ branch: process.argv[1], commit: process.argv[2], date: process.argv[3], package: process.argv[4] || undefined, nsis: process.argv[5], deb: process.argv[6] }));"
 }
 
 stages:
@@ -34,19 +34,19 @@ build:
     - "npm run compile"
 
     # build nsis installer for windows
-    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"nsis\") > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"nsis\") > build.json"
     - "npx electron-builder --win NSIS"
 
     # build debian package for linux
-    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"deb\") > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"deb\") > build.json"
     - "npx electron-builder --linux deb"
 
     # build tar.xz package for linux
-    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION) > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\") > build.json"
     - "npx electron-builder --linux tar.xz"
 
     # create the build.json that will be kept in the artifacts for sulaiman builtin update system to use
-    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"\" $DOWNLOAD_URLS) > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"\" $DOWNLOAD_URLS) > build.json"
   artifacts:
     # 6 month without a new build would mean that sulaiman is properly dead and you properly shouldn't download it anyway
     expire_in: 6 mos

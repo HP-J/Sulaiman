@@ -3,7 +3,7 @@ import * as settings from 'electron-json-config';
 
 import request from 'request-promise-native';
 
-import { readFileSync, existsSync } from 'fs';
+import { readFile, pathExists as exists } from 'fs-extra';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -17,6 +17,9 @@ import { appendCard, removeCard } from './api.js';
 /** @typedef { import('./card.js').default } Card
 */
 
+/** @typedef { import('./loader').PackageData } PackageData
+*/
+
 /** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
 */
 const { download: dl  } = remote.require('electron-dl');
@@ -25,16 +28,10 @@ const { mainWindow, isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
-/** @type { { branch: string, commit: string, date: string, version: string, package: string } }
-*/
-let buildData = {};
-
 export let autoHide = false;
 
 export function loadOptions()
 {
-  loadBuildData();
-
   if (isDebug())
     return;
   
@@ -180,32 +177,48 @@ export function registerOptionsPhrase()
         {
           card.auto({ title: 'Sulaiman' });
 
-          if (buildData.branch)
-            card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
+          card.auto({ description: 'Loading' });
+
+          readJson('build.json').then((localData) =>
+          {
+            readJson('package.json').then((packageData) =>
+            {
+              card.auto({ description: '' });
+
+              if (localData)
+              {
+                if (localData.branch)
+                  card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' });
   
-          if (buildData.commit)
-            card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
+                if (localData.commit)
+                  card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' });
   
-          if (buildData.package)
-            card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
+                if (localData.package)
+                  card.appendText('Package (' + localData.package + ')', { type: 'Description', select: 'Selectable' });
 
-          if (buildData.date)
-            card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
+                if (localData.date)
+                  card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' });
+              }
 
-          if (buildData.version)
-            card.appendText('API: ' + buildData.version, { type: 'Description', select: 'Selectable' });
+              if (packageData)
+              {
+                if (packageData.version)
+                  card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' });
+              }
+  
+              if (process.versions.electron)
+                card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
 
-          if (process.versions.electron)
-            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
+              if (process.versions.chrome)
+                card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
 
-          if (process.versions.chrome)
-            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
+              if (process.versions.node)
+                card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
 
-          if (process.versions.node)
-            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
-
-          if (process.versions.v8)
-            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
+              if (process.versions.v8)
+                card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
+            });
+          });
         }
         else if (argument === 'Check for Updates')
         {
@@ -511,15 +524,31 @@ function unregisterGlobalShortcut(accelerator)
   }
 }
 
-function loadBuildData()
+
+/** @param { "build.json" | "package.json" } filename
+* @returns { Promise<{ branch: string, commit: string, date: string, package: string } | PackageData> }
+*/
+function readJson(filename)
 {
-  const buildPath = join(__dirname, '../../build.json');
+  return new Promise((resolve) =>
+  {
+    const jsonPath = join(__dirname, '../../', filename);
 
-  // if the build.json file doesn't exists, then return
-  if (!existsSync(buildPath))
-    return;
-
-  buildData = JSON.parse(readFileSync(join(__dirname, '../../build.json')).toString());
+    exists(jsonPath).then((does) =>
+    {
+      if (does)
+        return readFile(jsonPath);
+      else
+        resolve(undefined);
+    })
+      .then((buffer) =>
+      {
+        if (buffer)
+          resolve(JSON.parse(buffer.toString()));
+        else
+          resolve(undefined);
+      });
+  });
 }
 
 /** @param { Card } card
@@ -529,13 +558,13 @@ function checkForSulaimanUpdates(card)
 {
   return new Promise((resolve) =>
   {
-  /** @param { { build: string, branch: string, commit: string, date: string } } serverBuild
+  /** @param { { build: string, branch: string, commit: string, date: string } } remoteData
   */
-    function check(serverBuild)
+    function check(localData, remoteData)
     {
       // if commit id of the server is different, and
       // the current package has a download url in the server
-      if (serverBuild.commit !== buildData.commit && serverBuild[buildData.package])
+      if (remoteData.commit !== localData.commit && remoteData[localData.package])
       {
         const progress = function(percentage)
         {
@@ -599,7 +628,7 @@ function checkForSulaimanUpdates(card)
           updateButton.domElement.style.display = 'none';
           dismissButton.domElement.style.cssText = '';
 
-          const url = new URL(serverBuild[buildData.package]);
+          const url = new URL(remoteData[localData.package]);
           const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
 
           card.auto({ description: 'Downloading..' });
@@ -671,18 +700,30 @@ function checkForSulaimanUpdates(card)
 
     card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
 
-    // if build.json doesn't exists or if the package is not specified, then return
-    if (!buildData.branch || !buildData.commit || !buildData.package)
+    readJson('build.json').then((localData) =>
     {
-      card.auto({ description: 'Up-to-date' });
+    // if build.json doesn't exists or if the package is not specified, then return
+      if (!localData || !localData.branch || !localData.commit || !localData.package)
+      {
+        card.auto({ description: 'Local build is missing its information' });
 
-      resolve(false);
-      return;
-    }
+        resolve(false);
+        return;
+      }
 
-    // request the server's build.json, can fail silently
-    request(
-      'https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + buildData.branch + '/raw/build.json?job=build', {  json: true })
-      .then((serverBuild) => check(serverBuild));
+      // request the server's build.json, can fail silently
+      request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
+        .then((remoteData) =>
+        {
+          check(localData, remoteData);
+        })
+        .catch(() =>
+        {
+          card.auto({ description: 'Failed to reach server' });
+
+          resolve(false);
+          return;
+        });
+    });
   });
 }
