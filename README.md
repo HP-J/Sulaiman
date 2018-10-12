@@ -17,7 +17,7 @@
 - currently sulaiman doesn't have a way to search for extensions form the app it self, however,
 sulaiman does have a way to install extensions, which is the only recommended way to install them.
 - you can type 'extension install' then the name of an extension's npm package to install it.
-- you can type 'extension delete' then the name of an extension's npm package to delete it.
+- you can type 'extension remove' then the name of an extension's npm package to delete it.
 - you can type 'extension running' to see all running extensions and remove any of them.
 
 #### How to create your own extensions?
