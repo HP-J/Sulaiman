@@ -4,8 +4,8 @@ cache:
 
 variables: {
     # used to create the build.json using nodejs
-    BUILD_DATA:
-      "console.log(JSON.stringify({ build: process.argv[1], branch: process.argv[2], commit: process.argv[3], date: process.argv[4], package: process.argv[5] || undefined, nsis: process.argv[6], deb: process.argv[7] }));"
+    BUILD_JSON_EVAL:
+      "console.log(JSON.stringify({ branch: process.argv[1], commit: process.argv[2], date: process.argv[3], version: process.argv[4], package: process.argv[5] || undefined, nsis: process.argv[6], deb: process.argv[7] }));"
 }
 
 stages:
@@ -17,7 +17,7 @@ build:
   stage: build
   image: electronuserland/builder:wine
   script:
-    # BUILD_DATA variables
+    # BUILD_JSON_EVAL variables
     - "VERSION=$(cat package.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]')"
     - "DATE=$(date -u +%a', '%d' '%b' '%Y' '%T' GMT')"
 
@@ -27,28 +27,28 @@ build:
     - "TAR_URL=https://gitlab.com/herpproject/Sulaiman/-/jobs/$CI_JOB_ID/artifacts/raw/public/Sulaiman.tar.xz?job=build"
 
     # the builds supported by sulaiman builtin update system
-    - "URLS_ARGS=\"$NSIS_URL $DEB_URL\""
+    - "DOWNLOAD_URLS=\"$NSIS_URL $DEB_URL\""
 
     # install dependencies & compile the code
     - "npm install"
     - "npm run compile"
 
     # build nsis installer for windows
-    - "echo $(node -e \"$BUILD_DATA\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"nsis\") > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"nsis\") > build.json"
     - "npx electron-builder --win NSIS"
 
     # build debian package for linux
-    - "echo $(node -e \"$BUILD_DATA\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"deb\") > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"deb\") > build.json"
     - "npx electron-builder --linux deb"
 
     # build tar.xz package for linux
-    - "echo $(node -e \"$BUILD_DATA\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\") > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION) > build.json"
     - "npx electron-builder --linux tar.xz"
 
     # create the build.json that will be kept in the artifacts for sulaiman builtin update system to use
-    - "echo $(node -e \"$BUILD_DATA\" $VERSION $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" \"\" $URLS_ARGS) > build.json"
+    - "echo $(node -e \"$BUILD_JSON_EVAL\" $CI_COMMIT_REF_NAME $CI_COMMIT_SHA \"$DATE\" $VERSION \"\" $DOWNLOAD_URLS) > build.json"
   artifacts:
-    # 6 month without a new version to would that sulaiman is properly dead and you properly shouldn't download it anyway
+    # 6 month without a new build would mean that sulaiman is properly dead and you properly shouldn't download it anyway
     expire_in: 6 mos
     paths:
       - public/Sulaiman-Setup.exe

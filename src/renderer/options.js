@@ -25,7 +25,7 @@ const { mainWindow, isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
-/** @type { { build: string, branch: string, commit: string, date: string, package: string } }
+/** @type { { branch: string, commit: string, date: string, version: string, package: string } }
 */
 let buildData = {};
 
@@ -180,20 +180,20 @@ export function registerOptionsPhrase()
         {
           card.auto({ title: 'Sulaiman' });
 
-          if (buildData.build)
-            card.appendText('Build. ' + buildData.build.substring(2, 3), { type: 'Description', select: 'Selectable' });
-  
-          if (buildData.package)
-            card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
-  
           if (buildData.branch)
             card.appendText('Branch: ' + buildData.branch, { type: 'Description', select: 'Selectable' });
   
           if (buildData.commit)
             card.appendText('Commit: ' + buildData.commit, { type: 'Description', select: 'Selectable' });
   
+          if (buildData.package)
+            card.appendText('Package (' + buildData.package + ')', { type: 'Description', select: 'Selectable' });
+
           if (buildData.date)
             card.appendText('Release Date: ' + buildData.date, { type: 'Description', select: 'Selectable' });
+
+          if (buildData.version)
+            card.appendText('API: ' + buildData.version, { type: 'Description', select: 'Selectable' });
 
           if (process.versions.electron)
             card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
@@ -535,7 +535,7 @@ function checkForSulaimanUpdates(card)
     {
       // if commit id of the server is different, and
       // the current package has a download url in the server
-      if (serverBuild.build !== buildData.build && serverBuild[buildData.package])
+      if (serverBuild.commit !== buildData.commit && serverBuild[buildData.package])
       {
         const progress = function(percentage)
         {
@@ -672,7 +672,7 @@ function checkForSulaimanUpdates(card)
     card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
 
     // if build.json doesn't exists or if the package is not specified, then return
-    if (!buildData.package || !buildData.branch)
+    if (!buildData.branch || !buildData.commit || !buildData.package)
     {
       card.auto({ description: 'Up-to-date' });
 
