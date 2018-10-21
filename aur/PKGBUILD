@@ -13,8 +13,9 @@ depends=('c-ares' 'ffmpeg' 'gtk3' 'http-parser' 'libevent' 'libvpx'
 
 package() {
   # Describe package as AUR
+  # Remove last character ('}') and replace it with ',package:"AUR"}'
   sed -i "$ s/.$//" "${srcdir}/Sulaiman/resources/app/build.json"
-  echo ",\"package\": \"AUR\"}" >> "${srcdir}/Sulaiman/resources/app/build.json"
+  echo ",\"package\":\"AUR\"}" >> "${srcdir}/Sulaiman/resources/app/build.json"
 
   # Install the main files.
   install -d "${pkgdir}/opt/${pkgname}"
