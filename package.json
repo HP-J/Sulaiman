@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir compiled --copy-files --source-maps --watch",
     "compile": "npx babel src --out-dir compiled --copy-files --no-comments --minified && rm -rf ./compiled/extensions/sulaiman-extension-debug",
-    "clean": "rm -r compiled",
+    "clean": "rm -rf compiled",
     "patch": "npm version patch --no-git-tag-version"
   },
   "build": {
