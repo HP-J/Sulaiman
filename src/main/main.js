@@ -3,7 +3,7 @@ import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog, Menu } fro
 import { join } from 'path';
 import url from 'url';
 
-import { isDebug, isHidden, setWindow, setApp, showHide, reload, quit } from './window.js';
+import { isDebug, isHidden, setWindow, setApp, showHide } from './window.js';
 import { loadOptions } from './options.js';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -20,7 +20,7 @@ const menuTemplate = Menu.buildFromTemplate([
     {
       label: 'Reload', accelerator: 'CmdOrCtrl+R', click()
       {
-        reload();
+        mainWindow.reload();
       }
     },
     {
@@ -41,7 +41,7 @@ const menuTemplate = Menu.buildFromTemplate([
     {
       label: 'Quit', accelerator: 'CmdOrCtrl+Q', click()
       {
-        quit();
+        app.quit();
       }
     },
   ]
@@ -124,7 +124,7 @@ else
   {
     dialog.showErrorBox('A Javascript error occurred in the renderer process', data);
     
-    quit();
+    app.quit();
   });
 
   // Quit when all windows are closed.
@@ -133,7 +133,7 @@ else
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin')
-      quit();
+      app.quit();
   });
 
   app.on('will-quit', () =>

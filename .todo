@@ -23,7 +23,6 @@ loader:
     without installing an extension
 
 options:
-  ☐ relaunch doesn't work on my linux as far as tested (starts but doesn't show the browser window) (electron bug?/gnome bug?) @help-needed
 
 CI/CD:
   ☐ create an arch user repository and upload the first version

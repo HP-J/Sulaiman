@@ -24,7 +24,7 @@ import { appendCard, removeCard } from './api.js';
 */
 const { download: dl  } = remote.require('electron-dl');
 
-const { mainWindow, isDebug, showHide, setSkipTaskbar, quit, relaunch } = remote.require(join(__dirname, '../main/window.js'));
+const { mainWindow, isDebug, showHide, setSkipTaskbar, quit } = remote.require(join(__dirname, '../main/window.js'));
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
@@ -120,6 +120,10 @@ export function registerOptionsPhrase()
           card.auto();
 
           let enabled = settings.get('trayIcon', true);
+
+          const warningText = card.appendText('This option needs the app to restart to be applied', { style: 'Bold', size: 'Small' });
+          card.appendLineBreak();
+
           const toggle = createCard();
 
           card.appendChild(toggle);
@@ -128,18 +132,7 @@ export function registerOptionsPhrase()
 
           toggle.setType({ type: 'Toggle', state: enabled });
 
-          card.appendLineBreak();
-
-          const warningText = card.appendText('This option needs the app to relaunch to be applied');
-
-          const relaunchButton = createCard({ title: 'Relaunch' });
-          relaunchButton.setType({ type: 'Button' });
-
-          card.appendChild(relaunchButton);
-
-          relaunchButton.domElement.onclick = () => relaunch();
-
-          relaunchButton.domElement.style.display = warningText.style.display = 'none';
+          warningText.style.display = 'none';
 
           toggle.domElement.onclick = toggleText.onclick = () =>
           {
@@ -160,9 +153,7 @@ export function registerOptionsPhrase()
             }
 
             if (warningText.style.cssText)
-            {
-              relaunchButton.domElement.style.cssText = warningText.style.cssText = '';
-            }
+              warningText.style.cssText = '';
           };
         }
       }

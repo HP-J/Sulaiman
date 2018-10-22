@@ -50,12 +50,6 @@ export function reload()
   mainWindow.reload();
 }
 
-export function relaunch()
-{
-  app.relaunch();
-  app.quit();
-}
-
 export function quit()
 {
   app.quit();

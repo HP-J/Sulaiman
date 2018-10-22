@@ -21,6 +21,8 @@ body
 ::-webkit-scrollbar
 {
   background: transparent;
+  
+  min-width: 10px;
   width: 1.5vw;
 }
 

@@ -13,7 +13,7 @@ import { appendSearchBar, internalRegisterPhrase as registerPhrase, registerPhra
 */
 
 const splash = document.body.children[0];
-const { mainWindow, quit, reload, relaunch } = remote.require(join(__dirname, '../main/window.js'));
+const { mainWindow, quit, reload } = remote.require(join(__dirname, '../main/window.js'));
 
 export let readyState = false;
 
@@ -104,7 +104,6 @@ function registerBuiltinPhrases()
 {
   const quitPhrase = registerPhrase('Quit', undefined, { enter: () => quit() });
   const reloadPhrase = registerPhrase('Reload', undefined, { enter: () => reload() });
-  const relaunchPhrase = registerPhrase('Relaunch', undefined, { enter: () => relaunch() });
 
   const phrasesPhrase = registerPhrasesPhrase();
   const optionsPhrase = registerOptionsPhrase();
@@ -112,8 +111,8 @@ function registerBuiltinPhrases()
 
   return Promise.all(
     [
-      quitPhrase, reloadPhrase, relaunchPhrase,
-      phrasesPhrase, optionsPhrase, extensionsPhrase
+      quitPhrase, reloadPhrase, phrasesPhrase,
+      optionsPhrase, extensionsPhrase
     ]);
 }
 
