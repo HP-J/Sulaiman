@@ -298,7 +298,7 @@ function validateExtension(data)
 
     return {
       card: loadingAbortedCard(
-        runningData.sulaiman.displayName + ' is the running theme\n' + data.sulaiman.displayName + ' load aborted',
+        'There\'s two extensions with duplicate package names',
         data, runningData),
       abort: true
     };
