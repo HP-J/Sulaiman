@@ -223,23 +223,34 @@ export function extensionRemoveCard(card, extension)
 {
   const button = extensionCard(card, extension);
 
-  button.auto({ title: 'Delete' });
-
-  button.domElement.onclick = () =>
+  if (extension.name === themeName)
   {
-    button.auto({ title: 'Deleting' });
-    button.setType({ type: 'Normal' });
-  
-    deleteDir(extension.name)
-      .then(() =>
+    card.appendText('You can\'t delete your only theme, install a new theme and this one will be deleted automatically', 
       {
-        success(card, extension.sulaiman.displayName, 'deleted');
-      })
-      .catch(() =>
-      {
-        reload();
+        size: 'Small',
+        style: 'Bold'
       });
-  };
+  }
+  else
+  {
+    button.auto({ title: 'Delete' });
+
+    button.domElement.onclick = () =>
+    {
+      button.auto({ title: 'Deleting' });
+      button.setType({ type: 'Normal' });
+    
+      deleteDir(extension.name)
+        .then(() =>
+        {
+          success(card, extension.sulaiman.displayName, 'deleted');
+        })
+        .catch(() =>
+        {
+          reload();
+        });
+    };
+  }
 }
 
 /** @param { Card } card
