@@ -9,13 +9,13 @@
 
 .card:hover > .card.cardButton
 {
-  background: var(--color-highlight);
+  background-color: var(--color-highlight);
   color: var(--color-text);
 }
 
 .card.cardButton:hover, .card > .card.cardButton:hover
 {
-  background: var(--color-selected);
+  background-color: var(--color-selected);
   color: var(--color-text-selected);
 }
 
@@ -23,23 +23,42 @@
 
 .card.cardProgressBar
 {
-  border-width: 5px 0px 0px 0px;
+  border-width: calc(0.5vh + 5px) 0px 0px 0px;
   border-style: solid;
-  border-image: linear-gradient(90deg, var(--color-highlight) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
+  border-image: linear-gradient(90deg, var(--color-highlight) var(--cardPercentage), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 0%);
   border-image-slice: 1;
 }
 
-.card.cardProgressBar:not(.cardFastForward)
+/* Loading Bar */
+
+.card.cardLoadingBar
 {
-  transition: border-width 0.25s linear;
+  background-image: linear-gradient(to right, var(--color-highlight) 50%, transparent 0%);
+
+  background-size: 50vw calc(0.5vh + 5px);
+  background-repeat: no-repeat;
+  background-position-y: calc(-0.5vh + -5px);
+
+  border: rgba(0,0,0,0) solid;
+  border-width: calc(0.5vh + 5px) 0px 0px 0px;
+
+  animation-name: loading;
+  animation-duration: 2s;
+  animation-timing-function: cubic-bezier(0.4, 0, 1, 1);;
+  animation-iteration-count: infinite;
 }
 
-.card.cardProgressBar:hover, .card:hover > .card.cardProgressBar
+@keyframes loading
 {
-  border-width: 10px 0px 0px 0px;
-  border-style: solid;
-  border-image: linear-gradient(90deg, var(--color-selected) var(--cardProgress), rgba(0,0,0,0) 0%, rgba(0,0,0,0) 100%);
-  border-image-slice: 1;
+  0% 
+  {
+    background-position-x: calc(0% - 50vw);
+  }
+
+  100%
+  {
+    background-position-x: calc(100% + 50vw);
+  }
 }
 
 /* Toggle */
@@ -89,7 +108,7 @@
 
 /* Disabled */
 
-/** if the card is child, not show the progress unless the parent is hovered on **/
+/* if the card is child, not show the progress unless the parent is hovered on */
 
 .cardDisabled
 {
@@ -97,14 +116,14 @@
   pointer-events: none;
 }
 
-/** only change the card if it's not a child **/
+/* only change the card if it's not a child */
 
 body > .cardDisabled
 {
-  background: var(--color-disabled);
+  background-color: var(--color-disabled);
 }
 
-/** only change the card if it is a child **/
+/* only change the card if it is a child */
 
 .card > .cardDisabled > *
 {

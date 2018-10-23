@@ -6,7 +6,7 @@
   outline: none;
   overflow: hidden;
 
-  background: var(--color-background);
+  background-color: var(--color-background);
   color: #FFFFFF;
 
   position: relative;
@@ -23,7 +23,7 @@
 
 .card:hover
 {
-  background: var(--color-hovered);
+  background-color: var(--color-hovered);
 }
 
 /* cards inside of a parent card */

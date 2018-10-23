@@ -195,12 +195,13 @@ export default class Card
       theme.toggleFastForward(this);
   }
 
-  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", state: boolean } | { type: "Button" } | { type: "Disabled" } | { type: "Normal" } } type
+  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", state: boolean } | { type: "LoadingBar" } | { type: "Button" } | { type: "Disabled" } | { type: "Normal" } } type
   */
   setType(type)
   {
     this.removeClass('cardProgressBar');
     this.removeClass('cardToggle');
+    this.removeClass('cardLoadingBar');
     this.removeClass('cardButton');
     this.removeClass('cardDisabled');
 
@@ -211,7 +212,9 @@ export default class Card
     {
       this.addClass('cardProgressBar');
 
-      this.domElement.style.setProperty('--cardProgress', (type.percentage || 0) + '%');
+      type.percentage = type.percentage || 0;
+
+      this.domElement.style.setProperty('--cardPercentage', Math.min(0, Math.max(100, type.percentage)) + '%');
     }
     else if (type.type === 'Toggle')
     {
@@ -222,6 +225,7 @@ export default class Card
       else
         this.addClass('cardToggleOff');
     }
+    // 'Button', 'Disabled', 'Loading Bar' and 'Custom Types'
     else if (type.type !== 'Normal')
     {
       this.addClass('card' + type.type);

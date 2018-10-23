@@ -683,7 +683,7 @@ function checkForSulaimanUpdates(card)
       else
       {
         card.auto({ description: 'Up-to-date' });
-
+        
         resolve(false);
         return;
       }
@@ -691,12 +691,16 @@ function checkForSulaimanUpdates(card)
 
     card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
 
+    card.setType({ type: 'LoadingBar' });
+
     readJson('build.json').then((localData) =>
     {
     // if build.json doesn't exists or if the package is not specified, then return
       if (!localData || !localData.branch || !localData.commit || !localData.package)
       {
         card.auto({ description: 'Local build is missing its information' });
+
+        card.setType({ type: 'Normal' });
 
         resolve(false);
         return;
@@ -706,11 +710,15 @@ function checkForSulaimanUpdates(card)
       request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
         .then((remoteData) =>
         {
+          card.setType({ type: 'Normal' });
+
           check(localData, remoteData);
         })
         .catch(() =>
         {
           card.auto({ description: 'Failed to reach server' });
+
+          card.setType({ type: 'Normal' });
 
           resolve(false);
           return;

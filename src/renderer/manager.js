@@ -101,6 +101,10 @@ export function registerExtensionsPhrase()
             return;
           }
 
+          // npm uses only-lowercase package names
+          extra = extra.toLowerCase();
+
+          // extensions are prefixed with 'sulaiman-'
           if (!extra.startsWith('sulaiman-'))
             extra = 'sulaiman-' + extra;
         
@@ -122,6 +126,10 @@ export function registerExtensionsPhrase()
             return;
           }
 
+          // npm uses only-lowercase package names
+          extra = extra.toLowerCase();
+
+          // extensions are prefixed with 'sulaiman-'
           if (!extra.startsWith('sulaiman-'))
             extra = 'sulaiman-' + extra;
 
@@ -225,7 +233,7 @@ export function extensionRemoveCard(card, extension)
 
   if (extension.name === themeName)
   {
-    card.appendText('You can\'t delete your only theme, install a new theme and this one will be deleted automatically', 
+    card.appendText('You can\'t delete your only theme, install a new theme and this one will be deleted automatically',
       {
         size: 'Small',
         style: 'Bold'
@@ -239,11 +247,13 @@ export function extensionRemoveCard(card, extension)
     {
       button.auto({ title: 'Deleting' });
       button.setType({ type: 'Normal' });
+
+      card.setType({ type: 'LoadingBar' });
     
       deleteDir(extension.name)
         .then(() =>
         {
-          success(card, extension.sulaiman.displayName, 'deleted');
+          success(card, extension.sulaiman.displayName, 'Deleted');
         })
         .catch(() =>
         {
@@ -260,6 +270,8 @@ export function extensionInstallCard(card, name)
 {
   card.auto({ title: name, description: 'Requesting package information from the npm registry' });
 
+  card.setType({ type: 'LoadingBar' });
+
   const cancelPromise = cancelablePromise(getPackageData(name));
 
   cancelPromise.promise
@@ -270,6 +282,8 @@ export function extensionInstallCard(card, name)
         const button = extensionCard(card, data);
     
         button.auto({ title: 'Install' });
+
+        card.setType({ type: 'Normal' });
   
         button.domElement.onclick = () =>
         {
@@ -279,6 +293,8 @@ export function extensionInstallCard(card, name)
               if (validated.beforeMoving)
               {
                 button.auto({ title: validated.beforeMovingMessage });
+                
+                card.setType({ type: 'LoadingBar' });
       
                 return validated.beforeMoving().then(() =>
                 {
@@ -292,8 +308,10 @@ export function extensionInstallCard(card, name)
             })
             .then(({ packageDir, output }) =>
             {
-              button.auto({ title: 'Moving package files to extensions folder' });
-                  
+              button.auto({ title: 'Moving files to extensions\' directory' });
+
+              card.setType({ type: 'LoadingBar' });
+
               return move(packageDir, output, { overwrite: true });
             })
             .then(() =>
@@ -302,7 +320,7 @@ export function extensionInstallCard(card, name)
             })
             .then(() =>
             {
-              success(card, data.sulaiman.displayName, 'installed');
+              success(card, data.sulaiman.displayName, 'Installed');
             })
             .catch((err) =>
             {
@@ -383,7 +401,9 @@ export function extensionUpdateCard(card, local, remote, name)
           if (validated.beforeMoving)
           {
             updateButton.auto({ title: validated.beforeMovingMessage });
-  
+
+            card.setType({ type: 'LoadingBar' });
+
             return validated.beforeMoving().then(() =>
             {
               return { packageDir, output };
@@ -396,8 +416,10 @@ export function extensionUpdateCard(card, local, remote, name)
         })
         .then(({ packageDir, output }) =>
         {
-          updateButton.auto({ title: 'Moving package files to extensions folder' });
-        
+          updateButton.auto({ title: 'Moving files to extensions\' directory' });
+
+          card.setType({ type: 'LoadingBar' });
+
           return move(packageDir, output, { overwrite: true });
         })
         .then(() =>
@@ -406,7 +428,7 @@ export function extensionUpdateCard(card, local, remote, name)
         })
         .then(() =>
         {
-          success(card, remote.sulaiman.displayName, 'installed');
+          success(card, remote.sulaiman.displayName, 'Updated');
         })
         .catch((err) =>
         {
@@ -517,6 +539,8 @@ function checkForExtensionsUpdates(parent)
     const promises = [];
   
     parent.auto({ title: 'Extensions', description: 'Checking for Updates' });
+
+    parent.setType({ type: 'LoadingBar' });
       
     for (const extension in loadedExtensions)
     {
@@ -538,12 +562,19 @@ function checkForExtensionsUpdates(parent)
               number += 1;
             }
           }
-        }).catch((err) => reject(err)));
+        }).catch((err) =>
+        {
+          parent.setType({ type: 'Normal' });
+
+          reject(err);
+        }));
     }
   
     Promise.all(promises).then(() =>
     {
       parent.auto({ title: number + ' Extensions Have Updates', description: '' });
+
+      parent.setType({ type: 'Normal' });
 
       if (number > 0)
         makeItCollapsible(parent);
@@ -639,17 +670,18 @@ function downloadExtension(card, button, name, url)
   
     const tmpCompressedDir = join(tmpdir(), filename);
   
-    const output = join(__dirname, '../extensions/' + dirname);
+    const output = join(__dirname, '../extensions/', name);
+
+    button.setType({ type: 'Normal' });
+    button.auto({ title: 'Starting the download' });
+
+    card.setType({ type: 'LoadingBar' });
 
     dl(mainWindow, url,
       {
         directory: tmpdir(),
         filename: filename,
         showBadge: false,
-        onStarted: () =>
-        {
-          button.setType({ type: 'Normal' });
-        },
         onProgress: (percentage) =>
         {
           percentage = Math.floor(percentage * 100);
@@ -746,7 +778,7 @@ function installExtensionDependencies(button, name)
 function success(card, name, state)
 {
   card.reset();
-  card.auto({ title: name, description: 'Has been ' + state });
+  card.auto({ title: name, description: state });
 
   const button = createCard({ title: 'Reload' });
   button.setType({ type: 'Button' });
