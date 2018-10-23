@@ -620,7 +620,7 @@ function checkForSulaimanUpdates(card)
           dismissButton.domElement.style.cssText = '';
 
           const url = new URL(remoteData[localData.package]);
-          const filename = url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
+          const filename = 'tmp-' + Date.now() + '-' + url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
 
           card.auto({ description: 'Downloading..' });
 

@@ -629,10 +629,10 @@ function downloadExtension(card, button, name, url)
 {
   return new Promise((resolve, reject) =>
   {
-    const filename = basename(url);
-    const dirname = name;
+    const filename = 'tmp-' + Date.now() + '-' + basename(url);
+    const dirname = 'tmp-' + Date.now() + '-' + name;
   
-    const tmpDir = join(tmpdir(), 'sulaiman', dirname);
+    const tmpDir = join(tmpdir(), dirname);
 
     if (existsSync(tmpDir))
       removeSync(tmpDir);
