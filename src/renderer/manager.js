@@ -514,7 +514,7 @@ function validateExtension(card, data, update)
   }
 
   // handle conflicting themes (more than one extension want theme permissions)
-  if (themeName !== data.name)
+  if (data.sulaiman.theme && themeName && themeName !== data.name)
   {
     return {
       continueMessage: 'Installing this extension will delete your current theme: ' + loadedExtensions[themeName].sulaiman.displayName,

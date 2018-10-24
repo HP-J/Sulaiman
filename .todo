@@ -1,14 +1,17 @@
 test:
 
 graphics:
-  ☐ try to refactor most of (collapse/expand)-related functions and other theme-related functions @build2
-  ☐ improve collapse/expand functions with smaller limited visible description text @build2
+  ☐ fix search's on enter crisis (some how we need to look if current selected item compares to input)
 
-  ☐ showing extensions credits @build2
+  ☐ rewrite most of (collapse/expand)-related functions and other theme-related functions @build-2
+  ☐ refactor the theme's collapse/expand functions with smaller limited visible description text, better anchor points, @build-2
+    and the ability to not break horribly when spam clicked
 
-  ☐ show most recent phrases when input is empty, or most used @build2 
+  ☐ showing extensions credits @build-2
 
-  ☐ show popular extensions from npm registry (gallery) @build2 
+  ☐ show most recent phrases when input is empty, or most used @build-2 
+
+  ☐ show popular extensions from npm registry (gallery) @build-2 
     ☐ have a section that shows popular extensions (popular all time)
     ☐ have a section that shows trending extensions (popular this week)
     ☐ have a section that shows extensions made by herp project (sort by popularity)
@@ -16,10 +19,10 @@ graphics:
 manager:
 
 loader:
-  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @future-build
+  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @build-2 
     and the extension it require is installed and does have public API
 
-  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @future-build
+  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @build-2 
     without installing an extension
 
 options:
@@ -29,16 +32,17 @@ CI/CD:
   ☐ test the AUR publishing script
   ☐ test the NPM publishing script
 
-  ☐ snapcraft builds @build2
+  ☐ snapcraft builds
 
   ☐ build & test DMG packages @help-needed
 
 extensions:
-  ☐ open files @build2 
-  ☐ show the app icon on its launch-app card
-  ☐ usable calculator card (like the one in google search) @low 
+  ☐ open files @build-2 
+  ☐ dawayer integration @build-2 
+  ☐ show the app icon on its launch card
+  ☐ calculator card
 
-  ☐ launch-apps (mac support) @help-needed
+  ☐ launch-apps (macOS support) @help-needed
 
 google: @extension @not-builtin
    ☐ login in with google
