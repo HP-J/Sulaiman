@@ -1,8 +1,6 @@
 test:
 
 graphics:
-  ☐ fix search's on enter crisis (some how we need to look if current selected item compares to input)
-
   ☐ rewrite most of (collapse/expand)-related functions and other theme-related functions @build-2
   ☐ refactor the theme's collapse/expand functions with smaller limited visible description text, better anchor points, @build-2
     and the ability to not break horribly when spam clicked

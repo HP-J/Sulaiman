@@ -35,7 +35,7 @@ function registerPhrase()
           if (typeof result !== 'number' && typeof result !== 'boolean')
             result = 'Syntax ERROR';
   
-          suggestion.appendChild(document.createTextNode(' = ' + result));
+          suggestion.appendChild(document.createElement('div')).innerText = ' = ' + result;
   
           return false;
         },

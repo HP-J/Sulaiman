@@ -602,8 +602,6 @@ function showRunningExtensions(parent)
   
     parent.appendChild(card);
   }
-
-  toggleCollapse(parent, undefined, true, true);
 }
 
 /** @param { string } name

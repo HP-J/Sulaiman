@@ -4,7 +4,7 @@ import { join } from 'path';
 import { isArray } from 'util';
 
 import { on } from './loader.js';
-import { makeItCollapsible, toggleCollapse } from './renderer.js';
+import { makeItCollapsible } from './renderer.js';
 import { createCard, internalCreateCard } from './card.js';
 
 const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
@@ -28,9 +28,9 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 * emits when the phrase (and an argument) is fully matched,
 * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
 
-* @property { () => { blurSearchBar: boolean, clearSearchBar: boolean, selectSearchBarText: boolean } } [enter]
-* emits when the user presses the `Enter` key while the search bar is on focus
-* and the phrase (and an argument) is matched, you can change some of the options that occur to the search bar,
+* @property { (suggestion: HTMLElement, matchedPhrase: string, argument: string, extra: string) => { searchBarInput: "auto-complete-suggestion" | "clear-search-bar", blurSearchBar: boolean, selectInput: boolean } } [enter]
+* emits when the user presses the `Enter` key while a suggestion is selected,
+* you can change some of the options that occur to the search bar,
 * default options are just blurring the search bar, other options include selecting the search bar text or
 * clearing the search bar input
 */
@@ -69,11 +69,17 @@ export function appendSearchBar()
   suggestionsElement.setAttribute('class', 'suggestions');
   document.body.appendChild(suggestionsElement);
 
-  updateSuggestionsCount(0);
-
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
-  inputElement.onfocus = inputElement.onblur = toggleSuggestionElement;
+
+  inputElement.onfocus = () =>
+  {
+    toggleSuggestionElement();
+    
+    oninput();
+  };
+  
+  inputElement.onblur = toggleSuggestionElement;
 
   on.focus(focus);
   on.blur(blur);
@@ -106,8 +112,6 @@ export function registerPhrasesPhrase()
 
           card.appendLineBreak();
         }
-
-        toggleCollapse(card, undefined, true, true);
       }
     });
 
@@ -145,27 +149,22 @@ function oninput()
   // on input scroll to top of the window
   requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
 
+  // remove old suggestion elements
+  while (suggestionsElement.firstChild)
+  {
+    suggestionsElement.removeChild(suggestionsElement.firstChild);
+  }
+
   if (!input)
   {
-    updateSuggestionsCount(0);
-
-    // deactivate phrases
+    // deactivate any active phrases
     search();
   }
   else
   {
-    // remove old suggestion elements
-    while (suggestionsElement.firstChild)
-    {
-      suggestionsElement.removeChild(suggestionsElement.firstChild);
-    }
-
     // show new suggestion, and activate phrases
     search(input).then(() =>
     {
-      // update the suggestions count on the css variable
-      updateSuggestionsCount(suggestionsElement.children.length);
-
       // update the select index to the first suggestion and select it
       selectItem(-selectIndex);
     });
@@ -198,31 +197,41 @@ function onkeydown(event)
   }
   else if (event.code === 'Enter')
   {
-    const phrase = suggestionsElement.children[selectIndex].phrase;
+    if (suggestionsElement.children.length > selectIndex)
+    {
+      /** @type { { searchBarInput: "auto-complete-suggestion" | "clear-search-bar", blurSearchBar: boolean, selectInput: boolean } }
+      */
+      let options;
 
-    const isString = (typeof phrase === 'string');
+      const phrase = suggestionsElement.children[selectIndex].phrase;
 
-    const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
-    const phraseObj = registeredPhrases[phraseKey];
+      const isString = (typeof phrase === 'string');
+  
+      const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
+      const phraseObj = registeredPhrases[phraseKey];
 
-    /** @type { { clearSearchBar: boolean, blurSearchBar: boolean, selectSearchBarText: boolean } }
-    */
-    let options;
+      if (phraseObj.emit.enter)
+        options = phraseObj.emit.enter(
+          suggestionsElement.children[selectIndex],
+          suggestionsElement.children[selectIndex].phrase,
+          suggestionsElement.children[selectIndex].argument,
+          suggestionsElement.children[selectIndex].extra,
+        );
 
-    if (phraseObj.emit.enter)
-      options = phraseObj.emit.enter();
+      if (!options || typeof options !== 'object')
+        options = { searchBarInput: 'auto-complete-suggestion', blurSearchBar: true };
 
-    if (!options)
-      options = { blurSearchBar: true };
+      if (options.searchBarInput === 'auto-complete-suggestion')
+        setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);
+      else if (options.searchBarInput === 'clear-search-bar')
+        setInput('');
 
-    if (options.clearSearchBar)
-      setInput('');
+      if (options.blurSearchBar)
+        inputElement.blur();
 
-    if (options.blurSearchBar)
-      inputElement.blur();
-
-    if (options.selectSearchBarText)
-      inputElement.select();
+      if (options.selectSearchBarText)
+        inputElement.select();
+    }
   }
 }
 
@@ -281,27 +290,27 @@ function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArg
   // possible to modify it, using the suggestionElement.value
   suggestionElement.value = suggestionElement.innerText;
 
+  // activePhrases.push(phraseObj);
+
   if
   (
-    phraseObj.emit.activate && (
-      phraseObj.emit.activate(phraseObj.card, suggestionElement, matchedPhrase, matchedArgument, extra)
-    ) === false
+    phraseObj.emit.activate &&
+    phraseObj.emit.activate(phraseObj.card, suggestionElement, matchedPhrase, matchedArgument, extra) !== false
   )
   {
-    // return with out activation aka don't show the phrase's card
-    return;
+    if (!document.body.contains(phraseObj.card.domElement))
+      document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
+
+    phraseObj.active = true;
   }
-
-  if (!document.body.contains(phraseObj.card.domElement))
-    document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
-
-  phraseObj.active = true;
 }
 
 /** @param { PhraseObject } phraseObj
 */
 function deactivatePhrase(phraseObj)
 {
+  // activePhrases.splice(activePhrases.indexOf(phraseObj), 1);
+
   if (document.body.contains(phraseObj.card.domElement))
     document.body.removeChild(phraseObj.card.domElement);
 
@@ -355,7 +364,7 @@ function search(input)
         // if the phrase has no arguments
         if (args.length <= 0)
         {
-          // if there is not match what-so-ever, continue the main phrases loop
+          // if there is not match what-so-ever, skip it
           if (phraseCompareObject.visible())
           {
             if (phraseCompareObject.match())
@@ -372,10 +381,10 @@ function search(input)
           {
             const compareObject = compare(input, phraseObj.phrase, args[i]);
 
-            // if there is not match what-so-ever, continue the phrase arguments loop
             if (!compareObject)
               continue;
 
+            // if there is not match what-so-ever, skip it
             if (compareObject.visible())
             {
               if (compareObject.match())
@@ -405,7 +414,13 @@ function search(input)
               const compareObject = compare(input, phraseObj.phrase, additionalArgs[i]);
 
               if (compareObject && compareObject.visible())
+              {
+                // fix the argument portion, add the extra property, since additional args are not real arguments
+                compareObject.element.argument = matchedCompare.matchedArgument;
+                compareObject.element.extra = additionalArgs[i].substring(matchedCompare.matchedArgument.length + 1);
+
                 suggestions.push(compareObject);
+              }
             }
           }
         }
@@ -467,8 +482,10 @@ function appendWrittenAndTextElement(element, written, text)
   if (element.innerText)
     element.appendChild(document.createElement('div')).innerText = ' ';
 
-  element.appendChild(document.createElement('mark')).innerText = written;
-  element.appendChild(document.createTextNode(text.slice(written.length)));
+  if (written)
+    element.appendChild(document.createElement('mark')).innerText = written;
+  
+  element.appendChild(document.createElement('div')).innerText = text.slice(written.length);
 }
 
 /** @param { string } input
@@ -527,9 +544,6 @@ function compare(input, phrase, argument)
   // set the element as suggestions item
   element.setAttribute('class', 'suggestionsItem');
 
-  // pair the element to it's phrase
-  element.phrase = phrase;
-
   // append a text and text written elements for the phrase, on the suggestions item
   appendWrittenAndTextElement(element, phraseTextWritten, phraseText);
 
@@ -569,6 +583,13 @@ function compare(input, phrase, argument)
     }
   }
 
+  const extra = (inputSplit.length > 0) ? inputSplit.join(' ').trim() : undefined;
+
+  // pair the element to it's phrase and argument
+  element.phrase = phrase;
+  element.phraseText = phraseText;
+  element.argument = argument;
+
   return {
     element: element,
     wordCount: wordCount,
@@ -587,7 +608,7 @@ function compare(input, phrase, argument)
     },
     matchedPhrase: phraseTextWritten,
     matchedArgument: argumentTextWritten,
-    extra: (inputSplit.length > 0) ? inputSplit.join(' ').trim() : ''
+    extra: extra
   };
 }
 
@@ -640,20 +661,6 @@ function standard(s)
 function toggleSuggestionElement()
 {
   suggestionsElement.classList.toggle('suggestionsActive');
-}
-
-/** sets the css property '--suggestions-count'
-* @param { number } count
-*/
-function updateSuggestionsCount(count)
-{
-  // if there's a '--max-suggestions-count' property, then use it to limit the outcome of '--suggestions-count'
-  const max = getComputedStyle(suggestionsElement).getPropertyValue('--max-suggestions-count');
-
-  if (max)
-    count = Math.min(max, count);
-
-  suggestionsElement.style.setProperty('--suggestions-count', count);
 }
 
 /** @param { string | RegExp } phrase

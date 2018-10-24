@@ -160,8 +160,6 @@ function registerPhrases()
     if (appsAsNames.length <= 0)
       return;
 
-    let name = '';
-
     const button = sulaiman.createCard();
 
     button.setType({ type: 'Button' });
@@ -172,15 +170,12 @@ function registerPhrases()
       {
         activate: (card, suggestion, match, argument) =>
         {
-          // set app name
-          name = argument;
-  
-          card.auto({ title: name, description: 'Launch the application' });
+          card.auto({ title: argument, description: 'Launch the application' });
           button.auto({ title: 'Launch' });
   
           button.domElement.onclick = () =>
           {
-            launch(apps[name]);
+            launch(apps[argument]);
       
             card.auto({ description: 'Has been launched' });
             button.auto({ title: 'Launch Again' });
@@ -188,11 +183,11 @@ function registerPhrases()
   
           card.appendChild(button);
         },
-        enter: () =>
+        enter: (suggestion, match, argument) =>
         {
-          launch(apps[name]);
+          launch(apps[argument]);
   
-          return { clearSearchBar: true };
+          return { searchBarInput: 'clear-search-bar', blurSearchBar: true };
         }
       });
   });

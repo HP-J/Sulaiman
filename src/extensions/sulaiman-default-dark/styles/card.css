@@ -15,8 +15,9 @@
 
   font-family: Oxygen, sans-serif;
   font-weight: 400;
+
   user-select: none;
-  white-space: nowrap;
+  white-space: pre;
   
   padding: 8px 15px;
 }
@@ -61,7 +62,7 @@
   font-weight: 400;
 
   user-select: none;
-  white-space: pre-line;
+  white-space: pre;
   writing-mode: horizontal-tb;
   max-block-size: 35vh;
 
