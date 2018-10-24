@@ -3,10 +3,10 @@ import { theme, getCaller } from './loader.js';
 import { readyState } from './renderer.js';
 
 /** @typedef { Object } AutoCardOptions
-* @property { string } [title="""]
-* @property { string } [description=""]
-* @property { HTMLElement } [extensionIcon=null]
-* @property { HTMLElement } [actionIcon=null]
+* @property { string } [title]
+* @property { string } [description]
+* @property { HTMLElement } [extensionIcon]
+* @property { HTMLElement } [actionIcon]
 */
 
 /** @typedef { Object } TextOptions

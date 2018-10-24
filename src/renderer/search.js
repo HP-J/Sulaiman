@@ -35,10 +35,23 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 * clearing the search bar input
 */
 
-/** @typedef { { phrase: string | RegExp, card: Card, defaultArgs: string[], emit: PhraseEvents } } PhraseObject
+/** @typedef { Object } PhraseObject
+* @property { string | RegExp } phrase
+* @property { Card } card
+* @property { string[] } defaultArgs
+* @property { PhraseEvents } emit
 */
 
-/** @typedef { { element: HTMLElement, wordCount: number, writtenWordCount: number, percentage: number, match: () => boolean, visible: () => boolean, matchedPhrase: string, matchedArgument: string, extra: string } } CompareObject
+/** @typedef { Object } CompareObject
+* @property { HTMLElement } element
+* @property { number } wordCount
+* @property { number } writtenWordCount
+* @property { number } percentage
+* @property { () => boolean } match
+* @property { () => boolean } visible
+* @property { string } matchedPhrase
+* @property { string } matchedPhrase
+* @property { string } extra
 */
 
 /** @type { HTMLInputElement }

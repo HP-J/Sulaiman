@@ -34,7 +34,7 @@ import { extensionRemoveCard } from './manager.js';
 * @property { Object.<string, string> } credits
 */
 
-/** @typedef Theme
+/** @typedef { Object } Theme
 * card functions that are handled by themes
 * @property { (element: HTMLElement) => boolean } isFastForward
 * @property { (element: HTMLElement) => void } toggleFastForward

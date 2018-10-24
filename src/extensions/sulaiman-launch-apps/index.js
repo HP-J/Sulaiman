@@ -6,7 +6,7 @@ import { join, basename } from 'path';
 import { homedir, platform as getPlatform } from 'os';
 import { exec } from 'child_process';
 
-/** @type { Object<string, sting> }
+/** @type { Object<string, string> }
 */
 const apps = {};
 
@@ -72,6 +72,7 @@ function windows()
       if (file.endsWith(appExtension))
       {
         const name = basename(file, appExtension);
+
         let target;
 
         try
@@ -120,8 +121,13 @@ function linux()
         const desktopFile = readFileSync(file).toString();
 
         const hidden = desktopFile.match(/^(?:NoDisplay=)(.+)/m);
+        const terminal = desktopFile.match(/^(?:Terminal=)(.+)/m);
 
-        if (hidden && hidden[1] === 'true')
+
+        if (
+          (hidden && hidden[1] === 'true') ||
+          (terminal && terminal[1] === 'true')
+        )
           continue;
 
         const name = desktopFile.match(/^(?:Name=)(.+)/m);
@@ -136,6 +142,8 @@ function linux()
   });
 }
 
+/** @param { string } execPath
+*/
 function launch(execPath)
 {
   if (platform === 'win32')
