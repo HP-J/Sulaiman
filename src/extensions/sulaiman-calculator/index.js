@@ -18,7 +18,7 @@ function registerPhrase()
     let result;
 
     sulaiman.on.phrase(
-      /^(\(|abs|(-|\+)?[0-9])(.*)/i,
+      /^(\(|(abs|acos|acosh|asin|asinh|atan|atanh|ceil|cos|cosh|exp|floor|length|ln|log|log10|round|sin|sinh|sqrt|tan|tanh|trunc|random)|(-|\+)?[0-9])(.*)/i,
       undefined,
       {
         activate: (card, suggestion, match) =>
@@ -31,6 +31,9 @@ function registerPhrase()
           {
             result = 'Syntax ERROR';
           }
+
+          if (typeof result !== 'number' && typeof result !== 'boolean')
+            result = 'Syntax ERROR';
   
           suggestion.appendChild(document.createTextNode(' = ' + result));
   
