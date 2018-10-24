@@ -28,7 +28,7 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 * emits when the phrase (and an argument) is fully matched,
 * should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
 
-* @property { (suggestion: HTMLElement, matchedPhrase: string, argument: string, extra: string) => { searchBarInput: "auto-complete-suggestion" | "clear-search-bar", blurSearchBar: boolean, selectInput: boolean } } [enter]
+* @property { (suggestion: HTMLElement, matchedPhrase: string, argument: string, extra: string) => { input: "auto-complete" | "clear", searchBar: "select-input" | "blur" } } [enter]
 * emits when the user presses the `Enter` key while a suggestion is selected,
 * you can change some of the options that occur to the search bar,
 * default options are just blurring the search bar, other options include selecting the search bar text or
@@ -199,7 +199,7 @@ function onkeydown(event)
   {
     if (suggestionsElement.children.length > selectIndex)
     {
-      /** @type { { searchBarInput: "auto-complete-suggestion" | "clear-search-bar", blurSearchBar: boolean, selectInput: boolean } }
+      /** @type { { input: "auto-complete" | "clear", searchBar: "select-input" | "blur" } }
       */
       let options;
 
@@ -221,16 +221,15 @@ function onkeydown(event)
       if (!options || typeof options !== 'object')
         options = { searchBarInput: 'auto-complete-suggestion', blurSearchBar: true };
 
-      if (options.searchBarInput === 'auto-complete-suggestion')
+      if (options.input === 'auto-complete')
         setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);
-      else if (options.searchBarInput === 'clear-search-bar')
+      else if (options.input === 'clear')
         setInput('');
 
-      if (options.blurSearchBar)
-        inputElement.blur();
-
-      if (options.selectSearchBarText)
+      if (options.searchBar === 'select-input')
         inputElement.select();
+      else if (options.searchBar === 'blur')
+        inputElement.blur();
     }
   }
 }

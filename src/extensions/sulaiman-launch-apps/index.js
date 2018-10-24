@@ -187,7 +187,7 @@ function registerPhrases()
         {
           launch(apps[argument]);
   
-          return { searchBarInput: 'clear-search-bar', blurSearchBar: true };
+          return { input: 'clear', searchBar: 'blur' };
         }
       });
   });

@@ -43,7 +43,7 @@ function registerPhrase()
         {
           sulaiman.setInput(result);
           
-          return { selectSearchBarText: true };
+          return { searchBar: 'select-input' };
         }
       });
   });
