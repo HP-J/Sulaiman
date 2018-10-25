@@ -1,8 +1,8 @@
 # Welcome to Sulaiman
 
-*The app is in early stages of development, we still have a lot of plans, stick around*
+*The app is in early stages of development, We still have a lot of plans*
 
-*Your feedback is highly encourage*
+*Please note that the default theme and the API may change a lot in the first few builds, Your feedback is highly encourage*
 
 #### A keyboard launcher with no features
 
