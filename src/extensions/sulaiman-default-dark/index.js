@@ -1,45 +1,31 @@
-import { join } from 'path';
-
 import * as sulaiman from 'sulaiman';
 
-// set the default search bar placeholder
-sulaiman.setPlaceholder('Search');
-
-// append the theme stylesheets
-sulaiman.appendStyleDir(join(__dirname, 'styles'));
-
-// store the default icon set
-sulaiman.storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
-sulaiman.storeIcon(join(__dirname, '/icons/more.svg'), 'more');
-sulaiman.storeIcon(join(__dirname, '/icons/question.svg'), 'question');
-
-sulaiman.storeIcon(join(__dirname, '/icons/settings.svg'), 'settings');
-sulaiman.storeIcon(join(__dirname, '/icons/share.svg'), 'share');
+import { join } from 'path';
 
 /** @param { sulaiman.Card } card
 */
-export function isFastForward(card)
+function isFastForward(card)
 {
   return card.domElement.classList.contains('cardFastForward');
 }
 
 /** @param { sulaiman.Card } card
 */
-export function toggleFastForward(card)
+function toggleFastForward(card)
 {
   card.domElement.classList.toggle('cardFastForward');
 }
 
 /** @param { sulaiman.Card } card
 */
-export function isCollapsed(card)
+function isCollapsed(card)
 {
   return card.domElement.classList.contains('cardCollapsed');
 }
 
 /** @param { sulaiman.Card } card
 */
-export function collapse(card)
+function collapse(card)
 {
   if (isFastForward(card))
     setCollapse(card);
@@ -49,7 +35,7 @@ export function collapse(card)
 
 /** @param { sulaiman.Card } card
 */
-export function expand(card)
+function expand(card)
 {
   if (isFastForward(card))
     setExpand(card);
@@ -189,3 +175,20 @@ function setExpand(card)
     nextElementSibling = nextElementSibling.nextElementSibling;
   }
 }
+
+// set the default search bar placeholder
+sulaiman.setPlaceholder('Search');
+
+// append the theme stylesheets
+sulaiman.appendStyleDir(join(__dirname, 'styles'));
+
+// store the default icon set
+sulaiman.storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
+sulaiman.storeIcon(join(__dirname, '/icons/more.svg'), 'more');
+sulaiman.storeIcon(join(__dirname, '/icons/question.svg'), 'question');
+
+sulaiman.storeIcon(join(__dirname, '/icons/settings.svg'), 'settings');
+sulaiman.storeIcon(join(__dirname, '/icons/share.svg'), 'share');
+
+// set the theme functions
+sulaiman.setThemeFunctions(isFastForward, toggleFastForward,isCollapsed, collapse, expand);

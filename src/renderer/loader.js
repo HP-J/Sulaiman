@@ -34,24 +34,24 @@ import { extensionRemoveCard } from './manager.js';
 * @property { Object.<string, string> } credits
 */
 
-/** @typedef { Object } Theme
+/** @typedef { Object } ThemeFunctions
 * card functions that are handled by themes
-* @property { (element: HTMLElement) => boolean } isFastForward
-* @property { (element: HTMLElement) => void } toggleFastForward
-* @property { (element: HTMLElement) => boolean } isCollapsed
-* @property { (element: HTMLElement) => void } collapse
-* @property { (element: HTMLElement) => void } expand
+* @property { (card: Card) => boolean } isFastForward
+* @property { (card: Card) => void } toggleFastForward
+* @property { (card: Card) => boolean } isCollapsed
+* @property { (card: Card) => void } collapse
+* @property { (card: Card) => void } expand
 */
 
 const sulaiman = new EventEmitter();
 
 const extensionsDirectory = join(__dirname, '../extensions/');
 
-export let themeName = '';
+export let themeName;
 
-/** @type { Theme }
+/** @type { ThemeFunctions }
 */
-export let theme = undefined;
+export const themeFunctions = {};
 
 /** an array of all the extensions that loaded
 * @type { Object.<string, PackageData> } }
@@ -202,28 +202,26 @@ export function loadExtensions()
     */
     const data = JSON.parse(readFileSync(packagePath));
 
-    const notValid = validateExtension(data);
+    const validated = validateExtension(data);
 
-    if (notValid)
+    if (validated)
     {
-      if (notValid.card)
-        appendCard(notValid.card);
+      if (validated.card)
+        appendCard(validated.card);
 
-      if (notValid.abort)
+      if (validated.abort)
         continue;
     }
+
+    // set the theme name property to this theme
+    if (data.sulaiman.theme)
+      themeName = data.name;
 
     // create a vm for the extension
     const vm = createVM(data, extensionPath);
       
     // run the extension index script
-    const exprts = vm.run(readFileSync(scriptPath).toString(), scriptPath);
-
-    if (data.sulaiman.theme)
-    {
-      themeName = data.name;
-      theme = exprts;
-    }
+    vm.run(readFileSync(scriptPath).toString(), scriptPath);
 
     // append the extension that just loaded to the loaded extensions array
     loadedExtensions[data.name] = data;
@@ -364,7 +362,6 @@ function createVM(data, extensionPath)
 }
 
 /** handle permissions to use global variables and mockups
-* @param { string } extensionName
 * @param { string[] } requiredPermissions
 * @param { boolean } theme
 */
@@ -398,19 +395,25 @@ function handelMockups(requiredPermissions, theme)
     shell: true,
     dialog: true,
     tray: true,
-
-    // sulaiman theme
-    appendStyle: !theme,
-    removeStyle: !theme,
-    appendStyleDir: !theme
   };
 
+  // normal permissions
   for (let i = 0; i < requiredPermissions.length; i++)
   {
     if (permissions[requiredPermissions[i]])
       permissions[requiredPermissions[i]] = false;
   }
 
+  // theme permissions
+  if (theme)
+  {
+    permissions.setThemeFunctions = false;
+    permissions.appendStyle = false;
+    permissions.removeStyle = false;
+    permissions.appendStyleDir = false;
+  }
+
+  // delete the un-given permissions from the VM mockups
   for (const key in permissions)
   {
     if (permissions[key])

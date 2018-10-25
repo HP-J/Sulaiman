@@ -4,6 +4,8 @@ import { join } from 'path';
 import { readdirSync } from 'fs';
 
 import Card from './card.js';
+import { apiVersion } from './options.js';
+import { themeFunctions } from './loader.js';
 
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
@@ -11,6 +13,8 @@ const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
 export { createCard } from './card.js';
 export { setPlaceholder, setInput } from './search.js';
 export { on, off } from './loader.js';
+
+export { apiVersion };
 
 export { Card };
 
@@ -83,6 +87,22 @@ export function getIcon(iconName)
     return (storedIcons[iconName].cloneNode(true));
   else
     return undefined;
+}
+
+/** those functions are required by themes, they will be used in cards
+* @param { (card: Card) => boolean  } isFastForward
+* @param { (card: Card) => void } toggleFastForward
+* @param { (card: Card) => boolean } isCollapsed
+* @param { (card: Card) => void } collapse
+* @param { (card: Card) => void } expand
+*/
+export function setThemeFunctions(isFastForward, toggleFastForward, isCollapsed, collapse, expand)
+{
+  themeFunctions.isFastForward = isFastForward;
+  themeFunctions.toggleFastForward = toggleFastForward;
+  themeFunctions.isCollapsed = isCollapsed;
+  themeFunctions.collapse = collapse;
+  themeFunctions.expand = expand;
 }
 
 /** append a stylesheet files to the DOM [async]

@@ -1,4 +1,4 @@
-import { theme, getCaller } from './loader.js';
+import { themeFunctions as theme, getCaller } from './loader.js';
 
 import { readyState } from './renderer.js';
 

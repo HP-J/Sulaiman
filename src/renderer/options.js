@@ -3,7 +3,7 @@ import * as settings from 'electron-json-config';
 
 import request from 'request-promise-native';
 
-import { readFile, pathExists as exists } from 'fs-extra';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 
@@ -20,6 +20,13 @@ import { appendCard, removeCard } from './api.js';
 /** @typedef { import('./loader').PackageData } PackageData
 */
 
+/** @typedef { Object } BuildData
+* @property { string } build
+* @property { string } branch
+* @property { string } commit
+* @property { string } date
+*/
+
 /** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
 */
 const { download: dl  } = remote.require('electron-dl');
@@ -30,8 +37,26 @@ const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
 
 export let autoHide = false;
 
+/** @type { PackageData }
+*/
+export let packageData;
+
+/** @type { BuildData }
+*/
+export let localData;
+
+/** the current sulaiman api version
+* @type { string }
+*/
+export let apiVersion;
+
 export function loadOptions()
 {
+  packageData = readJsonSync('package.json');
+  localData = readJsonSync('build.json');
+
+  apiVersion = packageData.version;
+
   if (isDebug())
     return;
   
@@ -170,46 +195,40 @@ export function registerOptionsPhrase()
 
           card.auto({ description: 'Loading' });
 
-          readJson('build.json').then((localData) =>
+          card.auto({ description: '' });
+
+          if (localData)
           {
-            readJson('package.json').then((packageData) =>
-            {
-              card.auto({ description: '' });
+            if (localData.branch)
+              card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' });
 
-              if (localData)
-              {
-                if (localData.branch)
-                  card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' });
-  
-                if (localData.commit)
-                  card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' });
-  
-                if (localData.package)
-                  card.appendText('Package (' + localData.package + ')', { type: 'Description', select: 'Selectable' });
+            if (localData.commit)
+              card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' });
 
-                if (localData.date)
-                  card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' });
-              }
+            if (localData.package)
+              card.appendText('Package (' + localData.package + ')', { type: 'Description', select: 'Selectable' });
 
-              if (packageData)
-              {
-                if (packageData.version)
-                  card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' });
-              }
-  
-              if (process.versions.electron)
-                card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
+            if (localData.date)
+              card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' });
+          }
 
-              if (process.versions.chrome)
-                card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
+          if (packageData)
+          {
+            if (packageData.version)
+              card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' });
+          }
 
-              if (process.versions.node)
-                card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
+          if (process.versions.electron)
+            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
 
-              if (process.versions.v8)
-                card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
-            });
-          });
+          if (process.versions.chrome)
+            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.node)
+            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
+
+          if (process.versions.v8)
+            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
         }
         else if (argument === 'Check for Updates')
         {
@@ -515,31 +534,15 @@ function unregisterGlobalShortcut(accelerator)
   }
 }
 
-
-/** @param { "build.json" | "package.json" } filename
-* @returns { Promise<{ branch: string, commit: string, date: string, package: string } | PackageData> }
+/** @param { string } filename
+* @returns { Object }
 */
-function readJson(filename)
+function readJsonSync(filename)
 {
-  return new Promise((resolve) =>
-  {
-    const jsonPath = join(__dirname, '../../', filename);
+  const jsonPath = join(__dirname, '../../', filename);
 
-    exists(jsonPath).then((does) =>
-    {
-      if (does)
-        return readFile(jsonPath);
-      else
-        resolve(undefined);
-    })
-      .then((buffer) =>
-      {
-        if (buffer)
-          resolve(JSON.parse(buffer.toString()));
-        else
-          resolve(undefined);
-      });
-  });
+  if (existsSync(jsonPath))
+    return JSON.parse(readFileSync(jsonPath).toString());
 }
 
 /** @param { Card } card
@@ -549,9 +552,9 @@ function checkForSulaimanUpdates(card)
 {
   return new Promise((resolve) =>
   {
-  /** @param { { build: string, branch: string, commit: string, date: string } } remoteData
+  /** @param { BuildData } remoteData
   */
-    function check(localData, remoteData)
+    function check(remoteData)
     {
       // if commit id of the server is different, and
       // the current package has a download url in the server
@@ -693,36 +696,35 @@ function checkForSulaimanUpdates(card)
 
     card.setType({ type: 'LoadingBar' });
 
-    readJson('build.json').then((localData) =>
-    {
     // if build.json doesn't exists or if the package is not specified, then return
-      if (!localData || !localData.branch || !localData.commit || !localData.package)
+    if (!localData || !localData.branch || !localData.commit || !localData.package)
+    {
+      card.auto({ description: 'Build file is misconfigured or missing' });
+
+      card.setType({ type: 'Normal' });
+
+      resolve(false);
+
+      return;
+    }
+
+    // request the server's build.json, can fail silently
+    request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
+      .then((remoteData) =>
       {
-        card.auto({ description: 'Local build is missing its information' });
+        card.setType({ type: 'Normal' });
+
+        check(remoteData);
+      })
+      .catch(() =>
+      {
+        card.auto({ description: 'Failed to reach server' });
 
         card.setType({ type: 'Normal' });
 
         resolve(false);
+
         return;
-      }
-
-      // request the server's build.json, can fail silently
-      request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
-        .then((remoteData) =>
-        {
-          card.setType({ type: 'Normal' });
-
-          check(localData, remoteData);
-        })
-        .catch(() =>
-        {
-          card.auto({ description: 'Failed to reach server' });
-
-          card.setType({ type: 'Normal' });
-
-          resolve(false);
-          return;
-        });
-    });
+      });
   });
 }

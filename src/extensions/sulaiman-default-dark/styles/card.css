@@ -16,9 +16,6 @@
   font-family: Oxygen, sans-serif;
   font-weight: 400;
 
-  user-select: none;
-  white-space: pre;
-  
   padding: 8px 15px;
 }
 
@@ -62,12 +59,11 @@
   font-weight: 400;
 
   user-select: none;
-  white-space: pre;
-  writing-mode: horizontal-tb;
-  max-block-size: 35vh;
+  white-space: pre-line;
 
   width: auto;
   height: auto;
+
   padding: 1px 0px;
 }
 
@@ -154,5 +150,5 @@ excluding line breaks and the last element of a card */
 .card > *:not(.cardLineBreak)
 {
   margin-top: 3px;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }

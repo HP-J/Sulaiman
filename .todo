@@ -1,8 +1,8 @@
 test:
-
+  
 graphics:
-  ☐ rewrite most of (collapse/expand)-related functions and other theme-related functions @build-2
-  ☐ refactor the theme's collapse/expand functions with smaller limited visible description text, better anchor points, @build-2
+  ☐ rewrite most of (collapse/expand)-related functions and other theme-related functions @build-2 @high 
+  ☐ refactor the theme's collapse/expand functions with smaller limited visible description text, better anchor points, @build-2 @high 
     and the ability to not break horribly when spam clicked
 
   ☐ showing extensions credits @build-2
@@ -16,7 +16,7 @@ graphics:
 
 manager:
 
-loader:
+loader & api:
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @build-2 
     and the extension it require is installed and does have public API
 
