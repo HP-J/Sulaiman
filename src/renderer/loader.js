@@ -389,7 +389,7 @@ function handelMockups(requiredPermissions, theme)
     process: true,
 
     // sulaiman
-    window: true,
+    browserWindow: true,
     electron: true,
     clipboard: true,
     shell: true,
@@ -397,14 +397,14 @@ function handelMockups(requiredPermissions, theme)
     tray: true,
   };
 
-  // normal permissions
+  // allow normal permissions
   for (let i = 0; i < requiredPermissions.length; i++)
   {
     if (permissions[requiredPermissions[i]])
       permissions[requiredPermissions[i]] = false;
   }
 
-  // theme permissions
+  // allow theme permissions
   if (theme)
   {
     permissions.setThemeFunctions = false;
@@ -413,21 +413,21 @@ function handelMockups(requiredPermissions, theme)
     permissions.appendStyleDir = false;
   }
 
-  // delete the un-given permissions from the VM mockups
+  // delete the un-given permissions from the VM mockups and sandbox
   for (const key in permissions)
   {
     if (permissions[key])
     {
       if (sandbox[key])
         sandbox[key] = undefined;
-      
       else if (defaultMockups.sulaiman[key])
         defaultMockups.sulaiman[key] = undefined;
     }
   }
 
-  // properties and functions allowed by default for being used
+  // properties and functions that are always allowed for being used
   // regularly in most apps, and are harmless to the user
+
   if (!sandbox.document)
   {
     sandbox.document = {
@@ -436,6 +436,31 @@ function handelMockups(requiredPermissions, theme)
       createTextNode: document.createTextNode.bind(document)
     };
   }
+
+  sandbox.setTimeout = (callback, delay, ...args) =>
+  {
+    const timer = setTimeout(() =>
+    {
+      callback.apply(undefined, ...args);
+    }, delay);
+
+    return timer;
+  };
+
+  sandbox.setInterval = (callback, delay, ...args) =>
+  {
+    const timer = setInterval(() =>
+    {
+      callback.apply(undefined, ...args);
+    }, delay);
+
+    return timer;
+  };
+
+  sandbox.getComputedStyle = (elt, pseudoElt) =>
+  {
+    return getComputedStyle(elt, pseudoElt);
+  };
   
   return { sandbox, defaultMockups };
 }

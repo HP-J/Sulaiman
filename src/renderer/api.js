@@ -18,7 +18,7 @@ export { apiVersion };
 
 export { Card };
 
-/** [requires the 'browser-window' permission]
+/** [requires the 'browserWindow' permission]
 * the main browser window of the app
 * @type { Electron.BrowserWindow }
 */

@@ -62,7 +62,7 @@ html
   height: auto;
 
   user-select: none;
-  white-space: pre-line;
+  white-space: pre;
 
   font-family: Oxygen, sans-serif;
   font-size: calc(12px + 0.8vh + 0.5vw);;

@@ -160,7 +160,7 @@ function oninput()
   lastInput = input;
 
   // on input scroll to top of the window
-  requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
+  scrollToTop();
 
   // remove old suggestion elements
   while (suggestionsElement.firstChild)
@@ -192,11 +192,17 @@ function onkeydown(event)
   {
     event.preventDefault();
 
+    // scroll to top of the window
+    scrollToTop();
+
     selectItem(-1);
   }
   else if (event.code === 'ArrowDown')
   {
     event.preventDefault();
+
+    // scroll to top of the window
+    scrollToTop();
 
     selectItem(1);
   }
@@ -673,6 +679,11 @@ function standard(s)
 function toggleSuggestionElement()
 {
   suggestionsElement.classList.toggle('suggestionsActive');
+}
+
+function scrollToTop()
+{
+  requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
 }
 
 /** @param { string | RegExp } phrase

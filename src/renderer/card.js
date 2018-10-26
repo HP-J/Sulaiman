@@ -39,7 +39,7 @@ export function internalCreateCard(options)
 }
 
 /** A class containing functions and variables to append
-* html elements to the body and control them
+* elements to the body and control them
 */
 export default class Card
 {
@@ -53,7 +53,7 @@ export default class Card
     if (file !== __filename && (functionName === createCard.name || functionName === internalCreateCard.name))
       throw new TypeError('Illegal Constructor');
 
-    /** the card's main html element
+    /** the card's main element
     * (some functions are broken due to issues with the sandbox module,
     * please use the alterative card functions if available instead)
     * @type { HTMLDivElement }
@@ -105,7 +105,15 @@ export default class Card
       this.domElement.classList.remove(className);
   }
 
-  /** set the html element id
+  /** set the element class(es)
+  * @param { string } className string of the class name
+  */
+  setClass(className)
+  {
+    this.domElement.setAttribute('class', className);
+  }
+
+  /** set the element id
   * @param { string } id string of the id
   */
   setId(id)
@@ -113,7 +121,7 @@ export default class Card
     this.setAttribute('id', id);
   }
 
-  /** add another card or a html element to this card
+  /** add another card or a element to the card
   * @param { Card | HTMLElement } child
   */
   appendChild(child)
@@ -123,8 +131,16 @@ export default class Card
     else
       this.domElement.appendChild(child.domElement || child);
   }
+
+  /** get a child of the card
+  * @param { number } index zero-based index
+  */
+  getChild(index)
+  {
+    return this.domElement.children.item(index);
+  }
   
-  /** remove another card or a html element from this card
+  /** remove another card or a element from the card
   * @param { Card | HTMLElement } child
   */
   removeChild(child)
@@ -135,7 +151,7 @@ export default class Card
       this.domElement.removeChild(child.domElement || child);
   }
 
-  /** returns true if the card contains a card or a html element
+  /** returns true if the card contains a card or a element
   * @param { Card | HTMLElement } child
   */
   containsChild(child)
@@ -143,10 +159,24 @@ export default class Card
     return this.domElement.contains(child.domElement || child);
   }
 
-  /**
-  * @param { string } text
+  /** returns the index of a child (card or element)
+  * @param { Card | HTMLElement } child
+  */
+  indexOf(child)
+  {
+    return Array.prototype.indexOf.call(this.domElement.children, child.domElement || child);
+  }
+
+  /** returns the count of children the card has
+  */
+  get length()
+  {
+    return this.domElement.children.length;
+  }
+
+  /** @param { string } text
   * @param { TextOptions } options
-  * @returns { HTMLElement } the text html element
+  * @returns { HTMLElement } the text element
   */
   appendText(text, options)
   {

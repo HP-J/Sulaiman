@@ -1,4 +1,4 @@
-import * as sulaiman from 'sulaiman';
+import { on, setInput } from 'sulaiman';
 
 import { Parser } from 'expr-eval';
 
@@ -13,11 +13,11 @@ function parse(string)
 
 function registerPhrase()
 {
-  sulaiman.on.ready(() =>
+  on.ready(() =>
   {
     let result;
 
-    sulaiman.on.phrase(
+    on.phrase(
       /^(\(|(abs|acos|acosh|asin|asinh|atan|atanh|ceil|cos|cosh|exp|floor|length|ln|log|log10|round|sin|sinh|sqrt|tan|tanh|trunc|random)|(-|\+)?[0-9])(.*)/i,
       undefined,
       {
@@ -41,7 +41,7 @@ function registerPhrase()
         },
         enter: () =>
         {
-          sulaiman.setInput(result);
+          setInput(result);
           
           return { searchBar: 'select-input' };
         }

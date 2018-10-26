@@ -1,4 +1,4 @@
-import * as sulaiman from 'sulaiman';
+import { on, shell, createCard } from 'sulaiman';
 
 import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
 
@@ -77,7 +77,7 @@ function windows()
 
         try
         {
-          target = sulaiman.shell.readShortcutLink(file).target;
+          target = shell.readShortcutLink(file).target;
         }
         catch (e)
         {
@@ -148,7 +148,7 @@ function launch(execPath)
 {
   if (platform === 'win32')
   {
-    sulaiman.shell.openItem(execPath);
+    shell.openItem(execPath);
   }
   else if (platform === 'linux')
   {
@@ -161,18 +161,18 @@ function launch(execPath)
 
 function registerPhrases()
 {
-  sulaiman.on.ready(() =>
+  on.ready(() =>
   {
     const appsAsNames = Object.keys(apps);
 
     if (appsAsNames.length <= 0)
       return;
 
-    const button = sulaiman.createCard();
+    const button = createCard();
 
     button.setType({ type: 'Button' });
 
-    sulaiman.on.phrase(
+    on.phrase(
       'Launch',
       appsAsNames,
       {
