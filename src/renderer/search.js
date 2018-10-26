@@ -238,7 +238,7 @@ function onkeydown(event)
         );
 
       if (!options || typeof options !== 'object')
-        options = { searchBarInput: 'auto-complete-suggestion', blurSearchBar: true };
+        options = { input: 'auto-complete', searchBar: 'blur' };
 
       if (options.input === 'auto-complete')
         setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);

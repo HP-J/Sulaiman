@@ -11,7 +11,6 @@
 
   position: relative;
   width: calc(100vw - 30px);
-  min-height: 10px;
 
   font-family: Oxygen, sans-serif;
   font-weight: 400;
@@ -151,4 +150,39 @@ excluding line breaks and the last element of a card */
 {
   margin-top: 3px;
   margin-bottom: 3px;
+}
+
+/* collapse and expand
+*/
+
+.card:not(.cardFastForward) > .cardExpandChild
+{
+  transition-property: opacity;
+  transition-duration: var(--cardChildAnimationDuration);
+  transition-timing-function: ease;
+}
+
+.card:not(.cardFastForward) > .cardCollapseChild
+{
+  opacity: 0;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  transition-property: opacity, padding, margin !important;
+}
+
+.cardCollapsedChild
+{
+  min-height: 0  !important;
+  max-height: 0  !important;
+}
+
+.card.cardFastForward > .cardCollapseChild
+{
+  min-height: 0  !important;
+  max-height: 0  !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
 }

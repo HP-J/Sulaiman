@@ -1,194 +1,177 @@
-import * as sulaiman from 'sulaiman';
+import { Card, setPlaceholder, appendStyleDir, storeIcon, setThemeFunctions  } from 'sulaiman';
 
 import { join } from 'path';
 
-/** @param { sulaiman.Card } card
+/** @param { Card } card
 */
 function isFastForward(card)
 {
   return card.domElement.classList.contains('cardFastForward');
 }
 
-/** @param { sulaiman.Card } card
+/** @param { Card } card
 */
 function toggleFastForward(card)
 {
   card.domElement.classList.toggle('cardFastForward');
 }
 
-/** @param { sulaiman.Card } card
+/** @param { Card } card
 */
 function isCollapsed(card)
 {
   return card.domElement.classList.contains('cardCollapsed');
 }
 
-/** @param { sulaiman.Card } card
+/** @param { Card } card
 */
 function collapse(card)
 {
-  if (isFastForward(card))
-    setCollapse(card);
-  else
-    sulaiman.on.domReady(() => setCollapse(card));
+  function loop(delay, next)
+  {
+    setTimeout(() =>
+    {
+      if (next)
+      {
+        if (!element.classList.contains('cardCollapsedChild'))
+          element.classList.add('cardCollapsedChild');
+
+        index = index + 1;
+
+        // bottom to top
+        element = element.previousElementSibling;
+      }
+
+      // add the child expand class
+      if (!element.classList.contains('cardExpandChild'))
+        element.classList.add('cardExpandChild');
+
+      // add the child collapsed class
+      if (!element.classList.contains('cardCollapseChild'))
+        element.classList.add('cardCollapseChild');
+
+      if (index < childrenToBeCollapsedCount - 1)
+      {
+        loop(time, true);
+      }
+      else
+      {
+        card.domElement.classList.add('cardCollapsed');
+
+        card.pendingAnimation = false;
+      }
+    }, delay);
+  }
+
+  /** first auto line break if no auto line break is found, then find the first normal line break
+  * @type { HTMLElement }
+  */
+  const lineBreakElement = card.domElement.querySelector('.cardLineBreak.cardAuto') || card.domElement.querySelector('.cardLineBreak');
+
+  // if no line breaks are found at all, then we can't know were to collapse to
+  if (!lineBreakElement || card.isCollapsed || card.pendingAnimation)
+    return;
+
+  // spam-proof
+  card.pendingAnimation = true;
+
+  /** the last child on the element, so we can go from bottom to top
+  * @type { HTMLElement }
+  */
+  let element = card.domElement.lastElementChild;
+
+  let index = 0;
+  const childrenToBeCollapsedCount = card.length - card.indexOf(lineBreakElement);
+  
+  // the time of the animation divided by the count of children
+  const time = (card.isFastForward) ? 0 : 500 / childrenToBeCollapsedCount;
+
+  // send the animation duration to css
+  card.domElement.style.setProperty('--cardChildAnimationDuration', time + 'ms');
+
+  // start the loop, collapse the first child without any delay
+  loop(0);
 }
 
-/** @param { sulaiman.Card } card
+/** @param { Card } card
 */
 function expand(card)
 {
-  if (isFastForward(card))
-    setExpand(card);
-  else
-    sulaiman.on.domReady(() => setExpand(card));
-}
+  function loop(delay, next)
+  {
+    setTimeout(() =>
+    {
+      if (next)
+      {
+        index = index + 1;
+        
+        // top to bottom
+        element = element.nextElementSibling;
+      }
 
-/** @param { sulaiman.Card } card
-*/
-function setCollapse(card)
-{
-  // get the first line break element in the card
+      if (element.classList.contains('cardCollapsedChild'))
+        element.classList.remove('cardCollapsedChild');
+
+      if (element.classList.contains('cardCollapseChild'))
+        element.classList.remove('cardCollapseChild');
+      
+      if (index < childrenToBeExpandedCount - 1)
+      {
+        loop(time, true);
+      }
+      else
+      {
+        card.domElement.classList.remove('cardCollapsed');
+
+        card.pendingAnimation = false;
+      }
+    }, delay);
+  }
+
+  /** first auto line break if no auto line break is found, then find the first normal line break
+  * @type { HTMLElement }
+  */
   const lineBreakElement = card.domElement.querySelector('.cardLineBreak.cardAuto') || card.domElement.querySelector('.cardLineBreak');
 
-  const lineBreakNextElement = lineBreakElement.nextElementSibling;
-  const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
-     
-  if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
+  // if no line breaks are found at all, then we can't know were to collapse to
+  // if the isn't collapsed, then why would we expand it
+  if (!lineBreakElement || !card.isCollapsed || card.pendingAnimation)
     return;
-     
-  const lineBreakRect = lineBreakElement.getBoundingClientRect();
 
-  const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
-  const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
+  // spam-proof
+  card.pendingAnimation = true;
 
-  const nextElementRect = lineBreakNextElement.getBoundingClientRect();
-  const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
+  /** the first child to be expanded on the element, from top to bottom
+  * @type { HTMLElement }
+  */
+  let element = lineBreakElement;
 
-  const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
-  card.domElement.removeChild(card.domElement.lastChild);
-     
-  const topMargin = (nextElementRect.top - lineBreakRect.bottom);
-  const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
-     
-  // const cardRect = card.domElement.getBoundingClientRect();
-  // const topPadding = firstElementRect.top - cardRect.top;
-  // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
-
-  const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
-  const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
-
-  card.domElement.style.setProperty(
-    '--cardY',
-    top + 'px');
-
-  card.domElement.style.setProperty(
-    '--cardHeight',
-    height + 'px');
-
-  // if the card has the expanded class, remove it
-  if (card.domElement.classList.contains('cardExpanded'))
-    card.domElement.classList.remove('cardExpanded');
-
-  // add the collapsed class to the card
-  card.domElement.classList.add('cardCollapsed');
-
-  // loop to all the children after the line break
-  let nextElementSibling = lineBreakNextElement;
-
-  // loop until there is no more childs
-  while (nextElementSibling)
-  {
-    // if the child has the expanded class, remove it
-    if (nextElementSibling.classList.contains('cardChildExpanded'))
-      nextElementSibling.classList.remove('cardChildExpanded');
-
-    // add the collapsed class to all the card children
-    nextElementSibling.classList.add('cardChildCollapsed');
-
-    // switch to the next child
-    nextElementSibling = nextElementSibling.nextElementSibling;
-  }
-}
-
-/** @param { sulaiman.Card } card
-*/
-function setExpand(card)
-{
-  // get the first line break element in the card
-  const lineBreakElement = card.domElement.querySelector('.cardLineBreak.cardAuto') || card.domElement.querySelector('.cardLineBreak');
-
-  const lineBreakNextElement = lineBreakElement.nextElementSibling;
-  const lineBreakPreviousElement = lineBreakElement.previousElementSibling;
+  let index = 0;
+  const childrenToBeExpandedCount = card.length - card.indexOf(lineBreakElement);
   
-  if (!lineBreakElement || !lineBreakNextElement || !lineBreakPreviousElement)
-    return;
-  
-  const lineBreakRect = lineBreakElement.getBoundingClientRect();
+  // the time of the animation divided by the count of children
+  const time = (card.isFastForward) ? 0 : 500 / childrenToBeExpandedCount;
 
-  const firstElementRect = card.domElement.firstElementChild.getBoundingClientRect();
-  const lastElementRect = card.domElement.lastElementChild.getBoundingClientRect();
+  // send the animation duration to css
+  card.domElement.style.setProperty('--cardChildAnimationDuration', time + 'ms');
 
-  const nextElementRect = lineBreakNextElement.getBoundingClientRect();
-  const previousElementRect = lineBreakPreviousElement.getBoundingClientRect();
-
-  const lastLineBreakElementRect = card.appendLineBreak().getBoundingClientRect();
-  card.domElement.removeChild(card.domElement.lastChild);
-  
-  const topMargin = (nextElementRect.top - lineBreakRect.bottom);
-  const bottomMargin = (lastLineBreakElementRect.top - lastElementRect.bottom);
-  
-  // const cardRect = card.domElement.getBoundingClientRect();
-  // const topPadding = firstElementRect.top - cardRect.top;
-  // const bottomPadding = cardRect.height - (lastLineBreakElementRect.bottom - cardRect.top);
-
-  const top = (previousElementRect.bottom - firstElementRect.top) + (bottomMargin + topMargin);
-  const height = (lastElementRect.bottom - firstElementRect.top) + bottomMargin + topMargin;
-
-  card.domElement.style.setProperty(
-    '--cardY',
-    top + 'px');
-
-  card.domElement.style.setProperty(
-    '--cardHeight',
-    height + 'px');
-
-  // if the card has the collapsed class, remove it
-  if (card.domElement.classList.contains('cardCollapsed'))
-    card.domElement.classList.remove('cardCollapsed');
-
-  // add the expanded class to the card
-  card.domElement.classList.add('cardExpanded');
-
-  // loop to all the children after the line break
-  let nextElementSibling = lineBreakElement.nextElementSibling;
-
-  while (nextElementSibling)
-  {
-    // if the child has the collapsed class, remove it
-    if (nextElementSibling.classList.contains('cardChildCollapsed'))
-      nextElementSibling.classList.remove('cardChildCollapsed');
- 
-    // add the expanded class to all the card children
-    nextElementSibling.classList.add('cardChildExpanded');
- 
-    // switch to the next child
-    nextElementSibling = nextElementSibling.nextElementSibling;
-  }
+  // start the loop, expand the first child without any delay
+  loop(0);
 }
 
 // set the default search bar placeholder
-sulaiman.setPlaceholder('Search');
+setPlaceholder('Search');
 
 // append the theme stylesheets
-sulaiman.appendStyleDir(join(__dirname, 'styles'));
+appendStyleDir(join(__dirname, 'styles'));
 
 // store the default icon set
-sulaiman.storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
-sulaiman.storeIcon(join(__dirname, '/icons/more.svg'), 'more');
-sulaiman.storeIcon(join(__dirname, '/icons/question.svg'), 'question');
+storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
+storeIcon(join(__dirname, '/icons/more.svg'), 'more');
+storeIcon(join(__dirname, '/icons/question.svg'), 'question');
 
-sulaiman.storeIcon(join(__dirname, '/icons/settings.svg'), 'settings');
-sulaiman.storeIcon(join(__dirname, '/icons/share.svg'), 'share');
+storeIcon(join(__dirname, '/icons/settings.svg'), 'settings');
+storeIcon(join(__dirname, '/icons/share.svg'), 'share');
 
 // set the theme functions
-sulaiman.setThemeFunctions(isFastForward, toggleFastForward,isCollapsed, collapse, expand);
+setThemeFunctions(isFastForward, toggleFastForward, isCollapsed, collapse, expand);
