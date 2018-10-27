@@ -857,7 +857,7 @@ export function setInput(input)
   oninput();
 }
 
-/** set the text in the search bar (if the search bar is empty)
+/** [theme-only function] set the text in the search bar (if the search bar is empty)
 * @param { string } text
 */
 export function setPlaceholder(text)

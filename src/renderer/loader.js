@@ -331,7 +331,7 @@ function validateExtension(data)
 */
 function createVM(data, extensionPath)
 {
-  const { sandbox, defaultMockups } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme);
+  const { sandbox, defaultMockups } = handelMockups(data.sulaiman.permissions, data.sulaiman.theme || false);
 
   // separate node builtin modules from the external modules
   const { builtin, externalMockups } = handelModules(data.sulaiman.modules, extensionPath);
@@ -384,17 +384,17 @@ function handelMockups(requiredPermissions, theme)
 
   const permissions =
   {
-    // global
+    // global properties and functions
     document: true,
     process: true,
 
-    // sulaiman
+    // sulaiman properties and functions
     browserWindow: true,
     electron: true,
     clipboard: true,
     shell: true,
     dialog: true,
-    tray: true,
+    tray: true
   };
 
   // allow normal permissions
@@ -404,14 +404,12 @@ function handelMockups(requiredPermissions, theme)
       permissions[requiredPermissions[i]] = false;
   }
 
-  // allow theme permissions
-  if (theme)
-  {
-    permissions.setThemeFunctions = false;
-    permissions.appendStyle = false;
-    permissions.removeStyle = false;
-    permissions.appendStyleDir = false;
-  }
+  // theme permissions
+  permissions.setThemeFunctions = !theme;
+  permissions.appendStyle = !theme;
+  permissions.removeStyle = !theme;
+  permissions.appendStyleDir = !theme;
+  permissions.setPlaceholder = !theme;
 
   // delete the un-given permissions from the VM mockups and sandbox
   for (const key in permissions)

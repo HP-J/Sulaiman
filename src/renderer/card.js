@@ -17,7 +17,7 @@ import { readyState } from './renderer.js';
 * @property { "nonSelectable" | "Selectable" } [select=nonSelectable]
 */
 
-/**
+/** create a new card
 * @param { AutoCardOptions } options
 */
 export function createCard(options)

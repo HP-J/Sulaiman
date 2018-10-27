@@ -89,7 +89,7 @@ export function getIcon(iconName)
     return undefined;
 }
 
-/** those functions are required by themes, they will be used in cards
+/** [theme-only function] those functions are required by themes, they will be used in cards
 * @param { (card: Card) => boolean  } isFastForward
 * @param { (card: Card) => void } toggleFastForward
 * @param { (card: Card) => boolean } isCollapsed
@@ -105,7 +105,7 @@ export function setThemeFunctions(isFastForward, toggleFastForward, isCollapsed,
   themeFunctions.expand = expand;
 }
 
-/** append a stylesheet files to the DOM [async]
+/** [theme-only function] append a stylesheet files to the DOM [async]
  * @param { string[] } files paths to the stylesheets (css) files to want to append to DOM
 * @param { () => void } callback gets called when all the styles are loaded
 */
@@ -144,7 +144,7 @@ export function appendStyle(files, callback)
   }
 }
 
-/** remove a list of stylesheet files from the DOM
+/** [theme-only function] remove a list of stylesheet files from the DOM
 * @param { string[] } files paths to the stylesheets (css) files to want to remove from DOM
 */
 export function removeStyle(files)
@@ -163,7 +163,7 @@ export function removeStyle(files)
   }
 }
 
-/** append all the stylesheet files from a directory to the DOM [async]
+/** [theme-only function] append all the stylesheet files from a directory to the DOM [async]
 * @param { string } directory the stylesheet directory
 * @param { () => void } callback gets called when all the styles are loaded
 */

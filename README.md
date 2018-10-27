@@ -2,7 +2,7 @@
 
 *The app is in early stages of development, We still have a lot of plans*
 
-*Please note that the default theme and the API may change a lot in the first few builds, Your feedback is highly encourage*
+*Please note that the default theme and the Extension API may change a lot in the first few builds, Your feedback is highly encouraged*
 
 #### A keyboard launcher with no features
 
