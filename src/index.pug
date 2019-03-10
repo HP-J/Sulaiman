@@ -1,0 +1,19 @@
+doctype html
+
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible' content='ie=edge')
+    meta(http-equiv='Content-Security-Policy' content=`script-src 'unsafe-inline'`)
+
+  body
+    input.searchBar(type='text')
+    .suggestions
+
+  script.
+    window.onerror = function(message, url, line, column, error)
+    {
+      require('electron').ipcRenderer.send('rendererError', error.stack || error);
+    };
+    require('./renderer/renderer.js');
