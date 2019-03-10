@@ -1,12 +1,11 @@
 import { Menu, Tray, app, nativeImage } from 'electron';
 
 import { join } from 'path';
-import { platform } from 'os';
 import { existsSync } from 'fs';
 
-import * as settings from 'electron-json-config';
+import * as settings from '../settings.js';
 
-import { isDebug, showHide } from './window.js';
+import { showHide, isDebug } from './window.js';
 
 /** @type { Tray }
 */
@@ -52,21 +51,25 @@ function loadTrayIcon()
   if (enabled)
   {
     const trayMenu = Menu.buildFromTemplate(trayMenuTemplate);
-    const iconPath = join(__dirname, '../../tray-' + platform() + '.png');
+
+    const color = settings.get('trayIconColor', 'light');
+    const iconPath = join(__dirname, `../../tray-${color}.png`);
 
     if (!existsSync(iconPath))
       return;
     
     trayIcon = new Tray(nativeImage.createFromPath(iconPath));
-
-    trayIcon._setContextMenu = trayIcon.setContextMenu;
-
-    trayIcon.setContextMenu = function(menu)
-    {
-      trayIcon._setContextMenu(menu);
       
-      trayIcon.contextMenu = menu;
-    };
+    trayIcon.on('click', showHide);
+
+    // TODO sulaiman api: wrapper so extensions can get the current context menu
+    // trayIcon._setContextMenu = trayIcon.setContextMenu;
+    // trayIcon.setContextMenu = function(menu)
+    // {
+    //   trayIcon._setContextMenu(menu);
+    
+    //   trayIcon.contextMenu = menu;
+    // };
 
     trayIcon.setContextMenu(trayMenu);
   }

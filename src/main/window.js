@@ -6,9 +6,10 @@ export let mainWindow;
 */
 export let app;
 
-/** @type { Electron.BrowserWindow }
+/** if the app icon should be shown in the taskbar
+* @type { Electron.BrowserWindow }
 */
-export let skipTaskbar;
+export let skipTaskbar = true;
 
 let debugMode = false;
 let shownMode = true;
@@ -27,6 +28,8 @@ export function setApp(_app)
   app = _app;
 }
 
+/** if the app is in debug mode
+*/
 export function isDebug()
 {
   if (process.argv.includes('--debug'))
@@ -35,6 +38,8 @@ export function isDebug()
   return debugMode;
 }
 
+/** if the app started hidden (auto-launch)
+*/
 export function isHidden()
 {
   if (process.argv.includes('--hidden'))
@@ -43,19 +48,32 @@ export function isHidden()
   return shownMode;
 }
 
-/** reloads the electron browser window
+/** reloads the main browser window
 */
 export function reload()
 {
   mainWindow.reload();
 }
 
+/** focus on the main window
+*/
+export function focus()
+{
+  mainWindow.restore();
+
+  mainWindow.show();
+  
+  mainWindow.focus();
+}
+
+/** quit the app
+*/
 export function quit()
 {
   app.quit();
 }
 
-/** shows/hides the main window
+/** shows/hides the app's main window
 */
 export function showHide()
 {
@@ -65,6 +83,7 @@ export function showHide()
 
     mainWindow.show();
 
+    // only restore to the taskbar if the option is enabled
     mainWindow.setSkipTaskbar(skipTaskbar);
 
     mainWindow.focus();
@@ -76,6 +95,8 @@ export function showHide()
   }
 }
 
+/** show or hide the icon in the taskbar
+*/
 export function setSkipTaskbar(state)
 {
   skipTaskbar = state;

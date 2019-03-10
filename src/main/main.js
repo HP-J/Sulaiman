@@ -1,9 +1,9 @@
-import { BrowserWindow, app, screen, ipcMain, globalShortcut, dialog, Menu } from 'electron';
+import { BrowserWindow, Menu, app, screen, dialog, globalShortcut, ipcMain } from 'electron';
 
-import { join } from 'path';
+import path from 'path';
 import url from 'url';
 
-import { isDebug, isHidden, setWindow, setApp, showHide } from './window.js';
+import { setWindow, setApp, isDebug, isHidden, showHide } from './window.js';
 import { loadOptions } from './options.js';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -69,6 +69,9 @@ function createWindow()
 
   mainWindow = new BrowserWindow(
     {
+      webPreferences: {
+        nodeIntegration: true
+      },
       title: 'Sulaiman',
       show: isDebug() || isHidden(),
       frame: isDebug(),
@@ -83,12 +86,12 @@ function createWindow()
 
   setWindow(mainWindow);
   setApp(app);
-  
+
   loadOptions();
 
-  // load the index.html of the app
+  // and load the index.html of the app
   mainWindow.loadURL(url.format({
-    pathname: join(__dirname, '../index.html'),
+    pathname: path.join(__dirname, '../index.html'),
     protocol: 'file:',
     slashes: true
   }));
@@ -96,7 +99,7 @@ function createWindow()
   // emits when the window is closed
   mainWindow.on('closed', () =>
   {
-    mainWindow = undefined;
+    mainWindow = null;
   });
 }
 
@@ -123,7 +126,7 @@ else
   ipcMain.on('rendererError', (event, data) =>
   {
     dialog.showErrorBox('A Javascript error occurred in the renderer process', data);
-    
+
     app.quit();
   });
 
