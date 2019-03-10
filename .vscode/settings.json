@@ -28,7 +28,7 @@
     "todo",
     "typescript",
     "typescriptreact",
-    "yaml",
     "yml"
-  ]
+  ],
+  "puglint.enable": true
 }
