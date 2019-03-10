@@ -64,16 +64,6 @@ export const on =
   * @param { () => void } callback the callback function
   */
   ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
-  /** emits once if (or when) the dom is ready and not (or after) loading
-  * @param { () => void } callback the callback function
-  */
-  domReady: (callback) =>
-  {
-    if (document.readyState === 'loading')
-      document.addEventListener('DOMContentLoaded', callback, { once: true });
-    else
-      callback();
-  },
   /** register a phrase, then returns a card controlled only by the search system
   * @param { string | RegExp } phrase phrase or a regex that the user have to enter to activate this phrase functionality
   * @param { string[] } [defaultArgs]

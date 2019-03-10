@@ -1,15 +1,13 @@
 {
   "name": "sulaiman",
   "productName": "Sulaiman",
-  "version": "0.1.1",
-  "description": "A keyboard launcher with no features",
+  "version": "0.2.0",
+  "description": "A keyboard launcher that doesn't exists",
   "main": "index.js",
   "private": true,
   "scripts": {
-    "dev": "npx babel src --out-dir compiled --copy-files --source-maps --watch",
-    "compile": "npx babel src --out-dir compiled --copy-files --no-comments --minified && rm -rf ./compiled/extensions/sulaiman-extension-debug",
-    "clean": "rm -rf compiled",
-    "patch": "npm version patch --no-git-tag-version"
+    "dev": "npx babel src --out-dir compiled --copy-files --source-maps --watch & npx pug src --out compiled --pretty --watch &",
+    "compile": "npx babel src --out-dir compiled --copy-files --no-comments --minified && npx pug src --out compiled && rm compiled/*.pug"
   },
   "build": {
     "appId": "com.herpproject.sulaiman",
@@ -21,7 +19,9 @@
       "LICENSE",
       "README.md",
       "CHANGELOG.md",
-      "tray.png"
+      "tray-black.png",
+      "tray-dark.png",
+      "tray-light.png"
     ],
     "directories": {
       "output": "./public"
@@ -38,32 +38,41 @@
       "allowToChangeInstallationDirectory": true,
       "uninstallDisplayName": "Sulaiman",
       "shortcutName": "Sulaiman"
+    },
+    "electronDownload": {
+      "cache": ".electron-cache"
     }
   },
-  "homepage": "https://gitlab.com/herpproject/Sulaiman",
+  "homepage": "https://gitlab.com/herpproject/Sulaiman#readme",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/Sulaiman.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/herpproject/Sulaiman/issues"
   },
   "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "auto-launch": "^5.0.5",
-    "electron-dl": "^1.12.0",
-    "electron-json-config": "^1.5.3",
-    "fs-extra": "^7.0.0",
-    "inly": "^3.0.2",
-    "npm": "^6.4.1",
-    "request-promise-native": "^1.0.5",
-    "vm2": "^3.6.4"
+    "fs-extra": "^7.0.1",
+    "inly": "^3.0.3",
+    "npm": "^6.9.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7",
+    "vm2": "^3.6.10"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/preset-env": "^7.1.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
     "babel-eslint": "^10.0.1",
-    "electron": "^3.0.6",
-    "electron-builder": "^20.28.4",
-    "eslint": "^5.8.0"
+    "electron": "^4.0.8",
+    "electron-builder": "^20.38.5",
+    "eslint": "^5.15.1",
+    "pug": "^2.0.3",
+    "pug-cli": "^1.0.0-alpha6",
+    "pug-lint": "^2.5.0",
+    "pug-lint-config-clock": "^2.0.0"
   }
 }

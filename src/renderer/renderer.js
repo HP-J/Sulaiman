@@ -7,12 +7,11 @@ import { getIcon } from './api.js';
 import { loadExtensions, emit, on } from './loader.js';
 import { loadNPM, registerExtensionsPhrase } from './manager.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
-import { appendSearchBar, internalRegisterPhrase as registerPhrase, registerPhrasesPhrase } from './search.js';
+import { initSearchBar, internalRegisterPhrase as registerPhrase, registerPhrasesPhrase } from './search.js';
 
 /** @typedef { import('./card.js').default } Card
 */
 
-const splash = document.body.children[0];
 const { mainWindow, quit, reload } = remote.require(join(__dirname, '../main/window.js'));
 
 export let readyState = false;
@@ -88,11 +87,8 @@ function registerEvents()
   mainWindow.on('blur', onblur);
   mainWindow.on('blur', onblur);
 
-  window.addEventListener('beforeunload', () =>
-  {
-    remote.globalShortcut.unregisterAll();
-  });
-
+  // disable the ability to switch focus between
+  // elements using the 'Tab' key
   window.addEventListener('keydown', (event) =>
   {
     if (event.key === 'Tab')
@@ -133,38 +129,36 @@ function onblur()
   emit.blur();
 }
 
-// create and append the search bar
-appendSearchBar();
+function init()
+{
+  // create and append the search bar
+  initSearchBar();
 
-// register to several events the app uses
-registerEvents();
+  // register to several events the app uses
+  registerEvents();
 
-// load npm
-loadNPM();
+  // load npm
+  loadNPM();
 
-// load options
-loadOptions();
+  // load options
+  loadOptions();
 
-// load all extensions
-loadExtensions();
+  // load all extensions
+  loadExtensions();
 
-// register all builtin phrases
-registerBuiltinPhrases()
-  .then(() =>
-  {
-  // finally, mark the app as ready and
-  // emit the ready event
-    readyState = true;
-
-    emit.ready();
-
-    // remove the splash screen when the dom is ready
-    on.domReady(() =>
+  // register all builtin phrases
+  registerBuiltinPhrases()
+    .then(() =>
     {
-      if (splash)
-        document.body.removeChild(splash);
+      // mark the app as ready and
+      // emit the ready event
+      readyState = true;
 
-      // reset focus
+      emit.ready();
+
       onfocus();
     });
-  });
+}
+
+// initialize the app
+init();

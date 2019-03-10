@@ -1,18 +1,20 @@
 import { remote } from 'electron';
-import * as settings from 'electron-json-config';
 
-import request from 'request-promise-native';
-
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 import { tmpdir } from 'os';
+import { join } from 'path';
+
+import { readFileSync, existsSync, pathExists } from 'fs-extra';
 
 import AutoLaunch from 'auto-launch';
+import request from 'request-promise-native';
+
+import * as settings from '../settings.js';
+import download from '../dl.js';
 
 import { internalRegisterPhrase as registerPhrase } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
 
-import { appendCard, removeCard } from './api.js';
+import { appendCard, removeCard, containsCard } from './api.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -21,19 +23,22 @@ import { appendCard, removeCard } from './api.js';
 */
 
 /** @typedef { Object } BuildData
-* @property { string } build
 * @property { string } branch
 * @property { string } commit
+* @property { string } pipeline
 * @property { string } date
+* @property { string } package
 */
 
-/** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
-*/
-const { download: dl  } = remote.require('electron-dl');
-
-const { mainWindow, isDebug, showHide, setSkipTaskbar, quit } = remote.require(join(__dirname, '../main/window.js'));
+const { isDebug, showHide, setSkipTaskbar } = remote.require(join(__dirname, '../main/window.js'));
 
 const autoLaunchEntry = new AutoLaunch({ name: 'Sulaiman', isHidden: true });
+
+/** @type { Card }
+*/
+let autoUpdateCheckCard;
+
+let userManuallyCheckedOnce = false;
 
 export let autoHide = false;
 
@@ -57,19 +62,15 @@ export function loadOptions()
 
   apiVersion = packageData.version;
 
+  autoUpdateCheckCard = createCard();
+
   if (isDebug())
     return;
   
   loadAutoLaunch();
   loadShowHideKey();
 
-  const updateCard = createCard();
-
-  checkForSulaimanUpdates(updateCard).then((update) =>
-  {
-    if (update)
-      appendCard(updateCard);
-  });
+  checkForUpdates(autoUpdateCheckCard, true);
 }
 
 export function registerOptionsPhrase()
@@ -205,8 +206,11 @@ export function registerOptionsPhrase()
             if (localData.commit)
               card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' });
 
+            if (localData.pipeline)
+              card.appendText('Pipeline: ' + localData.pipeline, { type: 'Description', select: 'Selectable' });
+              
             if (localData.package)
-              card.appendText('Package (' + localData.package + ')', { type: 'Description', select: 'Selectable' });
+              card.appendText('Package: ' + localData.package, { type: 'Description', select: 'Selectable' });
 
             if (localData.date)
               card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' });
@@ -232,7 +236,17 @@ export function registerOptionsPhrase()
         }
         else if (argument === 'Check for Updates')
         {
-          checkForSulaimanUpdates(card);
+          
+          if (containsCard(autoUpdateCheckCard))
+          {
+            card.auto({ title: 'Sulaiman', description: 'Another update card is currently opened' });
+          }
+          else
+          {
+            userManuallyCheckedOnce = true;
+
+            checkForUpdates(card);
+          }
         }
       }
     });
@@ -545,186 +559,210 @@ function readJsonSync(filename)
     return JSON.parse(readFileSync(jsonPath).toString());
 }
 
-/** @param { Card } card
-* @returns { Promise<boolean> }
+/** Checks for updates using the remote's build json and updates a card ui
+* @param { Card } card
+* @param { boolean } autoCheck
 */
-function checkForSulaimanUpdates(card)
+function checkForUpdates(card, autoCheck)
 {
-  return new Promise((resolve) =>
+  card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
+  card.setType({ type: 'LoadingBar' });
+
+  localData = {};
+  localData.branch = 'release';
+  localData.commit = 'a';
+  localData.package = 'nsis';
+
+  // if build.json doesn't exists or if the package is not specified
+  if (!localData || !localData.branch || !localData.commit || !localData.package)
   {
-  /** @param { BuildData } remoteData
-  */
-    function check(remoteData)
+    card.auto({ description: 'build.json file is misconfigured or missing' });
+
+    card.setType({ type: 'Normal' });
+
+    return;
+  }
+
+  // request the server's build.json
+  request('https://gitlab.com/herpproject/Dawayer/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
+    .then((remoteData) =>
     {
-      // if commit id of the server is different, and
-      // the current package has a download url in the server
-      if (remoteData.commit !== localData.commit && remoteData[localData.package])
+      // if commit id is different, and there's an available package for this platform
+      if (remoteData.commit !== localData.commit)
       {
-        const progress = function(percentage)
+        if (remoteData[localData.package])
         {
-          percentage = Math.floor(percentage * 100);
-
-          card.auto({ description: 'Downloading ' + percentage + '%' });
-
-          card.setType({ type: 'ProgressBar', percentage: percentage });
-        };
-
-        const downloadError = function(err)
+          updateFound(card, remoteData[localData.package], remoteData.commit, autoCheck);
+        }
+        else
         {
-          if (err && err.canceled)
-          {
-            reset();
-            return;
-          }
-
-          updateButton.domElement.style.cssText = '';
-
-          updateButton.auto({ title: 'Retry' });
-
-          card.auto({ description: 'Error: ' + err.message });
+          card.auto({ description: 'An update exists but is not available for your package' });
 
           card.setType({ type: 'Normal' });
-        };
-
-        /** @param { string } path
-        */
-        const done = function(path)
-        {
-          updateButton.domElement.style.cssText = '';
-
-          updateButton.auto({ title: 'Install' });
-          updateButton.domElement.onclick = () => install(path);
-
-          if (card.isPhrased)
-          {
-            dismissButton.domElement.style.display = 'none';
-          }
-          else
-          {
-            dismissButton.auto({ title: 'Dismiss' });
-            dismissButton.domElement.onclick = dismiss;
-          }
-
-          card.auto({ description: 'Downloaded' });
-
-          card.setType({ type: 'Normal' });
-        };
-
-        const install = function(path)
-        {
-          remote.shell.openItem(path);
-
-          quit();
-        };
-
-        const download = function()
-        {
-          updateButton.domElement.style.display = 'none';
-          dismissButton.domElement.style.cssText = '';
-
-          const url = new URL(remoteData[localData.package]);
-          const filename = 'tmp-' + Date.now() + '-' + url.pathname.substring(url.pathname.lastIndexOf('/') + 1);
-
-          card.auto({ description: 'Downloading..' });
-
-          dismissButton.auto({ title: 'Cancel' });
-
-          dl(mainWindow, url.href,
-            {
-              directory: tmpdir(),
-              filename: filename,
-              showBadge: false,
-              onStarted: (item) => dismissButton.domElement.onclick = () => item.cancel(),
-              onProgress: progress,
-              onCancel: reset
-            })
-            .then(() => done(join(tmpdir(), filename)))
-            .catch((err) => downloadError(err.cause || err));
-        };
-
-        const dismiss = function()
-        {
-          removeCard(card);
-        };
-
-        const reset = function()
-        {
-          updateButton.domElement.style.cssText = dismissButton.domElement.style.cssText = '';
-
-          updateButton.auto({ title: 'Update' });
-          updateButton.domElement.onclick = download;
-
-          if (card.isPhrased)
-          {
-            dismissButton.domElement.style.display = 'none';
-          }
-          else
-          {
-            dismissButton.auto({ title: 'Dismiss' });
-            dismissButton.domElement.onclick = dismiss;
-          }
-
-          card.auto({ description: 'Update available' });
-          card.setType({ type: 'Normal' });
-        };
-
-        const updateButton = createCard();
-        updateButton.setType({ type: 'Button' });
-
-        const dismissButton = createCard();
-        dismissButton.setType({ type: 'Button' });
-
-        reset();
-
-        card.appendLineBreak();
-
-        card.appendChild(updateButton);
-        card.appendChild(dismissButton);
-
-        resolve(true);
+        }
       }
       else
       {
         card.auto({ description: 'Up-to-date' });
-        
-        resolve(false);
-        return;
+
+        card.setType({ type: 'Normal' });
       }
-    }
+    }).catch(() => updateError(card));
+}
 
-    card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
+/** @param { Card } card
+*/
+function updateError(card)
+{
+  card.auto({ description: 'Failed to check for updates' });
 
-    card.setType({ type: 'LoadingBar' });
+  card.setType({ type: 'Normal' });
+}
 
-    // if build.json doesn't exists or if the package is not specified, then return
-    if (!localData || !localData.branch || !localData.commit || !localData.package)
+/** @param { Card } card
+* @param { string } url
+* @param { string } commitID
+* @param { boolean } autoCheck
+*/
+function updateFound(card, url, commitID, autoCheck)
+{
+  card.auto({ description: 'Update Available' });
+  card.setType({ type: 'Normal' });
+
+  card.updateButton = createCard({ title: 'Download' });
+  card.dismissButton = createCard({ title: 'Dismiss' });
+
+  card.updateButton.setType({ type: 'Button' });
+  card.dismissButton.setType({ type: 'Button' });
+
+  card.updateButton.domElement.onclick = () => updateDownload(card, url, commitID, autoCheck);
+  card.dismissButton.domElement.onclick = () => updateDismiss(card);
+
+  card.appendChild(card.updateButton);
+
+  if (autoCheck && !userManuallyCheckedOnce)
+  {
+    card.appendChild(card.dismissButton);
+
+    appendCard(card);
+  }
+}
+
+/** @param { Card } card
+*/
+function updateDismiss(card)
+{
+  removeCard(card);
+}
+
+/** @param { Card } card
+* @param { Card } card
+* @param { number } current
+* @param { number } total
+*/
+function updateProgress(card, current, total)
+{
+  const percentage = ((current / total) * 100).toFixed(1);
+
+  card.auto({ description: `Downloading ${percentage}%` });
+  card.setType({ type: 'ProgressBar', percentage: percentage });
+}
+
+/** @param { Card } card
+* @param { boolean } autoCheck
+* @param { () => void } abort
+*/
+function updateCanceled(card, autoCheck, abort)
+{
+  card.auto({ description: 'The update was canceled' });
+  card.setType({ type: 'Normal' });
+
+  // abort the download process
+  abort();
+
+  // remove the buttons
+  card.removeChild(card.updateButton);
+  card.removeChild(card.dismissButton);
+
+  // update the dismiss to dismiss the card
+  if (autoCheck)
+  {
+    card.dismissButton.auto({ title: 'Dismiss' });
+    card.dismissButton.domElement.onclick = () => updateDismiss(card);
+  
+    card.appendChild(card.dismissButton);
+  }
+}
+
+/** @param { Card } card
+* @param { string } path
+* @param { boolean } autoCheck
+*/
+function updateDownloaded(card, path, autoCheck)
+{
+  card.auto({ description: 'The update was downloaded\nYou have to install it manually' });
+  card.setType({ type: 'Normal' });
+
+  // remove the buttons
+  card.removeChild(card.updateButton);
+  card.removeChild(card.dismissButton);
+
+  // update the button to open the downloaded file
+  card.updateButton.auto({ title: 'Install' });
+  card.updateButton.domElement.onclick = () => remote.shell.openItem(path);
+  
+  card.appendChild(card.updateButton);
+
+  if (autoCheck)
+  {
+    card.dismissButton.auto({ title: 'Dismiss' });
+    card.dismissButton.domElement.onclick = () => updateDismiss(card);
+  
+    card.appendChild(card.dismissButton);
+  }
+}
+
+/** @param { Card } card
+* @param { string } url
+* @param { string } commitID
+* @param { boolean } autoCheck
+*/
+function updateDownload(card, url, commitID, autoCheck)
+{
+  card.auto({ description: 'Starting Download' });
+  card.setType({ type: 'LoadingBar' });
+
+  // remove the buttons
+  card.removeChild(card.updateButton);
+  card.removeChild(card.dismissButton);
+
+  url = new URL(url);
+
+  const filename = 'tmp-sulaiman-update-' + commitID;
+  const fullPath = join(tmpdir(), filename);
+
+  // if the update file was already downloaded
+  pathExists(fullPath).then((exists) =>
+  {
+    if (exists)
     {
-      card.auto({ description: 'Build file is misconfigured or missing' });
-
-      card.setType({ type: 'Normal' });
-
-      resolve(false);
-
-      return;
+      updateDownloaded(card, fullPath);
     }
-
-    // request the server's build.json, can fail silently
-    request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
-      .then((remoteData) =>
-      {
-        card.setType({ type: 'Normal' });
-
-        check(remoteData);
-      })
-      .catch(() =>
-      {
-        card.auto({ description: 'Failed to reach server' });
-
-        card.setType({ type: 'Normal' });
-
-        resolve(false);
-
-        return;
+    else
+    {
+      const dl = download(url.href, {
+        dir: tmpdir(),
+        filename: filename,
+        onProgress: (current, total) => updateProgress(card, current, total),
+        onError: () => updateError(card),
+        onDone: () => updateDownloaded(card, fullPath, autoCheck)
       });
+
+      // update the button to cancel, when pressed will abort the download
+      card.dismissButton.auto({ title: 'Cancel' });
+      card.dismissButton.domElement.onclick = () => updateCanceled(card, autoCheck, dl.abort);
+
+      card.appendChild(card.dismissButton);
+    }
   });
 }

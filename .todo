@@ -1,42 +1,51 @@
-test:
+Performance Issues and Bugs: 
+
+Testing: 
+
+Features:
+  ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
+  ☐ rewrite extensions download code to use the new script
+  ☐ revamp dependencies permissions
   
-graphics:
-  ☐ showing extensions credits @build-2
+  ☐ installing extensions without reloading
+  ☐ uninstalling extensions without reloading
 
-  ☐ show most recent phrases when input is empty, or most used @build-2 
-
-  ☐ show popular extensions from npm registry (gallery) @build-2 
-    ☐ have a section that shows popular extensions (popular all time)
-    ☐ have a section that shows trending extensions (popular this week)
-    ☐ have a section that shows extensions made by herp project (sort by popularity)
-
-manager:
-
-loader & api:
+  ☐ extensions with electron permission can use electron.remote.require (electron 4 has remote require filter)
+    ☐ extensions with electron permission can use electron.remote.getGlobal (electron 4 can be used to disable that) 
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @build-2 
     and the extension it require is installed and does have public API
 
   ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @build-2 
     without installing an extension
+  
+UI/UX:
+  ☐ add phrase to show changelog file
 
-options:
+  ☐ add option card to change the tray color
+  
+  ☐ showing extensions credits @next-build
+
+  ☐ show most recent phrases when input is empty, or most used @next-build
+
+  ☐ show popular extensions from npm registry (gallery) @next-build
+    ☐ have a section that shows popular extensions (popular all time)
+    ☐ have a section that shows trending extensions (popular this week)
+    ☐ have a section that shows extensions made by herp project (sort by popularity)
 
 CI/CD:
-  ☐ create an arch user repository and upload the first version
-  ☐ test the AUR publishing script
-  ☐ test the NPM publishing script
 
-  ☐ snapcraft builds
+Extensions:
+  ☐ open & preview files
 
-  ☐ build & test DMG packages @help-needed
-
-extensions:
-  ☐ open files @build-2 
-  ☐ dawayer integration @build-2 
-  ☐ show the app icon on its launch card
+  ☐ dawayer controls integration
+    ☐ continue playing
+  
+  ☐ show the app's icon on its launch-apps card
   ☐ calculator card
 
-  ☐ launch-apps (macOS support) @help-needed
+  ☐ launch-apps for macOS @help-needed
 
-google: @extension @not-builtin
-   ☐ login in with google
+Google: @extension @not-builtin
+   ☐ logging in with a google account
+   
+Google News: @extension @not-builtin

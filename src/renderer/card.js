@@ -147,7 +147,7 @@ export default class Card
   {
     if (child.isPhrased)
       throw new Error('the card is controlled by the phrase search system');
-    else
+    else if (this.containsChild(child))
       this.domElement.removeChild(child.domElement || child);
   }
 
@@ -244,7 +244,7 @@ export default class Card
 
       type.percentage = type.percentage || 0;
 
-      this.domElement.style.setProperty('--cardPercentage', Math.min(0, Math.max(100, type.percentage)) + '%');
+      this.domElement.style.setProperty('--cardPercentage', Math.max(0, Math.min(100, type.percentage)) + '%');
     }
     else if (type.type === 'Toggle')
     {
