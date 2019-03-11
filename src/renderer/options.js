@@ -584,7 +584,7 @@ function checkForUpdates(card, autoCheck)
   }
 
   // request the server's build.json
-  request('https://gitlab.com/herpproject/Dawayer/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
+  request('https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/' + localData.branch + '/raw/build.json?job=build', {  json: true })
     .then((remoteData) =>
     {
       // if commit id is different, and there's an available package for this platform
