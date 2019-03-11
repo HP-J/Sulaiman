@@ -271,7 +271,7 @@ function validateExtension(data)
     return { abort: true };
 
   if (!data.version)
-    data.version = '0.0.0';
+    data.version = '1.0.0';
 
   if (!data.sulaiman)
     data.sulaiman = {};

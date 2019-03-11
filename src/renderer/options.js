@@ -738,7 +738,7 @@ function updateDownload(card, url, commitID, autoCheck)
 
   url = new URL(url);
 
-  const filename = 'tmp-sulaiman-update-' + commitID;
+  const filename = `tmp-sulaiman-update-${commitID}`;
   const fullPath = join(tmpdir(), filename);
 
   // if the update file was already downloaded

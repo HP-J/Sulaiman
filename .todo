@@ -1,10 +1,11 @@
 Performance Issues and Bugs: 
 
 Testing: 
+  ☐ download/installing an extension
 
 Features:
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
-  ☐ rewrite extensions download code to use the new script
+  ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
   ☐ revamp dependencies permissions
   
   ☐ installing extensions without reloading

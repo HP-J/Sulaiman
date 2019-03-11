@@ -56,11 +56,11 @@ const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @type { HTMLInputElement }
 */
-let inputElement;
+const inputElement = document.body.querySelector('input.searchBar');
 
 /** @type { HTMLDivElement }
 */
-let suggestionsElement;
+const suggestionsElement = document.body.querySelector('.suggestions');
 
 /** @type { Object<string, PhraseObject> }
 */
@@ -72,16 +72,8 @@ let selectIndex = 0;
 
 /** create and append the search bar and card-space
 */
-export function appendSearchBar()
+export function initSearchBar()
 {
-  inputElement = document.createElement('input');
-  inputElement.setAttribute('class', 'searchBar');
-  document.body.appendChild(inputElement);
-
-  suggestionsElement = document.createElement('div');
-  suggestionsElement.setAttribute('class', 'suggestions');
-  document.body.appendChild(suggestionsElement);
-
   inputElement.oninput = oninput;
   inputElement.onkeydown = onkeydown;
 

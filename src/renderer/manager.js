@@ -8,6 +8,8 @@ import { remove, removeSync, move, readFile, existsSync } from 'fs-extra';
 import request from 'request-promise-native';
 import inly from 'inly';
 
+import download from '../dl.js';
+
 import { makeItCollapsible, toggleCollapse } from './renderer.js';
 import { appendCard, removeCard } from './api.js';
 
@@ -23,11 +25,7 @@ import { loadedExtensions, getPlatform, themeName } from './loader.js';
 
 const npm = require('npm');
 
-const { mainWindow, isDebug, reload } = remote.require(join(__dirname, '../main/window.js'));
-
-/** @type {{ download: (win: Electron.BrowserWindow, url: string, options: { saveAs: boolean, directory: string, filename: string, openFolderWhenDone: boolean, showBadge: boolean, onStarted: (item: Electron.DownloadItem) => void, onProgress: (percentage: number) => void, onCancel: () => void }) => Promise<Electron.DownloadItem> }}
-*/
-const { download: dl  } = remote.require('electron-dl');
+const { isDebug, reload } = remote.require(join(__dirname, '../main/window.js'));
 
 let cancelToken;
 
@@ -658,8 +656,8 @@ function downloadExtension(card, button, name, url)
 {
   return new Promise((resolve, reject) =>
   {
-    const filename = 'tmp-' + Date.now() + '-' + basename(url);
-    const dirname = 'tmp-' + Date.now() + '-' + name;
+    const filename = `tmp-${Date.now()}-${basename(url)}`;
+    const dirname = `tmp-${Date.now()}-${name}`;
   
     const tmpDir = join(tmpdir(), dirname);
 
@@ -675,46 +673,42 @@ function downloadExtension(card, button, name, url)
 
     card.setType({ type: 'LoadingBar' });
 
-    dl(mainWindow, url,
+    download(url,
       {
-        directory: tmpdir(),
+        dir: tmpdir(),
         filename: filename,
-        showBadge: false,
-        onProgress: (percentage) =>
+        onProgress: (current, total) =>
         {
-          percentage = Math.floor(percentage * 100);
+          const percentage = ((current / total) * 100).toFixed(1);
 
-          button.auto({ title: 'Downloading ' + percentage + '%' });
+          button.auto({ title: `Downloading ${percentage}%` });
           
           card.setType({ type: 'ProgressBar', percentage: percentage });
+        },
+        onError: (err) => reject(err),
+        onDone: () =>
+        {
+          const extract = inly(tmpCompressedDir, tmpDir);
+  
+          extract.on('progress', (percentage) =>
+          {
+            button.auto({ title: 'Decompressing ' + percentage + '%' });
+            
+            card.setType({ type: 'ProgressBar', percentage: percentage });
+          });
+    
+          extract.on('error', (err) =>
+          {
+            reject(err);
+          });
+    
+          extract.on('end', () =>
+          {
+            card.setType({ type: 'Normal' });
+  
+            resolve({ packageDir: `${tmpDir}/package`, output: output });
+          });
         }
-      })
-      .then(() =>
-      {
-        const extract = inly(tmpCompressedDir, tmpDir);
-  
-        extract.on('progress', (percentage) =>
-        {
-          button.auto({ title: 'Decompressing ' + percentage + '%' });
-          
-          card.setType({ type: 'ProgressBar', percentage: percentage });
-        });
-  
-        extract.on('error', (err) =>
-        {
-          reject(err);
-        });
-  
-        extract.on('end', () =>
-        {
-          card.setType({ type: 'Normal' });
-
-          resolve({ packageDir: tmpDir + '/package', output: output });
-        });
-      })
-      .catch((err) =>
-      {
-        reject(err.cause || err);
       });
   });
 }
