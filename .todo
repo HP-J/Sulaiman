@@ -1,9 +1,15 @@
 Performance Issues and Bugs: 
+  ☐ Sulaiman was written with a lot of synchronous code
+    during the next fex build we should change as much code
+    as possible to be asynchronous for the sake of performance
 
 Testing: 
-  ☐ download/installing an extension
+  ☐ downloading an extension (we changed the download script)
 
 Features:
+  ☐ rewrite the api.js script to be more recognized
+  ☐ rewrite the index.js file and the code as a npm package
+
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
   ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
   ☐ revamp dependencies permissions
@@ -12,12 +18,13 @@ Features:
   ☐ uninstalling extensions without reloading
 
   ☐ extensions with electron permission can use electron.remote.require (electron 4 has remote require filter)
-    ☐ extensions with electron permission can use electron.remote.getGlobal (electron 4 can be used to disable that) 
-  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json @build-2 
-    and the extension it require is installed and does have public API
+  ☐ extensions with electron permission can use electron.remote.getGlobal (electron 4 can be used to disable that) 
+  
+  ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json
+    and the extension it require is installed and does have public API @next-build
 
-  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman, @build-2 
-    without installing an extension
+  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman,
+    without installing an extension @next-build
   
 UI/UX:
   ☐ add phrase to show changelog file

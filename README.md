@@ -1,7 +1,5 @@
 # Welcome to Sulaiman
 
-*The app is in early stages of development, We still have a lot of plans*
-
 *Please note that the default theme and the Extension API may change a lot in the first few builds, Your feedback is highly encouraged*
 
 #### A keyboard launcher with no features
@@ -24,15 +22,17 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 
 - Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home).
 
-#### Download Sulaiman
+# Download
+#### Sulaiman is a new software it may be buggy
 
 - **Linux:**
 [AUR](https://aur.archlinux.org/packages/sulaiman) |
 [deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
-[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build) |
-Snap will be available soon
-- **Windows:** [Setup.exe](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman-Setup.exe?job=build)
-- **macOS:**  if you made electron apps for macOS before, you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
+[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)  
+- if you made electron apps for macOS or Windows before, you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
+
+# Licenses
+This project is licensed under the [MIT](https://gitlab.com/herpproject/Sulaiman/blob/development/LICENSE) License.  
 
 # One Last Thing..
 
