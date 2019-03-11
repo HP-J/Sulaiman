@@ -24,12 +24,6 @@ export { Card };
 */
 export const browserWindow = mainWindow;
 
-/** [requires the 'electron' permission]
-* the electron remote
-* @type { Electron.Remote }
-*/
-export const electron = remote;
-
 /** [requires the 'clipboard' permission]
 * access to read & write to clipboard
 */

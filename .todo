@@ -12,14 +12,10 @@ Features:
 
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
   ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
-  ☐ revamp dependencies permissions
   
   ☐ installing extensions without reloading
   ☐ uninstalling extensions without reloading
 
-  ☐ extensions with electron permission can use electron.remote.require (electron 4 has remote require filter)
-  ☐ extensions with electron permission can use electron.remote.getGlobal (electron 4 can be used to disable that) 
-  
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json
     and the extension it require is installed and does have public API @next-build
 
@@ -27,6 +23,8 @@ Features:
     without installing an extension @next-build
   
 UI/UX:
+  ☐ try a pure black dark mode: Messenger's
+
   ☐ add phrase to show changelog file
 
   ☐ add option card to change the tray color

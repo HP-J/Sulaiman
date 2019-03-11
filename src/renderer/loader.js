@@ -380,7 +380,6 @@ function handelMockups(requiredPermissions, theme)
 
     // sulaiman properties and functions
     browserWindow: true,
-    electron: true,
     clipboard: true,
     shell: true,
     dialog: true,
