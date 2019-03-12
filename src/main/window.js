@@ -9,7 +9,7 @@ export let app;
 /** if the app icon should be shown in the taskbar
 * @type { Electron.BrowserWindow }
 */
-export let skipTaskbar = true;
+export let skipTaskbar = false;
 
 let debugMode = false;
 let shownMode = true;

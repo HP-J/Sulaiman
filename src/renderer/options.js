@@ -265,7 +265,7 @@ function loadShowHideKey()
   {
     showChangeKeyCard(
       showHideKeyCard,
-      'Hello there, ',
+      'Hello',
       'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.',
       'showHideKey', showHide,
       () =>
@@ -314,8 +314,7 @@ function loadAutoLaunch()
       if (isEnabled || settings.get('ignoreAutoLaunch', false))
         return;
 
-      autoLaunchCard.appendText('Would you like,');
-      autoLaunchCard.appendText('If Sulaiman auto launches itself on startup?', { type: 'Description' });
+      autoLaunchCard.appendText('Sulaiman can auto launch itself on startup, would you want that?', { type: 'Description' });
 
       const yesButton = createCard({ title: 'Yes' });
       yesButton.setType({ type: 'Button' });

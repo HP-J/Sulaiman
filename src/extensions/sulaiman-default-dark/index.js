@@ -165,13 +165,8 @@ setPlaceholder('Search');
 // append the theme stylesheets
 appendStyleDir(join(__dirname, 'styles'));
 
-// store the default icon set
+// store the arrow icon
 storeIcon(join(__dirname, '/icons/arrow.svg'), 'arrow');
-storeIcon(join(__dirname, '/icons/more.svg'), 'more');
-storeIcon(join(__dirname, '/icons/question.svg'), 'question');
-
-storeIcon(join(__dirname, '/icons/settings.svg'), 'settings');
-storeIcon(join(__dirname, '/icons/share.svg'), 'share');
 
 // set the theme functions
 setThemeFunctions(isFastForward, toggleFastForward, isCollapsed, collapse, expand);
