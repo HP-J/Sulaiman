@@ -233,11 +233,61 @@ export default class Card
       theme.toggleFastForward(this);
   }
 
-  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", state: boolean } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button" } | { type: "Disabled" } | { type: "Normal" } } type
+  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", callback: () => void } | { type: "Disabled" } | { type: "Normal" } } type
   * @returns { Card[] | void }
   */
   setType(type)
   {
+    /** @param { Card } toggleCard
+    * @param { (state: boolean) => void } callback
+    */
+    function toggle(toggleCard, callback)
+    {
+      const state = toggleCard.containsClass('cardToggleOn');
+
+      if (state)
+      {
+        toggleCard.removeClass('cardToggleOn');
+        toggleCard.addClass('cardToggleOff');
+      }
+      else
+      {
+        toggleCard.removeClass('cardToggleOff');
+        toggleCard.addClass('cardToggleOn');
+      }
+      
+      if (callback)
+        callback(!state);
+    }
+
+    /** @param { Card } pickCard
+    * @param { Card } pickString
+    * @param { (pick: string) => void } callback
+    */
+    function pick(pickCard, pickString, callback)
+    {
+      const newPick = pickCard.domElement;
+
+      // if selecting the same item
+      if (pickCard.containsClass('cardPickOn'))
+        return;
+
+      // get the current pick element
+      const picked = pickCard.domElement.parentElement.querySelector('.cardPickOn');
+
+      // remove highlighting from the old pick
+      picked.classList.remove('cardPickOn');
+      picked.classList.add('cardPickOff');
+
+      // add highlighting to the new pick
+      newPick.classList.remove('cardPickOff');
+      newPick.classList.add('cardPickOn');
+
+      // emits an event with the new pick
+      if (callback)
+        callback(pickString);
+    }
+
     this.removeClass('cardProgressBar');
     this.removeClass('cardToggle');
     this.removeClass('cardLoadingBar');
@@ -255,14 +305,30 @@ export default class Card
 
       this.domElement.style.setProperty('--cardPercentage', Math.max(0, Math.min(100, type.percentage)) + '%');
     }
+    else if (type.type === 'Button')
+    {
+      this.addClass('cardButton');
+    }
     else if (type.type === 'Toggle')
     {
-      this.addClass('cardToggle');
+      const titleCard = createCard({ title: type.title });
+      const toggleCard = createCard();
 
-      if (type.state)
-        this.addClass('cardToggleOn');
+      titleCard.addClass('cardToggleTitle');
+      toggleCard.addClass('cardToggle');
+
+      if (type.defaultState)
+        toggleCard.addClass('cardToggleOn');
       else
-        this.addClass('cardToggleOff');
+        toggleCard.addClass('cardToggleOff');
+
+      titleCard.domElement.addEventListener('click', () => toggle(toggleCard, type.callback));
+      toggleCard.domElement.addEventListener('click', () => toggle(toggleCard, type.callback));
+
+      this.appendChild(titleCard);
+      this.appendChild(toggleCard);
+
+      return [ titleCard, toggleCard ];
     }
     else if (type.type === 'Picks')
     {
@@ -277,29 +343,7 @@ export default class Card
         else
           pickCard.addClass('cardPickOff');
 
-        pickCard.domElement.addEventListener('click', () =>
-        {
-          const newPick = pickCard.domElement;
-
-          // if selecting the same item
-          if (pickCard.containsClass('cardPickOn'))
-            return;
-
-          // get the current pick element
-          const picked = this.domElement.querySelector('.cardPickOn');
-    
-          // remove highlighting from the old pick
-          picked.classList.remove('cardPickOn');
-          picked.classList.add('cardPickOff');
-
-          // add highlighting to the new pcik
-          newPick.classList.remove('cardPickOff');
-          newPick.classList.add('cardPickOn');
-
-          // emits an event with the new pick
-          if (type.callback)
-            type.callback(type.picks[i]);
-        });
+        pickCard.domElement.addEventListener('click', () => pick(pickCard, type.picks[i], type.callback));
 
         elements.push(pickCard);
 

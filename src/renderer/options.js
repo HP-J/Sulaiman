@@ -100,53 +100,38 @@ export function registerOptionsPhrase()
         }
         else if (argument === 'Auto-Launch')
         {
-          card.auto({ title: 'Loading Current Settings..' });
+          card.auto({ description: 'Loading Current Settings' });
 
           autoLaunchEntry.isEnabled()
-            .then((enabled) =>
+            .then((state) =>
             {
-              card.auto();
-              
-              const toggleText = card.appendText('Auto-Launch');
-              
+              card.auto({ description: '' });
+
               const toggle = createCard();
 
               card.appendChild(toggle);
-              
-              toggle.setType({ type: 'Toggle', state: enabled });
-
-              toggle.domElement.onclick = toggleText.onclick = () =>
-              {
-                card.setType({ type: 'Disabled' });
-
-                if (enabled)
+    
+              toggle.setType({
+                type: 'Toggle',
+                title: 'Auto-Launch',
+                defaultState: state,
+                callback: (state) =>
                 {
-                  autoLaunchEntry.disable().then(() =>
-                  {
-                    card.setType({ type: 'Normal' });
-                    toggle.setType({ type: 'Toggle', state: false });
+                  card.setType({ type: 'Disabled' });
 
-                    enabled = false;
-                  });
+                  if (state)
+                    autoLaunchEntry.enable().then(() => card.setType({ type: 'Normal' }));
+                  else
+                    autoLaunchEntry.disable().then(() => card.setType({ type: 'Normal' }));
                 }
-                else
-                {
-                  autoLaunchEntry.enable().then(() =>
-                  {
-                    card.setType({ type: 'Normal' });
-                    toggle.setType({ type: 'Toggle', state: true });
-
-                    enabled = true;
-                  });
-                }
-              };
+              });
             });
         }
         else if (argument === 'Tray')
         {
           card.auto();
 
-          let enabled = settings.get('trayIcon', true);
+          const state = settings.get('trayIcon', true);
           const color = settings.get('trayIconColor', 'light');
 
           // add a warning that the changes are applied after the app is restarted
@@ -156,21 +141,16 @@ export function registerOptionsPhrase()
           
           card.appendLineBreak();
 
-          const toggleText = card.appendText('Tray');
-          
           const toggle = createCard();
-          
+
           card.appendChild(toggle);
 
-          toggle.setType({ type: 'Toggle', state: enabled });
-
-          toggle.domElement.onclick = toggleText.onclick = () =>
-          {
-            enabled = !enabled;
-
-            settings.set('trayIcon', enabled);
-            toggle.setType({ type: 'Toggle', state: enabled });
-          };
+          toggle.setType({
+            type: 'Toggle',
+            title: 'Tray',
+            defaultState: state,
+            callback: (state) => settings.set('trayIcon', state)
+          });
 
           // Tray Icon Colors
 

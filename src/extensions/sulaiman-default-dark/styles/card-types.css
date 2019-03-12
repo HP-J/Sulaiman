@@ -79,6 +79,12 @@
   border-style: solid;
 }
 
+.card > .card.cardToggle,
+.card > .card.cardToggleTitle
+{
+  cursor: pointer;
+}
+
 .card:not(.cardFastForward) > .card.cardToggle:not(.cardFastForward)
 {
   transition: border-width 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
@@ -86,8 +92,6 @@
 
 .card:hover > .card.cardToggle
 {
-  cursor: pointer;
-
   border-color: var(--color-highlight);
 }
 
