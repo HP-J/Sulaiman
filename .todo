@@ -1,4 +1,4 @@
-Performance Issues and Bugs: 
+Performance Issues and Bugs:
   ☐ Sulaiman was written with a lot of synchronous code
     during the next fex build we should change as much code
     as possible to be asynchronous for the sake of performance
@@ -8,7 +8,7 @@ Testing:
 
 Features:
   ☐ rewrite the api.js script to be more recognized
-  ☐ rewrite the index.js file and the code as a npm package
+  ✔ rewrite the index.js file @done(19-03-12 05:22)
 
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
   ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
@@ -27,7 +27,7 @@ UI/UX:
 
   ☐ add phrase to show changelog file
 
-  ☐ add option card to change the tray color
+  ✔ add option card to change the tray color @done(19-03-12 09:37)
   
   ☐ showing extensions credits @next-build
 

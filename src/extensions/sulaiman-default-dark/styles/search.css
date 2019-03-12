@@ -9,7 +9,7 @@ html
   z-index: 1;
   outline: none;
   background-color: var(--color-hovered);
-  color: #FFFFFF;
+  color: var(--color-text-focus);
   
   position: sticky;
   top: 0;
@@ -73,7 +73,7 @@ html
 
 .suggestionsItem mark
 {
-  color: #FFFFFF;
+  color: var(--color-text-focus);
   background-color: transparent;
 }
 

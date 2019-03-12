@@ -1,5 +1,6 @@
 html
 {
+  --color-text-focus: #FFFFFF;
   --color-text: #6B6A6A;
   --color-selected: #413d44;
   --color-text-selected: #507ab1;

@@ -77,14 +77,14 @@ export function registerOptionsPhrase()
 {
   return new Promise((resolve) =>
   {
-    const optionsPhrase = registerPhrase('Options', [ 'Keys Show/Hide', 'Auto-Launch', 'Tray' ], {
+    const optionsPhrase = registerPhrase('Options', [ 'Shortcuts', 'Auto-Launch', 'Tray' ], {
       activate: (card, suggestion, match, argument) =>
       {
         card.reset();
 
-        if (argument === 'Keys Show/Hide')
+        if (argument === 'Shortcuts')
         {
-          showChangeKeyCard(card, 'Show/Hide', 'Set a new shortcut key', 'showHideKey', showHide,
+          showChangeKeyCard(card, 'Show/Hide', '', 'showHideKey', showHide,
             () =>
             {
               autoHide = true;
@@ -105,16 +105,17 @@ export function registerOptionsPhrase()
           autoLaunchEntry.isEnabled()
             .then((enabled) =>
             {
+              card.auto();
+              
+              const toggleText = card.appendText('Auto-Launch');
+              
               const toggle = createCard();
 
-              card.auto({ title: '' });
-
               card.appendChild(toggle);
-              const text = card.appendText('Auto-Launch');
-
+              
               toggle.setType({ type: 'Toggle', state: enabled });
 
-              toggle.domElement.onclick = text.onclick = () =>
+              toggle.domElement.onclick = toggleText.onclick = () =>
               {
                 card.setType({ type: 'Disabled' });
 
@@ -146,41 +147,49 @@ export function registerOptionsPhrase()
           card.auto();
 
           let enabled = settings.get('trayIcon', true);
+          const color = settings.get('trayIconColor', 'light');
 
-          const warningText = card.appendText('This option needs the app to restart to be applied', { style: 'Bold', size: 'Small' });
+          // add a warning that the changes are applied after the app is restarted
+          card.appendText('Changes are applied after the app is restarted', { style: 'Bold', size: 'Smaller', align: 'Right' });
+
+          // Tray Icon Toggle
+          
           card.appendLineBreak();
 
-          const toggle = createCard();
-
-          card.appendChild(toggle);
-
           const toggleText = card.appendText('Tray');
+          
+          const toggle = createCard();
+          
+          card.appendChild(toggle);
 
           toggle.setType({ type: 'Toggle', state: enabled });
 
-          warningText.style.display = 'none';
-
           toggle.domElement.onclick = toggleText.onclick = () =>
           {
-            if (enabled)
-            {
-              settings.set('trayIcon', false);
-              toggle.setType({ type: 'Toggle', state: false });
+            enabled = !enabled;
 
-              enabled = false;
-            }
-            else
-            {
-
-              settings.set('trayIcon', true);
-              toggle.setType({ type: 'Toggle', state: true });
-
-              enabled = true;
-            }
-
-            if (warningText.style.cssText)
-              warningText.style.cssText = '';
+            settings.set('trayIcon', enabled);
+            toggle.setType({ type: 'Toggle', state: enabled });
           };
+
+          // Tray Icon Colors
+
+          card.appendLineBreak();
+
+          card.appendText('Tray Color');
+          
+          const picks = createCard();
+
+          const picksArray =  [ 'Dark', 'Black', 'Light' ];
+
+          card.appendChild(picks);
+
+          picks.setType({
+            type: 'Picks',
+            picks: picksArray,
+            defaultPickIndex: picksArray.findIndex((value) => value.toLowerCase() === color),
+            callback: (pick) => settings.set('trayIconColor', pick.toLowerCase())
+          });
         }
       }
     });

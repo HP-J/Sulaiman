@@ -7,7 +7,7 @@
   overflow: hidden;
 
   background-color: var(--color-background);
-  color: #FFFFFF;
+  color: var(--color-text-focus);
 
   position: relative;
   width: calc(100vw - 30px);

@@ -86,6 +86,8 @@
 
 .card:hover > .card.cardToggle
 {
+  cursor: pointer;
+
   border-color: var(--color-highlight);
 }
 
@@ -104,6 +106,25 @@
 .card > .card.cardToggle + *
 {
   margin-left: 10px; 
+}
+
+/* Picks */
+
+.card > .card.cardPickOff
+{
+  cursor: pointer;
+
+  color: var(--color-text);
+}
+
+.card > .card.cardPickOff:hover
+{
+  color: var(--color-text-selected);
+}
+
+.card > .card.cardPickOn
+{
+  color: var(--color-text-focus);
 }
 
 /* Disabled */
@@ -131,6 +152,8 @@ body > .cardDisabled
 }
 
 /* Optional Styles */
+/* Default to center Button & Progress Bar Text if they don't have an align already set */
+
 .card > .cardButton > .cardTitle:not(.cardLeft):not(.cardRight),
 .card > .cardButton > .cardDescription:not(.cardLeft):not(.cardRight),
 .card > .cardProgressBar > .cardTitle:not(.cardLeft):not(.cardRight),
