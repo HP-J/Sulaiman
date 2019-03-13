@@ -250,10 +250,13 @@ function loadingAbortedCard(warning, abortedData, runningData)
     toggleCollapse(runningCard, undefined, true, true);
   }
 
-  const dismissButton = createCard({ title: 'Dismiss' });
-  dismissButton.setType({ type: 'Button' });
-
-  dismissButton.domElement.onclick = () => removeCard(card);
+  const dismissButton = createCard();
+  
+  dismissButton.setType({
+    type: 'Button',
+    title: 'Dismiss',
+    callback: () => removeCard(card)
+  });
 
   card.appendChild(dismissButton);
 

@@ -170,8 +170,6 @@ function registerPhrases()
 
     const button = createCard();
 
-    button.setType({ type: 'Button' });
-
     on.phrase(
       'Launch',
       appsAsNames,
@@ -179,15 +177,12 @@ function registerPhrases()
         activate: (card, suggestion, match, argument) =>
         {
           card.auto({ title: argument, description: 'Launch the application' });
-          button.auto({ title: 'Launch' });
-  
-          button.domElement.onclick = () =>
-          {
-            launch(apps[argument]);
-      
-            card.auto({ description: 'Has been launched' });
-            button.auto({ title: 'Launch Again' });
-          };
+
+          button.setType({
+            type: 'Button',
+            title: 'Launch',
+            callback: () => launch(apps[argument])
+          });
   
           card.appendChild(button);
         },

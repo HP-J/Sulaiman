@@ -23,9 +23,9 @@ Features:
     without installing an extension @next-build
   
 UI/UX:
-  ☐ try a pure black dark mode: Messenger's
+  ☐ try a pure black dark mode
 
-  ☐ add phrase to show changelog file
+  ☐ add phrase to show the changelog file if one exists and not empty
 
   ✔ add option card to change the tray color @done(19-03-12 09:37)
   

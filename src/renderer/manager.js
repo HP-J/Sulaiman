@@ -134,7 +134,7 @@ export function registerExtensionsPhrase()
           if (loadedExtensions[extra])
             extensionRemoveCard(card, loadedExtensions[extra]);
           else
-            card.auto({ title: 'Extensions', description: 'No extensions running with that nam' });
+            card.auto({ title: 'Extensions', description: 'No extensions running with that name' });
         }
         else if (argument === 'Running')
         {

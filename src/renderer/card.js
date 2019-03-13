@@ -85,6 +85,8 @@ export default class Card
   setAttribute(qualifiedName, value)
   {
     this.domElement.setAttribute(qualifiedName, value);
+
+    return this;
   }
 
   /** add a class from the element
@@ -94,6 +96,8 @@ export default class Card
   {
     if (!this.domElement.classList.contains(className))
       this.domElement.classList.add(className);
+
+    return this;
   }
 
   /** remove a class from the element
@@ -103,6 +107,8 @@ export default class Card
   {
     if (this.domElement.classList.contains(className))
       this.domElement.classList.remove(className);
+    
+    return this;
   }
 
   /** If the elements has a class
@@ -138,6 +144,8 @@ export default class Card
       throw new Error('the card is controlled by the phrase search system');
     else
       this.domElement.appendChild(child.domElement || child);
+    
+    return this;
   }
 
   /** get a child of the card
@@ -157,6 +165,8 @@ export default class Card
       throw new Error('the card is controlled by the phrase search system');
     else if (this.containsChild(child))
       this.domElement.removeChild(child.domElement || child);
+    
+    return this;
   }
 
   /** returns true if the card contains a card or a element
@@ -233,7 +243,7 @@ export default class Card
       theme.toggleFastForward(this);
   }
 
-  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", callback: () => void } | { type: "Disabled" } | { type: "Normal" } } type
+  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", title: string, callback: () => void } | { type: "Disabled" } | { type: "Normal" } } type
   * @returns { Card[] | void }
   */
   setType(type)
@@ -289,13 +299,9 @@ export default class Card
     }
 
     this.removeClass('cardProgressBar');
-    this.removeClass('cardToggle');
     this.removeClass('cardLoadingBar');
     this.removeClass('cardButton');
     this.removeClass('cardDisabled');
-
-    this.removeClass('cardToggleOn');
-    this.removeClass('cardToggleOff');
 
     if (type.type === 'ProgressBar')
     {
@@ -307,10 +313,32 @@ export default class Card
     }
     else if (type.type === 'Button')
     {
+      const existsButtonText = this.domElement.querySelector('.cardButtonText');
+
+      if (existsButtonText)
+        this.domElement.removeChild(existsButtonText);
+
+      const text = this.appendText(type.title, { type: 'Title' });
+
+      text.classList.add('cardButtonText');
+
       this.addClass('cardButton');
+
+      this.domElement.addEventListener('click', () => type.callback());
+
+      return [ text ];
     }
     else if (type.type === 'Toggle')
     {
+      const existsTitleCard = this.domElement.querySelector('.cardToggleTitle');
+      const existsToggleCard = this.domElement.querySelector('.cardToggle');
+
+      if (existsTitleCard)
+        this.domElement.removeChild(existsTitleCard);
+      
+      if (existsToggleCard)
+        this.domElement.removeChild(existsToggleCard);
+
       const titleCard = createCard({ title: type.title });
       const toggleCard = createCard();
 
@@ -332,6 +360,13 @@ export default class Card
     }
     else if (type.type === 'Picks')
     {
+      const existsPicks = this.domElement.querySelectorAll('.cardPick');
+
+      for (let i = 0; i < existsPicks.length; i++)
+      {
+        this.domElement.removeChild(existsPicks[i]);
+      }
+
       const elements = [];
 
       for (let i = 0; i < type.picks.length; i++)
@@ -339,9 +374,9 @@ export default class Card
         const pickCard = createCard({ title: type.picks[i] });
 
         if (i === type.defaultPickIndex)
-          pickCard.addClass('cardPickOn');
+          pickCard.addClass('cardPick').addClass('cardPickOn');
         else
-          pickCard.addClass('cardPickOff');
+          pickCard.addClass('cardPick').addClass('cardPickOff');
 
         pickCard.domElement.addEventListener('click', () => pick(pickCard, type.picks[i], type.callback));
 
@@ -372,12 +407,16 @@ export default class Card
   {
     if (theme.collapse)
       theme.collapse(this);
+    
+    return this;
   }
 
   expand()
   {
     if (theme.expand)
       theme.expand(this);
+    
+    return this;
   }
 
   /** adds a new line break to the card
@@ -403,6 +442,8 @@ export default class Card
     this.domElement.style.cssText = '';
 
     this.setType({ type: 'Normal' });
+
+    return this;
   }
 
   /** customize the card with different options that follow the app user's css themes
@@ -526,5 +567,7 @@ export default class Card
 
     if (titleElem)
       this.domElement.insertBefore(titleElem, this.domElement.firstElementChild);
+  
+    return this;
   }
 }

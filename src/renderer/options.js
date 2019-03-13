@@ -15,6 +15,7 @@ import { internalRegisterPhrase as registerPhrase } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
 
 import { appendCard, removeCard, containsCard } from './api.js';
+import { on } from './loader.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -252,20 +253,23 @@ function loadShowHideKey()
 
   if (!showHideAccelerator)
   {
-    showChangeKeyCard(
-      showHideKeyCard,
-      'Hello',
-      'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.',
-      'showHideKey', showHide,
-      () =>
-      {
-        autoHide = true;
-
-        setSkipTaskbar(true);
-      }
-    );
-
-    appendCard(showHideKeyCard);
+    on.ready(() =>
+    {
+      showChangeKeyCard(
+        showHideKeyCard,
+        'Hello',
+        'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.',
+        'showHideKey', showHide,
+        () =>
+        {
+          autoHide = true;
+  
+          setSkipTaskbar(true);
+        }
+      );
+  
+      appendCard(showHideKeyCard);
+    });
   }
   else if (remote.globalShortcut.isRegistered(showHideAccelerator))
   {
@@ -303,31 +307,42 @@ function loadAutoLaunch()
       if (isEnabled || settings.get('ignoreAutoLaunch', false))
         return;
 
-      autoLaunchCard.appendText('Sulaiman can auto launch itself on startup, would you want that?', { type: 'Description' });
-
-      const yesButton = createCard({ title: 'Yes' });
-      yesButton.setType({ type: 'Button' });
-      autoLaunchCard.appendChild(yesButton);
-
-      yesButton.domElement.onclick = () =>
+      on.ready(() =>
       {
-        autoLaunchEntry.enable();
+        autoLaunchCard.appendText('Sulaiman can auto launch itself on startup, would you want that?', { type: 'Description' });
 
-        removeCard(autoLaunchCard);
-      };
+        const yesButton = createCard();
 
-      const dismissButton = createCard({ title: 'Dismiss' });
-      dismissButton.setType({ type: 'Button' });
-      autoLaunchCard.appendChild(dismissButton);
+        yesButton.setType({
+          type: 'Button',
+          title: 'Yes',
+          callback: () =>
+          {
+            autoLaunchEntry.enable();
+    
+            removeCard(autoLaunchCard);
+          }
+        });
 
-      dismissButton.domElement.onclick = () =>
-      {
-        settings.set('ignoreAutoLaunch', true);
+        autoLaunchCard.appendChild(yesButton);
+  
+        const dismissButton = createCard();
 
-        removeCard(autoLaunchCard);
-      };
+        dismissButton.setType({
+          type: 'Button',
+          title: 'Dismiss',
+          callback: () =>
+          {
+            settings.set('ignoreAutoLaunch', true);
+    
+            removeCard(autoLaunchCard);
+          }
+        });
 
-      appendCard(autoLaunchCard);
+        autoLaunchCard.appendChild(dismissButton);
+  
+        appendCard(autoLaunchCard);
+      });
     });
 }
 
