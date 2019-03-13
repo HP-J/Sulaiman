@@ -51,6 +51,10 @@ export let packageData;
 */
 export let localData;
 
+/** @type { string }
+*/
+export let changeLog;
+
 /** the current sulaiman api version
 * @type { string }
 */
@@ -58,10 +62,13 @@ export let apiVersion;
 
 export function loadOptions()
 {
-  packageData = readJsonSync('package.json');
-  localData = readJsonSync('build.json');
+  packageData = readJson(join(__dirname, '../../package.json'));
+  localData = readJson(join(__dirname, '../../build.json'));
 
-  apiVersion = packageData.version;
+  changeLog = readFile(join(__dirname, '../../CHANGELOG.md'));
+
+  if (packageData)
+    apiVersion = packageData.version;
 
   autoUpdateCheckCard = createCard();
 
@@ -175,18 +182,19 @@ export function registerOptionsPhrase()
       }
     });
 
-    const aboutPhrase = registerPhrase('Sulaiman', [ 'About', 'Check for Updates' ], {
+    const aboutArgs = [ 'About', 'Check for Updates' ];
+
+    if (changeLog)
+      aboutArgs.push('Changelog');
+
+    const aboutPhrase = registerPhrase('Sulaiman', aboutArgs, {
       activate: (card, suggestion, match, argument) =>
       {
         card.reset();
 
         if (argument === 'About')
         {
-          card.auto({ title: 'Sulaiman' });
-
-          card.auto({ description: 'Loading' });
-
-          card.auto({ description: '' });
+          card.auto({ title: 'About Sulaiman' });
 
           if (localData)
           {
@@ -226,17 +234,24 @@ export function registerOptionsPhrase()
         }
         else if (argument === 'Check for Updates')
         {
-          
+          // if the auto check card is shown
+          // then don't show this one
           if (containsCard(autoUpdateCheckCard))
-          {
-            card.auto({ title: 'Sulaiman', description: 'Another update card is currently opened' });
-          }
-          else
-          {
-            userManuallyCheckedOnce = true;
+            return false;
+          
+          userManuallyCheckedOnce = true;
 
-            checkForUpdates(card);
-          }
+          checkForUpdates(card);
+        }
+        else if (argument === 'Changelog')
+        {
+          card.auto({ title: 'Sulaiman Changelog' });
+
+          card.appendText(changeLog, {
+            type: 'Description',
+            'select': 'Selectable',
+            size: 'Small'
+          });
         }
       }
     });
@@ -554,12 +569,19 @@ function unregisterGlobalShortcut(accelerator)
 /** @param { string } filename
 * @returns { Object }
 */
-function readJsonSync(filename)
+function readJson(filename)
 {
-  const jsonPath = join(__dirname, '../../', filename);
+  if (existsSync(filename))
+    return JSON.parse(readFileSync(filename, { encoding: 'utf8' }));
+}
 
-  if (existsSync(jsonPath))
-    return JSON.parse(readFileSync(jsonPath).toString());
+/** @param { string } filename
+* @returns { Object }
+*/
+function readFile(filename)
+{
+  if (existsSync(filename))
+    return readFileSync(filename, { encoding: 'utf8' });
 }
 
 /** Checks for updates using the remote's build json and updates a card ui

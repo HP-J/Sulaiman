@@ -13,8 +13,8 @@ Features:
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
   ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
   
-  ☐ installing extensions without reloading
-  ☐ uninstalling extensions without reloading
+  ☐ installing extensions without reloading @next-build
+  ☐ uninstalling extensions without reloading @next-build
 
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json
     and the extension it require is installed and does have public API @next-build
@@ -24,9 +24,7 @@ Features:
   
 UI/UX:
   ☐ try a pure black dark mode
-
-  ☐ add phrase to show the changelog file if one exists and not empty
-
+  ✔ add phrase to show the changelog file if one exists and not empty @done(19-03-13 05:43)
   ✔ add option card to change the tray color @done(19-03-12 09:37)
   
   ☐ showing extensions credits @next-build
