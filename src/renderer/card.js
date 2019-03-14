@@ -119,12 +119,13 @@ export default class Card
     return this.domElement.classList.contains(className);
   }
 
-  /** set the element class(es)
+  /** Toggle a class on or off
   * @param { string } className string of the class name
+  * @param { boolean } force
   */
-  setClass(className)
+  toggleClass(className, force)
   {
-    this.domElement.setAttribute('class', className);
+    return this.domElement.classList.toggle(className, force);
   }
 
   /** set the element id
@@ -235,15 +236,42 @@ export default class Card
       return undefined;
   }
 
-  /** fast-forward mode is supposed to skip through transitions and animations
+  /** fast-forward mode is supposed to skip through the theme's transitions and animations
+  * @param { boolean } force
   */
-  toggleFastForward()
+  toggleFastForward(force)
   {
     if (theme.toggleFastForward)
-      theme.toggleFastForward(this);
+      return theme.toggleFastForward(this, force);
+    else
+      return undefined;
   }
 
-  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", title: string, callback: () => void } | { type: "Disabled" } | { type: "Normal" } } type
+  get isDisabled()
+  {
+    return this.containsClass('cardDisabled');
+  }
+
+  /** @param { boolean } force
+  */
+  toggleDisabled(force)
+  {
+    return this.toggleClass('cardDisabled', force);
+  }
+
+  get isHidden()
+  {
+    return this.containsClass('cardHidden');
+  }
+
+  /** @param { boolean } force
+  */
+  toggleHidden(force)
+  {
+    return this.toggleClass('cardHidden', force);
+  }
+
+  /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", title: string, callback: () => void } | { type: "Normal" } } type
   * @returns { Card[] | void }
   */
   setType(type)
@@ -298,10 +326,38 @@ export default class Card
         callback(pickString);
     }
 
+    // clear type classes
+
     this.removeClass('cardProgressBar');
     this.removeClass('cardLoadingBar');
     this.removeClass('cardButton');
-    this.removeClass('cardDisabled');
+
+    // clear button type remains
+
+    const existsButtonText = this.domElement.querySelector('.cardButtonText');
+
+    if (existsButtonText)
+      this.domElement.removeChild(existsButtonText);
+
+    // clear toggle type remains
+
+    const existsTitleCard = this.domElement.querySelector('.cardToggleTitle');
+    const existsToggleCard = this.domElement.querySelector('.cardToggle');
+
+    if (existsTitleCard)
+      this.domElement.removeChild(existsTitleCard);
+    
+    if (existsToggleCard)
+      this.domElement.removeChild(existsToggleCard);
+    
+    // clear picks type remains
+
+    const existsPicks = this.domElement.querySelectorAll('.cardPick');
+
+    for (let i = 0; i < existsPicks.length; i++)
+    {
+      this.domElement.removeChild(existsPicks[i]);
+    }
 
     if (type.type === 'ProgressBar')
     {
@@ -313,11 +369,6 @@ export default class Card
     }
     else if (type.type === 'Button')
     {
-      const existsButtonText = this.domElement.querySelector('.cardButtonText');
-
-      if (existsButtonText)
-        this.domElement.removeChild(existsButtonText);
-
       const text = this.appendText(type.title, { type: 'Title' });
 
       text.classList.add('cardButtonText');
@@ -330,15 +381,6 @@ export default class Card
     }
     else if (type.type === 'Toggle')
     {
-      const existsTitleCard = this.domElement.querySelector('.cardToggleTitle');
-      const existsToggleCard = this.domElement.querySelector('.cardToggle');
-
-      if (existsTitleCard)
-        this.domElement.removeChild(existsTitleCard);
-      
-      if (existsToggleCard)
-        this.domElement.removeChild(existsToggleCard);
-
       const titleCard = createCard({ title: type.title });
       const toggleCard = createCard();
 
@@ -360,13 +402,6 @@ export default class Card
     }
     else if (type.type === 'Picks')
     {
-      const existsPicks = this.domElement.querySelectorAll('.cardPick');
-
-      for (let i = 0; i < existsPicks.length; i++)
-      {
-        this.domElement.removeChild(existsPicks[i]);
-      }
-
       const elements = [];
 
       for (let i = 0; i < type.picks.length; i++)
@@ -388,7 +423,8 @@ export default class Card
       // return an array of the elements created
       return elements;
     }
-    // 'Button', 'Disabled', 'Loading Bar' and 'Custom Types'
+    // Button or LoadingBar
+    // because Normal is just a reset not a real type
     else if (type.type !== 'Normal')
     {
       this.addClass('card' + type.type);

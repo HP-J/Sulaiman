@@ -28,6 +28,7 @@
 .card > .card
 {
   flex-grow: 1;
+  flex-basis: 1px;
 
   background-color: transparent;
   
@@ -45,10 +46,11 @@
 .cardTitle, .cardDescription
 {
   overflow: hidden;
-  
   display: flex;
+
   flex-grow: 1;
-  flex-basis: auto;
+  flex-basis: 1px;
+
   align-items: center;
   justify-content: flex-start;
   
@@ -133,6 +135,11 @@
 .cardSelectable
 {
   user-select: text;
+}
+
+.card.cardHidden
+{
+  display: none;
 }
 
 /* spacing between the title and icons horizontally */

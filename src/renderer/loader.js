@@ -37,7 +37,7 @@ import { extensionRemoveCard } from './manager.js';
 /** @typedef { Object } ThemeFunctions
 * card functions that are handled by themes
 * @property { (card: Card) => boolean } isFastForward
-* @property { (card: Card) => void } toggleFastForward
+* @property { (card: Card, force: boolean) => boolean } toggleFastForward
 * @property { (card: Card) => boolean } isCollapsed
 * @property { (card: Card) => void } collapse
 * @property { (card: Card) => void } expand

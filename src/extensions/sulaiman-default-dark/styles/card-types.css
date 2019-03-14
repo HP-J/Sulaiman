@@ -133,9 +133,7 @@
 
 /* Disabled */
 
-/* if the card is child, not show the progress unless the parent is hovered on */
-
-.cardDisabled
+.card.cardDisabled
 {
   cursor: default;
   pointer-events: none;

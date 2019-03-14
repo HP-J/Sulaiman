@@ -11,9 +11,9 @@ function isFastForward(card)
 
 /** @param { Card } card
 */
-function toggleFastForward(card)
+function toggleFastForward(card, force)
 {
-  card.domElement.classList.toggle('cardFastForward');
+  return card.domElement.classList.toggle('cardFastForward', force);
 }
 
 /** @param { Card } card
