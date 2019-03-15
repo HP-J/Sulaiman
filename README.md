@@ -29,7 +29,8 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 [AUR](https://aur.archlinux.org/packages/sulaiman) |
 [deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
 [tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)  
-- if you made electron apps for macOS or Windows before, you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
+- if you made electron apps for macOS before and you're willing to test Sulaiman on your own machine, please [contact us](mailto:herpproject0@gmail.com)
+- Windows builds can be tested but we don't yet have a certificate to sign them.
 
 # Licenses
 This project is licensed under the [MIT](https://gitlab.com/herpproject/Sulaiman/blob/development/LICENSE) License.  

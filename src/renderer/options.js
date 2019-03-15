@@ -15,7 +15,6 @@ import { internalRegisterPhrase as registerPhrase } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
 
 import { appendCard, removeCard, containsCard } from './api.js';
-import { on } from './loader.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -75,8 +74,8 @@ export function loadOptions()
   if (isDebug())
     return;
   
-  loadAutoLaunch();
   loadShowHideKey();
+  setupWalkthrough();
 
   checkForUpdates(autoUpdateCheckCard, true);
 }
@@ -91,94 +90,11 @@ export function registerOptionsPhrase()
         card.reset();
 
         if (argument === 'Shortcuts')
-        {
-          showChangeKeyCard(card, 'Show/Hide', '', 'showHideKey', showHide,
-            () =>
-            {
-              autoHide = true;
-
-              setSkipTaskbar(true);
-            },
-            () =>
-            {
-              autoHide = false;
-
-              setSkipTaskbar(false);
-            });
-        }
+          showShowHideOptions(card);
         else if (argument === 'Auto-Launch')
-        {
-          card.auto({ description: 'Loading Current Settings' });
-
-          autoLaunchEntry.isEnabled()
-            .then((state) =>
-            {
-              card.auto({ description: '' });
-
-              const toggle = createCard();
-
-              card.appendChild(toggle);
-    
-              toggle.setType({
-                type: 'Toggle',
-                title: 'Auto-Launch',
-                defaultState: state,
-                callback: (state) =>
-                {
-                  card.setType({ type: 'Disabled' });
-
-                  if (state)
-                    autoLaunchEntry.enable().then(() => card.setType({ type: 'Normal' }));
-                  else
-                    autoLaunchEntry.disable().then(() => card.setType({ type: 'Normal' }));
-                }
-              });
-            });
-        }
+          showAutoLaunchToggle(card);
         else if (argument === 'Tray')
-        {
-          card.auto();
-
-          const state = settings.get('trayIcon', true);
-          const color = settings.get('trayIconColor', 'light');
-
-          // add a warning that the changes are applied after the app is restarted
-          card.appendText('Changes are applied after the app is restarted', { style: 'Bold', size: 'Smaller', align: 'Right' });
-
-          // Tray Icon Toggle
-          
-          card.appendLineBreak();
-
-          const toggle = createCard();
-
-          card.appendChild(toggle);
-
-          toggle.setType({
-            type: 'Toggle',
-            title: 'Tray',
-            defaultState: state,
-            callback: (state) => settings.set('trayIcon', state)
-          });
-
-          // Tray Icon Colors
-
-          card.appendLineBreak();
-
-          card.appendText('Tray Color');
-          
-          const picks = createCard();
-
-          const picksArray =  [ 'Dark', 'Black', 'Light' ];
-
-          card.appendChild(picks);
-
-          picks.setType({
-            type: 'Picks',
-            picks: picksArray,
-            defaultPickIndex: picksArray.findIndex((value) => value.toLowerCase() === color),
-            callback: (pick) => settings.set('trayIconColor', pick.toLowerCase())
-          });
-        }
+          showTrayOptions(card);
       }
     });
 
@@ -199,38 +115,38 @@ export function registerOptionsPhrase()
           if (localData)
           {
             if (localData.branch)
-              card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' });
+              card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' }, true);
 
             if (localData.commit)
-              card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' });
+              card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' }, true);
 
             if (localData.pipeline)
-              card.appendText('Pipeline: ' + localData.pipeline, { type: 'Description', select: 'Selectable' });
+              card.appendText('Pipeline: ' + localData.pipeline, { type: 'Description', select: 'Selectable' }, true);
               
             if (localData.package)
-              card.appendText('Package: ' + localData.package, { type: 'Description', select: 'Selectable' });
+              card.appendText('Package: ' + localData.package, { type: 'Description', select: 'Selectable' }, true);
 
             if (localData.date)
-              card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' });
+              card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' }, true);
           }
 
           if (packageData)
           {
             if (packageData.version)
-              card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' });
+              card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' }, true);
           }
 
           if (process.versions.electron)
-            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' });
+            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' }, true);
 
           if (process.versions.chrome)
-            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' });
+            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' }, true);
 
           if (process.versions.node)
-            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' });
+            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' }, true);
 
           if (process.versions.v8)
-            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' });
+            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' }, true);
         }
         else if (argument === 'Check for Updates')
         {
@@ -260,50 +176,176 @@ export function registerOptionsPhrase()
   });
 }
 
+function setupWalkthrough()
+{
+  // settings.remove('firstTimer');
+
+  const firstTimer = settings.get('firstTimer', false);
+
+  // if the walkthrough was dismissed or finished before
+  if (firstTimer)
+    return;
+
+  let pageIndex;
+
+  const minPageIndex = 0;
+  const  maxPageIndex = 2;
+
+  // setup the walkthrough cards
+
+  const walkthroughCard = createCard();
+  const contentCard = createCard();
+
+  const previousButton = createCard();
+  const nextButton = createCard();
+
+  previousButton.setType({
+    type: 'Button',
+    title: 'Previous',
+    callback: () =>
+    {
+      pageIndex = pageIndex - 1;
+
+      // minimal page index is 0
+      // remove the previous button to the walkthrough card
+      if (pageIndex <= minPageIndex)
+        previousButton.toggleDisabled(true);
+
+      // if the user went to a previous page after being in the last page
+      // then change the button text to show that he can go forward again
+      if (pageIndex < maxPageIndex)
+        nextButtonText[0].innerText = 'Next';
+
+      changeWalkthroughPage(contentCard, pageIndex);
+    }
+  });
+
+  const nextButtonText = nextButton.setType({
+    type: 'Button',
+    title: 'Next',
+    callback: () =>
+    {
+      pageIndex = pageIndex + 1;
+
+      // shows that there are no more pages
+      // if the user press again the card will be removed
+      if (pageIndex === maxPageIndex)
+        nextButtonText[0].innerText = 'Done';
+      // the user pressed done
+      else if (pageIndex > maxPageIndex)
+      {
+        removeCard(walkthroughCard);
+
+        settings.set('firstTimer', true);
+      }
+
+      // append the previous button to the walkthrough card
+      // if we're at any index above the minimal
+      if (pageIndex > 0)
+        previousButton.toggleDisabled(false);
+
+      changeWalkthroughPage(contentCard, pageIndex);
+    }
+  });
+
+  // append every card to where it should be
+
+  walkthroughCard.appendChild(contentCard);
+
+  walkthroughCard.appendLineBreak();
+
+  walkthroughCard.appendChild(previousButton);
+  walkthroughCard.appendChild(nextButton);
+
+  // show the first page
+
+  pageIndex = 0;
+  
+  previousButton.toggleDisabled(true);
+
+  changeWalkthroughPage(contentCard, pageIndex);
+
+  // add the walkthrough card to body
+  appendCard(walkthroughCard);
+}
+
+/** @param { Card } card
+*/
+function changeWalkthroughPage(card, index)
+{
+  card.reset();
+
+  // welcome the user
+  // show the auto-launch prompt
+  if (index === 0)
+  {
+    card.appendText('Welcome to Sulaiman', { type: 'Title' }, true);
+
+    card.appendText('Together we\'ll walkthrough you through some quick settings to get you started.', { type: 'Description' }, true);
+    card.appendText('Sulaiman can auto launch itself at startup, Would you want that?', { type: 'Description' }, true);
+
+    showAutoLaunchToggle(card);
+  }
+  // show the Show/Hide shortcut prompt
+  else if (index === 1)
+  {
+    card.appendText('Welcome to Sulaiman', { type: 'Title' }, true);
+
+    card.appendText('You can set a key shortcut to show and hide Sulaiman any time you want', { type: 'Description' }, true);
+
+    showShowHideOptions(card);
+  }
+  // show the user some of Sulaiman builtin phrases
+  else if (index === 2)
+  {
+    card.appendText('Welcome to Sulaiman', { type: 'Title' }, true);
+
+    card.appendText('Sulaiman come with some builtin extensions to do basic stuff like 2+2 and launching system apps', { type: 'Description' }, true);
+    card.appendText('We don\'t yet have a way to search for extensions inside the app', { type: 'Description' }, true);
+    card.appendText('You can install more extensions by searching for them on NPM\'s website:', { type: 'Title' }, true);
+
+    card.appendText('https://www.npmjs.com/', { type: 'Title', select: 'Link', style: 'Italic' }, true);
+
+    card.appendText('Find the extension you want and get its name, then type this in the search bar:', { type: 'Description' }, true);
+    card.appendText('Extensions Install {extensionName}', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
+
+    card.appendText('You can find more of the commands you can use by typing:', { type: 'Description' }, true);
+    card.appendText('Extensions Phrases', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
+  }
+}
+
 function loadShowHideKey()
 {
   const showHideKeyCard = createCard();
 
   const showHideAccelerator = settings.get('showHideKey', undefined);
 
-  if (!showHideAccelerator)
-  {
-    on.ready(() =>
-    {
-      showChangeKeyCard(
-        showHideKeyCard,
-        'Hello',
-        'It looks like it\'s your first time using Sulaiman, Start by choosing a shortcut for summoning the application anytime you need it.',
-        'showHideKey', showHide,
-        () =>
-        {
-          autoHide = true;
-  
-          setSkipTaskbar(true);
-        }
-      );
-  
-      appendCard(showHideKeyCard);
-    });
-  }
-  else if (remote.globalShortcut.isRegistered(showHideAccelerator))
+  if (showHideAccelerator && remote.globalShortcut.isRegistered(showHideAccelerator))
   {
     showChangeKeyCard(
       showHideKeyCard,
-      'Sorry, It looks like',
-      'A different application is using the shortcut you selected for summoning Sulaiman; we recommend to setting a new one.',
+      'Sulaiman',
+      'It looks like a different application is using the shortcut you selected for Show/Hide',
       'showHideKey', showHide,
       () =>
       {
         autoHide = true;
-
         setSkipTaskbar(true);
+
+        removeCard(showHideKeyCard);
+      },
+      () =>
+      {
+        autoHide = false;
+        setSkipTaskbar(false);
+
+        removeCard(showHideKeyCard);
       }
     );
 
     appendCard(showHideKeyCard);
   }
-  else
+  else if (showHideAccelerator)
   {
     remote.globalShortcut.register(showHideAccelerator, showHide);
 
@@ -312,53 +354,103 @@ function loadShowHideKey()
   }
 }
 
-function loadAutoLaunch()
+/** @param { Card } card
+*/
+function showShowHideOptions(card)
 {
-  const autoLaunchCard = createCard();
+  showChangeKeyCard(
+    card,
+    'Show/Hide:', '',
+    'showHideKey', showHide,
+    () =>
+    {
+      autoHide = true;
+      setSkipTaskbar(true);
+    },
+    () =>
+    {
+      autoHide = false;
+      setSkipTaskbar(false);
+    });
+}
+
+/** @param { Card } card
+*/
+function showAutoLaunchToggle(card)
+{
+  const loadingElement = card.appendText('Loading Current State', { type: 'Description' });
 
   autoLaunchEntry.isEnabled()
-    .then((isEnabled) =>
+    .then((state) =>
     {
-      if (isEnabled || settings.get('ignoreAutoLaunch', false))
-        return;
+      loadingElement.remove();
 
-      on.ready(() =>
-      {
-        autoLaunchCard.appendText('Sulaiman can auto launch itself on startup, would you want that?', { type: 'Description' });
+      const toggle = createCard();
 
-        const yesButton = createCard();
+      card.appendChild(toggle);
 
-        yesButton.setType({
-          type: 'Button',
-          title: 'Yes',
-          callback: () =>
-          {
-            autoLaunchEntry.enable();
-    
-            removeCard(autoLaunchCard);
-          }
-        });
+      toggle.setType({
+        type: 'Toggle',
+        title: 'Auto-Launch',
+        defaultState: state,
+        callback: (state) =>
+        {
+          card.toggleDisabled(true);
 
-        autoLaunchCard.appendChild(yesButton);
-  
-        const dismissButton = createCard();
-
-        dismissButton.setType({
-          type: 'Button',
-          title: 'Dismiss',
-          callback: () =>
-          {
-            settings.set('ignoreAutoLaunch', true);
-    
-            removeCard(autoLaunchCard);
-          }
-        });
-
-        autoLaunchCard.appendChild(dismissButton);
-  
-        appendCard(autoLaunchCard);
+          if (state)
+            autoLaunchEntry.enable().then(() => card.toggleDisabled(false));
+          else
+            autoLaunchEntry.disable().then(() => card.toggleDisabled(false));
+        }
       });
     });
+}
+
+/** @param { Card } card
+*/
+function showTrayOptions(card)
+{
+  card.auto();
+
+  const state = settings.get('trayIcon', true);
+  const color = settings.get('trayIconColor', 'light');
+
+  // add a warning that the changes are applied after the app is restarted
+  card.appendText('Changes are applied after the app is restarted', { style: 'Bold', size: 'Smaller', align: 'Right' });
+
+  // Tray Icon Toggle
+  
+  card.appendLineBreak();
+
+  const toggle = createCard();
+
+  card.appendChild(toggle);
+
+  toggle.setType({
+    type: 'Toggle',
+    title: 'Tray',
+    defaultState: state,
+    callback: (state) => settings.set('trayIcon', state)
+  });
+
+  // Tray Icon Colors
+
+  card.appendLineBreak();
+
+  card.appendText('Tray Color');
+  
+  const picks = createCard();
+
+  const picksArray =  [ 'Dark', 'Black', 'Light' ];
+
+  card.appendChild(picks);
+
+  picks.setType({
+    type: 'Picks',
+    picks: picksArray,
+    defaultPickIndex: picksArray.findIndex((value) => value.toLowerCase() === color),
+    callback: (pick) => settings.set('trayIconColor', pick.toLowerCase())
+  });
 }
 
 /** @param { Card } card
@@ -371,28 +463,30 @@ function loadAutoLaunch()
 */
 function showChangeKeyCard(card, title, description, key, callback, done, remove)
 {
-  card.auto({ title: title, description: description });
+  card.appendText(title, { type: 'Title' }, true);
+  card.appendText(description, { type: 'Description' }, true);
 
-  captureKey(card, key, (accelerator) =>
-  {
-    unregisterGlobalShortcut(settings.get(key, undefined));
-
-    settings.set(key, accelerator);
-
-    remote.globalShortcut.register(accelerator, callback);
-
-    if (!card.isPhrased)
+  captureKey(
+    card, key,
+    (accelerator) =>
     {
-      removeCard(card);
-    }
+      // if Sulaiman already had a shortcut with the same key
+      unregisterGlobalShortcut(settings.get(key, undefined));
 
-    if (done)
-      done();
-  }, () =>
-  {
-    if (remove)
-      remove();
-  });
+      // save the shortcut key, to register it the next time Sulaiman starts
+      settings.set(key, accelerator);
+
+      // register the shortcut key right now
+      remote.globalShortcut.register(accelerator, callback);
+
+      if (done)
+        done();
+    },
+    () =>
+    {
+      if (remove)
+        remove();
+    });
 }
 
 /** make the card apply to capture key downs and turns them to accelerators
@@ -406,18 +500,20 @@ function captureKey(card, key, done, remove)
 
   const keys = [];
 
-  const keysElem = card.appendText('', { size: 'Big', style: 'Bold' });
-
-  card.appendLineBreak();
+  const keysElement = card.appendText('', { size: 'Big', style: 'Bold' }, true);
 
   const setButtonCard = createCard();
   const setButton = setButtonCard.appendText('', { align: 'Center' });
+
   setButtonCard.setType({ type: 'Button' });
+
   card.appendChild(setButtonCard);
 
   const cancelButtonCard = createCard();
   const cancelButton = cancelButtonCard.appendText('', { align: 'Center' });
+
   cancelButtonCard.setType({ type: 'Button' });
+
   card.appendChild(cancelButtonCard);
 
   /** @param {KeyboardEvent} event
@@ -454,23 +550,21 @@ function captureKey(card, key, done, remove)
     if (!keys.includes(code))
       keys.push(code);
 
-    keysElem.innerText = keys.join('+');
+    keysElement.innerText = keys.join('+');
 
     if (keys.length > 1 && checkGlobalShortcut(keys.join('+')))
-      setButtonCard.setType({ type: 'Button' });
+      setButtonCard.toggleDisabled(false);
     else
-      setButtonCard.setType({ type: 'Disabled' });
+      setButtonCard.toggleDisabled(true);
   };
 
   const cancelKeyCapture = () =>
   {
     exists = settings.get(key);
-    
-    setButtonCard.setType({ type: 'Button' });
 
     if (exists)
     {
-      keysElem.innerText = exists;
+      keysElement.innerText = exists;
 
       setButton.innerText = 'Change';
       cancelButton.innerText = 'Remove';
@@ -479,8 +573,9 @@ function captureKey(card, key, done, remove)
     }
     else
     {
-      keysElem.style.display = 'none';
-      cancelButtonCard.domElement.style.display = 'none';
+      keysElement.style.display = 'none';
+
+      cancelButtonCard.toggleHidden(true);
       
       setButton.innerText = 'Set';
       cancelButton.innerText = 'Cancel';
@@ -493,13 +588,12 @@ function captureKey(card, key, done, remove)
 
   const startKeyCapture = () =>
   {
-    keysElem.style.cssText = '';
-    cancelButtonCard.domElement.style.cssText = '';
-    
-    
-    setButtonCard.setType({ type: 'Disabled' });
+    keysElement.style.cssText = '';
 
-    keysElem.innerText = 'Press The Keys';
+    cancelButtonCard.toggleHidden(false);
+    setButtonCard.toggleDisabled(true);
+
+    keysElement.innerText = 'Press The Keys';
     setButton.innerText = 'Apply';
     cancelButton.innerText = 'Cancel';
     
@@ -519,7 +613,7 @@ function captureKey(card, key, done, remove)
   {
     if (unregisterGlobalShortcut(settings.get(key, undefined)))
     {
-      settings.delete(key);
+      settings.remove(key);
 
       cancelKeyCapture();
 
@@ -592,11 +686,6 @@ function checkForUpdates(card, autoCheck)
 {
   card.auto({ title: 'Sulaiman', description: 'Checking for updates' });
   card.setType({ type: 'LoadingBar' });
-
-  localData = {};
-  localData.branch = 'release';
-  localData.commit = 'a';
-  localData.package = 'nsis';
 
   // if build.json doesn't exists or if the package is not specified
   if (!localData || !localData.branch || !localData.commit || !localData.package)

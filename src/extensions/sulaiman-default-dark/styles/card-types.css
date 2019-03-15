@@ -1,19 +1,21 @@
 /* Buttons */
 
-.card.cardButton, .card > .card.cardButton
+.card.cardButton,
+.card > .card.cardButton
 {
   cursor: pointer;
 
   color: var(--color-text);
 }
 
-.card:hover > .card.cardButton
+.card:hover .card.cardButton
 {
   background-color: var(--color-highlight);
   color: var(--color-text);
 }
 
-.card.cardButton:hover, .card > .card.cardButton:hover
+.card.cardButton:hover,
+.card > .card.cardButton:hover
 {
   background-color: var(--color-selected);
   color: var(--color-text-selected);
@@ -63,9 +65,11 @@
 
 /* Toggle */
 
-.card > .card.cardToggle
+.cardToggle
 {
   flex-grow: 0;
+  flex-basis: auto;
+
   align-self: center;
   box-sizing: border-box;
 
@@ -79,35 +83,35 @@
   border-style: solid;
 }
 
-.card > .card.cardToggle,
-.card > .card.cardToggleTitle
+.card > .cardToggle,
+.card > .cardToggleTitle
 {
   cursor: pointer;
 }
 
-.card:not(.cardFastForward) > .card.cardToggle:not(.cardFastForward)
+.card:not(.cardFastForward) > .cardToggle:not(.cardFastForward)
 {
   transition: border-width 0.5s cubic-bezier(0.215, 0.610, 0.355, 1);
 }
 
-.card:hover > .card.cardToggle
+.card:hover .cardToggle
 {
   border-color: var(--color-highlight);
 }
 
-.card:hover > .card.cardToggleOn
+.card:hover .cardToggleOn
 {
   background-color: var(--color-text-selected);
   border-width: calc(5px + 0.1vh) calc(15px + 1.5vw) calc(5px + 0.1vh) calc(5px + 0.15vw);
 }
 
-.card:hover > .card.cardToggleOff
+.card:hover .cardToggleOff
 {
   background-color: var(--color-selected);
   border-width: calc(5px + 0.1vh) calc(5px + 0.15vw) calc(5px + 0.1vh) calc(15px + 1.5vw);
 }
 
-.card > .card.cardToggle + *
+.card > .cardToggle + *
 {
   margin-left: 10px; 
 }
@@ -129,28 +133,6 @@
 .card > .card.cardPickOn
 {
   color: var(--color-text-focus);
-}
-
-/* Disabled */
-
-.card.cardDisabled
-{
-  cursor: default;
-  pointer-events: none;
-}
-
-/* only change the card if it's not a child */
-
-body > .cardDisabled
-{
-  background-color: var(--color-disabled);
-}
-
-/* only change the card if it is a child */
-
-.card > .cardDisabled > *
-{
-  color: var(--color-text);
 }
 
 /* Optional Styles */

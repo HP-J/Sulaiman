@@ -184,6 +184,7 @@ function registerPhrases()
             callback: () => launch(apps[argument])
           });
   
+          card.appendLineBreak();
           card.appendChild(button);
         },
         enter: (suggestion, match, argument) =>

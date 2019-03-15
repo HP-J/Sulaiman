@@ -122,14 +122,19 @@
   font-size: calc(16px + 0.5vw + 1.5vh);
 }
 
+.cardBold
+{
+  font-weight: 700;
+}
+
 .cardLight
 {
   font-weight: 100;
 }
 
-.cardBold
+.cardItalic
 {
-  font-weight: 700;
+  font-style: italic
 }
 
 .cardSelectable
@@ -137,9 +142,72 @@
   user-select: text;
 }
 
+.cardLink
+{
+  cursor: pointer;
+
+  user-select: text;
+  text-decoration: underline;
+}
+
+.cardLink:hover
+{
+  color: var(--color-text-selected);
+}
+
 .card.cardHidden
 {
   display: none;
+}
+
+
+/* Disabled */
+
+.card.cardDisabled,
+.card > .card.cardDisabled
+{
+  cursor: default;
+  pointer-events: none;
+}
+
+/* only change the card color if it's on the root level */
+
+body > .cardDisabled
+{
+  background-color: var(--color-disabled);
+}
+
+/* change the color of all text */
+
+.cardDisabled > *
+{
+  color: var(--color-text);
+}
+
+body > .cardDisabled > *
+{
+  color: var(--color-hovered);
+}
+
+/* don't change the color of the buttons if the card is disabled */
+
+.card:hover .card.cardButton.cardDisabled,
+.cardDisabled:hover .card.cardButton
+{
+  background-color: unset;
+}
+
+.cardToggle.cardDisabled,
+.card.cardDisabled .cardToggle
+{
+  background-color: var(--color-text);
+}
+
+body > .cardDisabled.cardToggle,
+body > .cardDisabled .cardToggle
+{
+  background-color: var(--color-hovered);
+  border-color: var(--color-disabled);
 }
 
 /* spacing between the title and icons horizontally */
@@ -153,7 +221,15 @@
 /* spacing between elements vertically
 excluding line breaks and the last element of a card */
 
-.card > *:not(.cardLineBreak)
+.cardTitle:empty,
+.cardDescription:empty
+{
+  flex-basis: 0;
+
+  padding: 0;
+}
+
+.card > *:not(:empty):not(.cardLineBreak)
 {
   margin-top: 3px;
   margin-bottom: 3px;

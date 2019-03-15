@@ -94,6 +94,11 @@ function registerEvents()
     if (event.key === 'Tab')
       event.preventDefault();
   });
+
+  window.addEventListener('beforeunload', () =>
+  {
+    remote.globalShortcut.unregisterAll();
+  });
 }
 
 function registerBuiltinPhrases()

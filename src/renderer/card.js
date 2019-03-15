@@ -1,6 +1,7 @@
-import { themeFunctions as theme, getCaller } from './loader.js';
+import { remote } from 'electron';
 
 import { readyState } from './renderer.js';
+import { themeFunctions as theme, getCaller } from './loader.js';
 
 /** @typedef { Object } AutoCardOptions
 * @property { string } [title]
@@ -13,8 +14,8 @@ import { readyState } from './renderer.js';
 * @property { "Title" | "Description" } [type=Title]
 * @property { "Left" | "Right" | "Center" } [align=Left]
 * @property { "Medium" | "Small" | "Smaller" | "Big" | "Bigger" } [size=Medium]
-* @property { "Normal" | "Bold" | "Light" } [style=Normal]
-* @property { "nonSelectable" | "Selectable" } [select=nonSelectable]
+* @property { "Normal" | "Bold" | "Light" | "Italic" } [style=Normal]
+* @property { "nonSelectable" | "Selectable" | "Link" } [select=nonSelectable]
 */
 
 /** create a new card
@@ -195,9 +196,10 @@ export default class Card
 
   /** @param { string } text
   * @param { TextOptions } options
+  * @param { boolean } appendLineBreak append a line break after the text
   * @returns { HTMLElement } the text element
   */
-  appendText(text, options)
+  appendText(text, options, appendLineBreak)
   {
     options = options || {};
 
@@ -217,11 +219,19 @@ export default class Card
       textElem.classList.add('card' + options.style);
 
     if (options.select)
+    {
       textElem.classList.add('card' + options.select);
+
+      if (options.select === 'Link')
+        textElem.addEventListener('click', () => remote.shell.openExternal(text));
+    }
 
     textElem.innerText = text;
 
     this.domElement.appendChild(textElem);
+
+    if (appendLineBreak)
+      this.appendLineBreak();
 
     return textElem;
   }
@@ -272,26 +282,26 @@ export default class Card
   }
 
   /** @param { { type: "ProgressBar", percentage: number } | { type: "Toggle", title: string, defaultState: boolean, callback: (state: boolean) => void } | { type: "LoadingBar" } | { type:"Picks", picks: string[], defaultPickIndex: number, callback: (pick: string) => void } | { type: "Button", title: string, callback: () => void } | { type: "Normal" } } type
-  * @returns { Card[] | void }
+  * @returns { Card[] | HTMLElement[] }
   */
   setType(type)
   {
-    /** @param { Card } toggleCard
+    /** @param { HTMLDivElement } element
     * @param { (state: boolean) => void } callback
     */
-    function toggle(toggleCard, callback)
+    function toggle(element, callback)
     {
-      const state = toggleCard.containsClass('cardToggleOn');
+      const state = element.classList.contains('cardToggleOn');
 
       if (state)
       {
-        toggleCard.removeClass('cardToggleOn');
-        toggleCard.addClass('cardToggleOff');
+        element.classList.remove('cardToggleOn');
+        element.classList.add('cardToggleOff');
       }
       else
       {
-        toggleCard.removeClass('cardToggleOff');
-        toggleCard.addClass('cardToggleOn');
+        element.classList.remove('cardToggleOff');
+        element.classList.add('cardToggleOn');
       }
       
       if (callback)
@@ -334,21 +344,21 @@ export default class Card
 
     // clear button type remains
 
-    const existsButtonText = this.domElement.querySelector('.cardButtonText');
+    const existsButtonTitleElement = this.domElement.querySelector('.cardButtonText');
 
-    if (existsButtonText)
-      this.domElement.removeChild(existsButtonText);
+    if (existsButtonTitleElement)
+      existsButtonTitleElement.remove();
 
     // clear toggle type remains
 
-    const existsTitleCard = this.domElement.querySelector('.cardToggleTitle');
-    const existsToggleCard = this.domElement.querySelector('.cardToggle');
+    const existsToggleTitleElement = this.domElement.querySelector('.cardToggleTitle');
+    const existsToggleElement = this.domElement.querySelector('.cardToggle');
 
-    if (existsTitleCard)
-      this.domElement.removeChild(existsTitleCard);
+    if (existsToggleTitleElement)
+      existsToggleTitleElement.remove();
     
-    if (existsToggleCard)
-      this.domElement.removeChild(existsToggleCard);
+    if (existsToggleElement)
+      existsToggleElement.remove();
     
     // clear picks type remains
 
@@ -356,7 +366,7 @@ export default class Card
 
     for (let i = 0; i < existsPicks.length; i++)
     {
-      this.domElement.removeChild(existsPicks[i]);
+      existsPicks[i].remove();
     }
 
     if (type.type === 'ProgressBar')
@@ -369,36 +379,49 @@ export default class Card
     }
     else if (type.type === 'Button')
     {
-      const text = this.appendText(type.title, { type: 'Title' });
-
-      text.classList.add('cardButtonText');
-
       this.addClass('cardButton');
 
-      this.domElement.addEventListener('click', () => type.callback());
+      if (type.callback)
+        this.domElement.addEventListener('click', () => type.callback());
 
-      return [ text ];
+      if (type.title)
+      {
+        const titleElement = this.appendText(type.title, { type: 'Title' });
+
+        titleElement.classList.add('cardButtonText');
+        
+        return [ titleElement ];
+      }
     }
     else if (type.type === 'Toggle')
     {
-      const titleCard = createCard({ title: type.title });
-      const toggleCard = createCard();
+      let titleElement;
+      const toggleElement = document.createElement('div');
 
-      titleCard.addClass('cardToggleTitle');
-      toggleCard.addClass('cardToggle');
+      toggleElement.classList.add('cardToggle');
 
       if (type.defaultState)
-        toggleCard.addClass('cardToggleOn');
+        toggleElement.classList.add('cardToggleOn');
       else
-        toggleCard.addClass('cardToggleOff');
+        toggleElement.classList.add('cardToggleOff');
 
-      titleCard.domElement.addEventListener('click', () => toggle(toggleCard, type.callback));
-      toggleCard.domElement.addEventListener('click', () => toggle(toggleCard, type.callback));
+      toggleElement.addEventListener('click', () => toggle(toggleElement, type.callback));
+      
+      if (type.title)
+      {
+        titleElement = this.appendText(type.title, { type: 'Title' })
 
-      this.appendChild(titleCard);
-      this.appendChild(toggleCard);
+        titleElement.classList.add('cardToggleTitle');
 
-      return [ titleCard, toggleCard ];
+        titleElement.addEventListener('click', () => toggle(toggleElement, type.callback));
+      }
+
+      this.appendChild(toggleElement);
+
+      if (titleElement)
+        return [ titleElement, toggleElement ];
+      else
+        return [ toggleElement ];
     }
     else if (type.type === 'Picks')
     {
@@ -429,6 +452,9 @@ export default class Card
     {
       this.addClass('card' + type.type);
     }
+
+    // if nothing else returned, return an empty array
+    return [];
   }
 
   get isCollapsed()
@@ -587,13 +613,10 @@ export default class Card
       }
     }
 
-    if (lineBreakElem && !titleElem && !descriptionElem &&! actionIconElem && !extensionIconElem)
+    if (lineBreakElem && !titleElem && !actionIconElem && !extensionIconElem)
       this.domElement.removeChild(lineBreakElem);
     else
       this.domElement.insertBefore(lineBreakElem, this.domElement.firstElementChild);
-
-    if (descriptionElem)
-      this.domElement.insertBefore(descriptionElem, this.domElement.firstElementChild);
 
     if (actionIconElem)
       this.domElement.insertBefore(actionIconElem, this.domElement.firstElementChild);

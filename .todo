@@ -1,55 +1,63 @@
 Performance Issues and Bugs:
-  ☐ Sulaiman was written with a lot of synchronous code
-    during the next fex build we should change as much code
-    as possible to be asynchronous for the sake of performance
+  ☐ At this point we have to rewrite the default theme
+    it was supposed to be a few sample css files but it became
+    so complicated and overwhelming to new extension developers how want to develop a theme @low 
 
 Testing: 
-  ☐ downloading an extension (we changed the download script)
+  ☐ Downloading, Installing, Deleting, Updating and Aborting Extensions is all untested code (after the changes to the card API) @critical 
+  ☐ move the 'Phrases' phrase to an argument of the 'Extensions' phrase
+  ☐ downloading an extension package (after we changed the download script) @critical 
 
 Features:
-  ☐ rewrite the api.js script to be more recognized
+  ✔ combine the shortcut and the auto-launch together in the same card and give the user a walkthrough the builtin phrases @done(19-03-15 13:38)
+
+  ☐ rewrite the api.js script to be more recognized @high 
   ✔ rewrite the index.js file @done(19-03-12 05:22)
 
   ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
   ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
   
-  ☐ installing extensions without reloading @next-build
-  ☐ uninstalling extensions without reloading @next-build
+  ☐ installing extensions without reloading
+  ☐ uninstalling extensions without reloading
 
   ☐ let extension require a part (API) of each other if a extension declare the usage of another extension in its package.json
-    and the extension it require is installed and does have public API @next-build
+    the extension it requires is also to be installed with it @research
 
-  ☐ an app that is installed on the the user os can use sulaiman api to stream an extension to sulaiman,
-    without installing an extension @next-build
+  ☐ an app that is installed on the the user OS can use sulaiman API to stream an extension to sulaiman,
+    without installing an extension @research
   
 UI/UX:
-  ☐ try a pure black dark mode
+  ☐ try a pure black dark mode @low  
+  
   ✔ add phrase to show the changelog file if one exists and not empty @done(19-03-13 05:43)
   ✔ add option card to change the tray color @done(19-03-12 09:37)
   
-  ☐ showing extensions credits @next-build
+  ☐ showing extensions credits
+  ☐ show most recent phrases when input is empty, or most used... or both
 
-  ☐ show most recent phrases when input is empty, or most used @next-build
-
-  ☐ show popular extensions from npm registry (gallery) @next-build
+  ☐ show popular extensions from the npm registry (gallery) @high 
     ☐ have a section that shows popular extensions (popular all time)
     ☐ have a section that shows trending extensions (popular this week)
     ☐ have a section that shows extensions made by herp project (sort by popularity)
+    ☐ search for specific extensions from the npm registry
 
 CI/CD:
+  ☐ Release a Windows build after testing @help-needed
+  ☐ Release a macOS build after testing @help-needed
 
 Extensions:
-  ☐ open & preview files
+  ☐ new extension: navigate, open and preview files from your OS
 
-  ☐ dawayer controls integration
-    ☐ continue playing
+  ☐ launch-app: show the app's icon
+  ☐ launch-app: macOS support @help-needed
   
-  ☐ show the app's icon on its launch-apps card
-  ☐ calculator card
+  ☐ Dawayer integration: controls
+    ☐ continue playing
+    
+  ☐ Calculator: calculator ui
 
-  ☐ launch-apps for macOS @help-needed
+  Google News:
+    ☐ research to check if it's even possible
 
-Google: @extension @not-builtin
-   ☐ logging in with a google account
-   
-Google News: @extension @not-builtin
+  Google:
+    ☐ logging in with a google account
