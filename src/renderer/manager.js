@@ -13,7 +13,7 @@ import download from '../dl.js';
 import { makeItCollapsible, toggleCollapse } from './renderer.js';
 import { appendCard, removeCard } from './api.js';
 
-import { internalRegisterPhrase as registerPhrase } from './search.js';
+import { internalRegisterPhrase as registerPhrase, registeredPhrases } from './search.js';
 import { internalCreateCard as createCard } from './card.js';
 import { loadedExtensions, getPlatform, themeName } from './loader.js';
 
@@ -55,7 +55,7 @@ export function registerExtensionsPhrase()
 
   return new Promise((resolve) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Install', 'Running', 'Remove', 'Check for Updates' ], {
+    const extensionsPhrase = registerPhrase('Extensions', [ 'Phrases', 'Install', 'Running', 'Remove', 'Check for Updates' ], {
       suggest: (argument) =>
       {
         const args = [];
@@ -77,7 +77,26 @@ export function registerExtensionsPhrase()
       {
         card.reset();
 
-        if (argument === 'Install')
+        if (argument === 'Phrases')
+        {
+          // TODO it sucks and not every useful
+          card.auto({ title: 'Available Phrases' });
+
+          makeItCollapsible(card);
+  
+          for (const phrase in registeredPhrases)
+          {
+            const phraseObj = registeredPhrases[phrase];
+  
+            card.appendText(phraseObj.phrase, { style: 'Bold', select: 'Selectable', size: 'Small' }, true);
+  
+            for (let i = 0; i < phraseObj.defaultArgs.length; i++)
+            {
+              card.appendText(phraseObj.defaultArgs[i], { type: 'Description', select: 'Selectable', size: 'Small' }, true);
+            }
+          }
+        }
+        else if (argument === 'Install')
         {
           if (cancelToken)
           {

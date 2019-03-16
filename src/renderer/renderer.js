@@ -4,10 +4,10 @@ import { join } from 'path';
 
 import { getIcon } from './api.js';
 
-import { loadExtensions, emit, on } from './loader.js';
+import { loadExtensions, emit } from './loader.js';
 import { loadNPM, registerExtensionsPhrase } from './manager.js';
 import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
-import { initSearchBar, internalRegisterPhrase as registerPhrase, registerPhrasesPhrase } from './search.js';
+import { initSearchBar, internalRegisterPhrase as registerPhrase } from './search.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -106,13 +106,12 @@ function registerBuiltinPhrases()
   const quitPhrase = registerPhrase('Quit', undefined, { enter: () => quit() });
   const reloadPhrase = registerPhrase('Reload', undefined, { enter: () => reload() });
 
-  const phrasesPhrase = registerPhrasesPhrase();
   const optionsPhrase = registerOptionsPhrase();
   const extensionsPhrase = registerExtensionsPhrase();
 
   return Promise.all(
     [
-      quitPhrase, reloadPhrase, phrasesPhrase,
+      quitPhrase, reloadPhrase,
       optionsPhrase, extensionsPhrase
     ]);
 }

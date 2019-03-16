@@ -1,11 +1,13 @@
 Performance Issues and Bugs:
+  ☐ loading extensions Async
+
   ☐ At this point we have to rewrite the default theme
     it was supposed to be a few sample css files but it became
     so complicated and overwhelming to new extension developers how want to develop a theme @low 
 
 Testing: 
   ☐ Downloading, Installing, Deleting, Updating and Aborting Extensions is all untested code (after the changes to the card API) @critical 
-  ☐ move the 'Phrases' phrase to an argument of the 'Extensions' phrase
+  ✔ move the 'Phrases' phrase to an argument of the 'Extensions' phrase @done(19-03-16 09:20)
   ☐ downloading an extension package (after we changed the download script) @critical 
 
 Features:

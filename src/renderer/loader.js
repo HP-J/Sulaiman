@@ -492,6 +492,9 @@ function handelModules(requiredModules, extensionPath)
 */
 function getIsBuiltin(moduleName)
 {
+  // I found this code somewhere in a stack overflow question
+  // but I can't find it again to credit who wrote it
+  
   try
   {
     const resolved = require.resolve(moduleName);

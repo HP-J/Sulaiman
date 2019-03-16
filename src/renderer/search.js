@@ -4,7 +4,6 @@ import { join } from 'path';
 import { isArray } from 'util';
 
 import { on } from './loader.js';
-import { makeItCollapsible } from './renderer.js';
 import { createCard, internalCreateCard } from './card.js';
 
 const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
@@ -64,7 +63,7 @@ const suggestionsElement = document.body.querySelector('.suggestions');
 
 /** @type { Object<string, PhraseObject> }
 */
-const registeredPhrases = {};
+export const registeredPhrases = {};
 
 let lastInput = '';
 
@@ -89,39 +88,6 @@ export function initSearchBar()
   on.focus(focus);
   on.blur(blur);
   on.ready(oninput);
-}
-
-export function registerPhrasesPhrase()
-{
-  return new Promise((resolve) =>
-  {
-    const phrasesPhrase = internalRegisterPhrase('Phrases', undefined, {
-      activate: (card) =>
-      {
-        card.reset();
-
-        card.auto({ title: 'Available Phrases' });
-
-        makeItCollapsible(card);
-
-        for (const phrase in registeredPhrases)
-        {
-          const phraseObj = registeredPhrases[phrase];
-
-          card.appendText(phraseObj.phrase, { style: 'Bold', select: 'Selectable', size: 'Small' });
-
-          for (let i = 0; i < phraseObj.defaultArgs.length; i++)
-          {
-            card.appendText(phraseObj.defaultArgs[i], { type: 'Description', select: 'Selectable', size: 'Small' });
-          }
-
-          card.appendLineBreak();
-        }
-      }
-    });
-
-    Promise.all([ phrasesPhrase ]).then(resolve);
-  });
 }
 
 /** gets called every time sulaiman regain focus

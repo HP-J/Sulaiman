@@ -409,7 +409,7 @@ export default class Card
       
       if (type.title)
       {
-        titleElement = this.appendText(type.title, { type: 'Title' })
+        titleElement = this.appendText(type.title, { type: 'Title' });
 
         titleElement.classList.add('cardToggleTitle');
 
