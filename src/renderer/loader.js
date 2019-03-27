@@ -6,7 +6,7 @@ import { join } from 'path';
 import { platform } from 'os';
 import { EventEmitter } from 'events';
 
-import { appendCard, removeCard } from './api.js';
+import { getPlatform, appendCard, removeCard } from './api.js';
 import { readyState, toggleCollapse } from './renderer.js';
 import { internalCreateCard as createCard } from './card.js';
 import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
@@ -145,20 +145,6 @@ export function getCaller(length)
   Error.prepareStackTrace = original;
 
   return { file, functionName };
-}
-
-export function getPlatform()
-{
-  const p = platform();
-
-  if (p === 'linux')
-    return 'Linux';
-  else if (p === 'win32')
-    return 'Windows';
-  else if (p === 'darwin')
-    return 'macOS';
-  else
-    return p;
 }
 
 /** load and start all extensions

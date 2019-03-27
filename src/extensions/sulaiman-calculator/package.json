@@ -1,13 +1,16 @@
 {
   "name": "sulaiman-calculator",
-  "version": "0.1.1",
-  "description": "just calculate numbers",
+  "version": "0.1.0",
+  "description": "calculate numbers",
   "main": "index.js",
   "private": true,
-  "homepage": "https://gitlab.com/herpproject/sulaiman-calculator",
+  "homepage": "https://gitlab.com/herpproject/sulaiman-calculator#readme",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/sulaiman-calculator.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/herpproject/sulaiman-calculator/issues"
   },
   "sulaiman": {
     "displayName": "Calculator",

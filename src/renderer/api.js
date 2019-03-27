@@ -3,6 +3,8 @@ import { remote } from 'electron';
 import { join } from 'path';
 import { readdirSync } from 'fs';
 
+import { platform } from 'os';
+
 import Card from './card.js';
 import { apiVersion } from './options.js';
 import { themeFunctions } from './loader.js';
@@ -51,6 +53,20 @@ const storedIcons = {};
 /** @type { Object.<string, HTMLElement[]> }
 */
 const appendedStyles = {};
+
+export function getPlatform()
+{
+  const p = platform();
+
+  if (p === 'linux')
+    return 'Linux';
+  else if (p === 'win32')
+    return 'Windows';
+  else if (p === 'darwin')
+    return 'macOS';
+  else
+    return p;
+}
 
 /** add an icon to store
 * @param { string } path a full path to the icon

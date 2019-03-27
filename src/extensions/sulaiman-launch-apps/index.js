@@ -1,9 +1,9 @@
-import { on, shell, createCard } from 'sulaiman';
+import { on, shell, createCard, getPlatform } from 'sulaiman';
 
-import { readdirSync, existsSync, statSync, readFileSync } from 'fs';
+import { readFile, readdir, pathExists, stat } from 'fs-extra';
 
 import { join, basename } from 'path';
-import { homedir, platform as getPlatform } from 'os';
+import { homedir } from 'os';
 import { exec } from 'child_process';
 
 /** @type { Object<string, string> }
@@ -13,144 +13,68 @@ const apps = {};
 const platform = getPlatform();
 
 /** @param { string[] } directories
-* @returns { string[] }
+* @param { string } extension
+* @param { (file: string) => void } callback
+* @returns { Promise<string[]> }
 */
-function walkSync(directories)
+function walk(directories, extension, callback)
 {
-  let results = [];
+// return empty array if directories array is empty
+  if (directories.length <= 0)
+    return;
 
   for (let i = 0; i < directories.length; i++)
   {
     const dir = directories[i];
 
-    if (!existsSync(dir))
-      continue;
-
-    const list = readdirSync(dir);
-
-    list.forEach((file) =>
+    pathExists(dir).then((exists) =>
     {
-      file = join(dir, file);
+      if (!exists)
+        return;
       
-      const stat = statSync(file);
-  
-      if (stat && stat.isDirectory())
-        // Recurs into a subdirectory
-        results = results.concat(walkSync([ file ]));
-      else
-        // Is a file
-        results.push(file);
+      readdir(dir).then((list) =>
+      {
+        if (list.length > 0)
+        {
+          list.forEach((file) =>
+          {
+            file = join(dir, file);
+
+            stat(file).then((statValue) =>
+            {
+              if (statValue && statValue.isDirectory())
+              {
+                walk([ file ]).then((files) =>
+                {
+                  files.forEach((file) =>
+                  {
+                    if (file.startsWith(extension))
+                      callback(file);
+                  });
+                });
+              }
+              else
+              {
+                if (file.startsWith(extension))
+                  callback(file);
+              }
+            });
+          });
+        }
+      });
     });
   }
-
-  return results;
-}
-
-function windows()
-{
-  const { APPDATA, ProgramData } = process.env;
-
-  // directories where usually app shortcuts exists
-  const appDirectories =
-  [
-    join(APPDATA, '/Microsoft/Windows/Start Menu/'),
-    join(ProgramData, '/Microsoft/Windows/Start Menu/')
-  ];
-
-  // the usual extensions for the apps in this os
-  const appExtension = '.lnk';
-
-  return new Promise((resolve) =>
-  {
-    const files = walkSync(appDirectories);
-    
-    for (let i = 0; i < files.length; i++)
-    {
-      const file = files[i];
-      
-      // if it ends with the specified extension
-      if (file.endsWith(appExtension))
-      {
-        const name = basename(file, appExtension);
-
-        let target;
-
-        try
-        {
-          target = shell.readShortcutLink(file).target;
-        }
-        catch (e)
-        {
-          //
-        }
-        finally
-        {
-          apps[name] = target || file;
-        }
-      }
-    }
-    
-    resolve();
-  });
-}
-
-function linux()
-{
-  // directories where usually app shortcuts exists
-  const appDirectories =
-  [
-    '/usr/share/applications/',
-    '/usr/local/share/applications/',
-    join(homedir(), '/.local/share/applications/')
-  ];
-
-  // the usual extensions for the apps in this os
-  const appExtension = '.desktop';
-
-  return new Promise((resolve) =>
-  {
-    const files = walkSync(appDirectories);
-
-    for (let i = 0; i < files.length; i++)
-    {
-      const file = files[i];
-      
-      // if it ends with the specified extension
-      if (file.endsWith(appExtension))
-      {
-        const desktopFile = readFileSync(file).toString();
-
-        const hidden = desktopFile.match(/^(?:NoDisplay=)(.+)/m);
-        const terminal = desktopFile.match(/^(?:Terminal=)(.+)/m);
-
-
-        if (
-          (hidden && hidden[1] === 'true') ||
-          (terminal && terminal[1] === 'true')
-        )
-          continue;
-
-        const name = desktopFile.match(/^(?:Name=)(.+)/m);
-        const exec = desktopFile.match(/^(?:Exec=)(.+)/m);
-
-        if (name && exec)
-          apps[name[1]] = exec[1];
-      }
-    }
-
-    resolve();
-  });
 }
 
 /** @param { string } execPath
 */
 function launch(execPath)
 {
-  if (platform === 'win32')
+  if (platform === 'Windows')
   {
     shell.openItem(execPath);
   }
-  else if (platform === 'linux')
+  else if (platform === 'Linux')
   {
     // Linux
     // Replace %u and other % arguments in exec script
@@ -159,45 +83,106 @@ function launch(execPath)
   }
 }
 
-function registerPhrases()
+// function registerPhrases()
+// {
+//   on.ready(() =>
+//   {
+//     const appsAsNames = Object.keys(apps);
+
+//     if (appsAsNames.length <= 0)
+//       return;
+
+//     const button = createCard();
+
+//     on.phrase(
+//       'Launch',
+//       appsAsNames,
+//       {
+//         activate: (card, suggestion, match, argument) =>
+//         {
+//           card.auto({ title: argument, description: 'Launch the application' });
+
+//           button.setType({
+//             type: 'Button',
+//             title: 'Launch',
+//             callback: () => launch(apps[argument])
+//           });
+  
+//           card.appendLineBreak();
+//           card.appendChild(button);
+//         },
+//         enter: (suggestion, match, argument) =>
+//         {
+//           launch(apps[argument]);
+  
+//           return { input: 'clear', searchBar: 'blur' };
+//         }
+//       });
+//   });
+// }
+
+if (platform === 'Windows')
 {
-  on.ready(() =>
+  // directories where usually app shortcuts exists
+
+  const { APPDATA, ProgramData } = process.env;
+
+  const windowsAppDirectories =
+  [
+    join(APPDATA, '/Microsoft/Windows/Start Menu/'),
+    join(ProgramData, '/Microsoft/Windows/Start Menu/')
+  ];
+
+  walk(windowsAppDirectories, '.lnk', (file) =>
   {
-    const appsAsNames = Object.keys(apps);
+    let target;
+    const name = basename(file, '.lnk');
 
-    if (appsAsNames.length <= 0)
-      return;
+    try
+    {
+      target = shell.readShortcutLink(file).target;
+    }
+    catch (e)
+    {
+      //
+    }
+    finally
+    {
+      apps[name] = target || file;
+    }
+  });
+}
+else if (platform === 'Linux')
+{
+  // directories where usually the desktop files exists
 
-    const button = createCard();
+  const linuxAppDirectories =
+  [
+    '/usr/share/applications/',
+    '/usr/local/share/applications/',
+    join(homedir(), '/.local/share/applications/')
+  ];
 
-    on.phrase(
-      'Launch',
-      appsAsNames,
+  walk(linuxAppDirectories, '.desktop', (file) =>
+  {
+    readFile(file, { encoding: 'utf8' })
+      .then((desktopFile) =>
       {
-        activate: (card, suggestion, match, argument) =>
+        const hidden = desktopFile.match(/^(?:NoDisplay=)(.+)/m);
+        const terminal = desktopFile.match(/^(?:Terminal=)(.+)/m);
+    
+        if ((hidden && hidden[1] === 'true') ||
+          (terminal && terminal[1] === 'true')
+        )
         {
-          card.auto({ title: argument, description: 'Launch the application' });
-
-          button.setType({
-            type: 'Button',
-            title: 'Launch',
-            callback: () => launch(apps[argument])
-          });
-  
-          card.appendLineBreak();
-          card.appendChild(button);
-        },
-        enter: (suggestion, match, argument) =>
-        {
-          launch(apps[argument]);
-  
-          return { input: 'clear', searchBar: 'blur' };
+          return;
         }
+    
+        const name = desktopFile.match(/^(?:Name=)(.+)/m);
+        const exec = desktopFile.match(/^(?:Exec=)(.+)/m);
+    
+        if (name && exec)
+          apps[name[1]] = exec[1];
       });
   });
 }
-
-if (platform === 'win32')
-  windows().then(registerPhrases);
-else if (platform === 'linux')
-  linux().then(registerPhrases);

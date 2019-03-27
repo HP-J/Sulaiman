@@ -1,13 +1,16 @@
 {
   "name": "sulaiman-default-dark",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "the default dark theme for Sulaiman",
   "main": "index.js",
   "private": true,
-  "homepage": "https://gitlab.com/herpproject/sulaiman-default-dark",
+  "homepage": "https://gitlab.com/herpproject/sulaiman-default-dark#readme",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/herpproject/sulaiman-default-dark/issues"
   },
   "sulaiman": {
     "displayName": "Default Dark",
