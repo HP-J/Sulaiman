@@ -60,6 +60,7 @@
     "npm": "^6.9.0",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
+    "string-similarity": "^3.0.0",
     "vm2": "^3.6.10"
   },
   "devDependencies": {

@@ -1,13 +1,16 @@
 {
   "name": "sulaiman-launch-apps",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "search and launch apps installed on your operating system",
   "main": "index.js",
   "private": true,
-  "homepage": "https://gitlab.com/herpproject/sulaiman-app-launch",
+  "homepage": "https://gitlab.com/herpproject/sulaiman-app-launch#readme",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/herpproject/sulaiman-app-launch.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/herpproject/sulaiman-app-launch/issues"
   },
   "sulaiman": {
     "displayName": "Launch Apps",
@@ -16,7 +19,7 @@
       "shell"
     ],
     "modules": [
-      "fs",
+      "fs-extra",
       "path",
       "os",
       "child_process"
@@ -34,5 +37,8 @@
     ]
   },
   "author": "Herp Project <herpproject0@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^7.0.1"
+  }
 }

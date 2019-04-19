@@ -11,8 +11,8 @@ import request from 'request-promise-native';
 import * as settings from '../settings.js';
 import download from '../dl.js';
 
-import { internalRegisterPhrase as registerPhrase } from './search.js';
-import { internalCreateCard as createCard } from './card.js';
+import { createCard } from './card.js';
+import { createPrefix } from './prefix.js';
 
 import { appendCard, removeCard, containsCard } from './api.js';
 
@@ -29,6 +29,8 @@ import { appendCard, removeCard, containsCard } from './api.js';
 * @property { string } date
 * @property { string } package
 */
+
+const { reload, quit } = remote.require(join(__dirname, '../main/window.js'));
 
 const { isDebug, showHide, setSkipTaskbar } = remote.require(join(__dirname, '../main/window.js'));
 
@@ -80,100 +82,126 @@ export function loadOptions()
   checkForUpdates(autoUpdateCheckCard, true);
 }
 
-export function registerOptionsPhrase()
+export function registerOptionsPrefix()
 {
-  return new Promise((resolve) =>
-  {
-    const optionsPhrase = registerPhrase('Options', [ 'Shortcuts', 'Auto-Launch', 'Tray' ], {
-      activate: (card, suggestion, match, argument) =>
-      {
-        card.reset();
+  // Options Prefix
 
-        if (argument === 'Shortcuts')
-          showShowHideOptions(card);
-        else if (argument === 'Auto-Launch')
-          showAutoLaunchToggle(card);
-        else if (argument === 'Tray')
-          showTrayOptions(card);
-      }
-    });
-
-    const aboutArgs = [ 'About', 'Check for Updates' ];
-
-    if (changeLog)
-      aboutArgs.push('Changelog');
-
-    const aboutPhrase = registerPhrase('Sulaiman', aboutArgs, {
-      activate: (card, suggestion, match, argument) =>
-      {
-        card.reset();
-
-        if (argument === 'About')
-        {
-          card.auto({ title: 'About Sulaiman' });
-
-          if (localData)
-          {
-            if (localData.branch)
-              card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' }, true);
-
-            if (localData.commit)
-              card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' }, true);
-
-            if (localData.pipeline)
-              card.appendText('Pipeline: ' + localData.pipeline, { type: 'Description', select: 'Selectable' }, true);
-              
-            if (localData.package)
-              card.appendText('Package: ' + localData.package, { type: 'Description', select: 'Selectable' }, true);
-
-            if (localData.date)
-              card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' }, true);
-          }
-
-          if (packageData)
-          {
-            if (packageData.version)
-              card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' }, true);
-          }
-
-          if (process.versions.electron)
-            card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' }, true);
-
-          if (process.versions.chrome)
-            card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' }, true);
-
-          if (process.versions.node)
-            card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' }, true);
-
-          if (process.versions.v8)
-            card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' }, true);
-        }
-        else if (argument === 'Check for Updates')
-        {
-          // if the auto check card is shown
-          // then don't show this one
-          if (containsCard(autoUpdateCheckCard))
-            return false;
-          
-          userManuallyCheckedOnce = true;
-
-          checkForUpdates(card);
-        }
-        else if (argument === 'Changelog')
-        {
-          card.auto({ title: 'Sulaiman Changelog' });
-
-          card.appendText(changeLog, {
-            type: 'Description',
-            'select': 'Selectable',
-            size: 'Small'
-          });
-        }
-      }
-    });
-
-    Promise.all([ optionsPhrase, aboutPhrase ]).then(resolve);
+  const optionsPrefix = createPrefix({
+    prefix: 'options'
   });
+
+  optionsPrefix.setFixedSuggestions([
+    'Shortcuts',
+    'Auto-Launch',
+    'Tray'
+  ]);
+
+  optionsPrefix.on.activate((card, searchItem, extra, suggestion) =>
+  {
+    card.reset();
+
+    if (suggestion === 'Shortcuts')
+      showShowHideOptions(card);
+    else if (suggestion === 'Auto-Launch')
+      showAutoLaunchToggle(card);
+    else if (suggestion === 'Tray')
+      showTrayOptions(card);
+  });
+
+  optionsPrefix.register();
+
+  // Sulaiman Prefix
+
+  const sulaimanPrefix = createPrefix({
+    prefix: 'sulaiman'
+  });
+
+  sulaimanPrefix.setFixedSuggestions([
+    'About',
+    'Check for Updates',
+    'Reload',
+    'Quit'
+  ]);
+
+  if (changeLog)
+    sulaimanPrefix.addFixedSuggestions('Changelog');
+
+  sulaimanPrefix.on.enter((searchItem, extra, suggestion) =>
+  {
+    if (suggestion === 'Reload')
+      reload();
+    else if (suggestion === 'Quit')
+      quit();
+  });
+
+  sulaimanPrefix.on.activate((card, searchItem, extra, suggestion) =>
+  {
+    card.reset();
+
+    if (suggestion === 'About')
+    {
+      card.auto({ title: 'About Sulaiman' });
+
+      if (localData)
+      {
+        if (localData.branch)
+          card.appendText('Branch: ' + localData.branch, { type: 'Description', select: 'Selectable' }, true);
+
+        if (localData.commit)
+          card.appendText('Commit: ' + localData.commit, { type: 'Description', select: 'Selectable' }, true);
+
+        if (localData.pipeline)
+          card.appendText('Pipeline: ' + localData.pipeline, { type: 'Description', select: 'Selectable' }, true);
+          
+        if (localData.package)
+          card.appendText('Package: ' + localData.package, { type: 'Description', select: 'Selectable' }, true);
+
+        if (localData.date)
+          card.appendText('Release Date: ' + localData.date, { type: 'Description', select: 'Selectable' }, true);
+      }
+
+      if (packageData)
+      {
+        if (packageData.version)
+          card.appendText('API: ' + packageData.version, { type: 'Description', select: 'Selectable' }, true);
+      }
+
+      if (process.versions.electron)
+        card.appendText('Electron: ' + process.versions.electron, { type: 'Description', select: 'Selectable' }, true);
+
+      if (process.versions.chrome)
+        card.appendText('Chrome: ' + process.versions.chrome, { type: 'Description', select: 'Selectable' }, true);
+
+      if (process.versions.node)
+        card.appendText('Node.js: ' + process.versions.node, { type: 'Description', select: 'Selectable' }, true);
+
+      if (process.versions.v8)
+        card.appendText('V8: ' + process.versions.v8, { type: 'Description', select: 'Selectable' }, true);
+    }
+    else if (suggestion === 'Check for Updates')
+    {
+      // if the auto check card is shown
+      // then don't show this one
+      if (containsCard(autoUpdateCheckCard))
+        return false;
+      
+      userManuallyCheckedOnce = true;
+
+      checkForUpdates(card);
+    }
+    else if (suggestion === 'Changelog')
+    {
+      card.auto({ title: 'Sulaiman Changelog' });
+
+      card.appendText(changeLog, {
+        type: 'Description',
+        'select': 'Selectable',
+        size: 'Small'
+      });
+    }
+  });
+
+  sulaimanPrefix.register();
 }
 
 function setupWalkthrough()
@@ -295,7 +323,7 @@ function changeWalkthroughPage(card, index)
 
     showShowHideOptions(card);
   }
-  // show the user some of Sulaiman builtin phrases
+  // show the user some of Sulaiman builtin prefixes
   else if (index === 2)
   {
     card.appendText('Welcome to Sulaiman', { type: 'Title' }, true);
@@ -310,7 +338,7 @@ function changeWalkthroughPage(card, index)
     card.appendText('Extensions Install {extensionName}', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
 
     card.appendText('You can find more of the commands you can use by typing:', { type: 'Description' }, true);
-    card.appendText('Extensions Phrases', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
+    card.appendText('Extensions Prefixes', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
   }
 }
 

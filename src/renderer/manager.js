@@ -13,8 +13,9 @@ import download from '../dl.js';
 import { makeItCollapsible, toggleCollapse } from './renderer.js';
 import { appendCard, removeCard } from './api.js';
 
-import { internalRegisterPhrase as registerPhrase, registeredPhrases } from './search.js';
-import { internalCreateCard as createCard } from './card.js';
+import { createCard } from './card.js';
+import { createPrefix } from './prefix.js';
+
 import { loadedExtensions, getPlatform, themeName } from './loader.js';
 
 /** @typedef { import('./card.js').default } Card
@@ -38,136 +39,137 @@ export function loadNPM()
   });
 }
 
-export function registerExtensionsPhrase()
+export function registerExtensionsPrefix()
 {
+  // TODO refactor auto-update
   // since this function is called once when the app starts
   // it's safe to call a check for updates here
-  if (!isDebug())
-  {
-    const updatesCard = createCard();
+  // if (!isDebug())
+  // {
+  //   const updatesCard = createCard();
 
-    checkForExtensionsUpdates(updatesCard).then((number) =>
-    {
-      if (number > 0)
-        appendCard(updatesCard);
-    });
+  //   checkForExtensionsUpdates(updatesCard).then((number) =>
+  //   {
+  //     if (number > 0)
+  //       appendCard(updatesCard);
+  //   });
+  // }
+
+  const extensionsPrefix = createPrefix({
+    prefix: 'extensions'
+  });
+
+  extensionsPrefix.setFixedSuggestions([
+    'Prefixes',
+    'Install',
+    'Running',
+    'Remove',
+    'Check for Updates'
+  ]);
+
+  for (let name in loadedExtensions)
+  {
+    if (name.startsWith('sulaiman-'))
+      name = name.replace('sulaiman-', '');
+    
+    extensionsPrefix.addSuggestions(`Remove ${name}`);
   }
 
-  return new Promise((resolve) =>
+  // TODO refactor extensions installing, updating, deleting
+  extensionsPrefix.on.activate((card, searchItem, extra, suggestion) =>
   {
-    const extensionsPhrase = registerPhrase('Extensions', [ 'Phrases', 'Install', 'Running', 'Remove', 'Check for Updates' ], {
-      suggest: (argument) =>
-      {
-        const args = [];
-        
-        if (argument === 'Remove')
-        {
-          for (let name in loadedExtensions)
-          {
-            if (name.startsWith('sulaiman-'))
-              name = name.replace('sulaiman-', '');
-            
-            args.push(name);
-          }
-        }
+    card.reset();
 
-        return args;
-      },
-      activate: (card, suggestion, match, argument, extra) =>
-      {
-        card.reset();
+    if (suggestion === 'Prefixes')
+    {
+      // TODO refactor Available Prefixes
 
-        if (argument === 'Phrases')
-        {
-          // TODO it sucks and not every useful
-          card.auto({ title: 'Available Phrases' });
+      card.auto({ title: 'Available Prefixes' });
 
-          makeItCollapsible(card);
-  
-          for (const phrase in registeredPhrases)
-          {
-            const phraseObj = registeredPhrases[phrase];
-  
-            card.appendText(phraseObj.phrase, { style: 'Bold', select: 'Selectable', size: 'Small' }, true);
-  
-            for (let i = 0; i < phraseObj.defaultArgs.length; i++)
-            {
-              card.appendText(phraseObj.defaultArgs[i], { type: 'Description', select: 'Selectable', size: 'Small' }, true);
-            }
-          }
-        }
-        else if (argument === 'Install')
-        {
-          if (cancelToken)
-          {
-            cancelToken();
-            cancelToken = undefined;
-          }
+      // makeItCollapsible(card);
 
-          if (!extra)
-          {
-            card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
+      // for (const prefix in registeredPrefixes)
+      // {
+      //   const prefixObj = registeredPrefixes[prefix];
 
-            return;
-          }
+      //   card.appendText(prefixObj.prefix, { style: 'Bold', select: 'Selectable', size: 'Small' }, true);
 
-          if (extra.split(' ').length > 1)
-          {
-            card.auto({ title: 'Extensions', description: 'Invalid package name' });
-        
-            return;
-          }
+      //   for (let i = 0; i < prefixObj.defaultArgs.length; i++)
+      //   {
+      //     card.appendText(prefixObj.defaultArgs[i], { type: 'Description', select: 'Selectable', size: 'Small' }, true);
+      //   }
+      // }
+    }
+    else if (suggestion === 'Install')
+    {
+      // if (cancelToken)
+      // {
+      //   cancelToken();
+      //   cancelToken = undefined;
+      // }
 
-          // npm uses only-lowercase package names
-          extra = extra.toLowerCase();
+      // if (!extra)
+      // {
+      //   card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
 
-          // extensions are prefixed with 'sulaiman-'
-          if (!extra.startsWith('sulaiman-'))
-            extra = 'sulaiman-' + extra;
-        
-          cancelToken = extensionInstallCard(card, extra);
-        }
-        else if (argument.startsWith('Remove'))
-        {
-          if (!extra)
-          {
-            card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
+      //   return;
+      // }
 
-            return;
-          }
+      // if (extra.split(' ').length > 1)
+      // {
+      //   card.auto({ title: 'Extensions', description: 'Invalid package name' });
+    
+      //   return;
+      // }
 
-          if (extra.split(' ').length > 1)
-          {
-            card.auto({ title: 'Extensions', description: 'Invalid package name' });
-        
-            return;
-          }
+      // // npm uses only-lowercase package names
+      // extra = extra.toLowerCase();
 
-          // npm uses only-lowercase package names
-          extra = extra.toLowerCase();
+      // // extensions are prefixed with 'sulaiman-'
+      // if (!extra.startsWith('sulaiman-'))
+      //   extra = 'sulaiman-' + extra;
+    
+      // cancelToken = extensionInstallCard(card, extra);
+    }
+    else if (suggestion.startsWith('Remove'))
+    {
+      // if (!extra)
+      // {
+      //   card.auto({ title: 'Extensions', description: 'Enter a npm package name' });
 
-          // extensions are prefixed with 'sulaiman-'
-          if (!extra.startsWith('sulaiman-'))
-            extra = 'sulaiman-' + extra;
+      //   return;
+      // }
 
-          if (loadedExtensions[extra])
-            extensionRemoveCard(card, loadedExtensions[extra]);
-          else
-            card.auto({ title: 'Extensions', description: 'No extensions running with that name' });
-        }
-        else if (argument === 'Running')
-        {
-          showRunningExtensions(card);
-        }
-        else if (argument === 'Check for Updates')
-        {
-          checkForExtensionsUpdates(card);
-        }
-      }
-    });
+      // if (extra.split(' ').length > 1)
+      // {
+      //   card.auto({ title: 'Extensions', description: 'Invalid package name' });
+    
+      //   return;
+      // }
 
-    Promise.all([ extensionsPhrase ]).then(resolve);
+      // // npm uses only-lowercase package names
+      // extra = extra.toLowerCase();
+
+      // // extensions are prefixed with 'sulaiman-'
+      // if (!extra.startsWith('sulaiman-'))
+      //   extra = 'sulaiman-' + extra;
+
+      // if (loadedExtensions[extra])
+      //   extensionRemoveCard(card, loadedExtensions[extra]);
+      // else
+      //   card.auto({ title: 'Extensions', description: 'No extensions running with that name' });
+    }
+    else if (suggestion === 'Running')
+    {
+      // showRunningExtensions(card);
+    }
+    else if (suggestion === 'Check for Updates')
+    {
+      // checkForExtensionsUpdates(card);
+    }
   });
+
+  extensionsPrefix.register();
 }
 
 /** @param { Card } card
@@ -576,7 +578,7 @@ function checkForExtensionsUpdates(parent)
   
               appendCard(card);
   
-              number += 1;
+              number = number + 1;
             }
           }
         }).catch((err) =>

@@ -1,56 +1,24 @@
 import { remote } from 'electron';
 
 import { join } from 'path';
-import { isArray } from 'util';
 
 import { on } from './loader.js';
-import { createCard, internalCreateCard } from './card.js';
+
+import { registeredPrefixes } from './prefix.js';
 
 const { isDebug } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @typedef { import('./card.js').default } Card
 */
 
-/** @typedef { Object } PhraseEvents
-* @property { (matchedPhrase: string) => string[] } [search]
-* emits every time a search occurs with a phrase match, should return a string array of arguments that replaces default arguments,
-* if you have a fixed set of arguments that won't need to be updated every search please use defaultArgs array instead
-
-* @property { (argument: string) => string[] } [suggest]
-* emits every time an argument is fully matched,
-* should return string array of argument suggestions, argument suggestions are visible as suggestion items but are not real arguments,
-* the user can auto-complete them as usual, however, they will not be activated directly, instead the argument they are pre-fixed to
-* is the the one that gets activated, the suggestion will only be accessible from the `extra` parameter,
-* any suggestion will be pre-fixed with the argument automatically, if it's not already
-
-* @property { (card: Card, suggestion: HTMLElement, matchedPhrase: string, matchedArgument: string, extra: string) => boolean } [activate]
-* emits when the phrase (and an argument) is fully matched,
-* should return a boolean that equals true to show the phrase's card or equals false to not show it, default is true
-
-* @property { (suggestion: HTMLElement, matchedPhrase: string, argument: string, extra: string) => { input: "auto-complete" | "clear", searchBar: "select-input" | "blur" } } [enter]
-* emits when the user presses the `Enter` key while a suggestion is selected,
-* you can change some of the options that occur to the search bar,
-* default options are just blurring the search bar, other options include selecting the search bar text or
-* clearing the search bar input
-*/
-
-/** @typedef { Object } PhraseObject
-* @property { string | RegExp } phrase
-* @property { Card } card
-* @property { string[] } defaultArgs
-* @property { PhraseEvents } emit
+/** @typedef { import('./prefix.js').default } Prefix
 */
 
 /** @typedef { Object } CompareObject
-* @property { HTMLElement } element
-* @property { number } wordCount
-* @property { number } writtenWordCount
-* @property { number } percentage
-* @property { () => boolean } match
-* @property { () => boolean } visible
-* @property { string } matchedPhrase
-* @property { string } matchedPhrase
-* @property { string } extra
+ * @property { HTMLElement } element
+* @property { string } input
+* @property { string } target
+* @property { number } similarity
 */
 
 /** @type { HTMLInputElement }
@@ -59,11 +27,7 @@ const inputElement = document.body.querySelector('input.searchBar');
 
 /** @type { HTMLDivElement }
 */
-const suggestionsElement = document.body.querySelector('.suggestions');
-
-/** @type { Object<string, PhraseObject> }
-*/
-export const registeredPhrases = {};
+const searchItemsElement = document.body.querySelector('.searchItemsList');
 
 let lastInput = '';
 
@@ -78,16 +42,17 @@ export function initSearchBar()
 
   inputElement.onfocus = () =>
   {
-    toggleSuggestionElement();
+    toggleSearchItemsListElement();
     
     oninput();
   };
   
-  inputElement.onblur = toggleSuggestionElement;
+  inputElement.onblur = toggleSearchItemsListElement;
 
   on.focus(focus);
   on.blur(blur);
-  on.ready(oninput);
+  
+  oninput();
 }
 
 /** gets called every time sulaiman regain focus
@@ -110,7 +75,7 @@ function blur()
 */
 function oninput()
 {
-  const input = standard(inputElement.value);
+  const input = trimString(inputElement.value);
 
   if (input === lastInput)
     return;
@@ -121,19 +86,19 @@ function oninput()
   scrollToTop();
 
   // remove old suggestion elements
-  while (suggestionsElement.firstChild)
+  while (searchItemsElement.firstChild)
   {
-    suggestionsElement.removeChild(suggestionsElement.firstChild);
+    searchItemsElement.removeChild(searchItemsElement.firstChild);
   }
 
   if (!input)
   {
-    // deactivate any active phrases
+    // deactivate any active prefixes
     search();
   }
   else
   {
-    // show new suggestion, and activate phrases
+    // show new suggestion, and activate prefixes
     search(input).then(() =>
     {
       // update the select index to the first suggestion and select it
@@ -168,38 +133,35 @@ function onkeydown(event)
   {
     if (
       (inputElement.selectionEnd + 1 > inputElement.value.length) &&
-      (suggestionsElement.children.length > selectIndex)
+      (searchItemsElement.children.length > selectIndex)
     )
-      setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);
+      setInput(searchItemsElement.children[selectIndex].value || searchItemsElement.children[selectIndex].innerText);
   }
   else if (event.code === 'Enter')
   {
-    if (suggestionsElement.children.length > selectIndex)
+    if (searchItemsElement.children.length > selectIndex)
     {
       /** @type { { input: "auto-complete" | "clear", searchBar: "select-input" | "blur" } }
       */
       let options;
 
-      const phrase = suggestionsElement.children[selectIndex].phrase;
+      // prefix enter event
 
-      const isString = (typeof phrase === 'string');
-  
-      const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
-      const phraseObj = registeredPhrases[phraseKey];
+      const prefix = searchItemsElement.children[selectIndex].ref.prefix;
 
-      if (phraseObj.emit.enter)
-        options = phraseObj.emit.enter(
-          suggestionsElement.children[selectIndex],
-          suggestionsElement.children[selectIndex].phrase,
-          suggestionsElement.children[selectIndex].argument,
-          suggestionsElement.children[selectIndex].extra,
-        );
+      const prefixObj = registeredPrefixes[prefix];
+
+      options = prefixObj.emit.enter(
+        searchItemsElement.children[selectIndex],
+        searchItemsElement.children[selectIndex].ref.input,
+        searchItemsElement.children[selectIndex].ref.target,
+      );
 
       if (!options || typeof options !== 'object')
         options = { input: 'auto-complete', searchBar: 'blur' };
 
       if (options.input === 'auto-complete')
-        setInput(suggestionsElement.children[selectIndex].value || suggestionsElement.children[selectIndex].innerText);
+        setInput(searchItemsElement.children[selectIndex].value || searchItemsElement.children[selectIndex].innerText);
       else if (options.input === 'clear')
         setInput('');
 
@@ -215,17 +177,17 @@ function onkeydown(event)
 */
 function selectItem(indexDiff)
 {
-  if (suggestionsElement.children.length <= 0)
+  if (searchItemsElement.children.length <= 0)
     return;
 
-  const nextIndex = Math.min(Math.max(selectIndex + indexDiff, 0), suggestionsElement.children.length - 1);
+  const nextIndex = Math.min(Math.max(selectIndex + indexDiff, 0), searchItemsElement.children.length - 1);
 
-  const nextElement = suggestionsElement.children[nextIndex];
-  const currentElement = suggestionsElement.children[selectIndex];
+  const nextElement = searchItemsElement.children[nextIndex];
+  const currentElement = searchItemsElement.children[selectIndex];
 
-  if (currentElement && nextElement !== currentElement && currentElement.classList.contains('suggestionsItemSelected'))
+  if (currentElement && nextElement !== currentElement && currentElement.classList.contains('searchItemSelected'))
   {
-    currentElement.classList.remove('suggestionsItemSelected');
+    currentElement.classList.remove('searchItemSelected');
 
     requestAnimationFrame(() =>
     {
@@ -237,9 +199,9 @@ function selectItem(indexDiff)
     });
   }
 
-  if (nextElement && !nextElement.classList.contains('suggestionsItemSelected'))
+  if (nextElement && !nextElement.classList.contains('searchItemSelected'))
   {
-    nextElement.classList.add('suggestionsItemSelected');
+    nextElement.classList.add('searchItemSelected');
 
     requestAnimationFrame(() =>
     {
@@ -254,374 +216,296 @@ function selectItem(indexDiff)
   selectIndex = nextIndex;
 }
 
-/** @param { PhraseObject } phraseObj
-* @param { HTMLElement } suggestionElement
-* @param { string } matchedPhrase
-* @param { string } matchedArgument
-* @param { string } extra
-*/
-function activatePhrase(phraseObj, suggestionElement, matchedPhrase,  matchedArgument, extra)
-{
-  // cache element text as the auto-complete value before giving away the suggestion element, however it's still
-  // possible to modify it, using the suggestionElement.value
-  suggestionElement.value = suggestionElement.innerText;
-
-  // activePhrases.push(phraseObj);
-
-  if
-  (
-    phraseObj.emit.activate &&
-    phraseObj.emit.activate(phraseObj.card, suggestionElement, matchedPhrase, matchedArgument, extra) !== false
-  )
-  {
-    if (!document.body.contains(phraseObj.card.domElement))
-      document.body.insertBefore(phraseObj.card.domElement, document.body.children[3]);
-
-    phraseObj.active = true;
-  }
-}
-
-/** @param { PhraseObject } phraseObj
-*/
-function deactivatePhrase(phraseObj)
-{
-  // activePhrases.splice(activePhrases.indexOf(phraseObj), 1);
-
-  if (document.body.contains(phraseObj.card.domElement))
-    document.body.removeChild(phraseObj.card.domElement);
-
-  phraseObj.active = false;
-}
-
-/** @param { T[] } array
-* @template T
-* @param { (a: T, b: T) => number } compare
-*/
-function sort(array, compare)
-{
-  array.sort(compare);
-}
-
 /** @param { string } input
 */
 function search(input)
 {
   return new Promise((resolve) =>
   {
-    /** @type { CompareObject[] }
+    /** @param { Prefix } prefixObj
+    * @param { CompareObject } searchItem
     */
-    const suggestions = [];
-
-    // search all phrases are their arguments
-    for (const phrase in registeredPhrases)
+    function process(prefixObj, searchItem)
     {
-      const phraseObj = registeredPhrases[phrase];
-
-      /** @type { CompareObject }
-      */
-      let matchedCompare = undefined;
-
-      if (input)
+      if (searchItem.similarity > 0)
       {
-        const args = [];
-
-        let overriddenArgs;
-
-        const phraseCompareObject = compare(input, phraseObj.phrase);
-
-        if (phraseObj.emit.search && phraseCompareObject.percentage > 0)
-          overriddenArgs = phraseObj.emit.search(phraseCompareObject.matchedPhrase, phraseCompareObject.phrase);
-
-        if (overriddenArgs && isArray(overriddenArgs))
-          args.push(...overriddenArgs);
-        else
-          args.push(...phraseObj.defaultArgs);
-
-        // if the phrase has no arguments
-        if (args.length <= 0)
+        // prevent duplicates
+        if (!dubObj[searchItem.target])
         {
-          // if there is not match what-so-ever, skip it
-          if (phraseCompareObject.visible())
-          {
-            if (phraseCompareObject.match())
-              matchedCompare = phraseCompareObject;
+          dubObj[searchItem.target] = true;
 
-            suggestions.push(phraseCompareObject);
-          }
+          fuseSearchItemWithElement(prefixObj, searchItem.element, searchItem.input, searchItem.target);
+          
+          searchItems.push(searchItem);
+
+          return true;
         }
         else
         {
-          // else the phrase must have one or more arguments
-          // loop through the phrase's arguments, comparing them
-          for (let i = 0; i < args.length; i++)
-          {
-            const compareObject = compare(input, phraseObj.phrase, args[i]);
-
-            if (!compareObject)
-              continue;
-
-            // if there is not match what-so-ever, skip it
-            if (compareObject.visible())
-            {
-              if (compareObject.match())
-                matchedCompare = compareObject;
-
-              suggestions.push(compareObject);
-            }
-          }
+          return false;
         }
       }
-
-      if (matchedCompare)
+      else
       {
-        // argument suggestions
-        if (phraseObj.emit.suggest)
-        {
-          let additionalArgs = phraseObj.emit.suggest(matchedCompare.matchedArgument);
-
-          if (additionalArgs && isArray(additionalArgs))
-          {
-            additionalArgs = additionalArgs.map(a =>
-              a.startsWith(matchedCompare.matchedArgument + ' ') ? a : matchedCompare.matchedArgument + ' ' + a
-            );
-
-            for (let i = 0; i < additionalArgs.length; i++)
-            {
-              const compareObject = compare(input, phraseObj.phrase, additionalArgs[i]);
-
-              if (compareObject && compareObject.visible())
-              {
-                // fix the argument portion, add the extra property, since additional args are not real arguments
-                compareObject.element.argument = matchedCompare.matchedArgument;
-                compareObject.element.extra = additionalArgs[i].substring(matchedCompare.matchedArgument.length + 1);
-
-                suggestions.push(compareObject);
-              }
-            }
-          }
-        }
-
-        // activate it
-        activatePhrase(phraseObj, matchedCompare.element, matchedCompare.matchedPhrase, matchedCompare.matchedArgument, matchedCompare.extra);
+        return false;
       }
-      else if (phraseObj.active)
-        // if not and the phrase is still active from previous compare
-        // deactivate it
-        deactivatePhrase(phraseObj);
     }
 
-    // sort all compare objects based on their percentage
-    sort(suggestions, (a, b) =>
+    /** @type { CompareObject[] }
+    */
+    const searchItems = [];
+
+    const dubObj = {};
+
+    // search all prefixes are their arguments
+    for (const prefix in registeredPrefixes)
     {
-      if (a.writtenWordCount > b.writtenWordCount)
-        return -1;
-      else if (a.writtenWordCount < b.writtenWordCount)
-        return 1;
+      const prefixObj = registeredPrefixes[prefix];
 
-      if (a.percentage > b.percentage)
-        return -1;
-      else if (a.percentage < b.percentage)
-        return 1;
+      const flexibleSuggestions = prefixObj.getSuggestions();
+      const fixedSuggestions = prefixObj.getFixedSuggestions();
 
-      if (a.wordCount > b.wordCount)
-        return 1;
-      if (a.wordCount < b.wordCount)
+      let latestMatch;
+
+      // if search input isn't empty
+      if (input)
+      {
+        let prefixSearchItem;
+
+        // if the prefix is a string
+        if (prefixObj.prefixType === 'string')
+        {
+          // only compare with the first word
+          prefixSearchItem = compareStrings(input, prefixObj.prefix);
+
+          // the target can't be the prefix itself
+          prefixSearchItem.target = undefined;
+        }
+        // match input to a regex
+        else
+        {
+          const match = input.match(prefixObj.prefix);
+
+          let element;
+          
+          if (match)
+          {
+            // create an element for the suggestion item
+            element = document.createElement('div');
+
+            // set the element as search item
+            element.setAttribute('class', 'searchItem');
+
+            element.innerText = match.join('');
+          }
+
+          prefixSearchItem = {
+            element: element,
+            similarity: (match) ? 1 : 0,
+            input: input,
+            target: match
+          };
+        }
+
+        // add the prefix itself to the search items
+        if ((prefixObj.prefixType === 'regexp' && prefixSearchItem.similarity >= 1) ||
+           (prefixSearchItem.similarity > 0 && fixedSuggestions.length <= 0))
+        {
+          if (process(prefixObj, prefixSearchItem) && prefixSearchItem.similarity >= 1)
+            latestMatch = prefixSearchItem;
+
+          if (prefixSearchItem.similarity >= 1)
+          {
+            // flexible suggestions only appear if the prefix is fully matched
+            for (let i = 0; i < flexibleSuggestions.length; i++)
+            {
+              const searchItem = compareStrings(input, `${prefixObj.prefix} ${flexibleSuggestions[i]}`);
+
+              if (process(prefixObj, searchItem) && searchItem.similarity >= 1)
+                latestMatch = searchItem;
+            }
+          }
+        }
+        // add flexible suggestions and/or fixed suggestions to the search items
+        else if (fixedSuggestions.length > 0)
+        {
+          // fixed suggestions always appear as search items
+          for (let i = 0; i < fixedSuggestions.length; i++)
+          {
+            // this works because the prefix is always string
+            const searchItem = compareStrings(input, `${prefixObj.prefix} ${fixedSuggestions[i]}`);
+
+            if (searchItem.similarity >= 1)
+            {
+              let any = false;
+
+              // flexible suggestions only appear if the prefix (and/or extra) is fully matched
+              flexibleSuggestions.filter((value) => value.startsWith(fixedSuggestions[i])).forEach((value) =>
+              {
+                any = true;
+
+                const searchItem = compareStrings(input, `${prefixObj.prefix} ${value}`);
+
+                if (process(prefixObj, searchItem) && searchItem.similarity >= 1)
+                  latestMatch = searchItem;
+              });
+
+              if (!any)
+              {
+                process(prefixObj, searchItem);
+
+                latestMatch = searchItem;
+              }
+            }
+            else
+            {
+              process(prefixObj, searchItem);
+            }
+          }
+        }
+      }
+
+      // if there is a match activate the prefix
+      if (latestMatch)
+      {
+        activatePrefix(
+          prefixObj,
+          latestMatch.element,
+          latestMatch.input,
+          latestMatch.target
+        );
+      }
+      // if not and the prefix is still active then deactivate it
+      else if (prefixObj.active())
+      {
+        deactivatePrefix(prefixObj);
+      }
+    }
+
+    // sort all compare objects based on their similarity
+    searchItems.sort((a, b) =>
+    {
+      if (a.similarity > b.similarity)
         return -1;
+      else if (a.similarity < b.similarity)
+        return 1;
       else
         return 0;
     });
 
-    // add new suggestion items
-    for (let i = 0; i < suggestions.length; i++)
+    // add the new search items to dom
+    for (let i = 0; i < searchItems.length; i++)
     {
-      suggestionsElement.appendChild(suggestions[i].element);
+      searchItemsElement.appendChild(searchItems[i].element);
     }
 
     resolve();
   });
 }
 
-/** @param { string } written
-* @param { string } text
+/** @param { Prefix } prefix
+* @param { HTMLElement } searchItemElement
+* @param { string } extra
+* @param { string } suggestion
 */
-function getExact(written, text)
+function activatePrefix(prefix, searchItemElement, extra, suggestion)
 {
-  return text.substring(0, written.length);
-}
-
-/** @param { HTMLElement } element
-* @param { string } written
-* @param { string } text
-*/
-function appendWrittenAndTextElement(element, written, text)
-{
-  if (element.innerText)
-    element.appendChild(document.createElement('div')).innerText = ' ';
-
-  if (written)
-    element.appendChild(document.createElement('mark')).innerText = written;
-  
-  element.appendChild(document.createElement('div')).innerText = text.slice(written.length);
-}
-
-/** @param { string } input
-* @param { RegExp } phraseRegex
-* @param { string | RegExp } phrase
-* @param { string } argument
-* @returns { CompareObject }
-*/
-function compare(input, phrase, argument)
-{
-  // phrase type
-  const isString = (typeof phrase === 'string');
-
-  /** the regex that wil be tested on input
-  * @type { RegExp }
-  */
-  const regex = (isString) ? getStringRegex(phrase) : phrase;
-
-  const match = input.match(regex) || [ '' ];
-
-  // split the input to words
-  const inputSplit = input.split(' ');
-
-  // split argument to words
-  const argumentSplit = (argument) ? standard(argument).split(' ') : [];
-
-  /** @type { string }
-  */
-  const phraseText = ((isString) ? phrase : match[0]);
-  const phraseTextWritten = getExact(match[0], phraseText);
-
-  const phraseLettersCount = phraseText.length;
-  const phraseLettersWrittenCount = phraseTextWritten.length;
-
-  let argumentTextWritten = '';
-
-  let argumentLettersCount = 0;
-  let argumentLettersWrittenCount = 0;
-
-  const wordCount = phraseText.split(' ').length + argumentSplit.length;
-  let writtenWordCount = 0;
-
-  // if the phrase word itself matches
-  if (match[0])
+  if (prefix.emit.activate(prefix.card, searchItemElement, extra, suggestion) !== false)
   {
-    // remove all words that matched the phrase from input array,
-    // so the argument won't compare to any of them
-    inputSplit.splice(0, match[0].split(' ').length);
-  
-    writtenWordCount = writtenWordCount + 1;
+    if (!document.body.contains(prefix.card.domElement))
+      document.body.insertBefore(prefix.card.domElement, document.body.children[3]);
   }
+}
 
-  // create an element for the suggestion item
-  const element = document.createElement('div');
+/** @param { Prefix } prefix
+*/
+function deactivatePrefix(prefix)
+{
+  if (document.body.contains(prefix.card.domElement))
+    document.body.removeChild(prefix.card.domElement);
+}
 
-  // set the element as suggestions item
-  element.setAttribute('class', 'suggestionsItem');
+/** string comparison algorithm
+* @param { string } input
+* @param { string } target
+*/
+function compareStrings(input, target)
+{
+  const inputSplit = input.toLowerCase().split('');
+  const targetSplit = target.toLowerCase().split('');
 
-  // append a text and text written elements for the phrase, on the suggestions item
-  appendWrittenAndTextElement(element, phraseTextWritten, phraseText);
+  let matchingLetters = 0;
 
-  // process arguments (any thing after the first word)
-  for (let i = 0; i < argumentSplit.length; i++)
+  for (let i = 0; i < targetSplit.length; i++)
   {
-    const argument = argumentSplit[i];
-    const input = inputSplit[0];
-
-    let match;
-
-    if (input)
-      match = getStringRegex(argument).exec(input);
-
-    argumentLettersCount = argumentLettersCount + argument.length;
-
-    if (match && match[0])
+    for (let x = 0; x < inputSplit.length; x++)
     {
-      inputSplit.splice(0, 1);
+      if (inputSplit[x] === targetSplit[i])
+      {
+        inputSplit.splice(x, 1);
+        
+        matchingLetters = matchingLetters + 1;
 
-      const written = getExact(match[0], argument);
-
-      if (i > 0)
-        argumentTextWritten = argumentTextWritten + ' ' + written;
-      else
-        argumentTextWritten = written;
-
-      appendWrittenAndTextElement(element, written, argument);
-
-      writtenWordCount = writtenWordCount + 1;
-
-      argumentLettersWrittenCount = argumentLettersWrittenCount + written.length;
-    }
-    else
-    {
-      appendWrittenAndTextElement(element, '', argument);
+        break;
+      }
     }
   }
 
-  const extra = (inputSplit.length > 0) ? inputSplit.join(' ').trim() : undefined;
+  let element;
 
-  // pair the element to it's phrase and argument
-  element.phrase = phrase;
-  element.phraseText = phraseText;
-  element.argument = argument;
+  if (matchingLetters > 0)
+  {
+    // create an element for the suggestion item
+    element = document.createElement('div');
+
+    // set the element as search item
+    element.setAttribute('class', 'searchItem');
+
+    // always uppercase the first letter
+    element.innerText = target.charAt(0).toUpperCase() + target.slice(1);
+  }
 
   return {
     element: element,
-    wordCount: wordCount,
-    writtenWordCount: writtenWordCount,
-    percentage: ((phraseLettersWrittenCount + argumentLettersWrittenCount) / (phraseLettersCount + argumentLettersCount)),
-    match: function()
-    {
-      return (this.percentage === 1);
-    },
-    visible: function()
-    {
-      if (this.percentage > 0)
-        return true;
-
-      return false;
-    },
-    matchedPhrase: phraseTextWritten,
-    matchedArgument: argumentTextWritten,
-    extra: extra
+    input: input.substring(input.indexOf(' ')).trim(),
+    target: target.substring(target.indexOf(' ')).trim(),
+    similarity: matchingLetters / targetSplit.length
   };
 }
 
-/** @param { string } phrase
+/** @param { Prefix } prefix
+* @param { HTMLElement } element
+* @param { string } input
+* @param { string } target
 */
-function getStringRegex(phrase)
+function fuseSearchItemWithElement(prefix, element, input, target)
 {
-  let regexString = '';
-
-  const split = phrase.split('');
-  const length = split.length - 1;
-
-  for (let i = length; i >= 0; i--)
-  {
-    const partial = escapeRegExp(phrase.slice(0, i + 1));
-
-    if (i === length)
-      regexString = partial;
-    else
-      regexString = regexString + '|' + partial;
-  }
-
-  return new RegExp('^(?:' + regexString + ')', 'i');
+  Object.defineProperty(element, 'ref', {
+    value: {
+      prefix: prefix.prefix,
+      input: input,
+      target: target
+    },
+    writable: false
+  });
 }
 
-/** replaces the unescapable characters in a regex with escapable characters
-* @param { string } s the string you want to update
-*/
-function escapeRegExp(s)
+/** toggle the search items list element
+ */
+function toggleSearchItemsListElement()
 {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  searchItemsElement.classList.toggle('searchItemsListActive');
+}
+
+function scrollToTop()
+{
+  requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
 }
 
 /** update a string to be the standard the app uses for searching
 * @param { string } s the string you want to update
 */
-function standard(s)
+export function trimString(s)
 {
   // replace any newlines or extra whitespace with only one space,
   // so we can split words correctly
@@ -630,179 +514,6 @@ function standard(s)
   // just to make sure to get the expected result
 
   return s.replace(/\s+|\n/g, ' ').trim();
-}
-
-/** toggle the css class 'suggestionsActive' on the suggestions list element
- */
-function toggleSuggestionElement()
-{
-  suggestionsElement.classList.toggle('suggestionsActive');
-}
-
-function scrollToTop()
-{
-  requestAnimationFrame(() => window.scroll({ top: 0, left: 0, behavior: 'smooth' }));
-}
-
-/** @param { string | RegExp } phrase
-* @param { string[] } [defaultArgs]
-* @param { PhraseEvents } [on]
-* @returns { Promise<Card> }
-*/
-export function internalRegisterPhrase(phrase, defaultArgs, on)
-{
-  return registerPhrase(internalCreateCard(), phrase, defaultArgs, on);
-}
-
-/** @param { Card } card
-* @param { string | RegExp } phrase
-* @param { string[] } [defaultArgs]
-* @param { PhraseEvents } [on]
-* @returns { Promise<{}> }
-*/
-export function registerPhrase(card, phrase, defaultArgs, on)
-{
-  return new Promise((resolve, reject) =>
-  {
-    isRegisteredPhrase(phrase)
-      .then((value) =>
-      {
-        // if already registered, throw an error
-        if (value)
-        {
-          reject('phrase is already registered');
-        }
-        else
-        {
-          // we want to have control over when cards are shown
-          // and removed from the dom, by setting a read-only property
-          // that is checked by all append and remove apis, we can accomplish that
-          Object.defineProperty(card, 'isPhrased',
-            {
-              value: phrase,
-              writable: false
-            });
-
-          const isString = (typeof phrase === 'string');
-          const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
-
-          /** @type { PhraseObject }
-          */
-          const phraseObj =
-          {
-            phrase: phrase,
-            card: card,
-            defaultArgs: [],
-            emit: on,
-            active: false
-          };
-
-          if (!on)
-            phraseObj.emit = {};
-
-          if (defaultArgs && isArray(defaultArgs))
-            phraseObj.defaultArgs.push(...defaultArgs);
-
-          // register the phrase
-          registeredPhrases[phraseKey] = phraseObj;
-
-          resolve(card);
-        }
-      })
-      .catch((err) => reject(err));
-  });
-}
-
-/** unregister a card, then returns a clone of the card that can be controlled by you
-* @param { Card } card
-* @returns { Promise<Card> }
-*/
-export function unregisterPhrase(card)
-{
-  return new Promise((resolve, reject) =>
-  {
-    // if the card isn't paired with a phrase, throw an error
-    if (!card.isPhrased)
-    {
-      reject('the card isn\'t paired with any phrase');
-
-      return;
-    }
-
-    const phrase = card.isPhrased;
-
-    isRegisteredPhrase(phrase)
-      .then((value) =>
-      {
-        // if the phrase that's in the card is really registered, if not throw an error
-        if (!value)
-        {
-          reject('the card\'s phrase is not registered');
-        }
-        else
-        {
-          const isString = (typeof phrase === 'string');
-          const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
-
-          // if phrase.card does equal the given card, if not throw an error
-          if (registeredPhrases[phraseKey].card !== card)
-          {
-            reject('the phrase is not paired back with your card');
-
-            return;
-          }
-
-          // delete the phrase from the registered phrases array
-          delete registeredPhrases[phraseKey];
-
-          // clone card with a removed isPhrased property
-          const clone = Object.assign(createCard(), card, { isPhrased: undefined });
-
-          resolve(clone);
-        }
-      })
-      .catch((err) => reject(err));
-  });
-}
-
-/** returns true if the same phrase is registered already, false if it's not
-* @param { string | RegExp } phrase
-* @returns { Promise<boolean> }
-*/
-export function isRegisteredPhrase(phrase)
-{
-  return new Promise((resolve, reject) =>
-  {
-    const isString = (typeof phrase === 'string');
-
-    // if the phrase is not actually a string type, throw an error
-    if (!isString && !(phrase instanceof RegExp))
-    {
-      reject('the phrase type is not a string or a regex, it should be one of those two');
-
-      return;
-    }
-
-    // if a string phrase has any unnecessary whitespace or ant newlines, throw an error
-    if (isString && phrase !== standard(phrase))
-    {
-      reject('the phrase must not have any unnecessary whitespace and also must not have any newlines');
-
-      return;
-    }
-
-    // don't register an empty phrase
-    if (isString && !phrase)
-    {
-      reject('the phrase is empty');
-
-      return;
-    }
-
-    const phraseKey = (isString) ? phrase.toLowerCase() : phrase;
-
-    resolve(registeredPhrases[phraseKey] !== undefined);
-  });
 }
 
 /** set the text in the search bar

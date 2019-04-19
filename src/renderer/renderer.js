@@ -5,16 +5,18 @@ import { join } from 'path';
 import { getIcon } from './api.js';
 
 import { loadExtensions, emit } from './loader.js';
-import { loadNPM, registerExtensionsPhrase } from './manager.js';
-import { autoHide, loadOptions, registerOptionsPhrase } from './options.js';
-import { initSearchBar, internalRegisterPhrase as registerPhrase } from './search.js';
+import { loadNPM, registerExtensionsPrefix } from './manager.js';
+import { autoHide, loadOptions, registerOptionsPrefix } from './options.js';
+import { initSearchBar } from './search.js';
+import { createPrefix } from './prefix.js';
 
 /** @typedef { import('./card.js').default } Card
 */
 
-const { mainWindow, quit, reload } = remote.require(join(__dirname, '../main/window.js'));
+/** @typedef { import('./prefix.js').default } Prefix
+*/
 
-export let readyState = false;
+const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 
 /** @param { Card } card
 */
@@ -101,19 +103,10 @@ function registerEvents()
   });
 }
 
-function registerBuiltinPhrases()
+function registerBuiltinPrefixes()
 {
-  const quitPhrase = registerPhrase('Quit', undefined, { enter: () => quit() });
-  const reloadPhrase = registerPhrase('Reload', undefined, { enter: () => reload() });
-
-  const optionsPhrase = registerOptionsPhrase();
-  const extensionsPhrase = registerExtensionsPhrase();
-
-  return Promise.all(
-    [
-      quitPhrase, reloadPhrase,
-      optionsPhrase, extensionsPhrase
-    ]);
+  registerOptionsPrefix();
+  registerExtensionsPrefix();
 }
 
 /** gets called when the application gets focus
@@ -147,21 +140,13 @@ function init()
   // load options
   loadOptions();
 
+  // register all builtin prefixes
+  registerBuiltinPrefixes();
+
   // load all extensions
   loadExtensions();
 
-  // register all builtin phrases
-  registerBuiltinPhrases()
-    .then(() =>
-    {
-      // mark the app as ready and
-      // emit the ready event
-      readyState = true;
-
-      emit.ready();
-
-      onfocus();
-    });
+  onfocus();
 }
 
 // initialize the app

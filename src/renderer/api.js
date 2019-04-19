@@ -6,19 +6,23 @@ import { readdirSync } from 'fs';
 import { platform } from 'os';
 
 import Card from './card.js';
+import Prefix from './prefix.js';
 import { apiVersion } from './options.js';
 import { themeFunctions } from './loader.js';
 
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
 const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
 
-export { createCard } from './card.js';
 export { setPlaceholder, setInput } from './search.js';
-export { on, off } from './loader.js';
+export { on, once, off, is } from './loader.js';
+
+export { createCard } from './card.js';
+export { createPrefix } from './prefix.js';
 
 export { apiVersion };
 
 export { Card };
+export { Prefix };
 
 /** [requires the 'browserWindow' permission]
 * the main browser window of the app
@@ -142,7 +146,7 @@ export function appendStyle(files, callback)
     // gets called when a style file is loaded
     style.onload = () =>
     {
-      length += 1;
+      length = length + 1;
 
       // if all the files are loaded run the callback
       if (files.length === length && callback)
@@ -199,8 +203,8 @@ export function appendCard(card)
 {
   if (!(card instanceof Card))
     throw new TypeError('card is not an instance of Card');
-  if (card.isPhrased)
-    throw new Error('the card is controlled by the phrase search system');
+  if (card.ownedByPrefix)
+    throw new Error('the card is controlled by the prefix search system');
   else
     document.body.insertBefore(card.domElement, document.body.children[4]);
 }
@@ -212,8 +216,8 @@ export function removeCard(card)
 {
   if (!(card instanceof Card))
     throw new TypeError('card is not an instance of Card');
-  if (card.isPhrased)
-    throw new Error('the card is controlled by the phrase search system');
+  if (card.ownedByPrefix)
+    throw new Error('the card is controlled by the prefix search system');
   else
     document.body.removeChild(card.domElement);
 }

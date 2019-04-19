@@ -29,7 +29,7 @@ html
   margin: 0px;
 }
 
-.suggestions
+.searchItemsList
 {
   z-index: -1;
   overflow: hidden;
@@ -46,16 +46,16 @@ html
   transition: max-height 0.1s ease-in-out;
 }
 
-.suggestionsActive
+.searchItemsListActive
 {
   max-height: calc(var(--suggestion-item-height) * 3);
 }
 
-.suggestionsItem
+.searchItem
 {
   display: flex;
 
-  color: var(--color-text);
+  color: var(--color-text-focus);
 
   position: relative;
   width: calc(100vw - 20px);
@@ -71,23 +71,7 @@ html
   padding: 8px 10px;
 }
 
-.suggestionsItem mark
-{
-  color: var(--color-text-focus);
-  background-color: transparent;
-}
-
-.suggestionsItem > *:first-child
-{
-  text-transform: lowercase;
-}
-
-.suggestionsItem > *:first-child::first-letter
-{
-  text-transform: uppercase;
-}
-
-.suggestionsItemSelected
+.searchItemSelected
 {
   background-color: var(--color-selected);
 }

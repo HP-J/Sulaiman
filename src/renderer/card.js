@@ -1,6 +1,5 @@
 import { remote } from 'electron';
 
-import { readyState } from './renderer.js';
 import { themeFunctions as theme, getCaller } from './loader.js';
 
 /** @typedef { Object } AutoCardOptions
@@ -23,19 +22,6 @@ import { themeFunctions as theme, getCaller } from './loader.js';
 */
 export function createCard(options)
 {
-  if (!readyState)
-    throw new Error('the app is not fully loaded yet, use the on.ready event');
-  
-  const card = new Card(options);
-
-  return card;
-}
-
-/**
-* @param { AutoCardOptions } options
-*/
-export function internalCreateCard(options)
-{
   return new Card(options);
 }
 
@@ -44,14 +30,13 @@ export function internalCreateCard(options)
 */
 export default class Card
 {
-  /**
-  * @param { AutoCardOptions } options
+  /** @param { AutoCardOptions } options
   */
   constructor(options)
   {
     const { file, functionName } = getCaller(3);
 
-    if (file !== __filename && (functionName === createCard.name || functionName === internalCreateCard.name))
+    if (file !== __filename || !(functionName === createCard.name))
       throw new TypeError('Illegal Constructor');
 
     /** the card's main element
@@ -71,10 +56,10 @@ export default class Card
 
     this.domElement = domElement;
     
-    /** if the card is controlled by a phrase it gets the phrase name, else gets undefined
+    /** if the card is controlled by a prefix it gets the prefix name, else gets undefined
     * @type { string }
     */
-    this.isPhrased = undefined;
+    this.ownedByPrefix = undefined;
 
     this.auto(options);
   }
@@ -142,8 +127,8 @@ export default class Card
   */
   appendChild(child)
   {
-    if (child.isPhrased)
-      throw new Error('the card is controlled by the phrase search system');
+    if (child.ownedByPrefix)
+      throw new Error('the card is controlled by the prefix search system');
     else
       this.domElement.appendChild(child.domElement || child);
     
@@ -163,8 +148,8 @@ export default class Card
   */
   removeChild(child)
   {
-    if (child.isPhrased)
-      throw new Error('the card is controlled by the phrase search system');
+    if (child.ownedByPrefix)
+      throw new Error('the card is controlled by the prefix search system');
     else if (this.containsChild(child))
       this.domElement.removeChild(child.domElement || child);
     

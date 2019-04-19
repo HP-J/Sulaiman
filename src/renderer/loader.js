@@ -4,18 +4,15 @@ import { readFileSync, readdirSync, existsSync } from 'fs';
 
 import { join } from 'path';
 import { platform } from 'os';
-import { EventEmitter } from 'events';
+
+import Events from './events.js';
 
 import { getPlatform, appendCard, removeCard } from './api.js';
-import { readyState, toggleCollapse } from './renderer.js';
-import { internalCreateCard as createCard } from './card.js';
-import { registerPhrase, unregisterPhrase, isRegisteredPhrase } from './search.js';
+import { toggleCollapse } from './renderer.js';
+import { createCard } from './card.js';
 import { extensionRemoveCard } from './manager.js';
 
 /** @typedef { import('./card.js').default } Card
-*/
-
-/** @typedef { import('./search.js').PhraseEvents } PhraseEvents
 */
 
 /** @typedef { Object } PackageData
@@ -43,7 +40,7 @@ import { extensionRemoveCard } from './manager.js';
 * @property { (card: Card) => void } expand
 */
 
-const sulaiman = new EventEmitter();
+const sulaiman = new Events();
 
 const extensionsDirectory = join(__dirname, '../extensions/');
 
@@ -58,21 +55,7 @@ export const themeFunctions = {};
 */
 export const loadedExtensions = {};
 
-export const on =
-{
-  /** emits once when the app is fully loaded and ready to use
-  * @param { () => void } callback the callback function
-  */
-  ready: (callback) => (readyState) ? callback() : sulaiman.addListener('ready', callback),
-  /** register a phrase, then returns a card controlled only by the search system
-  * @param { string | RegExp } phrase phrase or a regex that the user have to enter to activate this phrase functionality
-  * @param { string[] } [defaultArgs]
-  * an array of possible arguments like: the 'Tray' in 'Options Tray',
-  * will be overridden by search callback if it returns a string array
-  * @param { PhraseEvents } [on] phrase-related events
-  * @returns { Promise<Card> }
-  */
-  phrase: (phrase, defaultArgs, on) => registerPhrase(createCard(), phrase, defaultArgs, on),
+export const on = {
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -83,17 +66,18 @@ export const on =
   blur: (callback) => sulaiman.addListener('blur', callback)
 };
 
-export const off =
-{
-  /** emits when the app is fully loaded and ready to use
-  * @param { (text: string) => void } callback the callback function
+export const once = {
+  /** emits every time the sulaiman app regain focus
+  * @param { () => void } callback the callback function
   */
-  ready: (callback) => sulaiman.removeListener('ready', callback),
-  /** unregister a card, then returns a clone of the card that can be controlled by you
-  * @param { Card } card
-  * @returns { Promise<Card> }
+  focus: (callback) => sulaiman.once('focus', callback),
+  /** emits every time the sulaiman app loses focus
+  * @param { () => void } callback the callback function
   */
-  phrase: unregisterPhrase,
+  blur: (callback) => sulaiman.once('blur', callback)
+};
+
+export const off = {
   /** emits every time the sulaiman app regain focus
   * @param { () => void } callback the callback function
   */
@@ -104,21 +88,7 @@ export const off =
   blur: (callback) => sulaiman.removeListener('blur', callback)
 };
 
-export const is =
-{
-  /** returns true when the app is fully loaded and ready to use
-  */
-  ready: () => readyState,
-  /** returns true if the same phrase is registered already, false if it's not
-  * @param { string | RegExp } phrase
-  * @returns { Promise<boolean> }
-  */
-  phrase: isRegisteredPhrase
-};
-
-export const emit =
-{
-  ready: () => sulaiman.emit('ready'),
+export const emit = {
   focus: () => sulaiman.emit('focus'),
   blur: () => sulaiman.emit('blur')
 };
@@ -147,6 +117,7 @@ export function getCaller(length)
   return { file, functionName };
 }
 
+// TODO refactor extensions loading
 /** load and start all extensions
 */
 export function loadExtensions()
