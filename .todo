@@ -7,11 +7,15 @@ Performance Issues and Bugs:
     so complicated and overwhelming to new extension developers how want to develop a theme @low 
 
 Testing:
-  ☐ Downloading, Installing, Deleting, Updating and Aborting Extensions @high 
+
+Features:
+  ☐ Downloading, Installing Extensions @high 
+  ☐ Deleting Extensions @high 
+  ☐ Updating Extensions @high 
+  ☐ Better Aborting Cards @high 
   ☐ Search for Extensions @high 
   ☐ Extensions Gallery @high 
 
-Features:
   ☐ refactor the api.js script to be more recognized @high 
   
   ☐ installing extensions without reloading @research
