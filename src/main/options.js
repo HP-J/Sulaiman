@@ -9,7 +9,7 @@ import { showHide, isDebug } from './window.js';
 
 /** @type { Tray }
 */
-export let trayIcon;
+let trayIcon;
 
 const trayMenuTemplate = [
   {
@@ -61,15 +61,6 @@ function loadTrayIcon()
     trayIcon = new Tray(nativeImage.createFromPath(iconPath));
       
     trayIcon.on('click', showHide);
-
-    // TODO sulaiman api: wrapper so extensions can get the current context menu
-    // trayIcon._setContextMenu = trayIcon.setContextMenu;
-    // trayIcon.setContextMenu = function(menu)
-    // {
-    //   trayIcon._setContextMenu(menu);
-    
-    //   trayIcon.contextMenu = menu;
-    // };
 
     trayIcon.setContextMenu(trayMenu);
   }

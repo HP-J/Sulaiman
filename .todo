@@ -7,18 +7,12 @@ Performance Issues and Bugs:
     so complicated and overwhelming to new extension developers how want to develop a theme @low 
 
 Testing:
-  ✔ the new prefix system @done(19-04-07 20:45)
-  ☐ Downloading, Installing, Deleting, Updating and Aborting Extensions rework @critical 
-  ✔ move the 'Prefixes' prefix to an argument of the 'Extensions' prefix @done(19-03-16 09:20)
+  ☐ Downloading, Installing, Deleting, Updating and Aborting Extensions @high 
+  ☐ Search for Extensions @high 
+  ☐ Extensions Gallery @high 
 
 Features:
-  ✔ combine the shortcut and the auto-launch together in the same card and give the user a walkthrough the builtin prefixes @done(19-03-15 13:38)
-
   ☐ refactor the api.js script to be more recognized @high 
-  ✔ rewrite the index.js file @done(19-03-12 05:22)
-
-  ✔ revamp the check-for-updates system to be more like dawayer @done(19-03-11 00:12)
-  ✔ rewrite extensions download code to use the new script @done(19-03-11 05:40)
   
   ☐ installing extensions without reloading @research
   ☐ uninstalling extensions without reloading @research
@@ -31,9 +25,6 @@ Features:
   
 UI/UX:
   ☐ try a pure black dark mode @low  
-  
-  ✔ add prefix to show the changelog file if one exists and not empty @done(19-03-13 05:43)
-  ✔ add option card to change the tray color @done(19-03-12 09:37)
   
   ☐ showing extensions credits
   ☐ show most recent prefixes when input is empty, or most used... or both

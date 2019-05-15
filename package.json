@@ -46,7 +46,7 @@
   "homepage": "https://gitlab.com/herpproject/Sulaiman#readme",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/herpproject/Sulaiman.git"
+    "url": "git+ssh://git@gitlab.com/herpproject/Sulaiman.git"
   },
   "bugs": {
     "url": "https://gitlab.com/herpproject/Sulaiman/issues"

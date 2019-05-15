@@ -1,4 +1,4 @@
-import { createPrefix, on, shell, getPlatform } from 'sulaiman';
+import { createPrefix, shell, getPlatform } from 'sulaiman';
 
 import { readFile, readdir, pathExists, stat } from 'fs-extra';
 
@@ -33,7 +33,7 @@ function walk(directories, extension, callback)
     {
       if (!exists)
         return;
-      
+
       readdir(dir).then((list) =>
       {
         if (list.length > 0)
@@ -46,14 +46,17 @@ function walk(directories, extension, callback)
             {
               if (statValue && statValue.isDirectory())
               {
-                walk([ file ]).then((files) =>
-                {
-                  files.forEach((file) =>
+                const promise = walk([ file ]);
+
+                if (promise)
+                  promise.then((files) =>
                   {
-                    if (file.endsWith(extension))
-                      callback(file);
+                    files.forEach((file) =>
+                    {
+                      if (file.endsWith(extension))
+                        callback(file);
+                    });
                   });
-                });
               }
               else
               {

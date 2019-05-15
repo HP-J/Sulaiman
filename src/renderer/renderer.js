@@ -5,10 +5,8 @@ import { join } from 'path';
 import { getIcon } from './api.js';
 
 import { loadExtensions, emit } from './loader.js';
-import { loadNPM, registerExtensionsPrefix } from './manager.js';
 import { autoHide, loadOptions, registerOptionsPrefix } from './options.js';
 import { initSearchBar } from './search.js';
-import { createPrefix } from './prefix.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -106,7 +104,6 @@ function registerEvents()
 function registerBuiltinPrefixes()
 {
   registerOptionsPrefix();
-  registerExtensionsPrefix();
 }
 
 /** gets called when the application gets focus
@@ -133,9 +130,6 @@ function init()
 
   // register to several events the app uses
   registerEvents();
-
-  // load npm
-  loadNPM();
 
   // load options
   loadOptions();

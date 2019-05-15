@@ -11,7 +11,6 @@ import { apiVersion } from './options.js';
 import { themeFunctions } from './loader.js';
 
 const { mainWindow } = remote.require(join(__dirname, '../main/window.js'));
-const { trayIcon } = remote.require(join(__dirname, '../main/options.js'));
 
 export { setPlaceholder, setInput } from './search.js';
 export { on, once, off, is } from './loader.js';
@@ -42,11 +41,6 @@ export const shell = remote.shell;
 /** [requires the 'dialog' permission]
 */
 export const dialog = remote.dialog;
-
-/** [requires the 'tray' permission] the tray icon can be disabled in options,
-* in that case tray will return undefined
-*/
-export const tray = trayIcon;
 
 /** when a new icon is loaded it gets cached in this
 * object so it can be cloned if requested again

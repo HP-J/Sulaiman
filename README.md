@@ -33,12 +33,4 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 - Windows builds can be tested but we don't yet have a certificate to sign them.
 
 # Licenses
-This project is licensed under the [MIT](https://gitlab.com/herpproject/Sulaiman/blob/development/LICENSE) License.  
-
-# One Last Thing..
-
-[![patrons](https://img.shields.io/liberapay/patrons/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/)
-[![receives](https://img.shields.io/liberapay/receives/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject)
-[![goal](https://img.shields.io/liberapay/goal/herpproject.svg?logo=liberapay)](https://liberapay.com/herpproject/donate)
-
-Sulaiman is a freeware, and open-source, we would really appreciate it if you choose to support us, thank you...
+This project is licensed under the [MIT](https://gitlab.com/herpproject/Sulaiman/blob/development/LICENSE) License.

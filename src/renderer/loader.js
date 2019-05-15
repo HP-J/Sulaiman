@@ -8,9 +8,7 @@ import { platform } from 'os';
 import Events from './events.js';
 
 import { getPlatform, appendCard, removeCard } from './api.js';
-import { toggleCollapse } from './renderer.js';
 import { createCard } from './card.js';
-import { extensionRemoveCard } from './manager.js';
 
 /** @typedef { import('./card.js').default } Card
 */
@@ -117,7 +115,6 @@ export function getCaller(length)
   return { file, functionName };
 }
 
-// TODO refactor extensions loading
 /** load and start all extensions
 */
 export function loadExtensions()
@@ -179,33 +176,12 @@ export function loadExtensions()
 * @param { PackageData } abortedData
 * @param { PackageData } [runningData]
 */
-function loadingAbortedCard(warning, abortedData, runningData)
+function loadingAbortedCard(warning)
 {
   const card = createCard();
 
   card.appendText(warning, { style: 'Bold', size: 'Small' });
   card.appendLineBreak();
-
-  const abortedCard = createCard();
-  
-  extensionRemoveCard(abortedCard, abortedData);
-
-  card.appendChild(abortedCard);
-  card.appendLineBreak();
-
-  toggleCollapse(abortedCard, undefined, true, true);
-  
-  if (runningData)
-  {
-    const runningCard = createCard();
-
-    extensionRemoveCard(runningCard, runningData);
-
-    card.appendChild(runningCard);
-    card.appendLineBreak();
-
-    toggleCollapse(runningCard, undefined, true, true);
-  }
 
   const dismissButton = createCard();
   
