@@ -4,13 +4,13 @@
   "description": "calculate numbers",
   "main": "index.js",
   "private": true,
-  "homepage": "https://gitlab.com/herpproject/sulaiman-calculator#readme",
+  "homepage": "https://gitlab.com/hpj/sulaiman-calculator#readme",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/herpproject/sulaiman-calculator.git"
+    "url": "https://gitlab.com/hpj/sulaiman-calculator.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/herpproject/sulaiman-calculator/issues"
+    "url": "https://gitlab.com/hpj/sulaiman-calculator/issues"
   },
   "sulaiman": {
     "displayName": "Calculator",

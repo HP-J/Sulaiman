@@ -4,13 +4,13 @@
   "description": "the default dark theme for Sulaiman",
   "main": "index.js",
   "private": true,
-  "homepage": "https://gitlab.com/herpproject/sulaiman-default-dark#readme",
+  "homepage": "https://gitlab.com/hpj/sulaiman-default-dark#readme",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/herpproject/sulaiman-default-dark.git"
+    "url": "https://gitlab.com/hpj/sulaiman-default-dark.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/herpproject/sulaiman-default-dark/issues"
+    "url": "https://gitlab.com/hpj/sulaiman-default-dark/issues"
   },
   "sulaiman": {
     "displayName": "Default Dark",
