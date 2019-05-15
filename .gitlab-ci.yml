@@ -11,7 +11,6 @@ variables: {
 
 stages:
   - build
-  # - npm
 
 build:
   stage: build
@@ -57,13 +56,3 @@ build:
   # the branches that are valid for builds
   only:
     - release
-
-# npm:
-#   stage: npm
-#   image: node:slim
-#   script:
-#     - "echo _auth = $NPM_AUTH_TOKEN > ~/.npmrc"
-#     - "echo email = $NPM_EMAIL >> ~/.npmrc"
-#     # - "npm publish"
-#   only:
-#     - release
