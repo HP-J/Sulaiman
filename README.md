@@ -20,7 +20,7 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 
 <!-- #### How to create your own extensions?
 
-- Here's your [wiki](https://gitlab.com/herpproject/Sulaiman/wikis/home). -->
+- Here's your [wiki](https://gitlab.com/hpj/Sulaiman/wikis/home). -->
 
 # Download
 #### Sulaiman is still in early stages of development, it may be buggy and incomplete
@@ -28,9 +28,9 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 
 - **Linux:**
 [AUR](https://aur.archlinux.org/packages/sulaiman) |
-[deb](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
-[tar.xz](https://gitlab.com/herpproject/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)  
+[deb](https://gitlab.com/hpj/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
+[tar.xz](https://gitlab.com/hpj/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)  
 
 
 # Licenses
-This project is licensed under the [MIT](https://gitlab.com/herpproject/Sulaiman/blob/development/LICENSE) License.
+This project is licensed under the [MIT](https://gitlab.com/hpj/Sulaiman/blob/development/LICENSE) License.

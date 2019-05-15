@@ -42,13 +42,13 @@
       "cache": ".electron-cache"
     }
   },
-  "homepage": "https://gitlab.com/herpproject/Sulaiman#readme",
+  "homepage": "https://gitlab.com/hpj/Sulaiman#readme",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/herpproject/Sulaiman.git"
+    "url": "git+ssh://git@gitlab.com/hpj/Sulaiman.git"
   },
   "bugs": {
-    "url": "https://gitlab.com/herpproject/Sulaiman/issues"
+    "url": "https://gitlab.com/hpj/Sulaiman/issues"
   },
   "author": "Herp Project <herpproject0@gmail.com>",
   "license": "MIT",
