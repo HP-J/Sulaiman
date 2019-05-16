@@ -334,11 +334,8 @@ function changeWalkthroughPage(card, index)
 
     card.appendText('https://www.npmjs.com/', { type: 'Title', select: 'Link', style: 'Italic' }, true);
 
-    card.appendText('Find the extension you want and get its name, then type this in the search bar:', { type: 'Description' }, true);
-    card.appendText('Extensions Install {extensionName}', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
-
-    card.appendText('You can find more of the commands you can use by typing:', { type: 'Description' }, true);
-    card.appendText('Extensions Prefixes', { type: 'Title', select: 'Selectable', style: 'Italic' }, true);
+    card.appendText('Find the extension you want and download it and put it in Sulaiman\'s extensions folder', { type: 'Description' }, true);
+    card.appendText('The next build of Sulaiman will have a more straightforward system in place for installing extensions and their dependencies', { type: 'Description' }, true);
   }
 }
 
