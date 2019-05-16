@@ -31,8 +31,11 @@ build:
     - "cd src/extensions/sulaiman-calculator"
     - "npm install"
     
-    - "cd ../../../"
+    - "cd ../sulaiman-launch-apps"
+    - "npm install"
+    
     # install sulaiman dependencies & compile the code
+    - "cd ../../../"
     - "npm install"
     - "npm run compile"
 
