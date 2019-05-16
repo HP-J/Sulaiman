@@ -26,8 +26,13 @@ build:
 
     # the builds supported by sulaiman builtin update system
     - "DOWNLOAD_URLS=\"$NSIS_URL $DEB_URL\""
-
-    # install dependencies & compile the code
+    
+    # install dependencies of builtin extension
+    - "cd src/extensions/sulaiman-calculator"
+    - "npm install"
+    
+    - "cd ../../../"
+    # install sulaiman dependencies & compile the code
     - "npm install"
     - "npm run compile"
 
