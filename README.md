@@ -28,9 +28,9 @@ sulaiman does have a way to install extensions, which is the only recommended wa
 
 - **Linux:**
 [AUR](https://aur.archlinux.org/packages/sulaiman) |
-[deb](https://gitlab.com/hpj/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.deb?job=build) |
-[tar.xz](https://gitlab.com/hpj/Sulaiman/-/jobs/artifacts/release/raw/public/Sulaiman.tar.xz?job=build)  
+[deb](https://github.com/HP-J/Sulaiman/releases/download/61691616/Sulaiman.deb) |
+[tar.xz](https://github.com/HP-J/Sulaiman/releases/download/61691616/Sulaiman.tar.xz)  
 
 
 # Licenses
-This project is licensed under the [MIT](https://gitlab.com/hpj/Sulaiman/blob/development/LICENSE) License.
+This project is licensed under the [MIT](https://github.com/HP-J/Sulaiman/blob/development/LICENSE) License.
